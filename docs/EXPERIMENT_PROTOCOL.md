@@ -31,6 +31,14 @@ Primary question:
 ### Stage 1 — Differential degradation
 Goal: determine whether component categories show different degradation as visual information/token budget decreases.
 
+### Stage 1A — Resolution Sensitivity Pilot
+Goal: obtain preliminary evidence about sensitivity to processor-controlled
+input Resolution Reduction after Gate 0 is human-approved `PASS`.
+
+Stage 1A is not the main Stage 1 experiment and cannot approve Gate 1. It does
+not test post-encoder Token Pruning and cannot reject H3 because only one
+intervention family is manipulated.
+
 ### Stage 2 — Confound control
 Goal: determine whether apparent component differences can be explained by visual properties such as critical-region size, stroke thickness, contrast, or patch alignment.
 
@@ -105,7 +113,20 @@ Variation should be controlled and reproducible, including appropriate combinati
 - foreground/background contrast;
 - rendering/anti-aliasing conditions if relevant.
 
-### 4.4 Exclusion policy
+### 4.4 Unit of analysis and repeated rendering
+
+The primary independent sampling/analysis unit is `pair_id`, representing a
+linguistic minimal pair. A model response to a rendered stimulus is an
+observation, not an independent linguistic unit.
+
+Multiple fonts, sizes, positions, rendering seeds, candidate orders, and
+budgets for the same `pair_id` are repeated observations. Analyses and
+uncertainty estimates must preserve this dependence through within-pair
+contrasts, cluster bootstrap by `pair_id`, or an appropriate hierarchical
+model. Do not report the number of rendered images as the independent sample
+size.
+
+### 4.5 Exclusion policy
 Do not remove samples because they weaken the expected result.
 
 Permitted exclusions must be defined before the main analysis, e.g.:
@@ -199,14 +220,19 @@ Initial pilot budgets may use a coarse grid such as:
 
 However, final main-experiment budgets must be chosen before the main analysis and recorded explicitly.
 
+For Stage 1A, the grid is selected using processor/token mapping only, before
+opening predictions. If processor rounding maps requested budgets to duplicate
+actual token counts, revise and freeze the grid before inference. Do not revise
+the grid because of observed task outcomes.
+
 ### 9.2 Never equate percentage with mechanism
 A 50% input-resolution intervention and a 50% post-encoder token-retention intervention are different experimental conditions even if they yield similar final visual-token counts.
 
 ---
 
-## 10. Stage 0 validity checks
+## 10. Stage 0 calibration and validity checks
 
-Before running Stage 1:
+Before running Stage 1A or any main Stage 1 experiment:
 - verify dataset rendering visually on a sampled subset;
 - verify candidate randomization;
 - verify parser accuracy on known outputs;
@@ -215,9 +241,17 @@ Before running Stage 1:
 - verify reproducibility from a fixed seed;
 - measure full-information baseline by component type and rendering condition.
 
-A baseline threshold may be proposed during pilot work, but it must be approved before the main Stage 1 run.
+Stage 0 calibration estimates baseline and per-component precision, parser
+behavior, candidate-order sensitivity, negative-control separation, and
+reproducibility. It must also assess whether the full-information ceiling and
+headroom are adequate for the smallest later-stage effect the study intends to
+detect.
 
-Do not invent a universal 95% requirement unless justified for the selected setup.
+Gate 0 criteria must be derived from these calibration estimates and the
+intended Stage 1 estimand, documented with rationale, and frozen by the human
+researcher before locked Stage 0 validation. Do not invent universal numeric
+requirements, and never choose or relax a threshold using Stage 1A or later
+compression results.
 
 ---
 
@@ -311,6 +345,20 @@ INVALID
 ```
 
 An invalid run must not be used as evidence for a gate decision.
+
+## 15.1 Evidence status in reports
+
+Run validity and evidence status are separate. Advisor-facing reports must use:
+
+- `Tested` — direct valid locked evidence exists for the stated question and
+  intervention;
+- `Preliminary/Pilot` — valid exploratory evidence exists but is not final or
+  gate evidence;
+- `Not Tested` — no direct valid experiment exists;
+- `Blocked` — prerequisites, compatibility, compute, or data prevent testing.
+
+Evidence from one compression family cannot change another family from
+`Not Tested` to `Tested`.
 
 ---
 

@@ -46,6 +46,10 @@ Under decreasing visual-token budgets, distinctions involving small Thai orthogr
 
 **Status:** untested.
 
+**Directionality:** not frozen. The stronger claim that micro-features degrade
+more than base-character distinctions is pending human approval and must not be
+treated as the confirmatory H1 until then.
+
 ### H2 — Size is not necessarily the whole explanation
 Any observed component difference may persist after controlling for the size and visual properties of the critical distinguishing evidence.
 
@@ -55,6 +59,9 @@ Any observed component difference may persist after controlling for the size and
 Input-resolution reduction and post-encoder token reduction may produce different degradation patterns.
 
 **Status:** untested.
+
+A Resolution Reduction experiment alone does not test H3. Both intervention
+families require direct evidence under a fair comparison.
 
 ### H4 — Existing OCR/text-aware methods may not fully preserve micro-features
 Current OCR-aware or text-aware compression methods may still lose distinction-critical evidence under constrained budgets.
@@ -92,6 +99,10 @@ The following claims are currently forbidden:
 - "A phenomenon observed in one Qwen model generalizes to all VLMs."
 - "Synthetic controlled results demonstrate real-world OCR failure."
 - "A statistically significant effect is automatically practically important."
+
+The following inference is also forbidden:
+
+- "No signal under Resolution Reduction rejects a post-encoder Token Pruning hypothesis."
 
 ---
 
@@ -135,3 +146,14 @@ After every human-approved gate decision:
 3. Attach run IDs or analysis references.
 4. Narrow claims if external-validity tests fail.
 5. Never delete an inconvenient historical claim; preserve the change history through Git.
+
+## Evidence-status vocabulary for advisor reporting
+
+- `Tested`: direct valid locked evidence exists within the stated scope.
+- `Preliminary/Pilot`: exploratory evidence exists but is not final or gate evidence.
+- `Not Tested`: no direct valid experiment exists.
+- `Blocked`: a prerequisite or feasibility constraint prevents testing.
+
+Stage 1A Resolution Sensitivity must be `Preliminary/Pilot`. Post-encoder Token
+Pruning, H3, real-world Thai OCR, and cross-architecture validity remain
+`Not Tested` or `Blocked` until directly evaluated.

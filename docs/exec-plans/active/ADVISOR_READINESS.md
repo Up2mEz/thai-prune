@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** ACTIVE — Steps 0–2 only
+**Status:** HUMAN CHECKPOINT — Steps 0–2 implemented and verified
 
 ## Objective
 
@@ -15,6 +15,18 @@ new compression method is required.
 3. Reconcile the research Source of Truth.
 4. Do not begin model, dataset, or experiment implementation until Steps
    1–3 have no unresolved stop signal.
+
+## Implementation status
+
+| Step | Status | Evidence / blocker |
+|---|---|---|
+| Step 0 — Evidence foundation | `COMPLETE` | Git history, normalized `docs/` tree, dependency lock, preflight and tests |
+| Step 1 — Literature / Novelty Triage | `PROPOSED_COMPLETE` | `docs/LITERATURE.md`; human novelty decision pending |
+| Step 2 — Research-spec reconciliation | `PROPOSED_COMPLETE` | `docs/CONSISTENCY_REVIEW.md`; H1 directionality decision pending |
+| Step 3 — Sequential backbone feasibility | `BLOCKED` | Wait for Step 1 novelty framing and Step 2 H1 decisions |
+| Steps 4–6 — Stage 0 | `BLOCKED` | Depend on Step 3 and later human approvals |
+| Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
+| Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 
 ## Dependency order
 
@@ -43,4 +55,3 @@ Advisor Readiness report
   human before locked validation.
 - Backbone selection must not use the observed degradation effect.
 - Codex may propose but cannot approve scientific gates.
-

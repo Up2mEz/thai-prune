@@ -216,6 +216,39 @@ For each evaluated model, record:
 
 These facts must be verified from code or official model documentation for the exact revision used.
 
+### 7.1 Current sequential candidate strategy
+
+The first candidate is `Qwen/Qwen2.5-VL-3B-Instruct`, selected for an initial
+feasibility audit based on architecture observability, existing compression
+implementation coverage, model maturity, and plausible local resource use.
+This is not evidence that the model will pass Stage 0.
+
+`Qwen/Qwen3-VL-2B-Instruct` is a secondary candidate only. It may be opened if
+the primary candidate fails local execution, leaves token accounting
+ambiguous, fails full-information measurement after engineering defects are
+excluded, or a documented methodological requirement needs Qwen3-VL.
+
+Backbone selection must not use the magnitude or direction of a degradation
+effect. Opening the secondary candidate requires a Decision Log entry.
+
+For Qwen3-VL, the architecture record must distinguish primary LLM visual
+positions from additional multi-level visual features such as `DeepStack`.
+Do not collapse these into a single count without an explicit definition and
+compute interpretation.
+
+### 7.2 Stage 1A measurement boundary
+
+Stage 1A changes processor-controlled input resolution. It must record:
+
+- requested resolution/pixel budget;
+- actual preprocessed dimensions;
+- patch/grid metadata;
+- actual visual representations passed to the language-model side; and
+- model-specific rounding or minimum/maximum constraints.
+
+The resulting actual token count is an outcome of Resolution Reduction. It
+does not make Stage 1A a post-encoder pruning experiment.
+
 ---
 
 ## 8. Architectural claims that are currently forbidden
