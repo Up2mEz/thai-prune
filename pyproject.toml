@@ -1,0 +1,37 @@
+[project]
+name = "labbs2026"
+version = "0.1.0"
+description = "Controlled measurement of Thai orthographic micro-feature robustness in VLMs"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "numpy>=2.2,<3",
+  "pillow>=11,<13",
+  "psutil>=7,<8",
+  "pydantic>=2.11,<3",
+  "pyyaml>=6.0,<7",
+  "scipy>=1.15,<2",
+]
+
+[project.optional-dependencies]
+model = [
+  "accelerate>=1.6,<2",
+  "qwen-vl-utils>=0.0.14,<0.1",
+  "torch>=2.7,<3",
+  "transformers>=4.57,<5",
+]
+dev = [
+  "pytest>=8.3,<10",
+  "pytest-cov>=6,<8",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/labbs2026"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
