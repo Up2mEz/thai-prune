@@ -236,6 +236,10 @@ positions from additional multi-level visual features such as `DeepStack`.
 Do not collapse these into a single count without an explicit definition and
 compute interpretation.
 
+The current primary-backbone audit is recorded in
+`docs/architecture/QWEN2_5_VL_3B.md`. That record is architecture feasibility
+evidence only and must not be cited as Stage 0 measurement validity.
+
 ### 7.2 Stage 1A measurement boundary
 
 Stage 1A changes processor-controlled input resolution. It must record:

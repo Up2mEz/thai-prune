@@ -254,6 +254,63 @@ None yet.
 
 # Decision entry template
 
+## 2026-09-04 — Primary-backbone feasibility proposal
+
+**Stage/Gate:** Step 3 — Sequential backbone feasibility
+
+**Decision owner:** Human researcher; Codex recommendation recorded below
+
+**Decision:** `PRIMARY_FEASIBLE_PROPOSED`. Keep
+`Qwen/Qwen2.5-VL-3B-Instruct` as the primary backbone. Do not open the
+secondary backbone. Final Step 3 completion awaits human review of the two
+non-scientific smoke images.
+
+### Evidence
+
+- run IDs: `20260904T064824Z_3280bbdf`,
+  `20260904T064919Z_3280bbdf`, `20260904T065945Z_3280bbdf`
+- analysis artifact: `docs/architecture/QWEN2_5_VL_3B.md`
+- relevant official model revision:
+  `Qwen/Qwen2.5-VL-3B-Instruct@66285546d2b821cf421d4f5eb2576359d3770cd3`
+
+### Reasoning
+
+The pinned primary processor and model run locally. Processor grid accounting,
+language-model image-token positions, and runtime Vision Encoder output length
+agree at 256 for both smoke images across two deterministic inference runs.
+The raw outputs are reproducible, and local RAM is sufficient for this tiny
+smoke configuration.
+
+### Alternatives considered
+
+- open Qwen3-VL as a secondary backbone;
+- select a backbone based on degradation behavior.
+
+Neither is justified: the primary did not hit a recorded secondary trigger,
+and no compression effect was evaluated.
+
+### Known limitations
+
+- Smoke images are Latin A/B controls, not Thai linguistic data.
+- Smoke-image human review is pending.
+- CPU latency is high and only two examples were timed.
+- The first model-load time includes the initial weights download.
+- No Stage 0 measurement validity or H1 evidence has been produced.
+
+### Consequence for next stage
+
+After human smoke-image approval, Step 3 can be marked complete. Step 4 remains
+blocked until that approval and explicit authorization to proceed.
+
+### Files/configs affected
+
+- `configs/step3/qwen25_vl_3b.yaml`
+- `docs/ARCHITECTURE.md`
+- `docs/architecture/QWEN2_5_VL_3B.md`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
+
+---
+
 ## 2026-09-04 — Provisional novelty framing and H1 direction
 
 **Stage/Gate:** Pre-Stage 3 research governance

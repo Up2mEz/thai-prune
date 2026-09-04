@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** ACTIVE — Step 3 only
+**Status:** HUMAN CHECKPOINT — Step 3 evidence complete, smoke review pending
 
 ## Objective
 
@@ -23,7 +23,7 @@ new compression method is required.
 | Step 0 — Evidence foundation | `COMPLETE` | Git history, normalized `docs/` tree, dependency lock, preflight and tests |
 | Step 1 — Literature / Novelty Triage | `COMPLETE_PROVISIONAL` | Human-approved evaluation/diagnostic framing; refresh on new evidence |
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
-| Step 3 — Sequential backbone feasibility | `IN_PROGRESS` | Primary Qwen2.5-VL architecture and local feasibility audit |
+| Step 3 — Sequential backbone feasibility | `PRIMARY_FEASIBLE_PROPOSED` | Token accounting and two inference runs passed; human smoke-image review pending |
 | Steps 4–6 — Stage 0 | `BLOCKED` | Depend on Step 3 and later human approvals |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
