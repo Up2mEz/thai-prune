@@ -1,13 +1,14 @@
 # Novelty Triage Decision Memo
 
 **Date:** 2026-09-04  
-**Status:** `GO_WITH_EVALUATION_FRAMING_PROPOSED`  
+**Status:** `GO_EVALUATION_DIAGNOSTIC_PROVISIONAL`
+
 **Decision owner:** Human researcher
 
-## Proposed decision
+## Human-approved decision
 
-Continue to Stage 0 measurement work only after the human researcher accepts
-an evaluation/diagnostic framing. Do not begin a new-method track.
+Proceed under an evaluation/diagnostic framing, provisionally with respect to
+the bounded literature search. Do not begin a new-method track.
 
 ## Evidence
 
@@ -31,12 +32,8 @@ The project may say it is *investigating* that gap. It may not yet say the gap
 is unique, that the effect exists, that pruning causes it, or that a new method
 is required.
 
-## Human decision required
+## Refresh condition
 
-Approve one of:
-
-- `GO` with evaluation/diagnostic framing;
-- `GO WITH PIVOT` to generic micro-detail measurement;
-- `INCONCLUSIVE` pending more literature review;
-- `STOP` because novelty is insufficient.
-
+Re-open this decision if a directly comparable controlled study is found,
+compatibility evidence closes the remaining gap, or advisor review judges the
+novelty insufficient.

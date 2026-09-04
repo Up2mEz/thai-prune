@@ -136,11 +136,11 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
     )
     _require(
         issues,
-        "h1-not-silently-directional",
+        "h1-frozen-nondirectional",
         "The primary RQ is non-directional" in research
-        and "PENDING_HUMAN_DECISION" in research
-        and "Directionality:** not frozen" in claims,
-        "Directional H1 must remain pending explicit human approval.",
+        and "frozen non-directional" in research
+        and "Directionality:** frozen as non-directional" in claims,
+        "H1 must remain frozen as a non-directional interaction.",
     )
 
     forbidden_defaults = ("accuracy ≥0.75", "parser failure ≤1%", "A/B gap ≤10pp")

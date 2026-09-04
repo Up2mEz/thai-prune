@@ -254,6 +254,53 @@ None yet.
 
 # Decision entry template
 
+## 2026-09-04 — Provisional novelty framing and H1 direction
+
+**Stage/Gate:** Pre-Stage 3 research governance
+
+**Decision owner:** Human researcher
+
+**Decision:** Proceed provisionally under an evaluation/diagnostic framing.
+Freeze H1 as a non-directional `component_type × budget` interaction.
+Authorize Step 3 only.
+
+### Evidence
+
+- analysis artifact: `docs/NOVELTY_TRIAGE.md`
+- relevant literature: `docs/LITERATURE.md`
+
+### Reasoning
+
+The bounded review leaves a candidate controlled Thai orthographic diagnostic
+gap but does not justify a new-method claim. A non-directional interaction does
+not assume that any component degrades faster.
+
+### Alternatives considered
+
+- directional H1 without additional rationale;
+- generic micro-detail pivot before measurement feasibility;
+- new-method development.
+
+### Known limitations
+
+The novelty decision is provisional and must be revisited if new comparable
+work is found. Step 3 does not test H1 and cannot support a degradation claim.
+
+### Consequence for next stage
+
+Step 3 primary-backbone feasibility is eligible. Steps 4 and later remain
+blocked pending Step 3 evidence and their own required decisions.
+
+### Files/configs affected
+
+- `docs/NOVELTY_TRIAGE.md`
+- `docs/RESEARCH_SPEC.md`
+- `docs/CLAIMS.md`
+- `docs/DECISION_LOG.md`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
+
+---
+
 ## 2026-09-04 — Advisor Readiness implementation contract
 
 **Stage/Gate:** Evidence foundation through Advisor Readiness

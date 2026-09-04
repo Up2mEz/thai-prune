@@ -17,6 +17,7 @@ model = [
   "accelerate>=1.6,<2",
   "qwen-vl-utils>=0.0.14,<0.1",
   "torch>=2.7,<3",
+  "torchvision>=0.22,<1",
   "transformers>=4.57,<5",
 ]
 dev = [
@@ -34,4 +35,3 @@ packages = ["src/labbs2026"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
-

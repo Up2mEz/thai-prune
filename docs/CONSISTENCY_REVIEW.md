@@ -2,7 +2,8 @@
 
 **Reviewed:** 2026-09-04  
 **Result:** No new methodological conflict found after reconciliation.  
-**Status:** implementation may proceed only after the human decisions below.
+**Status:** Step 3 is eligible after the human decisions recorded on
+2026-09-04; later stages retain their own gates.
 
 ## Documents reviewed
 
@@ -27,13 +28,14 @@
 8. Advisor evidence uses `Tested`, `Preliminary/Pilot`, `Not Tested`, and
    `Blocked` without transferring evidence between intervention families.
 
-## Human decisions still required
+## Human decisions resolved for Step 3
 
-- Accept, pivot, defer, or stop based on `NOVELTY_TRIAGE.md`.
-- Freeze H1 as non-directional or approve a literature-justified directional
-  hypothesis.
+- Novelty: provisional `GO` under evaluation/diagnostic framing.
+- H1: non-directional `component_type × budget` interaction.
+
+## Human decisions still required later
+
 - Later approve candidate pairs, Gate 0 criteria, scientific gates, and any
   use of the secondary backbone or A100.
 
 These are intentional human checkpoints, not inconsistencies.
-

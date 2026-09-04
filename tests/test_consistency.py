@@ -10,7 +10,7 @@ def _write_source_files(root: Path) -> None:
             "Stage 1A Resolution Sensitivity\n"
             "Resolution Reduction is not post-encoder Token Pruning\n"
             "The primary independent sampling/analysis unit is the linguistic minimal pair\n"
-            "The primary RQ is non-directional\nPENDING_HUMAN_DECISION"
+            "The primary RQ is non-directional\nfrozen non-directional"
         ),
         "docs/EXPERIMENT_PROTOCOL.md": (
             "Stage 1A Resolution Sensitivity\n"
@@ -33,7 +33,7 @@ def _write_source_files(root: Path) -> None:
             "PASS → a meaningful unresolved failure remains"
         ),
         "docs/CLAIMS.md": (
-            "Directionality:** not frozen\n"
+            "Directionality:** frozen as non-directional\n"
             "`Tested` `Preliminary/Pilot` `Not Tested` `Blocked`"
         ),
     }

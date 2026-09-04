@@ -1,0 +1,35 @@
+stage: step3_backbone_feasibility
+seed: 20260904
+
+model:
+  model_id: Qwen/Qwen2.5-VL-3B-Instruct
+  revision: 66285546d2b821cf421d4f5eb2576359d3770cd3
+  processor_revision: 66285546d2b821cf421d4f5eb2576359d3770cd3
+  use_fast_processor: false
+  device: cpu
+  dtype: bfloat16
+  attention_implementation: sdpa
+  cache_dir: .cache/huggingface
+
+generation:
+  do_sample: false
+  max_new_tokens: 4
+
+smoke:
+  font_path: C:/Windows/Fonts/arial.ttf
+  canvas_width: 448
+  canvas_height: 448
+  font_size: 220
+  samples:
+    - sample_id: smoke_latin_a
+      display_text: A
+      expected_label: A
+    - sample_id: smoke_latin_b
+      display_text: B
+      expected_label: B
+  prompt: >-
+    Look at the single large letter in the image. Reply with exactly A if the
+    letter is A, or exactly B if the letter is B. Do not add other text.
+
+output:
+  root_dir: runs/step3

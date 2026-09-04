@@ -1,7 +1,7 @@
 # Research Specification
 
-> Status: pre-registration draft. Scientific gates and the direction of H1
-> remain human-owned decisions.
+> Status: pre-registration draft. Scientific gates remain human-owned
+> decisions; H1 directionality was frozen on 2026-09-04.
 
 ## 1. Research objective
 
@@ -35,22 +35,23 @@ curves?
 The primary RQ is non-directional. It asks about a `component_type × budget`
 interaction, not whether Thai tone marks necessarily degrade faster.
 
-## 4. H1 directionality — human decision required
+## 4. H1 directionality — frozen non-directional
 
 The current Claims Registry permits the non-directional hypothesis:
 
 > Distinctions involving Thai orthographic components may degrade differently
 > as visual-token budget changes.
 
-An earlier draft proposed the directional form:
+The human researcher approved the non-directional `component_type × budget`
+interaction as H1 on 2026-09-04. An earlier draft proposed the directional
+form:
 
 > Micro-features may exhibit greater degradation than base-character
 > distinctions.
 
-The directional form is `PENDING_HUMAN_DECISION`. Until it is justified from
-literature and frozen by the human researcher, it must not be used as a
-confirmatory directional hypothesis. The non-directional interaction remains
-the safe primary question.
+The directional form is not registered and must not be used as a confirmatory
+hypothesis. It would require separate literature justification and explicit
+change control before any locked experiment.
 
 ## 5. Related hypotheses
 

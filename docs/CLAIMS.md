@@ -46,9 +46,9 @@ Under decreasing visual-token budgets, distinctions involving small Thai orthogr
 
 **Status:** untested.
 
-**Directionality:** not frozen. The stronger claim that micro-features degrade
-more than base-character distinctions is pending human approval and must not be
-treated as the confirmatory H1 until then.
+**Directionality:** frozen as non-directional on 2026-09-04. The stronger claim
+that micro-features degrade more than base-character distinctions is not
+registered and must not be treated as confirmatory H1.
 
 ### H2 — Size is not necessarily the whole explanation
 Any observed component difference may persist after controlling for the size and visual properties of the critical distinguishing evidence.
