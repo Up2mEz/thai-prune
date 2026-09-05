@@ -165,9 +165,10 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
         issues,
         "later-stages-remain-gated",
         "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN" in decisions
-        and "Steps 4–6 — Stage 0 | `BLOCKED`" in active_plan
-        and "does not authorize Step 4" in decisions,
-        "Step 3 completion must not implicitly authorize Stage 0 or later work.",
+        and "Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION`" in active_plan
+        and "Locked Stage 0 validation may not begin" in decisions
+        and "# Stage 1A — Resolution Sensitivity Pilot\n\n**Status:** BLOCKED" in decisions,
+        "Stage 0 preparation must not authorize locked validation or Stage 1A.",
     )
 
     forbidden_defaults = ("accuracy ≥0.75", "parser failure ≤1%", "A/B gap ≤10pp")

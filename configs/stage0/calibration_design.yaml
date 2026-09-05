@@ -1,0 +1,31 @@
+schema_version: 1
+status: PROPOSED_NOT_FROZEN
+compression_family: FULL_INFORMATION
+candidate_inventory: configs/stage0/candidate_pairs.yaml
+rendering_candidates: configs/stage0/rendering_candidates.yaml
+prompt_parser: configs/stage0/prompt_parser.yaml
+allocation:
+  independent_unit: pair_id
+  strategy: GROUPED_BALANCED_BY_COMPONENT
+  calibration_pair_ids: null
+  locked_validation_pair_ids: null
+render_condition_selection:
+  strategy: BALANCED_INCOMPLETE_BLOCK
+  selected_condition_ids: null
+controls:
+  language_prior_blank_image: true
+  language_prior_blank_pair_ids: null
+  report_separately: true
+reproducibility:
+  exact_rerun: true
+  seed: 20260906
+analysis:
+  cluster_unit: pair_id
+  bootstrap_resamples: 2000
+  confidence_level: 0.95
+gate_0:
+  smallest_effect_of_interest: null
+  criteria: null
+locked_validation:
+  authorized: false
+human_review_record: null

@@ -1,0 +1,136 @@
+# Stage 0 Measurement Validity Execution Plan
+
+**Status:** ACTIVE — Checkpoint A preparation; no model outcomes yet
+
+## Objective
+
+Establish whether the pinned full-information Qwen2.5-VL-3B measurement system
+can discriminate controlled Thai orthographic stimuli. Stage 0 does not vary
+resolution, visual-token budget, or any compression mechanism.
+
+## Authorization and stop boundary
+
+Authorized now:
+
+- candidate-pair inventory and non-model validation;
+- deterministic HarfBuzz + FreeType rendering;
+- Unicode, shaping, difference-mask, prompt, parser, record, and metric code;
+- calibration runs after Checkpoint A human approval;
+- a Gate 0 criteria proposal derived from calibration only.
+
+Forbidden now:
+
+- locked Stage 0 validation before criteria are human-frozen;
+- Gate 0 approval;
+- Stage 1A or any compression intervention.
+
+## Dependencies and checkpoints
+
+```text
+Candidate inventory
+  → Unicode/font/shaping/difference-mask checks
+  → human linguistic + rendering review (Checkpoint A)
+  → freeze calibration allocation, render design, prompt/parser, metrics
+  → full-information calibration + exact rerun
+  → estimate precision, ceiling/headroom, order bias, parser behavior,
+    negative-control separation, and compute
+  → propose Gate 0 criteria and locked workload
+  → human freezes criteria/design (Checkpoint B)
+  → STOP: locked validation is a separate run after that freeze
+```
+
+## Candidate inventory contract
+
+- Inventory size is a pool, not a final sample size.
+- `pair_id` is the independent allocation and analysis unit.
+- Both members of an accepted pair are rendered; render variants remain
+  repeated observations.
+- Candidate categories follow `EXPERIMENT_PROTOCOL.md`: base-character,
+  tone-mark, upper-vowel, lower-vowel, and upper-vowel + tone context.
+- Automated validity does not substitute for human Thai-linguistic review.
+- Pair inclusion/exclusion is frozen before any model outcome is opened.
+
+## Proposed rendering-factor pool
+
+The renderer validates the full candidate factor pool without implying that
+all combinations will enter calibration:
+
+- fonts: pinned open-license `NotoSansThai-Regular` and
+  `NotoSerifThai-Regular`;
+- font sizes: 72 and 96 pixels;
+- canvas: 448 × 448 pixels;
+- positions: center and ±14-pixel diagonal offsets;
+- foreground/background: black on white;
+- shaping: pinned `uharfbuzz` + `freetype-py` with Thai script/language.
+
+The calibration workload should use a balanced incomplete subset of these
+conditions after human review. The exact number of accepted pairs and rendered
+observations is intentionally unresolved.
+
+## Proposed calibration allocation
+
+- Allocate entire `pair_id` clusters, never individual renderings.
+- Keep locked-validation `pair_id`s unseen by calibration.
+- Balance component categories as far as the usable inventory permits.
+- Render both pair members under each selected condition so expected A/B
+  labels are balanced by construction.
+- Repeat the same frozen workload with the same seed to assess exact
+  reproducibility.
+- Include separately labeled blank-image language-prior controls; never merge
+  them into full-information accuracy.
+
+The calibration/validation pair counts and condition subset require human
+approval after the usable inventory is known. No numeric split is registered
+in advance of that evidence.
+
+## Proposed prompt and parser
+
+- Fixed Thai forced-choice prompt with candidate text inserted into A/B slots.
+- Candidate order is deterministic from `seed + order_group_id` and shared by
+  the two displayed members of the same pair/condition, yielding one correct A
+  and one correct B label.
+- Parser accepts only a single `A` or `B` after surrounding whitespace removal
+  and ASCII case folding.
+- Raw output is always stored before parsing.
+- Parser failure is separate from an incorrect parsed decision.
+
+Prompt wording and parser policy require Checkpoint A approval before model
+calibration.
+
+## Proposed metrics
+
+- all-observation forced-choice accuracy;
+- accuracy conditional on successful parsing;
+- parser-failure rate;
+- per-component and per-render-condition accuracy;
+- accuracy by expected A/B label and candidate-order gap;
+- pair-clustered bootstrap intervals;
+- full-information minus blank-control separation;
+- exact rerun agreement for raw output, parsed output, and token metadata;
+- visual-token count, latency, peak RAM/VRAM, and execution failures.
+
+No decision threshold is attached to these metrics yet.
+
+## Gate 0 criteria derivation
+
+After calibration, the proposal must connect numeric criteria to:
+
+1. baseline ceiling and usable headroom;
+2. interval precision at `pair_id` level;
+3. parser/order/control behavior;
+4. reproducibility; and
+5. a human-selected smallest later-stage effect of interest.
+
+Criteria must not use Stage 1A results. Checkpoint B freezes the criteria,
+locked pair allocation, rendering conditions, prompt/parser, and exact Kaggle
+workload before the first locked validation run.
+
+## Current unresolved scientific decisions
+
+- which candidate pairs are linguistically acceptable;
+- whether constructed low-semantic-predictability graphemes are admissible;
+- which rendering-factor subset enters calibration;
+- calibration versus locked-validation `pair_id` allocation;
+- smallest later-stage effect of interest;
+- numeric Gate 0 criteria;
+- whether Kaggle T4 is adopted for calibration and locked validation.

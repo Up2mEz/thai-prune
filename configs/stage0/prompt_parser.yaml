@@ -1,0 +1,17 @@
+schema_version: 1
+status: PROPOSED_NOT_FROZEN
+prompt_template: |-
+  ข้อความใดปรากฏอยู่ในภาพ
+  A. {candidate_a}
+  B. {candidate_b}
+  ตอบเพียง A หรือ B เท่านั้น
+parser:
+  accepted_pattern: "^[AB]$"
+  strip_surrounding_whitespace: true
+  ascii_casefold: true
+  reject_additional_text: true
+ordering:
+  algorithm: sha256_seeded_group_orientation_v1
+  balance_rule: >-
+    Both displayed members share one candidate order within each pair and
+    rendering condition, producing one expected A and one expected B label.

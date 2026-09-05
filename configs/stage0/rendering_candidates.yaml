@@ -1,0 +1,21 @@
+schema_version: 1
+status: PROPOSED_NOT_FROZEN
+canvas: {width: 448, height: 448}
+colors: {foreground: "#000000", background: "#FFFFFF"}
+shaping: {direction: ltr, script: Thai, language: th}
+fonts:
+  - font_id: noto_sans_thai_regular
+    path: assets/fonts/noto/NotoSansThai-Regular.ttf
+    sha256: 404ddfb5ed0aaa6b6ec8a85700d682978992062d67da93903967b56cbd9a4acc
+  - font_id: noto_serif_thai_regular
+    path: assets/fonts/noto/NotoSerifThai-Regular.ttf
+    sha256: 36718303c18459aa1a6010c71566b1487b4385e923cb13e367ff7e7fba218ae0
+font_sizes: [72, 96]
+position_offsets:
+  - {position_id: center, x: 0, y: 0}
+  - {position_id: upper_left, x: -14, y: -14}
+  - {position_id: lower_right, x: 14, y: 14}
+preview_condition:
+  font_id: noto_sans_thai_regular
+  font_size: 96
+  position_id: center

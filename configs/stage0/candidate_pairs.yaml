@@ -1,0 +1,42 @@
+schema_version: 1
+status: CANDIDATE_NOT_FROZEN
+human_review_status: PENDING
+description: >-
+  Candidate pool for linguistic and visual review. Inventory count is not a
+  final sample size, and automated validity does not imply linguistic approval.
+
+pairs:
+  - {pair_id: base_ka_pha, component_type: BASE_CHARACTER, text_a: "กา", text_b: "ภา", difference_rule: BASE_SUBSTITUTION, rationale: "Same visible vowel context; first base consonant differs."}
+  - {pair_id: base_kha_cha, component_type: BASE_CHARACTER, text_a: "ขา", text_b: "ชา", difference_rule: BASE_SUBSTITUTION, rationale: "Same visible vowel context; first base consonant differs."}
+  - {pair_id: base_kha_da, component_type: BASE_CHARACTER, text_a: "คา", text_b: "ดา", difference_rule: BASE_SUBSTITUTION, rationale: "Same visible vowel context; first base consonant differs."}
+  - {pair_id: base_na_ma, component_type: BASE_CHARACTER, text_a: "นา", text_b: "มา", difference_rule: BASE_SUBSTITUTION, rationale: "Same visible vowel context; first base consonant differs."}
+  - {pair_id: base_ba_pa, component_type: BASE_CHARACTER, text_a: "บา", text_b: "ปา", difference_rule: BASE_SUBSTITUTION, rationale: "Visually related base consonants in the same vowel context."}
+  - {pair_id: base_la_sa, component_type: BASE_CHARACTER, text_a: "ลา", text_b: "สา", difference_rule: BASE_SUBSTITUTION, rationale: "Same visible vowel context; first base consonant differs."}
+
+  - {pair_id: tone_ka, component_type: TONE_MARK, text_a: "กา", text_b: "ก่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+  - {pair_id: tone_kha, component_type: TONE_MARK, text_a: "ขา", text_b: "ข่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+  - {pair_id: tone_kho, component_type: TONE_MARK, text_a: "คา", text_b: "ค่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+  - {pair_id: tone_pa, component_type: TONE_MARK, text_a: "ปา", text_b: "ป่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+  - {pair_id: tone_na, component_type: TONE_MARK, text_a: "นา", text_b: "น่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+  - {pair_id: tone_ma, component_type: TONE_MARK, text_a: "มา", text_b: "ม่า", difference_rule: MAI_EK_ADDITION, rationale: "Adds U+0E48 while preserving base and following vowel."}
+
+  - {pair_id: upper_ka, component_type: UPPER_VOWEL, text_a: "กิ", text_b: "กี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+  - {pair_id: upper_kha, component_type: UPPER_VOWEL, text_a: "ขิ", text_b: "ขี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+  - {pair_id: upper_kho, component_type: UPPER_VOWEL, text_a: "คิ", text_b: "คี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+  - {pair_id: upper_pa, component_type: UPPER_VOWEL, text_a: "ปิ", text_b: "ปี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+  - {pair_id: upper_na, component_type: UPPER_VOWEL, text_a: "นิ", text_b: "นี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+  - {pair_id: upper_ma, component_type: UPPER_VOWEL, text_a: "มิ", text_b: "มี", difference_rule: UPPER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E34 with U+0E35 on the same base."}
+
+  - {pair_id: lower_ka, component_type: LOWER_VOWEL, text_a: "กุ", text_b: "กู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+  - {pair_id: lower_kha, component_type: LOWER_VOWEL, text_a: "ขุ", text_b: "ขู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+  - {pair_id: lower_kho, component_type: LOWER_VOWEL, text_a: "คุ", text_b: "คู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+  - {pair_id: lower_pa, component_type: LOWER_VOWEL, text_a: "ปุ", text_b: "ปู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+  - {pair_id: lower_na, component_type: LOWER_VOWEL, text_a: "นุ", text_b: "นู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+  - {pair_id: lower_ma, component_type: LOWER_VOWEL, text_a: "มุ", text_b: "มู", difference_rule: LOWER_VOWEL_SUBSTITUTION, rationale: "Substitutes U+0E38 with U+0E39 on the same base."}
+
+  - {pair_id: combined_ka, component_type: UPPER_VOWEL_TONE, text_a: "กี", text_b: "กี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}
+  - {pair_id: combined_kha, component_type: UPPER_VOWEL_TONE, text_a: "ขี", text_b: "ขี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}
+  - {pair_id: combined_kho, component_type: UPPER_VOWEL_TONE, text_a: "คี", text_b: "คี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}
+  - {pair_id: combined_pa, component_type: UPPER_VOWEL_TONE, text_a: "ปี", text_b: "ปี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}
+  - {pair_id: combined_na, component_type: UPPER_VOWEL_TONE, text_a: "นี", text_b: "นี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}
+  - {pair_id: combined_ma, component_type: UPPER_VOWEL_TONE, text_a: "มี", text_b: "มี่", difference_rule: MAI_EK_IN_UPPER_CONTEXT, rationale: "Adds U+0E48 above an existing U+0E35 upper vowel."}

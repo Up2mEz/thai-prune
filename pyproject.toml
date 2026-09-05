@@ -4,12 +4,14 @@ version = "0.1.0"
 description = "Controlled measurement of Thai orthographic micro-feature robustness in VLMs"
 requires-python = ">=3.11,<3.13"
 dependencies = [
+  "freetype-py>=2.5,<3",
   "numpy>=2.2,<3",
   "pillow>=11,<13",
   "psutil>=7,<8",
   "pydantic>=2.11,<3",
   "pyyaml>=6.0,<7",
   "scipy>=1.15,<2",
+  "uharfbuzz>=0.52,<1",
 ]
 
 [project.optional-dependencies]

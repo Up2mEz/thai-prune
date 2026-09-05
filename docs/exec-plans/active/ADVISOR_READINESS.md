@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** STEP 3 COMPLETE — awaiting separate authorization for Step 4
+**Status:** STAGE 0 CHECKPOINT A PREPARATION
 
 ## Objective
 
@@ -14,8 +14,11 @@ new compression method is required.
 2. Complete literature and novelty triage.
 3. Reconcile the research Source of Truth.
 4. Step 3 is complete after human approval of the A/B smoke controls.
-5. Do not begin Step 4, dataset construction, Stage 0, or later experiments
-   without separate human authorization and their required decisions.
+5. Steps 4–6 / Stage 0 preparation and calibration are authorized.
+6. Do not run model calibration before Checkpoint A human freeze.
+7. Do not run locked validation before calibration-derived Gate 0 criteria and
+   Checkpoint B human freeze.
+8. Stage 1A and every compression intervention remain unauthorized.
 
 ## Implementation status
 
@@ -25,8 +28,8 @@ new compression method is required.
 | Step 1 — Literature / Novelty Triage | `COMPLETE_PROVISIONAL` | Human-approved evaluation/diagnostic framing; refresh on new evidence |
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
-| Kaggle T4 backend | `KAGGLE_BACKEND_FEASIBLE_PROPOSED` | Proof run `kaggle-step3-6c17245ae8a6` verified; implementation merged into `main`; scientific use remains forbidden |
-| Steps 4–6 — Stage 0 | `BLOCKED` | Step 3 prerequisite is resolved, but Step 4 and later human authorization/decisions are still absent |
+| Kaggle T4 backend | `KAGGLE_BACKEND_FEASIBLE_PROPOSED` — optional for authorized Stage 0 | Proof run verified; every Stage 0 workload still requires exact frozen config and artifact verification |
+| Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION` | Candidate/render/prompt/metric implementation authorized; human design freeze required before calibration inference |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

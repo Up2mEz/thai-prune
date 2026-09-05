@@ -254,6 +254,65 @@ None yet.
 
 # Decision entry template
 
+## 2026-09-06 — Stage 0 preparation and calibration authorization
+
+**Stage/Gate:** Steps 4–6 / Stage 0 Measurement Validity
+
+**Decision owner:** Human researcher
+
+**Decision:** Record Step 3 as `COMPLETE`. Authorize Stage 0 dataset,
+measurement-pipeline, and calibration preparation, including an uncompressed
+Qwen2.5-VL-3B baseline and optional use of the verified Kaggle backend.
+
+Locked Stage 0 validation may not begin until candidate/design review,
+calibration evidence, a Gate 0 criteria proposal, and a separate human freeze
+are recorded. Gate 0 itself is not approved.
+
+### Evidence
+
+- research contract: `docs/RESEARCH_SPEC.md`
+- protocol: `docs/EXPERIMENT_PROTOCOL.md`
+- execution plan: `docs/exec-plans/active/STAGE0_MEASUREMENT_VALIDITY.md`
+- backend record: `docs/architecture/KAGGLE_BACKEND.md`
+
+### Reasoning
+
+Step 3 resolved primary-backbone feasibility. Stage 0 now needs to test the
+measurement system at full information before any compression intervention.
+Pair inclusion must be decided without viewing model outcomes, and Gate 0
+criteria must be derived from calibration rather than invented in advance.
+
+### Alternatives considered
+
+- proceed directly to locked validation;
+- run compression before measurement validity;
+- use a fixed candidate count or universal accuracy threshold.
+
+All are inconsistent with the approved protocol.
+
+### Known limitations
+
+- The candidate inventory and rendering-factor pool are not human-frozen.
+- No Stage 0 model outcome exists yet.
+- The smallest later-stage effect of interest and numeric Gate 0 criteria are
+  unresolved.
+- Kaggle engineering feasibility does not guarantee a valid scientific run.
+
+### Consequence for next stage
+
+Prepare Checkpoint A: candidate-pair inventory, automated Unicode/rendering
+audit, proposed calibration allocation, prompt/parser, metrics, and backend
+workload contract. Do not open model outcomes until the human freezes the
+Checkpoint A design.
+
+### Files/configs affected
+
+- `configs/stage0/`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
+- `docs/exec-plans/active/STAGE0_MEASUREMENT_VALIDITY.md`
+
+---
+
 ## 2026-09-06 — Human smoke approval and Step 3 completion
 
 **Stage/Gate:** Step 3 — Sequential backbone feasibility

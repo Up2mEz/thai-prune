@@ -36,7 +36,8 @@ def _write_source_files(root: Path) -> None:
             "PASS → a meaningful unresolved failure remains\n"
             "**Decision:** Step 3 = `COMPLETE`.\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
-            "does not authorize Step 4"
+            "Locked Stage 0 validation may not begin\n"
+            "# Stage 1A — Resolution Sensitivity Pilot\n\n**Status:** BLOCKED"
         ),
         "docs/CLAIMS.md": (
             "Directionality:** frozen as non-directional\n"
@@ -46,7 +47,7 @@ def _write_source_files(root: Path) -> None:
         "docs/exec-plans/active/ADVISOR_READINESS.md": (
             "Step 3 — Sequential backbone feasibility | `COMPLETE`\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
-            "Steps 4–6 — Stage 0 | `BLOCKED`"
+            "Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION`"
         ),
     }
     for relative_path in SOURCE_FILES:
