@@ -16,17 +16,15 @@ generation:
   max_new_tokens: 4
 
 smoke:
-  font_path: C:/Windows/Fonts/arial.ttf
-  canvas_width: 448
-  canvas_height: 448
-  font_size: 220
   samples:
     - sample_id: smoke_latin_a
       display_text: A
       expected_label: A
+      fixture_path: assets/step3/smoke_latin_a.png
     - sample_id: smoke_latin_b
       display_text: B
       expected_label: B
+      fixture_path: assets/step3/smoke_latin_b.png
   prompt: >-
     Look at the single large letter in the image. Reply with exactly A if the
     letter is A, or exactly B if the letter is B. Do not add other text.
