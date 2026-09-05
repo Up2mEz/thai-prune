@@ -22,19 +22,31 @@ def _write_source_files(root: Path) -> None:
             "Current sequential candidate strategy\n"
             "Backbone selection must not use observed effects\n"
             "Opening the secondary candidate requires a Decision Log entry\n"
-            "does not make Stage 1A a post-encoder pruning experiment"
+            "does not make Stage 1A a post-encoder pruning experiment\n"
+            "Step 3 is `COMPLETE`\n"
+            "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`"
         ),
         "docs/DECISION_LOG.md": (
+            "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN\n"
             "Stage 1A Resolution Sensitivity\n"
             "Stage 1A does not approve Gate 1\n"
             "Post-encoder Token Pruning and H3 remain `NOT TESTED`\n"
             "calibration estimates\nhuman researcher must freeze the criteria\n"
             "# Gate 4 — Unresolved gap after existing methods\n"
-            "PASS → a meaningful unresolved failure remains"
+            "PASS → a meaningful unresolved failure remains\n"
+            "**Decision:** Step 3 = `COMPLETE`.\n"
+            "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
+            "does not authorize Step 4"
         ),
         "docs/CLAIMS.md": (
             "Directionality:** frozen as non-directional\n"
-            "`Tested` `Preliminary/Pilot` `Not Tested` `Blocked`"
+            "`Tested` `Preliminary/Pilot` `Not Tested` `Blocked`\n"
+            "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`"
+        ),
+        "docs/exec-plans/active/ADVISOR_READINESS.md": (
+            "Step 3 — Sequential backbone feasibility | `COMPLETE`\n"
+            "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
+            "Steps 4–6 — Stage 0 | `BLOCKED`"
         ),
     }
     for relative_path in SOURCE_FILES:

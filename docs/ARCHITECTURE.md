@@ -240,7 +240,25 @@ The current primary-backbone audit is recorded in
 `docs/architecture/QWEN2_5_VL_3B.md`. That record is architecture feasibility
 evidence only and must not be cited as Stage 0 measurement validity.
 
-### 7.2 Stage 1A measurement boundary
+Step 3 is `COMPLETE` after the human smoke-image approval recorded on
+2026-09-06 in `docs/DECISION_LOG.md`. This completion establishes only primary
+backbone engineering feasibility; it does not establish Stage 0 validity.
+
+### 7.2 Kaggle execution backend
+
+The minimal Kaggle Tesla T4 backend is integrated into `main`. Its exact proof
+run and provenance boundaries are recorded in
+`docs/architecture/KAGGLE_BACKEND.md` with status
+`KAGGLE_BACKEND_FEASIBLE_PROPOSED`. The proposal is engineering-only and does
+not authorize an experiment or transfer smoke-control evidence to any
+scientific hypothesis.
+
+The operational runtime profile targets `refs/heads/main`. Every future Kaggle
+run must pin the exact remote commit and preserve config, environment, model
+revision, seed where applicable, and actual token counts in immutable
+artifacts.
+
+### 7.3 Stage 1A measurement boundary
 
 Stage 1A changes processor-controlled input resolution. It must record:
 

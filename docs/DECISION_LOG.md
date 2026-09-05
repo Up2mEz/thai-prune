@@ -254,6 +254,112 @@ None yet.
 
 # Decision entry template
 
+## 2026-09-06 — Human smoke approval and Step 3 completion
+
+**Stage/Gate:** Step 3 — Sequential backbone feasibility
+
+**Decision owner:** Human researcher
+
+**Human approval record:** `Step 3 smoke review: APPROVED` for both frozen
+Latin A/B controls.
+
+**Decision:** Step 3 = `COMPLETE`. Retain
+`Qwen/Qwen2.5-VL-3B-Instruct@66285546d2b821cf421d4f5eb2576359d3770cd3`
+as the primary backbone. Do not open the secondary backbone.
+
+### Evidence
+
+- local run IDs: `20260904T064824Z_3280bbdf`,
+  `20260904T064919Z_3280bbdf`, and `20260904T065945Z_3280bbdf`;
+- architecture record: `docs/architecture/QWEN2_5_VL_3B.md`;
+- human approval instruction received on 2026-09-06 for the two frozen smoke
+  images.
+
+### Reasoning
+
+The processor, prompt, and runtime Vision Encoder counts agree at 256 visual
+positions for each control; deterministic inference reproduced A→A and B→B;
+and the human researcher approved the rendered smoke images. No recorded
+secondary-backbone trigger remains.
+
+### Known limitations
+
+- The controls contain Latin A/B, not Thai linguistic stimuli.
+- This is an engineering-feasibility decision, not Stage 0 measurement
+  validity or evidence for H1–H4.
+- Completion does not authorize Step 4, candidate-pair work, Stage 0, or any
+  compression intervention.
+
+### Consequence for next stage
+
+The Step 3 prerequisite is resolved. Steps 4 and later remain blocked until
+the human researcher explicitly authorizes them and records their required
+decisions.
+
+### Files/configs affected
+
+- `docs/ARCHITECTURE.md`
+- `docs/architecture/QWEN2_5_VL_3B.md`
+- `docs/CLAIMS.md`
+- `docs/CONSISTENCY_REVIEW.md`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
+
+---
+
+## 2026-09-06 — Kaggle T4 backend feasibility proposal
+
+**Stage/Gate:** Engineering backend feasibility; not a scientific gate
+
+**Decision owner:** Human researcher; Codex recommendation recorded below
+
+**Decision:** `KAGGLE_BACKEND_FEASIBLE_PROPOSED`. The backend implementation
+is merged into `main`, the branch designated for continued research. Final
+backend adoption remains a human decision.
+
+### Evidence
+
+- run ID: `kaggle-step3-6c17245ae8a6`;
+- source commit: `6c17245ae8a6f25b1f428bcba9a12336674ade3f`;
+- Kaggle kernel status: `COMPLETE`;
+- local artifact verification: `VERIFIED`;
+- observed accelerator: Tesla T4, compute capability 7.5;
+- architecture record: `docs/architecture/KAGGLE_BACKEND.md`.
+
+### Reasoning
+
+The remote run reproduced A→A and B→B, matched all three token-count
+observations at 256, used the pinned model and processor revision, and passed
+all hard provenance, environment, accelerator, checksum, and artifact checks.
+This demonstrates a viable execution path for the Step 3 smoke workload.
+
+### Known limitations
+
+- The run is one non-scientific two-image smoke workload, not a benchmark or
+  experiment.
+- The immutable run manifest predates human smoke approval and therefore keeps
+  `PENDING_HUMAN_REVIEW`; the later approval is recorded in the preceding
+  Decision Log entry rather than rewriting the artifact.
+- The verified run sourced `refs/heads/infra/kaggle-phase1`; the operational
+  profile now targets `refs/heads/main` and must pin each future run's exact
+  commit.
+- No Stage 0, Thai-rendering, Resolution Reduction, Token Pruning, H1, or
+  cross-architecture claim follows from this proposal.
+
+### Consequence for next stage
+
+The Kaggle T4 backend may be considered for separately authorized future work.
+The proposal neither starts Stage 0 nor approves a scientific gate.
+
+### Files/configs affected
+
+- `configs/runtime/kaggle_t4.yaml`
+- `docs/ARCHITECTURE.md`
+- `docs/architecture/KAGGLE_BACKEND.md`
+- `docs/CLAIMS.md`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
+
+---
+
 ## 2026-09-04 — Primary-backbone feasibility proposal
 
 **Stage/Gate:** Step 3 — Sequential backbone feasibility

@@ -1,9 +1,10 @@
 # Source-of-Truth Consistency Review
 
-**Reviewed:** 2026-09-04  
-**Result:** No new methodological conflict found after reconciliation.  
-**Status:** Step 3 is eligible after the human decisions recorded on
-2026-09-04; later stages retain their own gates.
+**Reviewed:** 2026-09-06
+**Result:** No new methodological conflict found after Step 3 completion and
+Kaggle backend integration.
+**Status:** Step 3 is `COMPLETE`; later stages retain their own gates and are
+not authorized by this completion.
 
 ## Documents reviewed
 
@@ -13,6 +14,7 @@
 - `docs/ARCHITECTURE.md`
 - `docs/DECISION_LOG.md`
 - `docs/CLAIMS.md`
+- `docs/exec-plans/active/ADVISOR_READINESS.md`
 
 ## Reconciled points
 
@@ -28,10 +30,19 @@
 8. Advisor evidence uses `Tested`, `Preliminary/Pilot`, `Not Tested`, and
    `Blocked` without transferring evidence between intervention families.
 
-## Human decisions resolved for Step 3
+## Human decisions resolved through Step 3
 
 - Novelty: provisional `GO` under evaluation/diagnostic framing.
 - H1: non-directional `component_type × budget` interaction.
+- Smoke-image review: A/B controls approved on 2026-09-06.
+- Step 3: `COMPLETE`; keep the pinned Qwen2.5-VL-3B primary backbone.
+
+## Engineering proposal recorded
+
+- Kaggle Tesla T4 backend: `KAGGLE_BACKEND_FEASIBLE_PROPOSED` based on
+  `kaggle-step3-6c17245ae8a6` with Kaggle status `COMPLETE` and local artifact
+  verification `VERIFIED`.
+- The backend proposal is not a scientific gate and does not authorize Stage 0.
 
 ## Human decisions still required later
 

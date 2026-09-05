@@ -4,7 +4,7 @@ accelerator: NvidiaTeslaT4
 
 source:
   repository_url: https://github.com/Up2mEz/thai-prune.git
-  remote_ref: refs/heads/infra/kaggle-phase1
+  remote_ref: refs/heads/main
 
 python:
   version: "3.12"

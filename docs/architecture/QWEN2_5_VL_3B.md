@@ -1,9 +1,10 @@
 # Qwen2.5-VL-3B Primary-Backbone Architecture Record
 
 **Audit date:** 2026-09-04  
-**Status:** `PRIMARY_FEASIBLE_PROPOSED`  
+**Status:** `COMPLETE`
 **Scientific evidence status:** `Not Tested`  
-**Human checkpoint:** smoke-image visual review pending
+**Backbone decision:** `PRIMARY_FEASIBLE`
+**Human checkpoint:** smoke-image visual review approved on 2026-09-06
 
 ## Selection basis
 
@@ -89,9 +90,10 @@ rendered with local `arial.ttf`. They are deliberately simple pipeline controls
 and are marked `FORBIDDEN_STEP3_SMOKE_ONLY`; they are not Thai candidate pairs,
 Stage 0 samples, or scientific accuracy evidence.
 
-The font and rendered image hashes are stored in each run manifest. Human
-visual review remains pending even though Codex inspection found both images
-legible and correctly centered.
+The font and rendered image hashes are stored in each run manifest. The human
+researcher approved the two smoke images on 2026-09-06; the approval is
+recorded in `docs/DECISION_LOG.md` and does not convert these controls into
+Thai or scientific evidence.
 
 ## Run evidence
 
@@ -139,6 +141,9 @@ trigger is present:
 
 Therefore the proposed action is to keep Qwen2.5-VL-3B as primary and not open
 the secondary candidate.
+
+The human approval completed Step 3. No secondary-backbone trigger was opened,
+and Stage 0 remains separately gated.
 
 ## Explicit non-claims
 

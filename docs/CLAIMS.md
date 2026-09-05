@@ -35,7 +35,20 @@ None yet. No main experiment has been completed.
 
 ## SUPPORTED_WITH_LIMITS
 
-None yet.
+### Step 3 engineering feasibility
+
+The pinned `Qwen/Qwen2.5-VL-3B-Instruct` revision completed the local Step 3
+pipeline controls with observable and internally consistent LLM-boundary token
+accounting. The two Latin A/B smoke images were human-approved on 2026-09-06.
+
+This supports only an engineering-feasibility statement for the exact model,
+revision, environment, config, and smoke controls. It is not Stage 0 evidence,
+Thai rendering evidence, compression evidence, or support for H1–H4.
+
+The Kaggle Tesla T4 backend has status
+`KAGGLE_BACKEND_FEASIBLE_PROPOSED`; it is not a human-approved scientific gate
+or a benchmark claim. Exact evidence and limitations are in
+`docs/architecture/KAGGLE_BACKEND.md`.
 
 ---
 

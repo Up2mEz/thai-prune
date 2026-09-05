@@ -14,6 +14,7 @@ SOURCE_FILES = (
     "docs/ARCHITECTURE.md",
     "docs/DECISION_LOG.md",
     "docs/CLAIMS.md",
+    "docs/exec-plans/active/ADVISOR_READINESS.md",
 )
 
 
@@ -69,6 +70,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
     architecture = texts["docs/ARCHITECTURE.md"]
     decisions = texts["docs/DECISION_LOG.md"]
     claims = texts["docs/CLAIMS.md"]
+    active_plan = texts["docs/exec-plans/active/ADVISOR_READINESS.md"]
     combined = "\n".join(texts.values())
 
     for relative_path, text in (
@@ -141,6 +143,31 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
         and "frozen non-directional" in research
         and "Directionality:** frozen as non-directional" in claims,
         "H1 must remain frozen as a non-directional interaction.",
+    )
+    _require(
+        issues,
+        "step-3-complete",
+        "Step 3 is `COMPLETE`" in architecture
+        and "**Decision:** Step 3 = `COMPLETE`." in decisions
+        and "Step 3 — Sequential backbone feasibility | `COMPLETE`" in active_plan,
+        "Step 3 completion must agree across architecture, decisions, and active plan.",
+    )
+    _require(
+        issues,
+        "kaggle-backend-proposed",
+        all(
+            "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`" in text
+            for text in (architecture, decisions, claims, active_plan)
+        ),
+        "The Kaggle backend proposal status must agree across the Source of Truth.",
+    )
+    _require(
+        issues,
+        "later-stages-remain-gated",
+        "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN" in decisions
+        and "Steps 4–6 — Stage 0 | `BLOCKED`" in active_plan
+        and "does not authorize Step 4" in decisions,
+        "Step 3 completion must not implicitly authorize Stage 0 or later work.",
     )
 
     forbidden_defaults = ("accuracy ≥0.75", "parser failure ≤1%", "A/B gap ≤10pp")

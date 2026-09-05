@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** HUMAN CHECKPOINT — Step 3 evidence complete, smoke review pending
+**Status:** STEP 3 COMPLETE — awaiting separate authorization for Step 4
 
 ## Objective
 
@@ -13,8 +13,9 @@ new compression method is required.
 1. Complete the evidence foundation.
 2. Complete literature and novelty triage.
 3. Reconcile the research Source of Truth.
-4. Do not begin model, dataset, or experiment implementation until Steps
-   1–3 have no unresolved stop signal.
+4. Step 3 is complete after human approval of the A/B smoke controls.
+5. Do not begin Step 4, dataset construction, Stage 0, or later experiments
+   without separate human authorization and their required decisions.
 
 ## Implementation status
 
@@ -23,8 +24,9 @@ new compression method is required.
 | Step 0 — Evidence foundation | `COMPLETE` | Git history, normalized `docs/` tree, dependency lock, preflight and tests |
 | Step 1 — Literature / Novelty Triage | `COMPLETE_PROVISIONAL` | Human-approved evaluation/diagnostic framing; refresh on new evidence |
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
-| Step 3 — Sequential backbone feasibility | `PRIMARY_FEASIBLE_PROPOSED` | Token accounting and two inference runs passed; human smoke-image review pending |
-| Steps 4–6 — Stage 0 | `BLOCKED` | Depend on Step 3 and later human approvals |
+| Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
+| Kaggle T4 backend | `KAGGLE_BACKEND_FEASIBLE_PROPOSED` | Proof run `kaggle-step3-6c17245ae8a6` verified; implementation merged into `main`; scientific use remains forbidden |
+| Steps 4–6 — Stage 0 | `BLOCKED` | Step 3 prerequisite is resolved, but Step 4 and later human authorization/decisions are still absent |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

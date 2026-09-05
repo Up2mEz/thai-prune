@@ -180,7 +180,7 @@ def test_run_spec_contains_remote_ref_full_sha_and_hashes() -> None:
     )
     assert spec["run_id"] == "kaggle-step3-0123456789ab"
     assert spec["git_sha"] == sha
-    assert spec["remote_ref"] == "refs/heads/infra/kaggle-phase1"
+    assert spec["remote_ref"] == "refs/heads/main"
     assert spec["source_dir"] == "/tmp/labbs2026-source"
     assert spec["output_root"] == "/kaggle/working/artifacts"
     assert spec["locked_package_versions"] == {
@@ -262,7 +262,7 @@ def test_prepare_staging_generates_worker_metadata_and_receipt(tmp_path: Path) -
         encoding="utf-8"
     )
     assert submission["git_sha"] == sha
-    assert submission["remote_ref"] == "refs/heads/infra/kaggle-phase1"
+    assert submission["remote_ref"] == "refs/heads/main"
     assert submission["generated_worker_sha256"] == sha256_file(staging / "worker.py")
     assert result["submit_command"] == build_submit_command(staging)
 
