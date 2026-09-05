@@ -1,0 +1,64 @@
+schema_version: 1
+status: PENDING_HUMAN_DECISION
+decision: null
+reviewer: null
+reviewed_at_utc: null
+review_packet: runs/stage0/candidate_review/20260905T195831Z_d63c9f3d/review_packet.json
+review_packet_sha256: 715491c6fff6e815f1b2e5374a3f983e09fbf15eeeace9e375b37f9db8b91617
+
+# Fill these only after reviewing the contact sheets and, where needed, the
+# individual renders. Exclusion reasons remain part of the audit trail.
+pair_decisions:
+  - {pair_id: base_ka_pha, decision: null, reason: null}
+  - {pair_id: base_kha_cha, decision: null, reason: null}
+  - {pair_id: base_kha_da, decision: null, reason: null}
+  - {pair_id: base_na_ma, decision: null, reason: null}
+  - {pair_id: base_ba_pa, decision: null, reason: null}
+  - {pair_id: base_la_sa, decision: null, reason: null}
+  - {pair_id: tone_ka, decision: null, reason: null}
+  - {pair_id: tone_kha, decision: null, reason: null}
+  - {pair_id: tone_kho, decision: null, reason: null}
+  - {pair_id: tone_pa, decision: null, reason: null}
+  - {pair_id: tone_na, decision: null, reason: null}
+  - {pair_id: tone_ma, decision: null, reason: null}
+  - {pair_id: upper_ka, decision: null, reason: null}
+  - {pair_id: upper_kha, decision: null, reason: null}
+  - {pair_id: upper_kho, decision: null, reason: null}
+  - {pair_id: upper_pa, decision: null, reason: null}
+  - {pair_id: upper_na, decision: null, reason: null}
+  - {pair_id: upper_ma, decision: null, reason: null}
+  - {pair_id: lower_ka, decision: null, reason: null}
+  - {pair_id: lower_kha, decision: null, reason: null}
+  - {pair_id: lower_kho, decision: null, reason: null}
+  - {pair_id: lower_pa, decision: null, reason: null}
+  - {pair_id: lower_na, decision: null, reason: null}
+  - {pair_id: lower_ma, decision: null, reason: null}
+  - {pair_id: combined_ka, decision: null, reason: null}
+  - {pair_id: combined_kha, decision: null, reason: null}
+  - {pair_id: combined_kho, decision: null, reason: null}
+  - {pair_id: combined_pa, decision: null, reason: null}
+  - {pair_id: combined_na, decision: null, reason: null}
+  - {pair_id: combined_ma, decision: null, reason: null}
+
+condition_decisions:
+  - {condition_id: noto_sans_thai_regular__72__center, decision: null, reason: null}
+  - {condition_id: noto_sans_thai_regular__72__upper_left, decision: null, reason: null}
+  - {condition_id: noto_sans_thai_regular__72__lower_right, decision: null, reason: null}
+  - {condition_id: noto_sans_thai_regular__96__center, decision: null, reason: null}
+  - {condition_id: noto_sans_thai_regular__96__upper_left, decision: null, reason: null}
+  - {condition_id: noto_sans_thai_regular__96__lower_right, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__72__center, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__72__upper_left, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__72__lower_right, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__96__center, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__96__upper_left, decision: null, reason: null}
+  - {condition_id: noto_serif_thai_regular__96__lower_right, decision: null, reason: null}
+
+approved_pair_ids: null
+approved_condition_ids: null
+prompt_parser_approved: null
+calibration_pair_ids: null
+locked_validation_pair_ids: null
+calibration_condition_ids: null
+language_prior_blank_pair_ids: null
+notes: null
