@@ -7,14 +7,16 @@ import json
 import os
 import platform
 import random
+import shutil
 import subprocess
 import threading
 import time
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import numpy as np
 import psutil
@@ -42,7 +44,11 @@ def sha256_file(path: Path) -> str:
 
 def git_commit(root: Path) -> str:
     result = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
     )
     return result.stdout.strip()
 
@@ -58,35 +64,55 @@ def seed_everything(seed: int) -> None:
         pass
 
 
-def render_smoke_images(config: dict[str, Any], run_dir: Path) -> list[dict[str, Any]]:
+def render_smoke_images(
+    config: dict[str, Any], run_dir: Path, root: Path
+) -> list[dict[str, Any]]:
     smoke = config["smoke"]
-    font_path = Path(smoke["font_path"])
-    if not font_path.is_file():
-        raise FileNotFoundError(f"smoke font not found: {font_path}")
-    font = ImageFont.truetype(str(font_path), size=int(smoke["font_size"]))
     image_dir = run_dir / "images"
     image_dir.mkdir()
     rendered: list[dict[str, Any]] = []
     for sample in smoke["samples"]:
-        image = Image.new(
-            "RGB",
-            (int(smoke["canvas_width"]), int(smoke["canvas_height"])),
-            "white",
-        )
-        draw = ImageDraw.Draw(image)
-        bbox = draw.textbbox((0, 0), sample["display_text"], font=font)
-        x = (image.width - (bbox[2] - bbox[0])) / 2 - bbox[0]
-        y = (image.height - (bbox[3] - bbox[1])) / 2 - bbox[1]
-        draw.text((x, y), sample["display_text"], fill="black", font=font)
         image_path = image_dir / f"{sample['sample_id']}.png"
-        image.save(image_path, format="PNG", optimize=False)
+        fixture = sample.get("fixture_path")
+        if fixture:
+            fixture_path = (root / fixture).resolve()
+            if not fixture_path.is_relative_to(root.resolve()):
+                raise ValueError(f"smoke fixture escapes repository root: {fixture}")
+            if not fixture_path.is_file():
+                raise FileNotFoundError(f"smoke fixture not found: {fixture_path}")
+            shutil.copyfile(fixture_path, image_path)
+            with Image.open(image_path) as image:
+                image.verify()
+            fixture_metadata = {
+                "fixture_path": Path(fixture).as_posix(),
+                "fixture_sha256": sha256_file(fixture_path),
+            }
+        else:
+            font_path = Path(smoke["font_path"])
+            if not font_path.is_file():
+                raise FileNotFoundError(f"smoke font not found: {font_path}")
+            font = ImageFont.truetype(str(font_path), size=int(smoke["font_size"]))
+            image = Image.new(
+                "RGB",
+                (int(smoke["canvas_width"]), int(smoke["canvas_height"])),
+                "white",
+            )
+            draw = ImageDraw.Draw(image)
+            bbox = draw.textbbox((0, 0), sample["display_text"], font=font)
+            x = (image.width - (bbox[2] - bbox[0])) / 2 - bbox[0]
+            y = (image.height - (bbox[3] - bbox[1])) / 2 - bbox[1]
+            draw.text((x, y), sample["display_text"], fill="black", font=font)
+            image.save(image_path, format="PNG", optimize=False)
+            fixture_metadata = {
+                "font_path": font_path.as_posix(),
+                "font_sha256": sha256_file(font_path),
+            }
         rendered.append(
             {
                 **sample,
                 "image_path": image_path.relative_to(run_dir).as_posix(),
                 "image_sha256": sha256_file(image_path),
-                "font_path": font_path.as_posix(),
-                "font_sha256": sha256_file(font_path),
+                **fixture_metadata,
                 "review_status": "PENDING_HUMAN_REVIEW",
                 "scientific_use": "FORBIDDEN_STEP3_SMOKE_ONLY",
             }
@@ -113,7 +139,9 @@ def peak_rss_monitor(interval_seconds: float = 0.05) -> Iterator[dict[str, int]]
     finally:
         stop.set()
         thread.join()
-        state["peak_rss_bytes"] = max(state["peak_rss_bytes"], process.memory_info().rss)
+        state["peak_rss_bytes"] = max(
+            state["peak_rss_bytes"], process.memory_info().rss
+        )
 
 
 def environment_record() -> dict[str, Any]:
@@ -129,6 +157,8 @@ def environment_record() -> dict[str, Any]:
         "torch": torch.__version__,
         "transformers": transformers.__version__,
         "cuda_available": torch.cuda.is_available(),
+        "torch_cuda_runtime": torch.version.cuda,
+        "cudnn_version": torch.backends.cudnn.version(),
         "xpu_available": bool(hasattr(torch, "xpu") and torch.xpu.is_available()),
     }
 
@@ -147,39 +177,90 @@ def write_json(path: Path, value: Any) -> None:
     )
 
 
-def build_adapter(config: dict[str, Any], root: Path) -> Qwen25VLAdapter:
+def build_adapter(
+    config: dict[str, Any], root: Path, runtime: dict[str, Any] | None = None
+) -> Qwen25VLAdapter:
     model = config["model"]
     generation = config["generation"]
+    model_runtime = (runtime or {}).get("model_runtime", {})
+    cache_value = model_runtime.get("cache_dir", model["cache_dir"])
+    cache_dir = Path(cache_value)
+    if not cache_dir.is_absolute():
+        cache_dir = root / cache_dir
     return Qwen25VLAdapter(
         model_id=model["model_id"],
         revision=model["revision"],
         processor_revision=model["processor_revision"],
-        cache_dir=root / model["cache_dir"],
-        device=model["device"],
-        dtype=model["dtype"],
-        attention_implementation=model["attention_implementation"],
+        cache_dir=cache_dir,
+        device=model_runtime.get("device", model["device"]),
+        dtype=model_runtime.get("dtype", model["dtype"]),
+        attention_implementation=model_runtime.get(
+            "attention_implementation", model["attention_implementation"]
+        ),
         use_fast_processor=bool(model["use_fast_processor"]),
         max_new_tokens=int(generation["max_new_tokens"]),
     )
 
 
-def run_audit(config_path: Path, *, inference: bool) -> tuple[Path, dict[str, Any]]:
+def run_audit(
+    config_path: Path,
+    *,
+    inference: bool,
+    runtime: dict[str, Any] | None = None,
+    output_dir: Path | None = None,
+    expected_git_sha: str | None = None,
+    phase_callback: Callable[[str], None] | None = None,
+) -> tuple[Path, dict[str, Any]]:
     root = Path(__file__).resolve().parents[2]
     preflight = inspect_repository(root)
     if not preflight.valid:
         raise RuntimeError(f"repository preflight must pass before a run: {preflight}")
     config = load_config(config_path)
     commit = git_commit(root)
+    if expected_git_sha is not None and commit != expected_git_sha:
+        raise RuntimeError(
+            f"Git SHA mismatch: expected {expected_git_sha}, observed {commit}"
+        )
     seed_everything(int(config["seed"]))
-    run_dir = create_run_dir(root / config["output"]["root_dir"], commit)
-    rendered = render_smoke_images(config, run_dir)
-    adapter = build_adapter(config, root)
+    if output_dir is None:
+        run_dir = create_run_dir(root / config["output"]["root_dir"], commit)
+    else:
+        run_dir = output_dir.resolve()
+        run_dir.mkdir(parents=True, exist_ok=False)
+    rendered = render_smoke_images(config, run_dir, root)
+    adapter = build_adapter(config, root, runtime)
 
     started = time.perf_counter()
     predictions: list[dict[str, Any]] = []
     status = "PROCESSOR_AUDIT_ONLY"
+    cuda_memory: dict[str, int | None] = {
+        "allocated_after_model_load_bytes": None,
+        "reserved_after_model_load_bytes": None,
+        "peak_allocated_during_inference_bytes": None,
+        "peak_reserved_during_inference_bytes": None,
+    }
     with peak_rss_monitor() as memory:
+        if inference and phase_callback:
+            phase_callback("model_load")
         architecture = adapter.architecture_record()
+        if inference:
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.reset_peak_memory_stats()
+            _ = adapter.model
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+                cuda_memory["allocated_after_model_load_bytes"] = int(
+                    torch.cuda.memory_allocated()
+                )
+                cuda_memory["reserved_after_model_load_bytes"] = int(
+                    torch.cuda.memory_reserved()
+                )
+                torch.cuda.reset_peak_memory_stats()
+            if phase_callback:
+                phase_callback("step3_execution")
         for sample in rendered:
             image_path = run_dir / sample["image_path"]
             if inference:
@@ -207,6 +288,14 @@ def run_audit(config_path: Path, *, inference: bool) -> tuple[Path, dict[str, An
                 )
         if inference:
             status = "VALID_WITH_PENDING_HUMAN_REVIEW"
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+                cuda_memory["peak_allocated_during_inference_bytes"] = int(
+                    torch.cuda.max_memory_allocated()
+                )
+                cuda_memory["peak_reserved_during_inference_bytes"] = int(
+                    torch.cuda.max_memory_reserved()
+                )
 
     manifest = {
         "schema_version": 1,
@@ -223,6 +312,7 @@ def run_audit(config_path: Path, *, inference: bool) -> tuple[Path, dict[str, An
         "model_load_seconds": adapter.model_load_seconds,
         "total_seconds": time.perf_counter() - started,
         "peak_rss_bytes": memory["peak_rss_bytes"],
+        "cuda_memory": cuda_memory,
         "samples": rendered,
     }
     write_json(run_dir / "manifest.json", manifest)

@@ -1,0 +1,27 @@
+schema_version: 1
+backend: kaggle
+accelerator: NvidiaTeslaT4
+
+source:
+  repository_url: https://github.com/Up2mEz/thai-prune.git
+  remote_ref: refs/heads/infra/kaggle-phase1
+
+python:
+  version: "3.12"
+
+uv:
+  bootstrap_version: "0.11.25"
+  sync_args:
+    - --frozen
+    - --extra
+    - model
+
+model_runtime:
+  device: cuda
+  dtype: float16
+  attention_implementation: sdpa
+  cache_dir: /tmp/huggingface
+
+paths:
+  source_dir: /tmp/labbs2026-source
+  output_root: /kaggle/working/artifacts
