@@ -35,6 +35,13 @@ splitting, registered metrics, rendering-condition candidate pool, and
 **Still prohibited:** Qwen calibration before final freeze, locked validation,
 Gate 0 approval, Stage 1A, and every compression intervention.
 
+**Revision presented for final freeze:** immutable review packet
+`20260905T204206Z_e1ad6f35` contains 200 pairs (40/category), a proposed
+20/20 pair split per category, 2,000 proposed calibration calls including the
+exact rerun, and zero automated validation issues. The planning floor is not a
+power guarantee. `ฬา/ฬ่า` was replaced before model exposure after the new
+shaping audit detected a contextual base-glyph change.
+
 ## Status vocabulary
 
 - `BLOCKED` — prerequisite gate not passed

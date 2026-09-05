@@ -61,10 +61,10 @@ The manifest records:
 
 Any nonzero `actual_origin_delta` records `GLOBAL_LAYOUT_SHIFT` and fails the
 candidate build. `separately_centered_origin_delta` is diagnostic only: a
-nonzero value shows an artifact avoided by the shared-origin rule. Natural
-within-string placement changes caused by different glyph advances remain
-visible in the mask and are not mislabeled as canvas recentering. Their role as
-a visual-size/layout confound belongs to Stage 2.
+nonzero value shows an artifact avoided by the shared-origin rule. For
+`BASE_CHARACTER`, natural within-string placement changes caused by different
+glyph advances remain visible in the mask and are not mislabeled as canvas
+recentering. Their role as a visual-size/layout confound belongs to Stage 2.
 
 For `TONE_MARK`, `STACKED_TONE_MARK`, `UPPER_VOWEL_VARIANT`, and
 `LOWER_VOWEL_VARIANT`, the builder additionally compares the shaped glyph

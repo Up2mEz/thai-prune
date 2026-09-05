@@ -3,8 +3,8 @@ status: CONDITIONAL_APPROVAL_FINAL_FREEZE_PENDING
 decision: null
 reviewer: null
 reviewed_at_utc: null
-review_packet: TO_BE_FILLED_AFTER_REGENERATION
-review_packet_sha256: null
+review_packet: runs/stage0/candidate_review/20260905T204206Z_e1ad6f35/review_packet.json
+review_packet_sha256: e340a2b8386751352beb36732d21a6c613fd3bbdd1822262880e4a0a4b671df3
 approvals_already_recorded:
   visual_review_of_original_five_contact_sheets: true
   rendering_condition_candidate_pool: true
