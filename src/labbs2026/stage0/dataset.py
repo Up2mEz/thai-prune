@@ -13,6 +13,7 @@ import yaml
 from PIL import Image, ImageDraw, ImageFont
 
 from labbs2026.preflight import inspect_repository
+from labbs2026.stage0.adequacy import assess_pair_inventory
 from labbs2026.stage0.rendering import (
     metadata_dict,
     render_pair,
@@ -20,6 +21,9 @@ from labbs2026.stage0.rendering import (
     sha256_file,
 )
 from labbs2026.stage0.unicode_checks import validate_pair
+
+
+LEXICAL_STATUSES = {"REAL", "CONSTRUCTED", "UNCERTAIN"}
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -77,7 +81,9 @@ def _contact_sheet(
 
 
 def build_candidate_review(
-    inventory_path: Path, rendering_path: Path
+    inventory_path: Path,
+    rendering_path: Path,
+    calibration_design_path: Path | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     root = Path(__file__).resolve().parents[3]
     preflight = inspect_repository(root)
@@ -85,12 +91,16 @@ def build_candidate_review(
         raise RuntimeError(f"clean repository preflight required: {preflight}")
     inventory = _load_yaml(inventory_path)
     rendering = _load_yaml(rendering_path)
+    calibration_design = (
+        _load_yaml(calibration_design_path) if calibration_design_path else None
+    )
     commit = _git_commit(root)
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     run_dir = root / "runs" / "stage0" / "candidate_review" / f"{timestamp}_{commit[:8]}"
     run_dir.mkdir(parents=True, exist_ok=False)
 
     pairs = inventory.get("pairs", [])
+    planning = inventory.get("planning", {})
     pair_ids = [pair.get("pair_id") for pair in pairs]
     duplicate_ids = sorted(pair_id for pair_id, count in Counter(pair_ids).items() if count > 1)
     unordered = [tuple(sorted((pair["text_a"], pair["text_b"]))) for pair in pairs]
@@ -100,10 +110,23 @@ def build_candidate_review(
         inventory_issues.append(f"DUPLICATE_PAIR_IDS:{duplicate_ids}")
     if duplicate_strings:
         inventory_issues.append(f"DUPLICATE_UNORDERED_PAIRS:{duplicate_strings}")
+    for pair in pairs:
+        for member in ("a", "b"):
+            status = pair.get(f"lexical_status_{member}")
+            if status not in LEXICAL_STATUSES:
+                inventory_issues.append(
+                    f"{pair.get('pair_id')}:INVALID_LEXICAL_STATUS_{member.upper()}:{status}"
+                )
 
     canvas = (int(rendering["canvas"]["width"]), int(rendering["canvas"]["height"]))
     foreground = rendering["colors"]["foreground"]
     background = rendering["colors"]["background"]
+    difference_threshold = int(
+        rendering["difference_mask"]["coverage_delta_threshold"]
+    )
+    rerender_audit = bool(
+        rendering["difference_mask"].get("deterministic_rerender_audit", False)
+    )
     font_by_id = {font["font_id"]: font for font in rendering["fonts"]}
     for font in rendering["fonts"]:
         font_path = root / font["path"]
@@ -152,7 +175,29 @@ def build_candidate_review(
                         position_offset=(int(position["x"]), int(position["y"])),
                         foreground=foreground,
                         background=background,
+                        difference_threshold=difference_threshold,
                     )
+                    deterministic_rerender_status = "NOT_REQUESTED"
+                    if rerender_audit:
+                        repeated = render_pair(
+                            pair["text_a"],
+                            pair["text_b"],
+                            font_path=root / font["path"],
+                            font_size=int(font_size),
+                            canvas=canvas,
+                            position_offset=(int(position["x"]), int(position["y"])),
+                            foreground=foreground,
+                            background=background,
+                            difference_threshold=difference_threshold,
+                        )
+                        deterministic_rerender_status = (
+                            "PASS"
+                            if image_a.tobytes() == repeated[0].tobytes()
+                            and image_b.tobytes() == repeated[1].tobytes()
+                            and difference.tobytes() == repeated[2].tobytes()
+                            and render_metadata == repeated[3]
+                            else "FAIL"
+                        )
                     image_a_path = relative_dir / f"{pair['pair_id']}__a.png"
                     image_b_path = relative_dir / f"{pair['pair_id']}__b.png"
                     mask_path = relative_dir / f"{pair['pair_id']}__difference.png"
@@ -167,6 +212,10 @@ def build_candidate_review(
                         render_issues.append("EMPTY_RENDER")
                     if values["critical_pixel_area"] <= 0:
                         render_issues.append("EMPTY_DIFFERENCE_MASK")
+                    if tuple(values["actual_origin_delta"]) != (0, 0):
+                        render_issues.append("GLOBAL_LAYOUT_SHIFT")
+                    if deterministic_rerender_status == "FAIL":
+                        render_issues.append("NONDETERMINISTIC_RERENDER")
                     record = {
                         "pair_id": pair["pair_id"],
                         "component_type": pair["component_type"],
@@ -188,6 +237,7 @@ def build_candidate_review(
                         "image_b_sha256": sha256_file(run_dir / image_b_path),
                         "difference_mask_sha256": sha256_file(run_dir / mask_path),
                         "render_metadata": values,
+                        "deterministic_rerender_status": deterministic_rerender_status,
                         "automated_render_status": "PASS" if not render_issues else "FAIL",
                         "automated_render_issues": render_issues,
                         "human_render_status": "PENDING",
@@ -206,14 +256,68 @@ def build_candidate_review(
                     ):
                         preview_records[pair["component_type"]].append(record)
 
-    contact_sheets: dict[str, str] = {}
+    contact_sheets: dict[str, list[str]] = {}
     for component_type, records in sorted(preview_records.items()):
-        path = Path("contact_sheets") / f"{component_type.lower()}.png"
-        _contact_sheet(records, run_dir, run_dir / path)
-        contact_sheets[component_type] = path.as_posix()
+        paths: list[str] = []
+        for page_index, start in enumerate(range(0, len(records), 10), start=1):
+            path = (
+                Path("contact_sheets")
+                / f"{component_type.lower()}__page_{page_index:02d}.png"
+            )
+            _contact_sheet(records[start : start + 10], run_dir, run_dir / path)
+            paths.append(path.as_posix())
+        contact_sheets[component_type] = paths
+
+    adequacy = assess_pair_inventory(
+        pairs,
+        seoi_absolute_pp=float(planning["seoi_absolute_pp"]),
+        seed=int(planning["allocation_seed"]),
+    )
+    _write_json(run_dir / "inventory_adequacy.json", adequacy)
+    proposed_design: dict[str, Any] | None = None
+    if calibration_design is not None:
+        calibration_ids = calibration_design["allocation"]["calibration_pair_ids"]
+        locked_ids = calibration_design["allocation"]["locked_validation_pair_ids"]
+        condition_ids = calibration_design["render_condition_selection"][
+            "selected_condition_ids"
+        ]
+        blank_ids = calibration_design["controls"][
+            "language_candidate_bias_blank_pair_ids"
+        ]
+        proposal = adequacy["proposed_allocation"]
+        if set(calibration_ids) != set(proposal["calibration_pair_ids"]):
+            inventory_issues.append("CALIBRATION_ALLOCATION_DIFFERS_FROM_ADEQUACY_PROPOSAL")
+        if set(locked_ids) != set(proposal["locked_validation_pair_ids"]):
+            inventory_issues.append("LOCKED_ALLOCATION_DIFFERS_FROM_ADEQUACY_PROPOSAL")
+        available_conditions = {record["condition_id"] for record in render_records}
+        if not set(condition_ids) <= available_conditions:
+            inventory_issues.append("PROPOSED_CONDITION_NOT_RENDERED")
+        if not set(blank_ids) <= set(calibration_ids):
+            inventory_issues.append("BLANK_CONTROL_PAIR_NOT_IN_CALIBRATION")
+        full_calls = len(calibration_ids) * len(condition_ids) * 2
+        blank_calls = len(blank_ids) * 2
+        rerun_count = 2 if calibration_design["reproducibility"]["exact_rerun"] else 1
+        proposed_design = {
+            "status": "PROPOSED_FINAL_HUMAN_FREEZE_PENDING",
+            "calibration_pair_ids": calibration_ids,
+            "locked_validation_pair_ids": locked_ids,
+            "selected_condition_ids": condition_ids,
+            "language_candidate_bias_blank_pair_ids": blank_ids,
+            "blank_control_has_visual_ground_truth": False,
+            "exact_kaggle_workload": {
+                "backend": calibration_design["backend"],
+                "full_information_calls_per_run": full_calls,
+                "language_candidate_bias_blank_calls_per_run": blank_calls,
+                "calls_per_run": full_calls + blank_calls,
+                "exact_rerun_count": rerun_count,
+                "total_model_calls": (full_calls + blank_calls) * rerun_count,
+                "locked_validation_included": False,
+            },
+        }
+        _write_json(run_dir / "proposed_calibration_design.json", proposed_design)
 
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "AWAITING_HUMAN_REVIEW" if not inventory_issues else "AUTOMATED_VALIDATION_FAILED",
         "scientific_use": "FORBIDDEN_BEFORE_HUMAN_FREEZE",
         "created_at_utc": datetime.now(UTC).isoformat(),
@@ -228,8 +332,34 @@ def build_candidate_review(
         "pair_condition_count": len(render_records),
         "rendered_stimulus_count": len(render_records) * 2,
         "component_counts": dict(Counter(pair["component_type"] for pair in pairs)),
+        "lexical_status_member_counts": dict(
+            Counter(
+                pair[f"lexical_status_{member}"]
+                for pair in pairs
+                for member in ("a", "b")
+            )
+        ),
+        "difference_mask_construction": {
+            "rule": rendering["difference_mask"]["rule"],
+            "coverage_delta_threshold": difference_threshold,
+            "anti_aliasing": rendering["difference_mask"]["anti_aliasing"],
+            "critical_pixel_area": "count of thresholded mask pixels",
+            "deterministic_rerender_audit": rerender_audit,
+            "global_layout_policy": rendering["global_layout"]["policy"],
+            "global_layout_rejection": "reject nonzero actual origin delta; shared union-bbox origin prevents independent recentering",
+        },
         "automated_issues": inventory_issues,
         "contact_sheets": contact_sheets,
+        "inventory_adequacy": adequacy,
+        "calibration_design_path": (
+            calibration_design_path.relative_to(root).as_posix()
+            if calibration_design_path
+            else None
+        ),
+        "calibration_design_sha256": (
+            sha256_file(calibration_design_path) if calibration_design_path else None
+        ),
+        "proposed_calibration_design": proposed_design,
         "human_decisions_required": [
             "linguistic validity and admissibility for every pair",
             "rendering-factor pool and visible distinction validity",

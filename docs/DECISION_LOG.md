@@ -2,6 +2,39 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-06 — Stage 0 Checkpoint A conditional approval
+
+**Stage/Gate:** Steps 4–6 / Stage 0 pre-calibration review
+
+**Human decision:** `CONDITIONAL APPROVAL`. The five initial contact sheets
+were accepted for Thai shaping, mark placement, clipping, and visible A/B
+distinction. Calibration remains unauthorized until the revised inventory and
+allocation receive a final human freeze.
+
+**Frozen interpretation changes:**
+
+- component labels are `BASE_CHARACTER`, `TONE_MARK`,
+  `UPPER_VOWEL_VARIANT`, `LOWER_VOWEL_VARIANT`, and `STACKED_TONE_MARK`;
+- current `BASE_CHARACTER` pairs are valid for Stage 0 but are not assumed
+  size-matched for Stage 2;
+- each pair member records `lexical_status` as `REAL`, `CONSTRUCTED`, or
+  `UNCERTAIN`, and constructed strings remain admissible;
+- blank images are language/candidate-bias controls without visual ground
+  truth and must not be scored as OCR/visual accuracy;
+- the provisional SESOI is 10 percentage points absolute differential
+  degradation for Stage 0 planning and Advisor Readiness only.
+
+**Already approved unless a new methodological issue is found:** Kaggle T4,
+the pinned Qwen2.5-VL-3B revision, fixed prompt, exact A/B parser, pair-level
+splitting, registered metrics, rendering-condition candidate pool, and
+`FULL_INFORMATION`-only calibration.
+
+**Operational backend status:**
+`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`.
+
+**Still prohibited:** Qwen calibration before final freeze, locked validation,
+Gate 0 approval, Stage 1A, and every compression intervention.
+
 ## Status vocabulary
 
 - `BLOCKED` — prerequisite gate not passed

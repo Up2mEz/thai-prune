@@ -45,8 +45,13 @@ Candidate inventory
 - `pair_id` is the independent allocation and analysis unit.
 - Both members of an accepted pair are rendered; render variants remain
   repeated observations.
-- Candidate categories follow `EXPERIMENT_PROTOCOL.md`: base-character,
-  tone-mark, upper-vowel, lower-vowel, and upper-vowel + tone context.
+- Candidate labels follow `EXPERIMENT_PROTOCOL.md`: `BASE_CHARACTER`,
+  `TONE_MARK`, `UPPER_VOWEL_VARIANT`, `LOWER_VOWEL_VARIANT`, and
+  `STACKED_TONE_MARK`.
+- `BASE_CHARACTER` is valid for Stage 0 but is not presumed to provide
+  size-matched controls for Stage 2.
+- Every member records `lexical_status` as `REAL`, `CONSTRUCTED`, or
+  `UNCERTAIN`; constructed strings remain admissible.
 - Automated validity does not substitute for human Thai-linguistic review.
 - Pair inclusion/exclusion is frozen before any model outcome is opened.
 
@@ -76,8 +81,8 @@ observations is intentionally unresolved.
   labels are balanced by construction.
 - Repeat the same frozen workload with the same seed to assess exact
   reproducibility.
-- Include separately labeled blank-image language-prior controls; never merge
-  them into full-information accuracy.
+- Include separately labeled `LANGUAGE_CANDIDATE_BIAS_BLANK` controls. They
+  have no visual ground truth and never enter full-information accuracy.
 
 The calibration/validation pair counts and condition subset require human
 approval after the usable inventory is known. No numeric split is registered
@@ -105,7 +110,8 @@ calibration.
 - per-component and per-render-condition accuracy;
 - accuracy by expected A/B label and candidate-order gap;
 - pair-clustered bootstrap intervals;
-- full-information minus blank-control separation;
+- blank-control candidate/order/lexical-status preference, reported without
+  visual accuracy;
 - exact rerun agreement for raw output, parsed output, and token metadata;
 - visual-token count, latency, peak RAM/VRAM, and execution failures.
 
@@ -119,7 +125,8 @@ After calibration, the proposal must connect numeric criteria to:
 2. interval precision at `pair_id` level;
 3. parser/order/control behavior;
 4. reproducibility; and
-5. a human-selected smallest later-stage effect of interest.
+5. the human-selected provisional 10 percentage-point SESOI for Advisor
+   Readiness measurement planning.
 
 Criteria must not use Stage 1A results. Checkpoint B freezes the criteria,
 locked pair allocation, rendering conditions, prompt/parser, and exact Kaggle
@@ -131,6 +138,5 @@ workload before the first locked validation run.
 - whether constructed low-semantic-predictability graphemes are admissible;
 - which rendering-factor subset enters calibration;
 - calibration versus locked-validation `pair_id` allocation;
-- smallest later-stage effect of interest;
 - numeric Gate 0 criteria;
-- whether Kaggle T4 is adopted for calibration and locked validation.
+- final pair/allocation/render-subset freeze after inventory expansion.

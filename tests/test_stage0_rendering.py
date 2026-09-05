@@ -49,9 +49,40 @@ def test_pair_uses_shared_origin_and_nonempty_difference_mask() -> None:
     assert metadata.ink_pixels_a > 0
     assert metadata.ink_pixels_b > 0
     assert metadata.critical_pixel_area > 0
+    assert metadata.difference_threshold == 1
+    assert metadata.actual_origin_delta == (0, 0)
     assert metadata.critical_bbox != (0, 0, 0, 0)
     assert metadata.shared_origin[0] > 0
     assert metadata.shared_origin[1] > 0
+
+
+def test_difference_mask_is_reproducible_and_thresholded() -> None:
+    first = render_pair(
+        "กี",
+        "กี่",
+        font_path=FONT,
+        font_size=96,
+        canvas=(448, 448),
+        position_offset=(0, 0),
+        foreground="#000000",
+        background="#FFFFFF",
+        difference_threshold=1,
+    )
+    second = render_pair(
+        "กี",
+        "กี่",
+        font_path=FONT,
+        font_size=96,
+        canvas=(448, 448),
+        position_offset=(0, 0),
+        foreground="#000000",
+        background="#FFFFFF",
+        difference_threshold=1,
+    )
+
+    assert first[2].tobytes() == second[2].tobytes()
+    assert first[3].critical_pixel_area == second[3].critical_pixel_area
+    assert first[3].coverage_delta_sum == second[3].coverage_delta_sum
 
 
 def test_renderer_versions_are_auditable() -> None:

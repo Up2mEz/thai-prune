@@ -17,14 +17,49 @@ def _accuracy(rows: list[dict[str, Any]]) -> float | None:
 
 def _group_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     parsed = [row for row in rows if row.get("parse_status") == "PARSED"]
+    scored = [row for row in rows if row.get("expected_label") is not None]
+    parsed_scored = [row for row in scored if row.get("parse_status") == "PARSED"]
     return {
         "observation_count": len(rows),
         "pair_count": len({row["pair_id"] for row in rows}),
         "parsed_count": len(parsed),
         "parser_failure_count": len(rows) - len(parsed),
         "parser_failure_rate": (len(rows) - len(parsed)) / len(rows) if rows else None,
-        "accuracy_all_observations": _accuracy(rows),
-        "accuracy_conditional_parsed": _accuracy(parsed),
+        "scored_observation_count": len(scored),
+        "accuracy_all_scored_observations": _accuracy(scored),
+        "accuracy_conditional_parsed": _accuracy(parsed_scored),
+    }
+
+
+def _blank_bias_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    parsed = [row for row in rows if row.get("parse_status") == "PARSED"]
+    selected_status = Counter()
+    canonical_member = Counter()
+    for row in parsed:
+        choice = row["parsed_output"]
+        selected_status[row[f"candidate_{choice.lower()}_lexical_status"]] += 1
+        if (choice == "A" and row["orientation"] == "A_THEN_B") or (
+            choice == "B" and row["orientation"] == "B_THEN_A"
+        ):
+            canonical_member["text_a"] += 1
+        else:
+            canonical_member["text_b"] += 1
+    return {
+        "control_type": "LANGUAGE_CANDIDATE_BIAS_BLANK",
+        "has_visual_ground_truth": False,
+        "accuracy": None,
+        "observation_count": len(rows),
+        "pair_count": len({row["pair_id"] for row in rows}),
+        "parsed_count": len(parsed),
+        "parser_failure_count": len(rows) - len(parsed),
+        "parser_failure_rate": (len(rows) - len(parsed)) / len(rows) if rows else None,
+        "choice_a_rate": (
+            sum(row["parsed_output"] == "A" for row in parsed) / len(parsed)
+            if parsed
+            else None
+        ),
+        "canonical_member_choice_counts": dict(sorted(canonical_member.items())),
+        "selected_lexical_status_counts": dict(sorted(selected_status.items())),
     }
 
 
@@ -65,20 +100,28 @@ def compute_stage0_metrics(
 ) -> dict[str, Any]:
     rows = list(predictions)
     full = [row for row in rows if row.get("control_type") == "FULL_INFORMATION"]
-    blank = [row for row in rows if row.get("control_type") == "LANGUAGE_PRIOR_BLANK"]
+    blank = [
+        row
+        for row in rows
+        if row.get("control_type") == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+    ]
     per_component = {
         component: _group_summary([row for row in full if row["component_type"] == component])
         for component in sorted({row["component_type"] for row in full})
+    }
+    by_lexical_status = {
+        status: _group_summary(
+            [row for row in full if row.get("displayed_lexical_status") == status]
+        )
+        for status in ("REAL", "CONSTRUCTED", "UNCERTAIN")
     }
     by_expected = {
         label: _group_summary([row for row in full if row["expected_label"] == label])
         for label in ("A", "B")
     }
-    accuracy_a = by_expected["A"]["accuracy_all_observations"]
-    accuracy_b = by_expected["B"]["accuracy_all_observations"]
+    accuracy_a = by_expected["A"]["accuracy_all_scored_observations"]
+    accuracy_b = by_expected["B"]["accuracy_all_scored_observations"]
     order_gap = abs(accuracy_a - accuracy_b) if accuracy_a is not None and accuracy_b is not None else None
-    full_accuracy = _accuracy(full)
-    blank_accuracy = _accuracy(blank)
     latency_values = sorted(float(row["generation_seconds"]) for row in rows if row.get("generation_seconds") is not None)
     visual_counts = Counter(
         int(row["llm_visual_token_count"])
@@ -88,13 +131,9 @@ def compute_stage0_metrics(
     return {
         "all": _group_summary(rows),
         "full_information": _group_summary(full),
-        "language_prior_blank": _group_summary(blank),
-        "full_minus_blank_accuracy": (
-            full_accuracy - blank_accuracy
-            if full_accuracy is not None and blank_accuracy is not None
-            else None
-        ),
+        "language_candidate_bias_blank": _blank_bias_summary(blank),
         "per_component": per_component,
+        "by_displayed_lexical_status": by_lexical_status,
         "by_expected_label": by_expected,
         "candidate_order_gap": order_gap,
         "pair_clustered_accuracy_interval": cluster_bootstrap_accuracy(

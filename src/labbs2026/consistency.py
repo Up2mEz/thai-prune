@@ -71,6 +71,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
     decisions = texts["docs/DECISION_LOG.md"]
     claims = texts["docs/CLAIMS.md"]
     active_plan = texts["docs/exec-plans/active/ADVISOR_READINESS.md"]
+    normalized_decisions = " ".join(decisions.split())
     combined = "\n".join(texts.values())
 
     for relative_path, text in (
@@ -157,15 +158,39 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
         "kaggle-backend-proposed",
         all(
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`" in text
-            for text in (architecture, decisions, claims, active_plan)
+            for text in (architecture, decisions, claims)
         ),
         "The Kaggle backend proposal status must agree across the Source of Truth.",
     )
     _require(
         issues,
+        "kaggle-stage0-approved",
+        all(
+            "`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`" in text
+            for text in (architecture, decisions, claims, active_plan)
+        ),
+        "Stage 0 Kaggle approval must agree across the Source of Truth.",
+    )
+    _require(
+        issues,
+        "stage0-labels-and-controls",
+        all(
+            label in research and label in protocol and label in decisions
+            for label in (
+                "UPPER_VOWEL_VARIANT",
+                "LOWER_VOWEL_VARIANT",
+                "STACKED_TONE_MARK",
+            )
+        )
+        and "LANGUAGE_CANDIDATE_BIAS_BLANK" in protocol
+        and "without visual ground truth" in normalized_decisions,
+        "Stage 0 component labels and blank-control semantics must agree.",
+    )
+    _require(
+        issues,
         "later-stages-remain-gated",
         "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN" in decisions
-        and "Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION`" in active_plan
+        and "Steps 4–6 — Stage 0 | `CHECKPOINT_A_FINAL_FREEZE_PENDING`" in active_plan
         and "Locked Stage 0 validation may not begin" in decisions
         and "# Stage 1A — Resolution Sensitivity Pilot\n\n**Status:** BLOCKED" in decisions,
         "Stage 0 preparation must not authorize locked validation or Stage 1A.",

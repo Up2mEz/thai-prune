@@ -79,6 +79,12 @@ change differs by `component_type`.
 - Uncertainty must preserve pair clustering through within-pair contrasts,
   cluster bootstrap by `pair_id`, or an appropriate hierarchical model.
 
+The registered component labels are `BASE_CHARACTER`, `TONE_MARK`,
+`UPPER_VOWEL_VARIANT`, `LOWER_VOWEL_VARIANT`, and `STACKED_TONE_MARK`.
+`STACKED_TONE_MARK` changes only the tone mark while an upper vowel is present
+in both pair members. The current `BASE_CHARACTER` candidates are Stage 0
+measurement stimuli and are not presumed size-matched for Stage 2.
+
 ## 7. Stage and gate map
 
 ### Stage 0 — Measurement validity

@@ -1,8 +1,16 @@
 schema_version: 1
-status: PROPOSED_NOT_FROZEN
+status: CANDIDATE_POOL_HUMAN_APPROVED_SUBSET_PENDING_FINAL_FREEZE
 canvas: {width: 448, height: 448}
 colors: {foreground: "#000000", background: "#FFFFFF"}
 shaping: {direction: ltr, script: Thai, language: th}
+difference_mask:
+  coverage_delta_threshold: 1
+  rule: abs(freetype_coverage_a-freetype_coverage_b)>=coverage_delta_threshold
+  anti_aliasing: FreeType 8-bit grayscale coverage
+  deterministic_rerender_audit: true
+global_layout:
+  policy: shared_union_bbox_origin
+  reject_nonzero_actual_origin_delta: true
 fonts:
   - font_id: noto_sans_thai_regular
     path: assets/fonts/noto/NotoSansThai-Regular.ttf

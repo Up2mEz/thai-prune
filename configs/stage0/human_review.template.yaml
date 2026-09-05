@@ -1,64 +1,542 @@
-schema_version: 1
-status: PENDING_HUMAN_DECISION
+schema_version: 2
+status: CONDITIONAL_APPROVAL_FINAL_FREEZE_PENDING
 decision: null
 reviewer: null
 reviewed_at_utc: null
-review_packet: runs/stage0/candidate_review/20260905T195831Z_d63c9f3d/review_packet.json
-review_packet_sha256: 715491c6fff6e815f1b2e5374a3f983e09fbf15eeeace9e375b37f9db8b91617
-
-# Fill these only after reviewing the contact sheets and, where needed, the
-# individual renders. Exclusion reasons remain part of the audit trail.
+review_packet: TO_BE_FILLED_AFTER_REGENERATION
+review_packet_sha256: null
+approvals_already_recorded:
+  visual_review_of_original_five_contact_sheets: true
+  rendering_condition_candidate_pool: true
+  prompt_parser: true
+  kaggle_t4_backend: true
+  pinned_qwen25_revision: true
+  pair_level_split_principle: true
+  registered_metrics: true
+  full_information_only: true
 pair_decisions:
-  - {pair_id: base_ka_pha, decision: null, reason: null}
-  - {pair_id: base_kha_cha, decision: null, reason: null}
-  - {pair_id: base_kha_da, decision: null, reason: null}
-  - {pair_id: base_na_ma, decision: null, reason: null}
-  - {pair_id: base_ba_pa, decision: null, reason: null}
-  - {pair_id: base_la_sa, decision: null, reason: null}
-  - {pair_id: tone_ka, decision: null, reason: null}
-  - {pair_id: tone_kha, decision: null, reason: null}
-  - {pair_id: tone_kho, decision: null, reason: null}
-  - {pair_id: tone_pa, decision: null, reason: null}
-  - {pair_id: tone_na, decision: null, reason: null}
-  - {pair_id: tone_ma, decision: null, reason: null}
-  - {pair_id: upper_ka, decision: null, reason: null}
-  - {pair_id: upper_kha, decision: null, reason: null}
-  - {pair_id: upper_kho, decision: null, reason: null}
-  - {pair_id: upper_pa, decision: null, reason: null}
-  - {pair_id: upper_na, decision: null, reason: null}
-  - {pair_id: upper_ma, decision: null, reason: null}
-  - {pair_id: lower_ka, decision: null, reason: null}
-  - {pair_id: lower_kha, decision: null, reason: null}
-  - {pair_id: lower_kho, decision: null, reason: null}
-  - {pair_id: lower_pa, decision: null, reason: null}
-  - {pair_id: lower_na, decision: null, reason: null}
-  - {pair_id: lower_ma, decision: null, reason: null}
-  - {pair_id: combined_ka, decision: null, reason: null}
-  - {pair_id: combined_kha, decision: null, reason: null}
-  - {pair_id: combined_kho, decision: null, reason: null}
-  - {pair_id: combined_pa, decision: null, reason: null}
-  - {pair_id: combined_na, decision: null, reason: null}
-  - {pair_id: combined_ma, decision: null, reason: null}
-
-condition_decisions:
-  - {condition_id: noto_sans_thai_regular__72__center, decision: null, reason: null}
-  - {condition_id: noto_sans_thai_regular__72__upper_left, decision: null, reason: null}
-  - {condition_id: noto_sans_thai_regular__72__lower_right, decision: null, reason: null}
-  - {condition_id: noto_sans_thai_regular__96__center, decision: null, reason: null}
-  - {condition_id: noto_sans_thai_regular__96__upper_left, decision: null, reason: null}
-  - {condition_id: noto_sans_thai_regular__96__lower_right, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__72__center, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__72__upper_left, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__72__lower_right, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__96__center, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__96__upper_left, decision: null, reason: null}
-  - {condition_id: noto_serif_thai_regular__96__lower_right, decision: null, reason: null}
-
-approved_pair_ids: null
-approved_condition_ids: null
-prompt_parser_approved: null
-calibration_pair_ids: null
-locked_validation_pair_ids: null
-calibration_condition_ids: null
-language_prior_blank_pair_ids: null
+  - {pair_id: base_ka_pha, component_type: BASE_CHARACTER, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_kha_cha, component_type: BASE_CHARACTER, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_kha_da, component_type: BASE_CHARACTER, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_m1_ue06_ue1b, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue07_ue1c, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue08_ue1d, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue09_ue1e, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue0b_ue1f, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue0d_ue21, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue0e_ue22, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue0f_ue23, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue10_ue25, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue11_ue27, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue13_ue28, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue15_ue29, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue16_ue2a, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue17_ue2b, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue18_ue2c, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue19_ue2d, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m1_ue1a_ue2e, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_na_ma, component_type: BASE_CHARACTER, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_ba_pa, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_la_sa, component_type: BASE_CHARACTER, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: base_m2_ue01_ue16, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue02_ue17, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue04_ue18, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue06_ue1c, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue07_ue1d, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue08_ue1e, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue09_ue1f, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue0a_ue20, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue0b_ue22, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue0d_ue23, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue0e_ue27, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue0f_ue28, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue10_ue29, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue11_ue2b, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue13_ue2c, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue14_ue2d, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: base_m2_ue15_ue2e, component_type: BASE_CHARACTER, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ka, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_kha, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_kho, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_ue06, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue07, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue08, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue09, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0a, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0b, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0d, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0e, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0f, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue10, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue11, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue13, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue14, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue15, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue16, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue17, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue18, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_na, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_ue1a, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_pa, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_ue1c, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue1d, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue1e, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue1f, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue20, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ma, component_type: TONE_MARK, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: tone_ue22, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue23, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue25, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue27, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue28, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue29, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue2a, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue2b, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue2c, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue2d, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue2e, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_ka, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_kha, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_kho, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_variant_ue06, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue07, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue08, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue09, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue0a, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue0b, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue0d, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue0e, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue0f, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue10, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue11, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue13, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue14, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue15, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue16, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue17, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue18, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_na, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_variant_ue1a, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_pa, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_variant_ue1c, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue1d, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue1e, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue1f, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue20, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_ma, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: upper_variant_ue22, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue23, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue25, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue27, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue28, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue29, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue2a, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue2b, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue2c, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue2d, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: upper_variant_ue2e, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_ka, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_kha, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_kho, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_variant_ue06, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue07, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue08, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue09, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue0a, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue0b, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue0d, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue0e, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue0f, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue10, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue11, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue13, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue14, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue15, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue16, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue17, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue18, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_na, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_variant_ue1a, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_pa, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_variant_ue1c, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue1d, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue1e, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue1f, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue20, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_ma, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: lower_variant_ue22, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue23, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue25, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue27, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue28, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue29, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue2a, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue2b, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue2c, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue2d, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: lower_variant_ue2e, component_type: LOWER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: combined_ka, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: combined_kha, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: combined_kho, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: stacked_tone_ue06, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue07, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue08, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue09, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue0a, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue0b, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue0d, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue0e, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue0f, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue10, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue11, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue13, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue14, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue15, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue16, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue17, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue18, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: combined_na, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: stacked_tone_ue1a, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: combined_pa, component_type: STACKED_TONE_MARK, lexical_status_a: REAL, lexical_status_b: REAL, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: stacked_tone_ue1c, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue1d, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue1e, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue1f, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue20, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: combined_ma, component_type: STACKED_TONE_MARK, lexical_status_a: REAL, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
+  - {pair_id: stacked_tone_ue22, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue23, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue25, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue27, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue28, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue29, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue2a, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue2b, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue2c, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue2d, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: stacked_tone_ue2e, component_type: STACKED_TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+approved_condition_ids:
+  - noto_sans_thai_regular__72__center
+  - noto_sans_thai_regular__72__upper_left
+  - noto_sans_thai_regular__72__lower_right
+  - noto_sans_thai_regular__96__center
+  - noto_sans_thai_regular__96__upper_left
+  - noto_sans_thai_regular__96__lower_right
+  - noto_serif_thai_regular__72__center
+  - noto_serif_thai_regular__72__upper_left
+  - noto_serif_thai_regular__72__lower_right
+  - noto_serif_thai_regular__96__center
+  - noto_serif_thai_regular__96__upper_left
+  - noto_serif_thai_regular__96__lower_right
+proposed_calibration_condition_ids:
+  - noto_sans_thai_regular__72__center
+  - noto_sans_thai_regular__96__center
+  - noto_serif_thai_regular__72__center
+  - noto_serif_thai_regular__96__center
+proposed_calibration_pair_ids:
+  - base_ka_pha
+  - base_kha_cha
+  - base_kha_da
+  - base_m1_ue06_ue1b
+  - base_m1_ue07_ue1c
+  - base_m1_ue08_ue1d
+  - base_m1_ue09_ue1e
+  - base_m1_ue0b_ue1f
+  - base_m1_ue0d_ue21
+  - base_m1_ue0e_ue22
+  - base_m1_ue0f_ue23
+  - base_m1_ue10_ue25
+  - base_m1_ue11_ue27
+  - base_m1_ue13_ue28
+  - base_m1_ue15_ue29
+  - base_m1_ue16_ue2a
+  - base_m1_ue17_ue2b
+  - base_m1_ue18_ue2c
+  - base_m1_ue19_ue2d
+  - base_m1_ue1a_ue2e
+  - combined_ka
+  - combined_kha
+  - combined_kho
+  - combined_na
+  - lower_ma
+  - lower_pa
+  - lower_variant_ue06
+  - lower_variant_ue07
+  - lower_variant_ue09
+  - lower_variant_ue0d
+  - lower_variant_ue0f
+  - lower_variant_ue10
+  - lower_variant_ue11
+  - lower_variant_ue15
+  - lower_variant_ue16
+  - lower_variant_ue17
+  - lower_variant_ue1a
+  - lower_variant_ue1d
+  - lower_variant_ue1f
+  - lower_variant_ue23
+  - lower_variant_ue29
+  - lower_variant_ue2a
+  - lower_variant_ue2b
+  - lower_variant_ue2c
+  - stacked_tone_ue06
+  - stacked_tone_ue08
+  - stacked_tone_ue0d
+  - stacked_tone_ue11
+  - stacked_tone_ue13
+  - stacked_tone_ue15
+  - stacked_tone_ue16
+  - stacked_tone_ue17
+  - stacked_tone_ue1a
+  - stacked_tone_ue1c
+  - stacked_tone_ue1d
+  - stacked_tone_ue1e
+  - stacked_tone_ue1f
+  - stacked_tone_ue20
+  - stacked_tone_ue23
+  - stacked_tone_ue28
+  - tone_kha
+  - tone_na
+  - tone_ue06
+  - tone_ue07
+  - tone_ue09
+  - tone_ue0f
+  - tone_ue10
+  - tone_ue11
+  - tone_ue13
+  - tone_ue14
+  - tone_ue18
+  - tone_ue1a
+  - tone_ue1c
+  - tone_ue20
+  - tone_ue22
+  - tone_ue27
+  - tone_ue28
+  - tone_ue2b
+  - tone_ue2d
+  - tone_ue2e
+  - upper_ka
+  - upper_kha
+  - upper_kho
+  - upper_variant_ue06
+  - upper_variant_ue08
+  - upper_variant_ue0b
+  - upper_variant_ue0d
+  - upper_variant_ue13
+  - upper_variant_ue14
+  - upper_variant_ue15
+  - upper_variant_ue16
+  - upper_variant_ue18
+  - upper_variant_ue1d
+  - upper_variant_ue1e
+  - upper_variant_ue27
+  - upper_variant_ue28
+  - upper_variant_ue2b
+  - upper_variant_ue2c
+  - upper_variant_ue2d
+  - upper_variant_ue2e
+proposed_locked_validation_pair_ids:
+  - base_ba_pa
+  - base_la_sa
+  - base_m2_ue01_ue16
+  - base_m2_ue02_ue17
+  - base_m2_ue04_ue18
+  - base_m2_ue06_ue1c
+  - base_m2_ue07_ue1d
+  - base_m2_ue08_ue1e
+  - base_m2_ue09_ue1f
+  - base_m2_ue0a_ue20
+  - base_m2_ue0b_ue22
+  - base_m2_ue0d_ue23
+  - base_m2_ue0e_ue27
+  - base_m2_ue0f_ue28
+  - base_m2_ue10_ue29
+  - base_m2_ue11_ue2b
+  - base_m2_ue13_ue2c
+  - base_m2_ue14_ue2d
+  - base_m2_ue15_ue2e
+  - base_na_ma
+  - combined_ma
+  - combined_pa
+  - lower_ka
+  - lower_kha
+  - lower_kho
+  - lower_na
+  - lower_variant_ue08
+  - lower_variant_ue0a
+  - lower_variant_ue0b
+  - lower_variant_ue0e
+  - lower_variant_ue13
+  - lower_variant_ue14
+  - lower_variant_ue18
+  - lower_variant_ue1c
+  - lower_variant_ue1e
+  - lower_variant_ue20
+  - lower_variant_ue22
+  - lower_variant_ue25
+  - lower_variant_ue27
+  - lower_variant_ue28
+  - lower_variant_ue2d
+  - lower_variant_ue2e
+  - stacked_tone_ue07
+  - stacked_tone_ue09
+  - stacked_tone_ue0a
+  - stacked_tone_ue0b
+  - stacked_tone_ue0e
+  - stacked_tone_ue0f
+  - stacked_tone_ue10
+  - stacked_tone_ue14
+  - stacked_tone_ue18
+  - stacked_tone_ue22
+  - stacked_tone_ue25
+  - stacked_tone_ue27
+  - stacked_tone_ue29
+  - stacked_tone_ue2a
+  - stacked_tone_ue2b
+  - stacked_tone_ue2c
+  - stacked_tone_ue2d
+  - stacked_tone_ue2e
+  - tone_ka
+  - tone_kho
+  - tone_ma
+  - tone_pa
+  - tone_ue08
+  - tone_ue0a
+  - tone_ue0b
+  - tone_ue0d
+  - tone_ue0e
+  - tone_ue15
+  - tone_ue16
+  - tone_ue17
+  - tone_ue1d
+  - tone_ue1e
+  - tone_ue1f
+  - tone_ue23
+  - tone_ue25
+  - tone_ue29
+  - tone_ue2a
+  - tone_ue2c
+  - upper_ma
+  - upper_na
+  - upper_pa
+  - upper_variant_ue07
+  - upper_variant_ue09
+  - upper_variant_ue0a
+  - upper_variant_ue0e
+  - upper_variant_ue0f
+  - upper_variant_ue10
+  - upper_variant_ue11
+  - upper_variant_ue17
+  - upper_variant_ue1a
+  - upper_variant_ue1c
+  - upper_variant_ue1f
+  - upper_variant_ue20
+  - upper_variant_ue22
+  - upper_variant_ue23
+  - upper_variant_ue25
+  - upper_variant_ue29
+  - upper_variant_ue2a
+proposed_language_candidate_bias_blank_pair_ids:
+  - base_ka_pha
+  - base_kha_cha
+  - base_kha_da
+  - base_m1_ue06_ue1b
+  - base_m1_ue07_ue1c
+  - base_m1_ue08_ue1d
+  - base_m1_ue09_ue1e
+  - base_m1_ue0b_ue1f
+  - base_m1_ue0d_ue21
+  - base_m1_ue0e_ue22
+  - base_m1_ue0f_ue23
+  - base_m1_ue10_ue25
+  - base_m1_ue11_ue27
+  - base_m1_ue13_ue28
+  - base_m1_ue15_ue29
+  - base_m1_ue16_ue2a
+  - base_m1_ue17_ue2b
+  - base_m1_ue18_ue2c
+  - base_m1_ue19_ue2d
+  - base_m1_ue1a_ue2e
+  - combined_ka
+  - combined_kha
+  - combined_kho
+  - combined_na
+  - lower_ma
+  - lower_pa
+  - lower_variant_ue06
+  - lower_variant_ue07
+  - lower_variant_ue09
+  - lower_variant_ue0d
+  - lower_variant_ue0f
+  - lower_variant_ue10
+  - lower_variant_ue11
+  - lower_variant_ue15
+  - lower_variant_ue16
+  - lower_variant_ue17
+  - lower_variant_ue1a
+  - lower_variant_ue1d
+  - lower_variant_ue1f
+  - lower_variant_ue23
+  - lower_variant_ue29
+  - lower_variant_ue2a
+  - lower_variant_ue2b
+  - lower_variant_ue2c
+  - stacked_tone_ue06
+  - stacked_tone_ue08
+  - stacked_tone_ue0d
+  - stacked_tone_ue11
+  - stacked_tone_ue13
+  - stacked_tone_ue15
+  - stacked_tone_ue16
+  - stacked_tone_ue17
+  - stacked_tone_ue1a
+  - stacked_tone_ue1c
+  - stacked_tone_ue1d
+  - stacked_tone_ue1e
+  - stacked_tone_ue1f
+  - stacked_tone_ue20
+  - stacked_tone_ue23
+  - stacked_tone_ue28
+  - tone_kha
+  - tone_na
+  - tone_ue06
+  - tone_ue07
+  - tone_ue09
+  - tone_ue0f
+  - tone_ue10
+  - tone_ue11
+  - tone_ue13
+  - tone_ue14
+  - tone_ue18
+  - tone_ue1a
+  - tone_ue1c
+  - tone_ue20
+  - tone_ue22
+  - tone_ue27
+  - tone_ue28
+  - tone_ue2b
+  - tone_ue2d
+  - tone_ue2e
+  - upper_ka
+  - upper_kha
+  - upper_kho
+  - upper_variant_ue06
+  - upper_variant_ue08
+  - upper_variant_ue0b
+  - upper_variant_ue0d
+  - upper_variant_ue13
+  - upper_variant_ue14
+  - upper_variant_ue15
+  - upper_variant_ue16
+  - upper_variant_ue18
+  - upper_variant_ue1d
+  - upper_variant_ue1e
+  - upper_variant_ue27
+  - upper_variant_ue28
+  - upper_variant_ue2b
+  - upper_variant_ue2c
+  - upper_variant_ue2d
+  - upper_variant_ue2e
+prompt_parser_approved: true
+provisional_seoi_absolute_pp: 10
+lexical_status_review_status: PENDING_FINAL_CONFIRMATION
 notes: null

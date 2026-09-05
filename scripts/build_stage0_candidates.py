@@ -20,9 +20,16 @@ def main() -> int:
         type=Path,
         default=Path("configs/stage0/rendering_candidates.yaml"),
     )
+    parser.add_argument(
+        "--calibration-design",
+        type=Path,
+        default=Path("configs/stage0/calibration_design.yaml"),
+    )
     args = parser.parse_args()
     run_dir, report = build_candidate_review(
-        args.inventory.resolve(), args.rendering.resolve()
+        args.inventory.resolve(),
+        args.rendering.resolve(),
+        args.calibration_design.resolve(),
     )
     print(f"run_dir={run_dir}")
     print(f"status={report['status']}")

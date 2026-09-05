@@ -11,12 +11,15 @@ def _write_source_files(root: Path) -> None:
             "Resolution Reduction is not post-encoder Token Pruning\n"
             "The primary independent sampling/analysis unit is the linguistic minimal pair\n"
             "The primary RQ is non-directional\nfrozen non-directional"
+            "\nUPPER_VOWEL_VARIANT LOWER_VOWEL_VARIANT STACKED_TONE_MARK"
         ),
         "docs/EXPERIMENT_PROTOCOL.md": (
             "Stage 1A Resolution Sensitivity\n"
             "Stage 1A is not the main Stage 1 experiment\n"
             "never choose or relax a threshold using Stage 1A\n"
-            "primary independent sampling/analysis unit is `pair_id`"
+            "primary independent sampling/analysis unit is `pair_id`\n"
+            "UPPER_VOWEL_VARIANT LOWER_VOWEL_VARIANT STACKED_TONE_MARK\n"
+            "LANGUAGE_CANDIDATE_BIAS_BLANK"
         ),
         "docs/ARCHITECTURE.md": (
             "Current sequential candidate strategy\n"
@@ -25,6 +28,7 @@ def _write_source_files(root: Path) -> None:
             "does not make Stage 1A a post-encoder pruning experiment\n"
             "Step 3 is `COMPLETE`\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`"
+            "\n`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`"
         ),
         "docs/DECISION_LOG.md": (
             "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN\n"
@@ -37,17 +41,22 @@ def _write_source_files(root: Path) -> None:
             "**Decision:** Step 3 = `COMPLETE`.\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
             "Locked Stage 0 validation may not begin\n"
+            "UPPER_VOWEL_VARIANT LOWER_VOWEL_VARIANT STACKED_TONE_MARK\n"
+            "blank controls without visual ground truth\n"
+            "`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`\n"
             "# Stage 1A — Resolution Sensitivity Pilot\n\n**Status:** BLOCKED"
         ),
         "docs/CLAIMS.md": (
             "Directionality:** frozen as non-directional\n"
             "`Tested` `Preliminary/Pilot` `Not Tested` `Blocked`\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`"
+            "\n`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`"
         ),
         "docs/exec-plans/active/ADVISOR_READINESS.md": (
             "Step 3 — Sequential backbone feasibility | `COMPLETE`\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
-            "Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION`"
+            "Steps 4–6 — Stage 0 | `CHECKPOINT_A_FINAL_FREEZE_PENDING`\n"
+            "`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`"
         ),
     }
     for relative_path in SOURCE_FILES:

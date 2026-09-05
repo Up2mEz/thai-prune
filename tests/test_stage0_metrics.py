@@ -8,7 +8,7 @@ from labbs2026.stage0.metrics import (
 def _row(
     observation_id: str,
     pair_id: str,
-    expected: str,
+    expected: str | None,
     parsed: str | None,
     *,
     control: str = "FULL_INFORMATION",
@@ -24,6 +24,10 @@ def _row(
         "parsed_output": parsed,
         "parse_status": "PARSED" if parsed else "PARSER_FAILURE",
         "is_correct": parsed == expected if parsed else False,
+        "orientation": "A_THEN_B",
+        "candidate_a_lexical_status": "REAL",
+        "candidate_b_lexical_status": "CONSTRUCTED",
+        "displayed_lexical_status": "REAL",
         "generation_seconds": 1.0,
         "llm_visual_token_count": 256,
     }
@@ -35,8 +39,8 @@ def test_metrics_keep_parser_failures_and_blank_controls_separate() -> None:
         _row("2", "p1", "B", None),
         _row("3", "p2", "A", "B"),
         _row("4", "p2", "B", "B"),
-        _row("5", "p1", "A", "B", control="LANGUAGE_PRIOR_BLANK"),
-        _row("6", "p2", "B", "B", control="LANGUAGE_PRIOR_BLANK"),
+        _row("5", "p1", None, "A", control="LANGUAGE_CANDIDATE_BIAS_BLANK"),
+        _row("6", "p2", None, "B", control="LANGUAGE_CANDIDATE_BIAS_BLANK"),
     ]
 
     result = compute_stage0_metrics(
@@ -45,9 +49,11 @@ def test_metrics_keep_parser_failures_and_blank_controls_separate() -> None:
 
     assert result["full_information"]["observation_count"] == 4
     assert result["full_information"]["parser_failure_count"] == 1
-    assert result["full_information"]["accuracy_all_observations"] == 0.5
+    assert result["full_information"]["accuracy_all_scored_observations"] == 0.5
     assert result["full_information"]["accuracy_conditional_parsed"] == 2 / 3
-    assert result["language_prior_blank"]["observation_count"] == 2
+    assert result["language_candidate_bias_blank"]["observation_count"] == 2
+    assert result["language_candidate_bias_blank"]["accuracy"] is None
+    assert result["by_displayed_lexical_status"]["REAL"]["observation_count"] == 4
     assert result["pair_clustered_accuracy_interval"]["pair_count"] == 2
 
 

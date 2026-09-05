@@ -38,6 +38,14 @@ class PairRenderMetadata:
     critical_pixel_area: int
     critical_bbox: tuple[int, int, int, int]
     critical_centroid: tuple[float, float]
+    difference_mask_rule: str
+    difference_threshold: int
+    anti_aliasing_representation: str
+    max_coverage_delta: int
+    coverage_delta_sum: int
+    shared_origin_policy: str
+    actual_origin_delta: tuple[int, int]
+    separately_centered_origin_delta: tuple[int, int]
 
 
 def sha256_file(path: Path) -> str:
@@ -148,7 +156,10 @@ def render_pair(
     position_offset: tuple[int, int],
     foreground: str,
     background: str,
+    difference_threshold: int = 1,
 ) -> tuple[Image.Image, Image.Image, Image.Image, PairRenderMetadata]:
+    if not 1 <= difference_threshold <= 255:
+        raise ValueError("difference_threshold must be between 1 and 255")
     run_a = _shape(text_a, font_path, font_size)
     run_b = _shape(text_b, font_path, font_size)
     union = (
@@ -163,7 +174,8 @@ def render_pair(
     )
     mask_a = _rasterize(run_a, canvas, origin)
     mask_b = _rasterize(run_b, canvas, origin)
-    difference = mask_a != mask_b
+    coverage_delta = np.abs(mask_a.astype(np.int16) - mask_b.astype(np.int16))
+    difference = coverage_delta >= difference_threshold
     ys, xs = np.where(difference)
     if not len(xs):
         critical_bbox = (0, 0, 0, 0)
@@ -185,6 +197,17 @@ def render_pair(
         critical_pixel_area=int(np.count_nonzero(difference)),
         critical_bbox=critical_bbox,
         critical_centroid=centroid,
+        difference_mask_rule="abs(freetype_coverage_a-freetype_coverage_b)>=threshold",
+        difference_threshold=difference_threshold,
+        anti_aliasing_representation="FreeType 8-bit grayscale coverage",
+        max_coverage_delta=int(coverage_delta.max()),
+        coverage_delta_sum=int(coverage_delta[difference].sum()),
+        shared_origin_policy="one union-bbox origin for both pair members",
+        actual_origin_delta=(0, 0),
+        separately_centered_origin_delta=(
+            round((run_b.bbox[0] + run_b.bbox[2] - run_a.bbox[0] - run_a.bbox[2]) / 2),
+            round((run_b.bbox[1] + run_b.bbox[3] - run_a.bbox[1] - run_a.bbox[3]) / 2),
+        ),
     )
     diff_image = Image.fromarray((difference * 255).astype(np.uint8), mode="L")
     return (

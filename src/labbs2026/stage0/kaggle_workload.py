@@ -28,7 +28,8 @@ def derive_workload(
         row["control_type"] == "FULL_INFORMATION" for row in observations
     )
     blank_count = sum(
-        row["control_type"] == "LANGUAGE_PRIOR_BLANK" for row in observations
+        row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+        for row in observations
     )
     return {
         "status": "READY_FOR_CALIBRATION_SUBMISSION",
@@ -37,7 +38,7 @@ def derive_workload(
         "compression_family": "FULL_INFORMATION",
         "exact_observation_count": len(observations),
         "full_information_count": full_count,
-        "language_prior_blank_count": blank_count,
+        "language_candidate_bias_blank_count": blank_count,
         "exact_rerun_count": 2 if config["reproducibility"]["exact_rerun"] else 1,
         "total_model_calls_including_rerun": len(observations)
         * (2 if config["reproducibility"]["exact_rerun"] else 1),

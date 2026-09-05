@@ -253,6 +253,12 @@ run and provenance boundaries are recorded in
 not authorize an experiment or transfer smoke-control evidence to any
 scientific hypothesis.
 
+On 2026-09-06 the human researcher approved Kaggle T4 as the execution backend
+for Stage 0 calibration, subject to the final candidate/allocation freeze and
+the existing immutable-run checks. This operational status is
+`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`; it does not approve calibration
+results, locked validation, Gate 0, or a later stage.
+
 The operational runtime profile targets `refs/heads/main`. Every future Kaggle
 run must pin the exact remote commit and preserve config, environment, model
 revision, seed where applicable, and actual token counts in immutable

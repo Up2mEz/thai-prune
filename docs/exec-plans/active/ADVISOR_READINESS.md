@@ -28,8 +28,8 @@ new compression method is required.
 | Step 1 — Literature / Novelty Triage | `COMPLETE_PROVISIONAL` | Human-approved evaluation/diagnostic framing; refresh on new evidence |
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
-| Kaggle T4 backend | `KAGGLE_BACKEND_FEASIBLE_PROPOSED` — optional for authorized Stage 0 | Proof run verified; every Stage 0 workload still requires exact frozen config and artifact verification |
-| Steps 4–6 — Stage 0 | `CHECKPOINT_A_PREPARATION` | Candidate/render/prompt/metric implementation authorized; human design freeze required before calibration inference |
+| Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
+| Steps 4–6 — Stage 0 | `CHECKPOINT_A_FINAL_FREEZE_PENDING` | Initial visual review conditionally approved; expanded inventory and proposed allocation require final human freeze before calibration inference |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

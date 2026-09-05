@@ -50,6 +50,11 @@ The Kaggle Tesla T4 backend has status
 or a benchmark claim. Exact evidence and limitations are in
 `docs/architecture/KAGGLE_BACKEND.md`.
 
+Kaggle T4 is human-approved for the future Stage 0 calibration workload under
+status `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`. No Stage 0 model outcome
+exists yet, so this remains an execution authorization rather than scientific
+evidence.
+
 ---
 
 ## HYPOTHESES

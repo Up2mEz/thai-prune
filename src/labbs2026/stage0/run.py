@@ -58,8 +58,10 @@ def calibration_readiness_issues(
     )
     if not isinstance(conditions, list) or not conditions:
         issues.append("RENDER_CONDITIONS_NOT_FROZEN")
-    blank_ids = config.get("controls", {}).get("language_prior_blank_pair_ids")
-    if config.get("controls", {}).get("language_prior_blank_image") and (
+    blank_ids = config.get("controls", {}).get(
+        "language_candidate_bias_blank_pair_ids"
+    )
+    if config.get("controls", {}).get("language_candidate_bias_blank_image") and (
         not isinstance(blank_ids, list) or not blank_ids
     ):
         issues.append("LANGUAGE_PRIOR_CONTROL_PAIR_IDS_NOT_FROZEN")
@@ -96,7 +98,9 @@ def make_observation_plan(
     selected_conditions = set(
         config["render_condition_selection"]["selected_condition_ids"]
     )
-    blank_pairs = set(config["controls"]["language_prior_blank_pair_ids"])
+    blank_pairs = set(
+        config["controls"]["language_candidate_bias_blank_pair_ids"]
+    )
     seed = int(config["reproducibility"]["seed"])
     observations: list[dict[str, Any]] = []
     for rendering in render_manifest:
@@ -121,8 +125,15 @@ def make_observation_plan(
                 "condition_id": condition_id,
                 "displayed_member": member,
                 "displayed_text": pair[f"text_{member}"],
+                "displayed_lexical_status": pair[f"lexical_status_{member}"],
                 "candidate_a": choice.candidate_a,
                 "candidate_b": choice.candidate_b,
+                "candidate_a_lexical_status": pair[
+                    "lexical_status_b" if choice.orientation == "B_THEN_A" else "lexical_status_a"
+                ],
+                "candidate_b_lexical_status": pair[
+                    "lexical_status_a" if choice.orientation == "B_THEN_A" else "lexical_status_b"
+                ],
                 "expected_label": choice.expected_label,
                 "orientation": choice.orientation,
                 "order_group_id": choice.order_group_id,
@@ -136,15 +147,47 @@ def make_observation_plan(
                     "image_path": rendering[f"image_{member}_path"],
                 }
             )
-            if pair_id in blank_pairs:
-                observations.append(
-                    {
-                        **base,
-                        "observation_id": f"blank|{pair_id}|{condition_id}|{member}",
-                        "control_type": "LANGUAGE_PRIOR_BLANK",
-                        "image_path": "controls/blank.png",
-                    }
-                )
+    for pair_id in sorted(blank_pairs):
+        pair = pair_by_id[pair_id]
+        for orientation, candidate_a, candidate_b, status_a, status_b in (
+            (
+                "A_THEN_B",
+                pair["text_a"],
+                pair["text_b"],
+                pair["lexical_status_a"],
+                pair["lexical_status_b"],
+            ),
+            (
+                "B_THEN_A",
+                pair["text_b"],
+                pair["text_a"],
+                pair["lexical_status_b"],
+                pair["lexical_status_a"],
+            ),
+        ):
+            observations.append(
+                {
+                    "observation_id": f"blank_bias|{pair_id}|{orientation}",
+                    "pair_id": pair_id,
+                    "component_type": pair["component_type"],
+                    "condition_id": "NO_VISUAL_CONTENT",
+                    "displayed_member": None,
+                    "displayed_text": None,
+                    "displayed_lexical_status": None,
+                    "candidate_a": candidate_a,
+                    "candidate_b": candidate_b,
+                    "candidate_a_lexical_status": status_a,
+                    "candidate_b_lexical_status": status_b,
+                    "expected_label": None,
+                    "orientation": orientation,
+                    "order_group_id": f"blank_bias|{pair_id}|{orientation}",
+                    "prompt": prompt_template.format(
+                        candidate_a=candidate_a, candidate_b=candidate_b
+                    ),
+                    "control_type": "LANGUAGE_CANDIDATE_BIAS_BLANK",
+                    "image_path": "controls/blank.png",
+                }
+            )
     return observations
 
 
@@ -205,7 +248,7 @@ def run_calibration(
             try:
                 image_path = (
                     run_dir / observation["image_path"]
-                    if observation["control_type"] == "LANGUAGE_PRIOR_BLANK"
+                    if observation["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
                     else dataset_review_dir / observation["image_path"]
                 )
                 result = adapter.predict(image_path, observation["prompt"])
@@ -221,7 +264,11 @@ def run_calibration(
                         **observation,
                         "parsed_output": parsed,
                         "parse_status": parse_status,
-                        "is_correct": parsed == observation["expected_label"] if parsed else False,
+                        "is_correct": (
+                            parsed == observation["expected_label"]
+                            if parsed and observation["expected_label"] is not None
+                            else None
+                        ),
                         "llm_visual_token_count": result.metadata.llm_visual_token_count,
                         "visual_stage_metadata": asdict(result.metadata),
                         "preprocess_seconds": result.preprocess_seconds,

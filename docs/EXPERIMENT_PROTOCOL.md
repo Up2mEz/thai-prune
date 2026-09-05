@@ -61,12 +61,20 @@ Goal: test whether findings extend beyond synthetic controlled data and beyond a
 ### 4.1 Minimal-pair principle
 Within a pair, change only the target distinction whenever technically possible.
 
-Examples may include distinctions involving:
-- base-character evidence;
-- tone mark;
-- upper vowel;
-- lower vowel;
-- combined upper-vowel + tone-mark structures.
+Registered Stage 0 component labels are:
+
+- `BASE_CHARACTER`: the base character changes;
+- `TONE_MARK`: a tone mark changes without an upper vowel in the registered
+  pair context;
+- `UPPER_VOWEL_VARIANT`: the upper-vowel variant changes;
+- `LOWER_VOWEL_VARIANT`: the lower-vowel variant changes;
+- `STACKED_TONE_MARK`: an upper vowel is present in both members and only the
+  tone mark changes, for example `กี` versus `กี่`.
+
+The current `BASE_CHARACTER` candidates are admissible for Stage 0
+measurement-validity testing. They are not assumed to be size-matched visual
+controls for Stage 2; critical-region size and related confounds require a
+separate Stage 2 assessment.
 
 Specific pair inventories must be versioned and reviewed before the main run.
 
@@ -101,6 +109,7 @@ critical-region centroid
 patch/grid alignment metadata
 Unicode code points
 normalization form
+lexical_status for each pair member: REAL, CONSTRUCTED, or UNCERTAIN
 ```
 
 ### 4.3 Dataset diversity
@@ -199,6 +208,16 @@ Because an LLM may infer text from linguistic plausibility rather than visual ev
 
 Do not claim that forced-choice accuracy is a pure measurement of visual perception; it is only a more controlled proxy.
 
+Blank-image controls are `LANGUAGE_CANDIDATE_BIAS_BLANK` controls. Because a
+blank image has no naturally correct visual answer, these controls report
+candidate/order/lexical-status preference and parser behavior, not OCR or
+visual accuracy. They must never enter the visual-accuracy denominator.
+
+Constructed strings are permitted and must not be excluded merely because
+they are nonwords. Preserve `lexical_status` so `REAL`, `CONSTRUCTED`, and
+`UNCERTAIN` subsets can be analyzed separately without outcome-driven
+redefinition of the primary analysis.
+
 ---
 
 ## 9. Compression intervention protocol
@@ -252,6 +271,13 @@ intended Stage 1 estimand, documented with rationale, and frozen by the human
 researcher before locked Stage 0 validation. Do not invent universal numeric
 requirements, and never choose or relax a threshold using Stage 1A or later
 compression results.
+
+For the current Advisor Readiness measurement plan, the human-selected
+provisional smallest effect of interest is a 10 percentage-point absolute
+differential degradation. It is not a publication threshold, evidence that
+the effect exists, or permission to classify smaller effects as absent. Any
+change that affects measurement adequacy must be logged and re-evaluated
+before later-stage evidence is collected.
 
 ---
 

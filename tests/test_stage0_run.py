@@ -14,8 +14,8 @@ def _frozen_config() -> dict:
         },
         "render_condition_selection": {"selected_condition_ids": ["c1"]},
         "controls": {
-            "language_prior_blank_image": True,
-            "language_prior_blank_pair_ids": ["p1"],
+            "language_candidate_bias_blank_image": True,
+            "language_candidate_bias_blank_pair_ids": ["p1"],
         },
         "reproducibility": {"seed": 7, "exact_rerun": True},
         "gate_0": {"criteria": None},
@@ -50,15 +50,20 @@ def test_pair_overlap_is_rejected() -> None:
 
 def test_observation_plan_balances_labels_and_separates_controls() -> None:
     config = _frozen_config()
-    pairs = [{"pair_id": "p1", "component_type": "TONE_MARK", "text_a": "กา", "text_b": "ก่า"}]
+    pairs = [{"pair_id": "p1", "component_type": "TONE_MARK", "text_a": "กา", "text_b": "ก่า", "lexical_status_a": "REAL", "lexical_status_b": "UNCERTAIN"}]
     renders = [{"pair_id": "p1", "condition_id": "c1", "image_a_path": "a.png", "image_b_path": "b.png"}]
 
     observations = make_observation_plan(config, pairs, renders, "A. {candidate_a}\nB. {candidate_b}")
 
     assert len(observations) == 4
     assert sum(row["control_type"] == "FULL_INFORMATION" for row in observations) == 2
-    assert sum(row["control_type"] == "LANGUAGE_PRIOR_BLANK" for row in observations) == 2
+    assert sum(row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK" for row in observations) == 2
     assert {row["expected_label"] for row in observations if row["control_type"] == "FULL_INFORMATION"} == {"A", "B"}
+    assert {
+        row["expected_label"]
+        for row in observations
+        if row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+    } == {None}
 
 
 def test_workload_is_not_exact_before_human_freeze() -> None:
@@ -73,7 +78,7 @@ def test_workload_is_not_exact_before_human_freeze() -> None:
 
 def test_workload_reports_exact_calls_after_freeze() -> None:
     config = _frozen_config()
-    pairs = [{"pair_id": "p1", "component_type": "TONE_MARK", "text_a": "กา", "text_b": "ก่า"}]
+    pairs = [{"pair_id": "p1", "component_type": "TONE_MARK", "text_a": "กา", "text_b": "ก่า", "lexical_status_a": "REAL", "lexical_status_b": "UNCERTAIN"}]
     renders = [{"pair_id": "p1", "condition_id": "c1", "image_a_path": "a.png", "image_b_path": "b.png"}]
 
     workload = derive_workload(config, _review(), pairs, renders, "A. {candidate_a}\nB. {candidate_b}")
