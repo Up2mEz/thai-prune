@@ -46,6 +46,9 @@ class PairRenderMetadata:
     shared_origin_policy: str
     actual_origin_delta: tuple[int, int]
     separately_centered_origin_delta: tuple[int, int]
+    shaping_change_status: str
+    unexpected_contextual_layout_change: bool
+    unchanged_glyph_max_position_delta: int
 
 
 def sha256_file(path: Path) -> str:
@@ -146,6 +149,62 @@ def _rgb(mask: np.ndarray, foreground: str, background: str) -> Image.Image:
     return Image.fromarray(pixels, mode="RGB")
 
 
+def _placement_geometry(placement: tuple[int, int, int, int, bytes]) -> tuple[int, int, int, int]:
+    return placement[:4]
+
+
+def _shaping_change_audit(
+    run_a: GlyphRun, run_b: GlyphRun, difference_rule: str | None
+) -> tuple[str, bool, int]:
+    """Reject contextual changes outside a registered mark/vowel manipulation."""
+
+    if difference_rule == "BASE_SUBSTITUTION":
+        return "NOT_ENFORCED_BASE_CHARACTER", False, 0
+    matched: list[tuple[int, int]] = []
+    if difference_rule in {"MAI_EK_ADDITION", "MAI_EK_IN_UPPER_CONTEXT"}:
+        for removed_index in range(len(run_b.glyph_ids)):
+            remaining = run_b.glyph_ids[:removed_index] + run_b.glyph_ids[removed_index + 1 :]
+            if remaining == run_a.glyph_ids:
+                matched = [
+                    (index_a, index_a if index_a < removed_index else index_a + 1)
+                    for index_a in range(len(run_a.glyph_ids))
+                ]
+                break
+        if not matched:
+            return "FAIL_CONTEXTUAL_GLYPH_SUBSTITUTION", True, 0
+    elif difference_rule in {"UPPER_VOWEL_SUBSTITUTION", "LOWER_VOWEL_SUBSTITUTION"}:
+        if len(run_a.glyph_ids) != len(run_b.glyph_ids):
+            return "FAIL_GLYPH_RUN_LENGTH_CHANGED", True, 0
+        mismatches = [
+            index
+            for index, (glyph_a, glyph_b) in enumerate(
+                zip(run_a.glyph_ids, run_b.glyph_ids, strict=True)
+            )
+            if glyph_a != glyph_b
+        ]
+        if len(mismatches) != 1:
+            return "FAIL_UNEXPECTED_GLYPH_SUBSTITUTION_COUNT", True, 0
+        matched = [
+            (index, index)
+            for index in range(len(run_a.glyph_ids))
+            if index != mismatches[0]
+        ]
+    else:
+        return "NOT_EVALUATED_UNKNOWN_RULE", True, 0
+
+    max_delta = 0
+    for index_a, index_b in matched:
+        geometry_a = _placement_geometry(run_a.placements[index_a])
+        geometry_b = _placement_geometry(run_b.placements[index_b])
+        max_delta = max(
+            max_delta,
+            *(abs(value_a - value_b) for value_a, value_b in zip(geometry_a, geometry_b, strict=True)),
+        )
+    if max_delta:
+        return "FAIL_UNCHANGED_GLYPH_PLACEMENT_CHANGED", True, max_delta
+    return "PASS_TARGET_ONLY_SHAPING_CHANGE", False, 0
+
+
 def render_pair(
     text_a: str,
     text_b: str,
@@ -157,6 +216,7 @@ def render_pair(
     foreground: str,
     background: str,
     difference_threshold: int = 1,
+    difference_rule: str | None = None,
 ) -> tuple[Image.Image, Image.Image, Image.Image, PairRenderMetadata]:
     if not 1 <= difference_threshold <= 255:
         raise ValueError("difference_threshold must be between 1 and 255")
@@ -174,6 +234,9 @@ def render_pair(
     )
     mask_a = _rasterize(run_a, canvas, origin)
     mask_b = _rasterize(run_b, canvas, origin)
+    shaping_status, unexpected_contextual_change, unchanged_max_delta = (
+        _shaping_change_audit(run_a, run_b, difference_rule)
+    )
     coverage_delta = np.abs(mask_a.astype(np.int16) - mask_b.astype(np.int16))
     difference = coverage_delta >= difference_threshold
     ys, xs = np.where(difference)
@@ -208,6 +271,9 @@ def render_pair(
             round((run_b.bbox[0] + run_b.bbox[2] - run_a.bbox[0] - run_a.bbox[2]) / 2),
             round((run_b.bbox[1] + run_b.bbox[3] - run_a.bbox[1] - run_a.bbox[3]) / 2),
         ),
+        shaping_change_status=shaping_status,
+        unexpected_contextual_layout_change=unexpected_contextual_change,
+        unchanged_glyph_max_position_delta=unchanged_max_delta,
     )
     diff_image = Image.fromarray((difference * 255).astype(np.uint8), mode="L")
     return (

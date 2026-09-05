@@ -92,7 +92,7 @@ pair_decisions:
   - {pair_id: tone_ue29, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
   - {pair_id: tone_ue2a, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
   - {pair_id: tone_ue2b, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
-  - {pair_id: tone_ue2c, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
+  - {pair_id: tone_ue0c, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
   - {pair_id: tone_ue2d, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
   - {pair_id: tone_ue2e, component_type: TONE_MARK, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: PENDING, reason: null}
   - {pair_id: upper_ka, component_type: UPPER_VOWEL_VARIANT, lexical_status_a: UNCERTAIN, lexical_status_b: UNCERTAIN, decision: CONDITIONALLY_APPROVED, reason: null}
@@ -402,6 +402,7 @@ proposed_locked_validation_pair_ids:
   - tone_ue08
   - tone_ue0a
   - tone_ue0b
+  - tone_ue0c
   - tone_ue0d
   - tone_ue0e
   - tone_ue15
@@ -414,7 +415,6 @@ proposed_locked_validation_pair_ids:
   - tone_ue25
   - tone_ue29
   - tone_ue2a
-  - tone_ue2c
   - upper_ma
   - upper_na
   - upper_pa

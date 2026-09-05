@@ -66,6 +66,18 @@ within-string placement changes caused by different glyph advances remain
 visible in the mask and are not mislabeled as canvas recentering. Their role as
 a visual-size/layout confound belongs to Stage 2.
 
+For `TONE_MARK`, `STACKED_TONE_MARK`, `UPPER_VOWEL_VARIANT`, and
+`LOWER_VOWEL_VARIANT`, the builder additionally compares the shaped glyph
+runs. After removing or replacing the registered target glyph, every unchanged
+glyph ID and placement must match exactly. A contextual glyph substitution or
+movement outside the target feature records
+`UNEXPECTED_CONTEXTUAL_LAYOUT_CHANGE` and fails validation. This check caught
+and removed `ฬา` versus `ฬ่า`, where the font selected a contextual base-glyph
+form rather than changing only the tone mark. `BASE_CHARACTER` is exempt from
+this target-only shaping rule because base glyph size/advance differences are
+part of the Stage 0 distinction and are explicitly not assumed size-matched
+for Stage 2.
+
 ## Change control
 
 Changing the threshold, renderer, font file, font size, canvas, position, or

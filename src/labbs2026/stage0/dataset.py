@@ -176,6 +176,7 @@ def build_candidate_review(
                         foreground=foreground,
                         background=background,
                         difference_threshold=difference_threshold,
+                        difference_rule=pair["difference_rule"],
                     )
                     deterministic_rerender_status = "NOT_REQUESTED"
                     if rerender_audit:
@@ -189,6 +190,7 @@ def build_candidate_review(
                             foreground=foreground,
                             background=background,
                             difference_threshold=difference_threshold,
+                            difference_rule=pair["difference_rule"],
                         )
                         deterministic_rerender_status = (
                             "PASS"
@@ -216,6 +218,8 @@ def build_candidate_review(
                         render_issues.append("GLOBAL_LAYOUT_SHIFT")
                     if deterministic_rerender_status == "FAIL":
                         render_issues.append("NONDETERMINISTIC_RERENDER")
+                    if values["unexpected_contextual_layout_change"]:
+                        render_issues.append("UNEXPECTED_CONTEXTUAL_LAYOUT_CHANGE")
                     record = {
                         "pair_id": pair["pair_id"],
                         "component_type": pair["component_type"],

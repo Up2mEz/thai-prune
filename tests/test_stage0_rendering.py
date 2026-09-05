@@ -67,6 +67,7 @@ def test_difference_mask_is_reproducible_and_thresholded() -> None:
         foreground="#000000",
         background="#FFFFFF",
         difference_threshold=1,
+        difference_rule="MAI_EK_IN_UPPER_CONTEXT",
     )
     second = render_pair(
         "กี",
@@ -78,11 +79,29 @@ def test_difference_mask_is_reproducible_and_thresholded() -> None:
         foreground="#000000",
         background="#FFFFFF",
         difference_threshold=1,
+        difference_rule="MAI_EK_IN_UPPER_CONTEXT",
     )
 
     assert first[2].tobytes() == second[2].tobytes()
     assert first[3].critical_pixel_area == second[3].critical_pixel_area
     assert first[3].coverage_delta_sum == second[3].coverage_delta_sum
+
+
+def test_contextual_glyph_change_outside_tone_mark_is_rejected() -> None:
+    result = render_pair(
+        "ฬา",
+        "ฬ่า",
+        font_path=FONT,
+        font_size=96,
+        canvas=(448, 448),
+        position_offset=(0, 0),
+        foreground="#000000",
+        background="#FFFFFF",
+        difference_rule="MAI_EK_ADDITION",
+    )
+
+    assert result[3].unexpected_contextual_layout_change
+    assert result[3].shaping_change_status == "FAIL_CONTEXTUAL_GLYPH_SUBSTITUTION"
 
 
 def test_renderer_versions_are_auditable() -> None:

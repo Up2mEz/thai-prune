@@ -181,6 +181,7 @@ allocation:
     - tone_ue08
     - tone_ue0a
     - tone_ue0b
+    - tone_ue0c
     - tone_ue0d
     - tone_ue0e
     - tone_ue15
@@ -193,7 +194,6 @@ allocation:
     - tone_ue25
     - tone_ue29
     - tone_ue2a
-    - tone_ue2c
     - upper_ma
     - upper_na
     - upper_pa
