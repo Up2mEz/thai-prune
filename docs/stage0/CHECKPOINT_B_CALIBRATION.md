@@ -1,6 +1,6 @@
 # Stage 0 Checkpoint B — Calibration Review
 
-**Status:** `CALIBRATION_INSTRUMENT_INVALID_PENDING_HUMAN_REVIEW`
+**Status:** `REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE`
 **Gate 0:** `NOT_RUN`
 **Locked validation:** `BLOCKED`
 **Stage 1A and compression:** `BLOCKED`
@@ -49,6 +49,9 @@ nominally 0% because parser failures remain in the scored denominator. This is
 not evidence that visual discrimination accuracy is 0%; it is evidence that
 the registered prompt/parser combination is not a valid measurement
 instrument in its current form.
+
+This historical classification is immutable. Repair v2 creates new run IDs;
+it does not reinterpret these outputs as registered evidence.
 
 Consequently the following registered quantities are **not estimable**:
 

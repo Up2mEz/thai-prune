@@ -76,7 +76,19 @@ def _check_runtime_contract(runtime: dict[str, Any], model: dict[str, Any]) -> l
     for key in ("device", "dtype", "attention_implementation"):
         if runtime_model.get(key) != model_values.get(key):
             issues.append(f"RUNTIME_MODEL_{key.upper()}_MISMATCH")
-    if model.get("generation") != {"do_sample": False, "max_new_tokens": 4}:
+    generation = model.get("generation", {})
+    if model.get("stage") == "stage0_calibration_repair_v2":
+        output_contract = generation.get("output_contract", {})
+        if (
+            generation.get("do_sample") is not False
+            or generation.get("max_new_tokens") != 1
+            or generation.get("min_new_tokens") != 1
+            or output_contract.get("mode") != "canonical_label_token_constraint_v1"
+            or output_contract.get("allowed_labels") != ["A", "B"]
+            or output_contract.get("expected_label_token_ids") != {"A": 32, "B": 33}
+        ):
+            issues.append("REPAIR_V2_DECODING_CONFIG_MISMATCH")
+    elif generation != {"do_sample": False, "max_new_tokens": 4}:
         issues.append("DECODING_CONFIG_MISMATCH")
     if model.get("seed_policy", {}).get("seed") != 20260906:
         issues.append("SEED_POLICY_MISMATCH")

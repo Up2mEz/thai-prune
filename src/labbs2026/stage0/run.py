@@ -25,6 +25,10 @@ from labbs2026.step3 import (
 )
 
 
+ENGINEERING_SMOKE_ROLE = "ENGINEERING_FORMAT_SMOKE_NOT_SCIENTIFIC_EVIDENCE"
+REPAIRED_CALIBRATION_ROLE = "REGISTERED_REPAIRED_STAGE0_CALIBRATION"
+
+
 def canonical_allocation_sha256(allocation: dict[str, Any]) -> str:
     """Hash only the frozen pair allocation contract, not YAML formatting."""
 
@@ -249,6 +253,43 @@ def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     )
 
 
+def compute_engineering_contract_metrics(
+    rows: list[dict[str, Any]], *, planned_observation_count: int
+) -> dict[str, Any]:
+    """Report format/provenance checks without computing scientific accuracy."""
+
+    completed = len(rows)
+    conformance = sum(row.get("output_contract_conformance") is True for row in rows)
+    parser_failures = sum(row.get("parse_status") != "PARSED" for row in rows)
+    return {
+        "scientific_use": "FORBIDDEN_ENGINEERING_SMOKE_ONLY",
+        "visual_accuracy_computed": False,
+        "planned_observation_count": planned_observation_count,
+        "completed_observation_count": completed,
+        "call_completion_rate": (
+            completed / planned_observation_count if planned_observation_count else None
+        ),
+        "output_contract_conformance_count": conformance,
+        "output_contract_conformance_rate": conformance / completed if completed else None,
+        "parser_failure_count": parser_failures,
+        "parser_failure_rate": parser_failures / completed if completed else None,
+        "parsed_choice_counts": {
+            label: sum(row.get("parsed_output") == label for row in rows)
+            for label in ("A", "B")
+        },
+        "visual_token_count_distribution": {
+            str(count): sum(row.get("llm_visual_token_count") == count for row in rows)
+            for count in sorted(
+                {
+                    int(row["llm_visual_token_count"])
+                    for row in rows
+                    if row.get("llm_visual_token_count") is not None
+                }
+            )
+        },
+    }
+
+
 def run_calibration(
     config_path: Path,
     dataset_review_dir: Path,
@@ -257,6 +298,10 @@ def run_calibration(
     runtime: dict[str, Any] | None = None,
     output_dir: Path | None = None,
     expected_git_sha: str | None = None,
+    run_role: str = "REGISTERED_STAGE0_CALIBRATION",
+    selected_pair_ids: set[str] | None = None,
+    selected_condition_ids: set[str] | None = None,
+    compute_scientific_metrics: bool = True,
 ) -> Path:
     root = Path(__file__).resolve().parents[3]
     preflight = inspect_repository(root)
@@ -295,6 +340,23 @@ def run_calibration(
     observations = make_observation_plan(
         config, resolved_pairs, render_manifest, prompt_config["prompt_template"]
     )
+    if selected_pair_ids is not None:
+        unknown = selected_pair_ids - calibration_ids
+        if unknown:
+            raise RuntimeError(f"observation filter contains non-calibration pairs: {unknown}")
+        observations = [row for row in observations if row["pair_id"] in selected_pair_ids]
+    if selected_condition_ids is not None:
+        unknown_conditions = selected_condition_ids - selected_conditions
+        if unknown_conditions:
+            raise RuntimeError(
+                f"observation filter contains non-frozen conditions: {unknown_conditions}"
+            )
+        observations = [
+            row
+            for row in observations
+            if row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+            or row["condition_id"] in selected_condition_ids
+        ]
     if not observations:
         raise RuntimeError("frozen calibration design produced no observations")
 
@@ -339,6 +401,30 @@ def run_calibration(
                 f"processor contract mismatch for {key}: "
                 f"expected {expected!r}, observed {architecture.get(key)!r}"
             )
+    contract_records = [
+        adapter.inspect_output_contract(observation["prompt"])
+        for observation in observations
+    ]
+    expected_label_ids = (
+        model_config.get("generation", {})
+        .get("output_contract", {})
+        .get("expected_label_token_ids")
+    )
+    if expected_label_ids is not None:
+        expected_label_ids = {
+            str(label): int(token_id) for label, token_id in expected_label_ids.items()
+        }
+        if any(record.get("label_token_ids") != expected_label_ids for record in contract_records):
+            raise RuntimeError("runtime tokenizer label mapping differs from repair contract")
+    output_contract_audit = {
+        "verified_prompt_count": len(contract_records),
+        "all_valid": all(record.get("valid") is True for record in contract_records),
+        "label_token_ids": contract_records[0].get("label_token_ids"),
+        "tokenizer_class": contract_records[0].get("tokenizer_class"),
+        "tokenizer_name_or_path": contract_records[0].get("tokenizer_name_or_path"),
+        "tokenizer_revision": contract_records[0].get("tokenizer_revision"),
+        "contract_version": contract_records[0].get("contract_version"),
+    }
     with peak_rss_monitor() as memory:
         import torch
 
@@ -364,10 +450,16 @@ def run_calibration(
                 )
                 result = adapter.predict(image_path, observation["prompt"])
                 parsed, parse_status = parse_choice(result.raw_output)
+                if (parsed, parse_status) != (result.parsed_output, result.parse_status):
+                    raise RuntimeError("adapter and registered parser disagree")
                 raw_rows.append(
                     {
                         "observation_id": observation["observation_id"],
                         "raw_output": result.raw_output,
+                        "generated_token_ids": list(result.generated_token_ids),
+                        "output_contract_conformance": result.output_contract_conformance,
+                        "output_contract": result.output_contract,
+                        "resolved_generation_config": result.resolved_generation_config,
                     }
                 )
                 parsed_rows.append(
@@ -376,6 +468,10 @@ def run_calibration(
                         "raw_output": result.raw_output,
                         "parsed_output": parsed,
                         "parse_status": parse_status,
+                        "generated_token_ids": list(result.generated_token_ids),
+                        "output_contract_conformance": result.output_contract_conformance,
+                        "output_contract": result.output_contract,
+                        "resolved_generation_config": result.resolved_generation_config,
                         "is_correct": (
                             parsed == observation["expected_label"]
                             if parsed and observation["expected_label"] is not None
@@ -404,22 +500,51 @@ def run_calibration(
                 torch.cuda.max_memory_reserved()
             )
 
-    metrics = compute_stage0_metrics(
-        parsed_rows,
-        bootstrap_seed=int(config["reproducibility"]["seed"]),
-        bootstrap_resamples=int(config["analysis"]["bootstrap_resamples"]),
-        confidence_level=float(config["analysis"]["confidence_level"]),
+    if compute_scientific_metrics:
+        metrics = compute_stage0_metrics(
+            parsed_rows,
+            bootstrap_seed=int(config["reproducibility"]["seed"]),
+            bootstrap_resamples=int(config["analysis"]["bootstrap_resamples"]),
+            confidence_level=float(config["analysis"]["confidence_level"]),
+        )
+    else:
+        metrics = compute_engineering_contract_metrics(
+            parsed_rows, planned_observation_count=len(observations)
+        )
+    constrained_contract = expected_label_ids is not None
+    contract_valid = not constrained_contract or all(
+        row.get("output_contract_conformance") is True for row in parsed_rows
     )
-    status = "VALID" if not failures and len(parsed_rows) == len(observations) else "INVALID"
+    status = (
+        "VALID"
+        if not failures
+        and len(parsed_rows) == len(observations)
+        and contract_valid
+        and all(row.get("parse_status") == "PARSED" for row in parsed_rows)
+        else "INVALID"
+    )
     manifest = {
         "schema_version": 1,
         "run_id": run_id,
         "run_status": status,
-        "evidence_status": "CALIBRATION_NOT_LOCKED",
+        "run_role": run_role,
+        "evidence_status": (
+            "ENGINEERING_ONLY_NOT_SCIENTIFIC_EVIDENCE"
+            if not compute_scientific_metrics
+            else "CALIBRATION_NOT_LOCKED"
+        ),
         "compression_family": "FULL_INFORMATION",
         "git_commit": commit,
         "config_path": config_path.relative_to(root).as_posix(),
         "config_sha256": sha256_file(config_path),
+        "model_config_path": model_config_path.relative_to(root).as_posix(),
+        "model_config_sha256": sha256_file(model_config_path),
+        "prompt_config_path": config["prompt_parser"],
+        "prompt_config_sha256": sha256_file(root / config["prompt_parser"]),
+        "calibration_input_bundle": config["calibration_input_bundle"],
+        "calibration_input_bundle_sha256": config[
+            "calibration_input_bundle_sha256"
+        ],
         "dataset_review_dir": str(dataset_review_dir),
         "dataset_review_packet_sha256": sha256_file(dataset_review_dir / "review_packet.json"),
         "source_review_packet_sha256": config["source_review_packet_sha256"],
@@ -430,9 +555,12 @@ def run_calibration(
         "model_id": adapter.model_id,
         "model_revision": adapter.revision,
         "processor_revision": adapter.processor_revision,
+        "tokenizer_revision": adapter.processor_revision,
         "seed": int(config["reproducibility"]["seed"]),
         "environment": environment_record(),
         "architecture": architecture,
+        "output_contract_audit": output_contract_audit,
+        "resolved_generation_config": architecture["generation"],
         "resolved_runtime": (runtime or {}).get("model_runtime", {}),
         "model_load_seconds": adapter.model_load_seconds,
         "total_seconds": time.perf_counter() - started,
@@ -441,6 +569,14 @@ def run_calibration(
         "observation_count": len(observations),
         "completed_prediction_count": len(parsed_rows),
         "failure_count": len(failures),
+        "output_contract_failure_count": sum(
+            row.get("output_contract_conformance") is not True for row in parsed_rows
+        )
+        if constrained_contract
+        else None,
+        "parser_failure_count": sum(
+            row.get("parse_status") != "PARSED" for row in parsed_rows
+        ),
         "locked_validation_pair_count_exposed_to_model": 0,
     }
     _write_json(run_dir / "manifest.json", manifest)

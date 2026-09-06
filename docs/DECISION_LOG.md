@@ -2,6 +2,39 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-06 — Stage 0 Calibration Repair v2 authorization
+
+**Stage/Gate:** Stage 0 calibration repair only; Gate 0 remains `NOT_RUN`.
+
+**Human decision:** Implement the narrowest technically valid canonical A/B
+output constraint, verify it with an engineering-only smoke on already
+exposed calibration pairs, and run the same registered calibration workload
+only if the smoke passes. Locked validation, Gate 0 decisions, Stage 1A, and
+all compression interventions remain unauthorized.
+
+**Historical failure classification:**
+`REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE`. The previous two exact runs stay
+immutable invalid registered runs. Their post-hoc leading-label analysis
+remains diagnostic only.
+
+**Frozen scientific inputs:** The 100 calibration `pair_id`s, strings,
+component assignments, candidate order, rendered images, blank allocation,
+model/processor revision, prompt, and scientific scoring definitions remain
+unchanged. Repair v2 changes only the generated-output contract from
+unconstrained four-token generation to a one-token A/B constraint after
+verifying the pinned tokenizer at the actual assistant generation boundary.
+
+**Engineering smoke:** five calibration pairs selected before Repair v2
+inference by the deterministic rule
+`lexicographically_first_calibration_pair_per_component_v1`, one frozen
+rendering condition, both displayed members, both blank orientations, and an
+exact rerun. This is 20 calls per run and 40 total. No visual-accuracy metric
+from the smoke may support Gate 0.
+
+**Mandatory stop:** after the repaired calibration, produce Checkpoint C and
+wait for human review. Gate 0 criteria remain unapproved and locked validation
+remains sealed.
+
 ## 2026-09-06 — Checkpoint A final freeze for Stage 0 calibration
 
 **Stage/Gate:** Stage 0 calibration only; Gate 0 remains `NOT_RUN`.
@@ -63,7 +96,8 @@ agreement. However, all 2,000 raw responses violated the registered `^[AB]$`
 parser by returning forms such as `A. <text>` or `B. <text>`. Registered parser
 failure is therefore 100%, conditional parsed accuracy is undefined, and the
 current instrument status is
-`CALIBRATION_INSTRUMENT_INVALID_PENDING_HUMAN_REVIEW`. Gate 0 remains
+`CALIBRATION_INSTRUMENT_INVALID_PENDING_HUMAN_REVIEW`. This is classified as
+`REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE`. Gate 0 remains
 `NOT_RUN`; locked validation and Stage 1A remain blocked. Full evidence and
 the non-frozen criteria proposal are in
 `docs/stage0/CHECKPOINT_B_CALIBRATION.md`.

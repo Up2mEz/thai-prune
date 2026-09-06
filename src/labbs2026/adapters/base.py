@@ -32,6 +32,10 @@ class PredictionResult:
     metadata: VisualStageMetadata
     preprocess_seconds: float
     generation_seconds: float
+    generated_token_ids: tuple[int, ...] = ()
+    output_contract_conformance: bool | None = None
+    output_contract: dict[str, Any] | None = None
+    resolved_generation_config: dict[str, Any] | None = None
 
 
 class VLMAdapter(ABC):

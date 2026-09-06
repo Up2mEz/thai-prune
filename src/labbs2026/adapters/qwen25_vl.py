@@ -17,6 +17,7 @@ MEASUREMENT_BOUNDARY = (
     "Qwen2.5-VL Vision Encoder output after spatial merger, matched to "
     "image-token positions in the language-model input"
 )
+CANONICAL_LABEL_CONSTRAINT = "canonical_label_token_constraint_v1"
 
 
 def visual_counts_from_grid(
@@ -44,6 +45,83 @@ def parse_ab(raw_output: str) -> tuple[str | None, str]:
     return None, "PARSER_FAILURE"
 
 
+def inspect_canonical_label_contract(
+    tokenizer: Any, prefix_text: str, labels: tuple[str, ...] = ("A", "B")
+) -> dict[str, Any]:
+    """Resolve canonical labels at the actual chat-generation text boundary."""
+
+    if labels != ("A", "B"):
+        raise ValueError("the registered Stage 0 labels must be exactly A and B")
+    prefix_ids = tokenizer.encode(prefix_text, add_special_tokens=False)
+    mapping: dict[str, int] = {}
+    forms: dict[str, dict[str, Any]] = {}
+    for form in ("A", "B", " A", " B", "A\n", "B\n"):
+        isolated = tokenizer.encode(form, add_special_tokens=False)
+        appended = tokenizer.encode(prefix_text + form, add_special_tokens=False)
+        prefix_stable = appended[: len(prefix_ids)] == prefix_ids
+        suffix = appended[len(prefix_ids) :] if prefix_stable else None
+        forms[repr(form)] = {
+            "isolated_token_ids": [int(value) for value in isolated],
+            "appended_prefix_stable": prefix_stable,
+            "appended_suffix_token_ids": (
+                [int(value) for value in suffix] if suffix is not None else None
+            ),
+            "decoded_isolated": tokenizer.decode(
+                isolated,
+                skip_special_tokens=False,
+                clean_up_tokenization_spaces=False,
+            ),
+        }
+    for label in labels:
+        record = forms[repr(label)]
+        token_ids = record["isolated_token_ids"]
+        if (
+            len(token_ids) != 1
+            or not record["appended_prefix_stable"]
+            or record["appended_suffix_token_ids"] != token_ids
+            or record["decoded_isolated"] != label
+        ):
+            raise RuntimeError(
+                f"canonical label {label!r} is not one exact token at the generation boundary"
+            )
+        mapping[label] = token_ids[0]
+    if len(set(mapping.values())) != len(mapping):
+        raise RuntimeError("canonical labels do not map to distinct token IDs")
+    return {
+        "contract_version": CANONICAL_LABEL_CONSTRAINT,
+        "labels": list(labels),
+        "label_token_ids": mapping,
+        "allowed_first_token_ids": [mapping[label] for label in labels],
+        "prefix_token_count": len(prefix_ids),
+        "prefix_tail_token_ids": [int(value) for value in prefix_ids[-20:]],
+        "forms": forms,
+        "valid": True,
+    }
+
+
+def canonical_label_from_generated_tokens(
+    tokenizer: Any, generated_token_ids: tuple[int, ...], label_token_ids: dict[str, int]
+) -> tuple[str, str | None, str, bool]:
+    """Decode one constrained token and fail closed on any non-canonical output."""
+
+    raw_output = tokenizer.decode(
+        list(generated_token_ids),
+        skip_special_tokens=True,
+        clean_up_tokenization_spaces=False,
+    )
+    reverse = {int(token_id): label for label, token_id in label_token_ids.items()}
+    token_label = (
+        reverse.get(int(generated_token_ids[0]))
+        if len(generated_token_ids) == 1
+        else None
+    )
+    parsed, parse_status = parse_ab(raw_output)
+    conforms = token_label is not None and parsed == token_label and parse_status == "PARSED"
+    return raw_output, parsed if conforms else None, (
+        "PARSED" if conforms else "OUTPUT_CONTRACT_VIOLATION"
+    ), conforms
+
+
 class Qwen25VLAdapter(VLMAdapter):
     """Pinned primary-backbone adapter; imports model libraries lazily."""
 
@@ -59,6 +137,9 @@ class Qwen25VLAdapter(VLMAdapter):
         attention_implementation: str,
         use_fast_processor: bool,
         max_new_tokens: int,
+        do_sample: bool = False,
+        output_contract_mode: str = "free_generation",
+        allowed_labels: tuple[str, ...] = ("A", "B"),
     ) -> None:
         if not re.fullmatch(r"[0-9a-f]{40}", revision):
             raise ValueError("model revision must be an immutable 40-character Git SHA")
@@ -73,6 +154,16 @@ class Qwen25VLAdapter(VLMAdapter):
         self.attention_implementation = attention_implementation
         self.use_fast_processor = use_fast_processor
         self.max_new_tokens = max_new_tokens
+        self.do_sample = do_sample
+        self.output_contract_mode = output_contract_mode
+        self.allowed_labels = allowed_labels
+        if self.output_contract_mode == CANONICAL_LABEL_CONSTRAINT:
+            if self.max_new_tokens != 1 or self.do_sample:
+                raise ValueError(
+                    "canonical label constraint requires do_sample=false and max_new_tokens=1"
+                )
+        elif self.output_contract_mode != "free_generation":
+            raise ValueError(f"unsupported output contract: {self.output_contract_mode}")
         self._processor: Any | None = None
         self._model: Any | None = None
         self._runtime_vision_output_count: int | None = None
@@ -118,10 +209,7 @@ class Qwen25VLAdapter(VLMAdapter):
             self.model_load_seconds = time.perf_counter() - started
         return self._model
 
-    def _prepare(self, image_path: Path, prompt: str) -> tuple[Any, Image.Image, float]:
-        import torch
-
-        image = Image.open(image_path).convert("RGB")
+    def _chat_prefix(self, prompt: str) -> str:
         messages = [
             {
                 "role": "user",
@@ -131,9 +219,33 @@ class Qwen25VLAdapter(VLMAdapter):
                 ],
             }
         ]
-        text = self.processor.apply_chat_template(
+        return self.processor.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
+
+    def inspect_output_contract(self, prompt: str) -> dict[str, Any]:
+        if self.output_contract_mode != CANONICAL_LABEL_CONSTRAINT:
+            return {
+                "contract_version": "free_generation",
+                "valid": True,
+            }
+        result = inspect_canonical_label_contract(
+            self.processor.tokenizer, self._chat_prefix(prompt), self.allowed_labels
+        )
+        return {
+            **result,
+            "tokenizer_class": type(self.processor.tokenizer).__name__,
+            "tokenizer_name_or_path": self.processor.tokenizer.name_or_path,
+            "tokenizer_revision": self.processor_revision,
+        }
+
+    def _prepare(
+        self, image_path: Path, prompt: str
+    ) -> tuple[Any, Image.Image, float, str]:
+        import torch
+
+        image = Image.open(image_path).convert("RGB")
+        text = self._chat_prefix(prompt)
         started = time.perf_counter()
         inputs = self.processor(
             text=[text],
@@ -144,7 +256,7 @@ class Qwen25VLAdapter(VLMAdapter):
         inputs = inputs.to(self.device)
         if inputs["image_grid_thw"].shape != torch.Size([1, 3]):
             raise ValueError("Step 3 adapter expects exactly one image per prediction")
-        return inputs, image, time.perf_counter() - started
+        return inputs, image, time.perf_counter() - started, text
 
     def _metadata_from_inputs(
         self, inputs: Any, image: Image.Image, runtime_count: int | None = None
@@ -181,7 +293,7 @@ class Qwen25VLAdapter(VLMAdapter):
         )
 
     def get_visual_stage_metadata(self, image_path: Path, prompt: str) -> VisualStageMetadata:
-        inputs, image, _ = self._prepare(image_path, prompt)
+        inputs, image, _, _ = self._prepare(image_path, prompt)
         return self._metadata_from_inputs(inputs, image)
 
     def get_preprocessed_image_shape(self, image_path: Path, prompt: str) -> tuple[int, int]:
@@ -193,8 +305,9 @@ class Qwen25VLAdapter(VLMAdapter):
     def predict(self, image_path: Path, prompt: str) -> PredictionResult:
         import torch
 
-        inputs, image, preprocess_seconds = self._prepare(image_path, prompt)
+        inputs, image, preprocess_seconds, prefix_text = self._prepare(image_path, prompt)
         captured: dict[str, int] = {}
+        contract = self.inspect_output_contract(prompt)
 
         def capture_vision_count(_module: Any, _args: Any, output: Any) -> None:
             captured["count"] = int(output.shape[0])
@@ -203,21 +316,45 @@ class Qwen25VLAdapter(VLMAdapter):
         started = time.perf_counter()
         try:
             with torch.inference_mode():
+                generation_kwargs: dict[str, Any] = {
+                    "do_sample": self.do_sample,
+                    "max_new_tokens": self.max_new_tokens,
+                }
+                if self.output_contract_mode == CANONICAL_LABEL_CONSTRAINT:
+                    allowed = tuple(int(value) for value in contract["allowed_first_token_ids"])
+
+                    def allowed_tokens(_batch_id: int, _input_ids: Any) -> list[int]:
+                        return list(allowed)
+
+                    generation_kwargs.update(
+                        {
+                            "min_new_tokens": 1,
+                            "prefix_allowed_tokens_fn": allowed_tokens,
+                        }
+                    )
                 generated = self.model.generate(
                     **inputs,
-                    do_sample=False,
-                    max_new_tokens=self.max_new_tokens,
+                    **generation_kwargs,
                 )
         finally:
             hook.remove()
         generation_seconds = time.perf_counter() - started
         generated_only = generated[:, inputs["input_ids"].shape[1] :]
-        raw_output = self.processor.batch_decode(
-            generated_only,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False,
-        )[0]
-        parsed, parse_status = parse_ab(raw_output)
+        generated_token_ids = tuple(int(value) for value in generated_only[0].tolist())
+        if self.output_contract_mode == CANONICAL_LABEL_CONSTRAINT:
+            raw_output, parsed, parse_status, conforms = canonical_label_from_generated_tokens(
+                self.processor.tokenizer,
+                generated_token_ids,
+                contract["label_token_ids"],
+            )
+        else:
+            raw_output = self.processor.batch_decode(
+                generated_only,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
+            )[0]
+            parsed, parse_status = parse_ab(raw_output)
+            conforms = None
         runtime_count = captured.get("count")
         if runtime_count is None:
             raise RuntimeError("Vision Encoder output count was not observed during generation")
@@ -230,6 +367,17 @@ class Qwen25VLAdapter(VLMAdapter):
             metadata=replace(metadata, runtime_vision_output_count=runtime_count),
             preprocess_seconds=preprocess_seconds,
             generation_seconds=generation_seconds,
+            generated_token_ids=generated_token_ids,
+            output_contract_conformance=conforms,
+            output_contract=contract,
+            resolved_generation_config={
+                "do_sample": self.do_sample,
+                "max_new_tokens": self.max_new_tokens,
+                "min_new_tokens": (
+                    1 if self.output_contract_mode == CANONICAL_LABEL_CONSTRAINT else None
+                ),
+                "output_contract_mode": self.output_contract_mode,
+            },
         )
 
     def architecture_record(self) -> dict[str, Any]:
@@ -238,6 +386,8 @@ class Qwen25VLAdapter(VLMAdapter):
             "model_id": self.model_id,
             "model_revision": self.revision,
             "processor_revision": self.processor_revision,
+            "tokenizer_revision": self.processor_revision,
+            "tokenizer_class": type(self.processor.tokenizer).__name__,
             "processor_class": type(processor).__name__,
             "use_fast_processor": self.use_fast_processor,
             "patch_size": int(processor.patch_size),
@@ -258,4 +408,10 @@ class Qwen25VLAdapter(VLMAdapter):
             "device": self.device,
             "dtype": self.dtype_name,
             "attention_implementation": self.attention_implementation,
+            "generation": {
+                "do_sample": self.do_sample,
+                "max_new_tokens": self.max_new_tokens,
+                "output_contract_mode": self.output_contract_mode,
+                "allowed_labels": list(self.allowed_labels),
+            },
         }

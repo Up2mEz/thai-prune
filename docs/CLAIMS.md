@@ -65,7 +65,9 @@ runs, but every response failed the registered exact A/B parser. This supports
 only the tested claim that the current prompt/parser contract is invalid for
 this model configuration. It does not support a visual-accuracy claim, Gate 0,
 H1, or any compression claim. Post hoc leading-label summaries are diagnostic
-and not Gate 0 evidence.
+and not Gate 0 evidence. The historical failure class is
+`REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE`; Repair v2 must not rewrite the
+old runs or promote their diagnostic accuracy to registered evidence.
 
 ---
 

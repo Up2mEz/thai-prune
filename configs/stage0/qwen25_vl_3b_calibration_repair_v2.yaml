@@ -1,0 +1,72 @@
+schema_version: 1
+stage: stage0_calibration_repair_v2
+scientific_scope: FULL_INFORMATION_CALIBRATION_ONLY
+
+model:
+  model_id: Qwen/Qwen2.5-VL-3B-Instruct
+  revision: 66285546d2b821cf421d4f5eb2576359d3770cd3
+  processor_revision: 66285546d2b821cf421d4f5eb2576359d3770cd3
+  tokenizer_revision: 66285546d2b821cf421d4f5eb2576359d3770cd3
+  use_fast_processor: false
+  device: cuda
+  dtype: float16
+  attention_implementation: sdpa
+  cache_dir: /tmp/huggingface
+
+generation:
+  do_sample: false
+  max_new_tokens: 1
+  min_new_tokens: 1
+  output_contract:
+    mode: canonical_label_token_constraint_v1
+    allowed_labels: [A, B]
+    expected_label_token_ids:
+      A: 32
+      B: 33
+
+seed_policy:
+  seed: 20260906
+  python_random: true
+  numpy: true
+  torch_cpu: true
+  torch_cuda_all_devices: true
+  deterministic_decoding: true
+  torch_deterministic_algorithms: false
+  rationale: exact rerun measures realized reproducibility under the approved proof-run backend
+
+input_rendering:
+  canvas_size: [448, 448]
+  color_mode: RGB
+  foreground_rgb: [0, 0, 0]
+  background_rgb: [255, 255, 255]
+
+expected_processor:
+  processor_class: Qwen2VLImageProcessor
+  use_fast_processor: false
+  patch_size: 14
+  temporal_patch_size: 2
+  spatial_merge_size: 2
+  min_pixels: 3136
+  max_pixels: 12845056
+  do_resize: true
+  resample: 3
+  do_rescale: true
+  rescale_factor: 0.00392156862745098
+  do_normalize: true
+  image_mean: [0.48145466, 0.4578275, 0.40821073]
+  image_std: [0.26862954, 0.26130258, 0.27577711]
+  do_convert_rgb: true
+
+expected_full_information_processing:
+  original_image_shape: [448, 448]
+  preprocessed_image_shape: [448, 448]
+  image_grid_thw: [1, 32, 32]
+  premerge_patch_count: 1024
+  llm_visual_token_count: 256
+  input_image_token_count: 256
+  runtime_vision_output_count: 256
+
+prompt:
+  config: configs/stage0/prompt_parser.yaml
+  version: stage0_forced_choice_th_v1
+  parser_pattern: "^[AB]$"

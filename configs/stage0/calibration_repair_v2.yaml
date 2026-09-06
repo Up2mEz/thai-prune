@@ -1,0 +1,68 @@
+schema_version: 1
+status: FROZEN_REPAIR_V2_AUTHORIZED
+stage: stage0_calibration_repair_v2
+authorization_scope: REPAIR_AND_REPAIRED_CALIBRATION_ONLY
+previous_failure_classification: REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE
+
+frozen_scientific_inputs:
+  base_calibration_design: configs/stage0/calibration_design.yaml
+  base_calibration_design_sha256: ec26b0383f3dbfcef90a21b9107745baf9ff71d0073b23306c02a054868dc13c
+  calibration_input_bundle: assets/stage0/calibration_input.zip
+  calibration_input_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+  pair_allocation_sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
+  prompt_parser: configs/stage0/prompt_parser.yaml
+  prompt_parser_sha256: e6de7de86b6f396af9a0d747b3fc7d102898f41939ef1fb322029892c331d509
+  prompt_version: stage0_forced_choice_th_v1
+  exact_parser_pattern: "^[AB]$"
+  rendering_changed: false
+  candidate_order_changed: false
+  scoring_definitions_changed: false
+
+repair_contract:
+  model_config: configs/stage0/qwen25_vl_3b_calibration_repair_v2.yaml
+  model_config_sha256: 5745979f691f48bde0c45d04f860b4d4438288309448982c5a2b4a9701c1e15c
+  tokenizer_audit: docs/stage0/tokenizer_contract_repair_v2.json
+  tokenizer_audit_sha256: 70ea07b36f3787ec0257839dc689c51d07004f1a24e8debb05fc190d88a2db0b
+  output_contract_version: canonical_label_token_constraint_v1
+  allowed_label_token_ids: [32, 33]
+  runtime_must_reverify_mapping: true
+
+engineering_smoke:
+  scientific_evidence: false
+  selection_strategy: lexicographically_first_calibration_pair_per_component_v1
+  selection_sha256: c0f7d501144d54838280d67a54bb9d11bd40387df5c800a52000d43aff14b7e0
+  pair_ids:
+    - base_ka_pha
+    - lower_ma
+    - combined_ka
+    - tone_kha
+    - upper_ka
+  condition_id: noto_sans_thai_regular__72__center
+  include_full_both_members: true
+  include_blank_both_orientations: true
+  observations_per_exact_run: 20
+  exact_rerun_count: 2
+  total_model_calls: 40
+  acceptance:
+    call_completion_rate: 1.0
+    execution_failure_count: 0
+    output_contract_conformance_rate: 1.0
+    parser_failure_count: 0
+    parsed_choice_rerun_agreement: 1.0
+    visual_token_count_rerun_agreement: 1.0
+
+repaired_calibration:
+  run_only_if_engineering_smoke_passes: true
+  pair_count: 100
+  full_information_calls_per_exact_run: 800
+  blank_control_calls_per_exact_run: 200
+  observations_per_exact_run: 1000
+  exact_rerun_count: 2
+  total_model_calls: 2000
+
+prohibitions:
+  locked_validation_authorized: false
+  gate_0_decision_authorized: false
+  stage_1a_authorized: false
+  compression_authorized: false
+  change_candidate_inventory_authorized: false

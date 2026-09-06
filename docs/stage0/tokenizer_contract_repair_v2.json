@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "VERIFIED_BEFORE_REPAIR_V2_INFERENCE",
+  "source_git_commit": "c5200181a91b5252fe71b8eb518e3e2778a13957",
+  "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "tokenizer_revision": "66285546d2b821cf421d4f5eb2576359d3770cd3",
+  "tokenizer_class": "Qwen2Tokenizer",
+  "tokenizer_vocab_size": 151665,
+  "prompt_version": "stage0_forced_choice_th_v1",
+  "audited_calibration_pair_id": "base_ka_pha",
+  "generation_boundary": "after <|im_start|>assistant followed by newline",
+  "canonical_label_token_ids": {
+    "A": 32,
+    "B": 33
+  },
+  "forms": {
+    "A": {"token_ids": [32], "appended_prefix_stable": true},
+    "B": {"token_ids": [33], "appended_prefix_stable": true},
+    " A": {"token_ids": [362], "appended_prefix_stable": true},
+    " B": {"token_ids": [425], "appended_prefix_stable": true},
+    "A\\n": {"token_ids": [32, 198], "appended_prefix_stable": true},
+    "B\\n": {"token_ids": [33, 198], "appended_prefix_stable": true}
+  },
+  "assistant_message_suffixes": {
+    "A": [32, 151645, 198],
+    "B": [33, 151645, 198],
+    " A": [362, 151645, 198],
+    " B": [425, 151645, 198],
+    "A\\n": [32, 198, 151645, 198],
+    "B\\n": [33, 198, 151645, 198]
+  },
+  "conclusion": "Canonical A and B are distinct one-token continuations at the actual generation boundary. Restricting the sole generated token to IDs 32 or 33 can guarantee exact canonical output without changing the registered parser."
+}

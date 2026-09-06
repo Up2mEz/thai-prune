@@ -393,6 +393,15 @@ def cuda_preflight(requested_accelerator: str) -> dict[str, Any]:
         capture_output=True,
         text=True,
     )
+    nvidia_smi_values: dict[str, str] | None = None
+    if nvidia_smi.returncode == 0:
+        fields = [part.strip() for part in nvidia_smi.stdout.strip().split(",", 2)]
+        if len(fields) == 3:
+            nvidia_smi_values = {
+                "driver_version": fields[0],
+                "gpu_name": fields[1],
+                "memory_total_mib": fields[2],
+            }
     return {
         "requested_accelerator": requested_accelerator,
         "observed_gpu_name": observed_name,
@@ -409,6 +418,7 @@ def cuda_preflight(requested_accelerator: str) -> dict[str, Any]:
             "query_output": nvidia_smi.stdout.strip()
             if nvidia_smi.returncode == 0
             else None,
+            "parsed": nvidia_smi_values,
         },
     }
 

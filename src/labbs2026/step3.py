@@ -150,6 +150,28 @@ def environment_record() -> dict[str, Any]:
     import torch
     import transformers
 
+    cuda_available = torch.cuda.is_available()
+    gpu: dict[str, Any] | None = None
+    if cuda_available:
+        index = torch.cuda.current_device()
+        properties = torch.cuda.get_device_properties(index)
+        driver = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=driver_version,name,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        gpu = {
+            "device_index": int(index),
+            "model": torch.cuda.get_device_name(index),
+            "compute_capability": [int(properties.major), int(properties.minor)],
+            "total_memory_bytes": int(properties.total_memory),
+            "nvidia_smi_query": driver.stdout.strip() if driver.returncode == 0 else None,
+        }
     return {
         "python": platform.python_version(),
         "platform": platform.platform(),
@@ -158,13 +180,14 @@ def environment_record() -> dict[str, Any]:
         "physical_ram_bytes": psutil.virtual_memory().total,
         "torch": torch.__version__,
         "transformers": transformers.__version__,
-        "cuda_available": torch.cuda.is_available(),
+        "cuda_available": cuda_available,
         "torch_cuda_runtime": torch.version.cuda,
         "cudnn_version": torch.backends.cudnn.version(),
         "deterministic_algorithms_enabled": torch.are_deterministic_algorithms_enabled(),
         "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
         "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
         "xpu_available": bool(hasattr(torch, "xpu") and torch.xpu.is_available()),
+        "gpu": gpu,
     }
 
 
@@ -204,6 +227,13 @@ def build_adapter(
         ),
         use_fast_processor=bool(model["use_fast_processor"]),
         max_new_tokens=int(generation["max_new_tokens"]),
+        do_sample=bool(generation.get("do_sample", False)),
+        output_contract_mode=str(
+            generation.get("output_contract", {}).get("mode", "free_generation")
+        ),
+        allowed_labels=tuple(
+            generation.get("output_contract", {}).get("allowed_labels", ["A", "B"])
+        ),
     )
 
 

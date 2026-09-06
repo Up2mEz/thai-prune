@@ -4,6 +4,7 @@ from labbs2026.stage0.kaggle_workload import derive_workload
 from labbs2026.stage0.run import (
     calibration_readiness_issues,
     canonical_allocation_sha256,
+    compute_engineering_contract_metrics,
     make_observation_plan,
 )
 
@@ -116,3 +117,27 @@ def test_workload_reports_exact_calls_after_freeze() -> None:
     assert workload["exact_observation_count"] == 4
     assert workload["total_model_calls_including_rerun"] == 8
     assert not workload["locked_validation_included"]
+
+
+def test_engineering_smoke_metrics_never_compute_visual_accuracy() -> None:
+    rows = [
+        {
+            "parsed_output": "A",
+            "parse_status": "PARSED",
+            "output_contract_conformance": True,
+            "llm_visual_token_count": 256,
+        },
+        {
+            "parsed_output": "B",
+            "parse_status": "PARSED",
+            "output_contract_conformance": True,
+            "llm_visual_token_count": 256,
+        },
+    ]
+
+    result = compute_engineering_contract_metrics(rows, planned_observation_count=2)
+
+    assert result["visual_accuracy_computed"] is False
+    assert result["scientific_use"] == "FORBIDDEN_ENGINEERING_SMOKE_ONLY"
+    assert "accuracy" not in result
+    assert result["output_contract_conformance_rate"] == 1.0
