@@ -49,6 +49,14 @@ point SESOI remains measurement-planning guidance only.
 evidence, interpretation, proposed numeric Gate 0 criteria, and unresolved
 uncertainty separately. Human review is required before locked validation.
 
+**Execution note:** Kaggle kernel version 1 failed during source verification,
+before environment setup or model inference, because the Windows working-tree
+hash of `uv.lock` used CRLF while the Linux checkout used the committed LF
+form. No calibration or blank-control prompt reached the model. The failed
+attempt is retained as an execution artifact. The portability fix pins
+`uv.lock` to LF in `.gitattributes`; it does not alter the frozen dataset,
+allocation, prompt, model, runtime, or analysis design.
+
 ## 2026-09-06 — Stage 0 Checkpoint A conditional approval
 
 **Stage/Gate:** Steps 4–6 / Stage 0 pre-calibration review

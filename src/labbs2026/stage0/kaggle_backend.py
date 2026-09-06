@@ -38,7 +38,7 @@ from labbs2026.step3 import environment_record
 
 
 KERNEL_METADATA = {
-    "id": "thanakritsamoena/labbs2026-stage0-calibration",
+    "id": "thanakritsamoena/labbs2026-stage-0-calibration",
     "title": "LabBS2026 Stage 0 Calibration",
     "code_file": "worker.py",
     "language": "python",
