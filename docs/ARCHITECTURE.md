@@ -271,6 +271,17 @@ the image processor, Vision Encoder, or 256-position visual-token measurement
 boundary. Exact evidence is in
 `docs/stage0/TOKENIZER_CONTRACT_REPAIR_V2.md`.
 
+The pinned `transformers==4.57.6` implementation can expose the raw
+next-token logits used at this boundary. Its generation loop reads
+`outputs.logits[:, -1, :]` before applying the prefix constraint, and
+`generate(return_dict_in_generate=True, output_logits=True)` can retain those
+raw values. This capability is only a proposed calibration diagnostic:
+existing repaired-calibration artifacts did not record logits, and no new
+inference is authorized. Any future A/B margin must preserve token IDs 32/33,
+the prompt/parser, processor, and the same LLM visual-token boundary, and must
+remain secondary to registered forced-choice accuracy. The proposed design is
+in `docs/stage0/CHECKPOINT_D_CALIBRATION_ONLY_DIAGNOSTICS.md`.
+
 ### 7.3 Stage 1A measurement boundary
 
 Stage 1A changes processor-controlled input resolution. It must record:

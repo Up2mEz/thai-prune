@@ -77,6 +77,17 @@ the exact repaired output-contract and calibration evidence reported in
 `docs/stage0/CHECKPOINT_C_REPAIRED_INSTRUMENT.md`. It is not locked evidence,
 does not approve Gate 0, and provides no compression or H1 evidence.
 
+Checkpoint D analyzed only the first repaired calibration run and used the
+second run only to confirm reproducibility. Within this exact synthetic Qwen
+calibration, accuracy was strongly associated with canonical member identity,
+and some components varied descriptively by font and size. Blank controls
+showed strong answer-position preference, but matched blank choices aligned
+with 51.74% of full-information errors overall. These findings justify further
+measurement diagnostics only. They do not identify a cause, validate all
+components, approve Gate 0, or provide compression/H1 evidence. Exact scope
+and limitations are in
+`docs/stage0/CHECKPOINT_D_CALIBRATION_ONLY_DIAGNOSTICS.md`.
+
 ---
 
 ## HYPOTHESES

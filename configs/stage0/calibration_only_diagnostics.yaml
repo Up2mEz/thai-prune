@@ -1,0 +1,41 @@
+schema_version: 1
+status: CHECKPOINT_D_ANALYSIS_ONLY
+scope: ALREADY_EXPOSED_CALIBRATION_PAIRS_ONLY
+
+source:
+  run_id: kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41
+  artifact_dir: runs/kaggle/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41/fetched/artifacts/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41
+  analysis_exact_run: repaired_calibration/exact_run_1/parsed_predictions.jsonl
+  reproducibility_only_run: repaired_calibration/exact_run_2/parsed_predictions.jsonl
+  calibration_design: configs/stage0/calibration_design.yaml
+  candidate_inventory: configs/stage0/candidate_pairs.yaml
+  frozen_render_bundle: assets/stage0/calibration_input.zip
+  render_manifest_member: render_manifest.json
+
+analysis:
+  independent_unit: pair_id
+  exact_reruns_pooled: false
+  confidence_level: 0.95
+  cluster_bootstrap_resamples: 2000
+  cluster_bootstrap_seed: 20260906
+  chance_accuracy: 0.50
+  planning_seoi_absolute: 0.10
+  blank_prior_alignment:
+    primary_definition: MATCHED_PAIR_AND_CANDIDATE_ORIENTATION
+    pair_preference_definition: MAJORITY_CANONICAL_MEMBER_ACROSS_TWO_ORIENTATIONS
+    ties_are_not_unique_preferences: true
+  critical_region_association:
+    measure: SPEARMAN_RHO
+    causal_interpretation_allowed: false
+
+phase_2_decision_margin_design:
+  inference_authorized: false
+  primary_metric_replacement_allowed: false
+  prompt_or_parser_change_allowed: false
+
+prohibitions:
+  locked_validation_authorized: false
+  stage_1a_authorized: false
+  compression_authorized: false
+  secondary_backbone_authorized: false
+  dataset_change_authorized: false

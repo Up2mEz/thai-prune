@@ -49,6 +49,29 @@ asymmetries remain unresolved. Status is
 `NOT_RUN` and locked validation remains blocked. Full evidence is in
 `docs/stage0/CHECKPOINT_C_REPAIRED_INSTRUMENT.md`.
 
+**Checkpoint C human review:** the human researcher determined that the
+output/parser/runtime contract is valid, but the current measurement
+instrument is not adequate for every component under the provisional 10 pp
+planning SESOI. `BASE_CHARACTER` and `TONE_MARK` are currently
+measurement-usable, `UPPER_VOWEL_VARIANT` is borderline, and
+`LOWER_VOWEL_VARIANT` plus `STACKED_TONE_MARK` are not currently adequate.
+This is measurement-validity evidence only and does not test compression or
+reject H1. Gate 0 criteria remain unfrozen and locked validation remains
+sealed.
+
+**Checkpoint D result presented for human review:** analysis of only the 100
+already exposed calibration pairs found large, oppositely directed canonical
+member asymmetries; descriptive font-by-size variation, especially for lower
+vowels; and strong blank position bias that aligned with 51.74% of
+FULL_INFORMATION errors under the same pair and candidate orientation. The
+evidence does not identify one dominant mechanism. Exact run 2 remained a
+reproducibility audit and was not pooled. The pinned adapter can technically
+expose raw A/B next-token logits, but existing artifacts do not contain them,
+so a proposed 1,040-call margin diagnostic requires new human authorization.
+Recommendation is `MULTIPLE_DIAGNOSTICS_REQUIRED`; details are in
+`docs/stage0/CHECKPOINT_D_CALIBRATION_ONLY_DIAGNOSTICS.md`. Gate 0 remains
+`NOT_RUN`, and locked validation plus all later stages remain blocked.
+
 ## 2026-09-06 — Checkpoint A final freeze for Stage 0 calibration
 
 **Stage/Gate:** Stage 0 calibration only; Gate 0 remains `NOT_RUN`.
