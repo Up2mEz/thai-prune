@@ -88,6 +88,18 @@ components, approve Gate 0, or provide compression/H1 evidence. Exact scope
 and limitations are in
 `docs/stage0/CHECKPOINT_D_CALIBRATION_ONLY_DIAGNOSTICS.md`.
 
+Checkpoint E used one new calibration-only pass over the same already exposed
+100 pairs. Under the pinned synthetic Qwen setup, the rendered image shifted
+the A/B decision margin toward the displayed correct member on average in all
+five components, but the shift was small and strongly member-dependent for
+`LOWER_VOWEL_VARIANT` and `STACKED_TONE_MARK`. Matched blank controls retained
+a strong displayed-position-A preference, and paired size associations usually
+moved in the same direction as binary accuracy. These are secondary,
+non-causal measurement diagnostics reported in
+`docs/stage0/CHECKPOINT_E_IMAGE_GAIN_DIAGNOSTIC.md`; they do not replace the
+registered metric, validate every component, approve Gate 0, establish model
+capacity, or support any compression/H1/real-world claim.
+
 ---
 
 ## HYPOTHESES
