@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import time
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +18,18 @@ MEASUREMENT_BOUNDARY = (
     "image-token positions in the language-model input"
 )
 CANONICAL_LABEL_CONSTRAINT = "canonical_label_token_constraint_v1"
+
+
+@dataclass(frozen=True)
+class DecisionLogitResult:
+    """Raw A/B decision logits captured before generation-time processors."""
+
+    prediction: PredictionResult
+    logit_a: float
+    logit_b: float
+    direct_forward_logit_a: float | None
+    direct_forward_logit_b: float | None
+    generate_direct_exact: bool | None
 
 
 def visual_counts_from_grid(
@@ -378,6 +390,116 @@ class Qwen25VLAdapter(VLMAdapter):
                 ),
                 "output_contract_mode": self.output_contract_mode,
             },
+        )
+
+    def predict_with_decision_logits(
+        self,
+        image_path: Path,
+        prompt: str,
+        *,
+        verify_direct_forward: bool = False,
+    ) -> DecisionLogitResult:
+        """Predict one registered label and expose its raw pre-processor A/B logits.
+
+        ``generate(..., output_logits=True)`` returns the model logits before the
+        generation logits processors are applied.  The optional direct forward
+        pass is an engineering cross-check at the same final prompt position; it
+        is deliberately used only by the smoke test.
+        """
+
+        import torch
+
+        if self.output_contract_mode != CANONICAL_LABEL_CONSTRAINT:
+            raise RuntimeError("decision-logit capture requires the canonical A/B contract")
+        inputs, image, preprocess_seconds, _prefix_text = self._prepare(image_path, prompt)
+        contract = self.inspect_output_contract(prompt)
+        label_token_ids = {
+            label: int(token_id) for label, token_id in contract["label_token_ids"].items()
+        }
+        captured: dict[str, int] = {}
+
+        def capture_vision_count(_module: Any, _args: Any, output: Any) -> None:
+            captured["count"] = int(output.shape[0])
+
+        allowed = tuple(int(value) for value in contract["allowed_first_token_ids"])
+
+        def allowed_tokens(_batch_id: int, _input_ids: Any) -> list[int]:
+            return list(allowed)
+
+        direct_a: float | None = None
+        direct_b: float | None = None
+        hook = self.model.model.visual.register_forward_hook(capture_vision_count)
+        started = time.perf_counter()
+        try:
+            with torch.inference_mode():
+                if verify_direct_forward:
+                    direct = self.model(
+                        **inputs,
+                        use_cache=False,
+                        return_dict=True,
+                        logits_to_keep=1,
+                    ).logits[0, -1].float()
+                    direct_a = float(direct[label_token_ids["A"]].item())
+                    direct_b = float(direct[label_token_ids["B"]].item())
+                generated = self.model.generate(
+                    **inputs,
+                    do_sample=self.do_sample,
+                    max_new_tokens=self.max_new_tokens,
+                    min_new_tokens=1,
+                    prefix_allowed_tokens_fn=allowed_tokens,
+                    return_dict_in_generate=True,
+                    output_logits=True,
+                )
+        finally:
+            hook.remove()
+        generation_seconds = time.perf_counter() - started
+        if len(generated.logits) != 1:
+            raise RuntimeError("expected exactly one pre-decision logit tensor")
+        next_logits = generated.logits[0][0].float()
+        logit_a = float(next_logits[label_token_ids["A"]].item())
+        logit_b = float(next_logits[label_token_ids["B"]].item())
+        generated_only = generated.sequences[:, inputs["input_ids"].shape[1] :]
+        generated_token_ids = tuple(int(value) for value in generated_only[0].tolist())
+        raw_output, parsed, parse_status, conforms = canonical_label_from_generated_tokens(
+            self.processor.tokenizer,
+            generated_token_ids,
+            label_token_ids,
+        )
+        runtime_count = captured.get("count")
+        if runtime_count is None:
+            raise RuntimeError("Vision Encoder output count was not observed during inference")
+        metadata = self._metadata_from_inputs(inputs, image, runtime_count=runtime_count)
+        prediction = PredictionResult(
+            raw_output=raw_output,
+            parsed_output=parsed,
+            parse_status=parse_status,
+            metadata=replace(metadata, runtime_vision_output_count=runtime_count),
+            preprocess_seconds=preprocess_seconds,
+            generation_seconds=generation_seconds,
+            generated_token_ids=generated_token_ids,
+            output_contract_conformance=conforms,
+            output_contract=contract,
+            resolved_generation_config={
+                "do_sample": self.do_sample,
+                "max_new_tokens": self.max_new_tokens,
+                "min_new_tokens": 1,
+                "output_contract_mode": self.output_contract_mode,
+                "return_dict_in_generate": True,
+                "output_logits": True,
+            },
+        )
+        exact = (
+            logit_a == direct_a and logit_b == direct_b
+            if verify_direct_forward
+            else None
+        )
+        return DecisionLogitResult(
+            prediction=prediction,
+            logit_a=logit_a,
+            logit_b=logit_b,
+            direct_forward_logit_a=direct_a,
+            direct_forward_logit_b=direct_b,
+            generate_direct_exact=exact,
         )
 
     def architecture_record(self) -> dict[str, Any]:

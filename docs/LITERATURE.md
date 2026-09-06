@@ -1,6 +1,6 @@
 # Literature Evidence Matrix
 
-> Checked: 2026-09-04. This is an evidence matrix, not evidence that the
+> Checked: 2026-09-06. This is an evidence matrix, not evidence that the
 > search is exhaustive. Absence from this matrix must not be described as
 > absence from the literature.
 
@@ -53,13 +53,18 @@ discovery only; claims below come from the primary paper or official code.
 | [UniPruneBench](https://arxiv.org/abs/2511.02650) | 2025/2026 | How do pruning methods compare under a unified protocol? | LLaVA-1.5, InternVL3, Qwen2.5-VL | Multiple ViT-only, pre-LLM, and LLM methods | Yes; reports OCR as sensitive | No controlled Thai components | Establishes that OCR sensitivity and strong random/downsampling baselines must be considered | Why a specific script component fails or whether Thai differs by component | Public benchmark code not located in this pass; status `Unknown` | 2026-09-04 |
 | [LLMC+](https://arxiv.org/abs/2508.09981) | 2025/2026 | Can VLM compression methods be benchmarked in a modular toolkit? | Multiple VLM families | Multiple token-reduction and model-compression locations | Detail-sensitive tasks included | No Thai minimal-pair design | Shows detail-sensitive degradation and provides reusable baseline infrastructure | The project's component-level estimand | [LightCompress](https://github.com/ModelTC/LightCompress) | 2026-09-04 |
 | [ThaiOCRBench](https://aclanthology.org/2025.ijcnlp-long.89/) | 2025 | How well do VLMs perform on Thai text-rich tasks? | Proprietary and open VLMs | No controlled compression intervention | Yes, Thai | Fine-grained recognition, but not controlled orthographic pairs | Establishes a Thai external-validity benchmark and documents recognition/error categories | Compression causality, component-by-budget interaction, or minimal-pair discrimination | [Official code/data](https://github.com/scbdatax/ThaiOCRBench) | 2026-09-04 |
-| [Fico](https://aclanthology.org/2026.findings-acl.1758/) | 2026 | How robust are VLMs to controlled visual fidelity and density? | 13 VLMs, 3 OCR-specialized models | Rendering density/resolution; visual-text compression | Yes | Controlled fidelity variants, not Thai component pairs | Establishes that controlled visual fidelity can expose failures missed by VQA and that OCR differs from higher-level tasks | Post-encoder pruning behavior or Thai orthographic category effects | Code status `Unknown` in this pass | 2026-09-04 |
-| [Visual Merit or Linguistic Crutch?](https://arxiv.org/abs/2601.03714) | 2026 | How much does DeepSeek-OCR rely on language priors? | DeepSeek-OCR | Varies visual-token density in a visual-text system | Yes | Semantic corruption controls, not Thai minimal pairs | Directly supports language-prior negative controls and warns that lower visual information can increase prior reliance | Qwen behavior or component-specific degradation | Code status `Unknown` in this pass | 2026-09-04 |
+| [Fico](https://aclanthology.org/2026.findings-acl.1758/) | 2026 | How robust are VLMs to controlled visual fidelity and density? | 13 VLMs, 3 OCR-specialized models | Rendering density/resolution; visual-text compression | Yes | Controlled fidelity variants, not Thai component pairs | Establishes that controlled visual fidelity can expose failures missed by VQA and that OCR differs from higher-level tasks | Post-encoder pruning behavior or Thai orthographic category effects | [Official code/data](https://github.com/wang-research-lab/fico-bench) | 2026-09-06 |
+| [Visual Merit or Linguistic Crutch?](https://arxiv.org/abs/2601.03714) | 2026 | How much does DeepSeek-OCR rely on language priors? | DeepSeek-OCR and 13 baselines | Visual-token density and semantic corruption | Yes | Semantic corruption controls, not Thai minimal pairs | Directly supports language-prior diagnostics and reports increased prior sensitivity under lower visual-token regimes | Uncompressed Qwen behavior, component-specific degradation, or a Token Pruning mechanism | [Official data/results/scripts](https://github.com/dududuck00/DeepSeekOCR) | 2026-09-06 |
 | [FastOCR](https://arxiv.org/abs/2605.17447) | 2026 | Can OCR inference attend dynamically without permanent token eviction? | Five VLMs including Qwen2.5-VL | Decoder-time KV/attention selection; tokens are not permanently evicted | Yes | No Thai component-controlled evaluation reported | Existing OCR-aware alternative that separates per-step attention from physical token deletion | That permanent pruning fails on every OCR setup or on Thai specifically | No official code located in this pass | 2026-09-04 |
 | [RTPrune](https://arxiv.org/abs/2605.00392) | 2026 | Can post-encoding pruning/merging accelerate DeepSeek-OCR? | DeepSeek-OCR-Large | Post-encoder selection plus merging | Yes | No Thai component-controlled evaluation reported | Establishes a strong OCR-specific pruning/merging family and provides implementations of comparison methods | Compatibility with Qwen2.5-VL or a Thai effect | [Official code](https://github.com/BurnWan/RTPrune) | 2026-09-04 |
 | [ET-Prune](https://arxiv.org/abs/2608.01979) | 2026 | Can evidence-aware dynamic budgeting preserve text-rich evidence? | Qwen3-VL-8B, InternVL3.5-8B | Progressive decoder-side pruning | Yes | OCRBench-level, not Thai minimal pairs | Most direct novelty threat: question-conditioned evidence, text-region safeguards, and dynamic token floors already exist | Thai component robustness; compatibility with the primary Qwen2.5-VL-3B adapter | [Repository](https://github.com/Labyrinth0419/ET-Prune) says implementation is TBD | 2026-09-04 |
 | [LensVLM](https://arxiv.org/abs/2605.07019) | 2026 | Can a model selectively expand compressed rendered text? | Qwen3.5-based system | Resolution/density plus learned expansion tools | Yes | Character indistinguishability analyzed at document scale | Shows resolution compression and selective re-expansion are established directions | Post-encoder pruning or Thai component-by-budget effects | Code status `Unknown` in this pass | 2026-09-04 |
 | [CARES](https://aclanthology.org/2026.acl-long.102/) | 2026 | Can input-dependent minimum sufficient resolution be selected? | VLMs evaluated with discrete/continuous resolutions | Preprocessing resolution selection | Text-rich tasks may be included but not the central controlled question | No | Establishes adaptive resolution selection as prior work | Controlled Thai orthographic degradation or post-encoder pruning | Code status `Unknown` in this pass | 2026-09-04 |
+| [Benchmarking and Mitigating MCQA Selection Bias of Large Vision-Language Models](https://aclanthology.org/2025.emnlp-main.1703/) | 2025 | How do option-token identity and position affect LVLM multiple-choice answers? | LLaVA-v1.5-13B, InternVL2.5-8B, Qwen2.5-VL-3B | No compression intervention | No | Fine-grained natural-image classes, not orthographic detail | Direct evidence on the primary model family that option token and position interact, especially as alternatives become more ambiguous | A universal A bias, Thai OCR behavior, or validity of any debiasing change to our registered metric | [Official repository](https://github.com/Atabuzzaman/Selection-Bias-of-LVLMs) is partial relative to the full paper protocol | 2026-09-06 |
+| [Choosing “Right” from Wrong](https://openaccess.thecvf.com/content/CVPR2025W/BEAM/html/Zeno_Choosing_Right_from_Wrong_A_Closer_Look_at_Selection_Bias_CVPRW_2025_paper.html) | 2025 | Does selection bias contaminate spatial multimodal MCQs? | Eight LMM architectures | No compression intervention | No | Spatial image-caption probes | Independent support for candidate permutation and position-bias audits in image-conditioned forced choice | Transfer of an architecture-specific bias to Qwen2.5-VL or Thai text | No official code located in this bounded pass | 2026-09-06 |
+| [Debiasing Multimodal Large Language Models via Penalization of Language Priors](https://arxiv.org/abs/2403.05262) | 2024/2025 | Can dummy or absent visual evidence expose language-prior behavior? | Six MLLMs | No compression intervention | Toy visual questions, not OCR-centered | Controlled dummy-image variants | Supports comparing image-conditioned token evidence with matched dummy-image baselines | That a 448×448 blank is pure language-only input, or that logit subtraction is causal | No verified official code located in this bounded pass | 2026-09-06 |
+| [Context-Independent OCR with Multimodal LLMs](https://arxiv.org/abs/2503.23667) | 2025 | How do resolution and glyph complexity affect isolated-character OCR? | GPT-4o, Gemini 2.0 Flash, Azure OCR | Input resolution | Yes, Japanese single characters | Context-independent glyph recognition | Close evidence that isolated-character OCR can be scale-sensitive and that glyph complexity alone may explain little | A Thai pixel-size threshold or behavior of the pinned Qwen model | No official code located in this bounded pass | 2026-09-06 |
+| [FADE](https://aclanthology.org/2026.alvr-main.23/) | 2026 | How do VLMs recognize fine-grained text as visibility decreases? | Gemini 3, Claude 4.5 Sonnet, Gemma 3 | Visibility/contrast manipulation | Yes | Synthetic numeric strings with controlled clutter/transparency | Fine-detail OCR can collapse as visual evidence weakens, independently of semantic text context | Equivalence between visibility, resolution, Thai marks, or visual-token pruning | No official code located in this bounded pass | 2026-09-06 |
 
 ## Implementation compatibility audit
 
@@ -92,6 +97,15 @@ Compatibility is with the planned primary backbone
   method is new is not defensible.
 - Language priors can contaminate apparent OCR success, so visual negative
   controls are required.
+- Forced-choice output can depend jointly on option-token identity and option
+  position. For `Qwen2.5-VL-3B`, the current primary evidence does not support
+  simplifying this to a universal preference for one label.
+- Dummy/blank visual conditions can diagnose prior-sensitive behavior, but a
+  blank image still produces visual tokens and must not be described as a
+  pure image-free or language-only condition.
+- Resolution and visibility are established sources of OCR/fine-detail
+  sensitivity. They do not identify the causal mechanism of an effect in the
+  current Thai rendering design.
 
 ### What this pass did not find established
 
@@ -103,6 +117,12 @@ Within the recorded searches, no inspected work directly evaluated all of:
 4. repeated render conditions analyzed with `pair_id` as the independent unit;
 5. forced-choice plus language-prior controls; and
 6. explicit separation of Resolution Reduction from post-encoder pruning.
+
+The refreshed selection-bias, dummy-image, and visual-scale literature also
+did not directly evaluate a matched blank-versus-image A/B decision-margin
+shift for controlled Thai orthographic minimal pairs on a pinned
+`Qwen2.5-VL-3B-Instruct` revision. This diagnostic remains a bounded local
+measurement question rather than a claimed new method.
 
 This is a bounded search result, not proof that no such work exists.
 
@@ -134,4 +154,3 @@ next evidence needed is measurement validity, not method development.
 - Refresh this matrix immediately before advisor review and before Gate 4.
 - A domain expert should inspect Thai linguistics/orthography literature during
   candidate-pair review; this pass focused on VLM/OCR/compression work.
-

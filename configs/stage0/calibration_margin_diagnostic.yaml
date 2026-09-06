@@ -1,0 +1,53 @@
+schema_version: 1
+status: FROZEN_CALIBRATION_MARGIN_DIAGNOSTIC_AUTHORIZED
+stage: stage0_calibration_image_gain_diagnostic
+authorization_scope: ALREADY_EXPOSED_CALIBRATION_PAIRS_ONLY
+
+frozen_inputs:
+  calibration_design: configs/stage0/calibration_design.yaml
+  calibration_input_bundle: assets/stage0/calibration_input.zip
+  calibration_input_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+  pair_allocation_sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
+  prompt_parser: configs/stage0/prompt_parser.yaml
+  prompt_parser_sha256: e6de7de86b6f396af9a0d747b3fc7d102898f41939ef1fb322029892c331d509
+  model_config: configs/stage0/qwen25_vl_3b_calibration_repair_v2.yaml
+  model_config_sha256: 5745979f691f48bde0c45d04f860b4d4438288309448982c5a2b4a9701c1e15c
+  binary_reference_path: runs/kaggle/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41/fetched/artifacts/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41/repaired_calibration/exact_run_1/parsed_predictions.jsonl
+  binary_reference_sha256: cb40ccc0bf1927c2a63d1979e4966dcf5b993b9d1e7d97cad14bfb09bd39391f
+  prompt_version: stage0_forced_choice_th_v1
+  rendering_changed: false
+  candidate_inventory_changed: false
+  primary_metric_changed: false
+
+engineering_smoke:
+  scientific_evidence: false
+  pair_ids: [base_ka_pha, lower_ma, combined_ka, tone_kha, upper_ka]
+  condition_id: noto_sans_thai_regular__72__center
+  observations_per_exact_run: 20
+  exact_rerun_count: 2
+  total_calls: 40
+  independent_direct_forward_required: true
+  exact_generate_direct_logit_agreement_required: true
+  exact_margin_rerun_agreement_required: true
+  binary_reference_agreement_required: true
+
+diagnostic:
+  run_only_if_smoke_passes: true
+  exact_run_count: 1
+  full_information_calls: 800
+  matched_blank_calls: 200
+  total_calls: 1000
+  primary_metric_replacement_allowed: false
+  independent_unit: pair_id
+  confidence_level: 0.95
+  cluster_bootstrap_resamples: 2000
+  cluster_bootstrap_seed: 20260906
+
+prohibitions:
+  locked_validation_authorized: false
+  gate_0_change_authorized: false
+  stage_1a_authorized: false
+  compression_authorized: false
+  secondary_backbone_authorized: false
+  prompt_parser_rendering_change_authorized: false
+
