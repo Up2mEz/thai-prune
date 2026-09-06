@@ -305,6 +305,14 @@ def test_t4_class_rejects_other_devices(name: str) -> None:
     [
         ("Status: complete", "COMPLETE"),
         ('Kernel has status "running".', "RUNNING"),
+        (
+            'example/kernel has status "KernelWorkerStatus.RUNNING"',
+            "RUNNING",
+        ),
+        (
+            'example/kernel has status "KernelWorkerStatus.ERROR"',
+            "ERROR",
+        ),
         ("unrecognized", "UNKNOWN"),
     ],
 )

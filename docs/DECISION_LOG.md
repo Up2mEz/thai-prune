@@ -57,6 +57,17 @@ attempt is retained as an execution artifact. The portability fix pins
 `uv.lock` to LF in `.gitattributes`; it does not alter the frozen dataset,
 allocation, prompt, model, runtime, or analysis design.
 
+**Calibration result presented for human review:** both exact 1,000-call runs
+completed with zero call-level execution failures and exact raw-output/token
+agreement. However, all 2,000 raw responses violated the registered `^[AB]$`
+parser by returning forms such as `A. <text>` or `B. <text>`. Registered parser
+failure is therefore 100%, conditional parsed accuracy is undefined, and the
+current instrument status is
+`CALIBRATION_INSTRUMENT_INVALID_PENDING_HUMAN_REVIEW`. Gate 0 remains
+`NOT_RUN`; locked validation and Stage 1A remain blocked. Full evidence and
+the non-frozen criteria proposal are in
+`docs/stage0/CHECKPOINT_B_CALIBRATION.md`.
+
 ## 2026-09-06 — Stage 0 Checkpoint A conditional approval
 
 **Stage/Gate:** Steps 4–6 / Stage 0 pre-calibration review

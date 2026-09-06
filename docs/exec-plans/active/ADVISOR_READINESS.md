@@ -29,7 +29,7 @@ new compression method is required.
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
 | Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
-| Steps 4–6 — Stage 0 | `FROZEN_CALIBRATION` | Human approved the exact 100-pair calibration split, four centered conditions, 200 blank controls, exact rerun, and 2,000-call Kaggle workload; locked validation remains blocked |
+| Steps 4–6 — Stage 0 | `CALIBRATION_INSTRUMENT_INVALID_PENDING_HUMAN_REVIEW` | Two exact 1,000-call runs completed, but registered parser failure was 100%; visual validity and Gate 0 remain unestablished; locked validation is blocked |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

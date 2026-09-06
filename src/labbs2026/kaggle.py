@@ -562,9 +562,18 @@ def parse_kaggle_status(output: str) -> str:
     match = re.search(r"(?im)^\s*status\s*:\s*([A-Za-z_ -]+)\s*$", output)
     if not match:
         match = re.search(
-            r"(?i)kernel\s+has\s+status\s+['\"]?([A-Za-z_ -]+?)['\"]?(?:\.|$)", output
+            r"(?i)KernelWorkerStatus\.([A-Za-z_]+)",
+            output,
         )
-    return match.group(1).strip().upper().replace(" ", "_") if match else "UNKNOWN"
+    if not match:
+        match = re.search(
+            r"(?i)kernel\s+has\s+status\s+['\"]?([A-Za-z0-9_. -]+?)['\"]?(?:\.|$)",
+            output,
+        )
+    if not match:
+        return "UNKNOWN"
+    value = match.group(1).strip().split(".")[-1]
+    return value.upper().replace(" ", "_")
 
 
 def _load_json(path: Path) -> dict[str, Any]:

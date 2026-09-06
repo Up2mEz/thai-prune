@@ -1,7 +1,7 @@
 # Stage 0 Checkpoint A — Frozen Calibration Design
 
 **Status:** `FROZEN_CALIBRATION`
-**Model exposure:** none  
+**Model exposure at freeze:** none; the authorized calibration was subsequently run
 **Stage 0 scientific status:** `NOT TESTED`
 
 > Human decision on 2026-09-06: `APPROVED FOR STAGE 0 CALIBRATION ONLY`.

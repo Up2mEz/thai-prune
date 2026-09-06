@@ -60,6 +60,13 @@ only the registered calibration workload. No calibration result, locked
 validation result, or Gate 0 conclusion exists until corresponding artifacts
 are collected and reviewed.
 
+The frozen calibration workload subsequently completed two exact 1,000-call
+runs, but every response failed the registered exact A/B parser. This supports
+only the tested claim that the current prompt/parser contract is invalid for
+this model configuration. It does not support a visual-accuracy claim, Gate 0,
+H1, or any compression claim. Post hoc leading-label summaries are diagnostic
+and not Gate 0 evidence.
+
 ---
 
 ## HYPOTHESES

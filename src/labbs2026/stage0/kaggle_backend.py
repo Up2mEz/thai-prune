@@ -324,6 +324,7 @@ def _validate_rows(spec: dict[str, Any], run_dir: Path) -> dict[str, Any]:
         confidence_level=0.95,
     )
     stored_metrics = _load_json(run_dir / "metrics.json")
+    json_normalized_metrics = json.loads(json.dumps(metrics))
     return {
         "ok": all(
             (
@@ -341,7 +342,7 @@ def _validate_rows(spec: dict[str, Any], run_dir: Path) -> dict[str, Any]:
                 all(row.get("expected_label") is None for row in blank),
                 all(row.get("is_correct") is None for row in blank),
                 metadata_ok,
-                metrics == stored_metrics,
+                json_normalized_metrics == stored_metrics,
             )
         ),
         "manifest": manifest,
