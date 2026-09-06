@@ -6,6 +6,7 @@ from labbs2026.stage0.margin_diagnostic import (
     _canonical_margin,
     _correct_margin,
     _enrich_image_gain,
+    _paired_pair_contrast,
     _position_margin,
     _smoke_acceptance,
 )
@@ -72,6 +73,23 @@ def test_smoke_requires_exact_margin_rerun_reproducibility() -> None:
     assert _smoke_acceptance(first, second)["status"] == "PASS"
     second[0]["logit_A"] = math.nextafter(second[0]["logit_A"], math.inf)
     assert _smoke_acceptance(first, second)["status"] == "FAIL"
+
+
+def test_paired_contrast_uses_pair_as_independent_unit() -> None:
+    rows = [
+        {"pair_id": "p1", "size": 72, "value": 1.0},
+        {"pair_id": "p1", "size": 96, "value": 3.0},
+        {"pair_id": "p2", "size": 72, "value": 10.0},
+        {"pair_id": "p2", "size": 96, "value": 11.0},
+    ]
+
+    result = _paired_pair_contrast(
+        rows, outcome="value", grouping="size", positive=96, negative=72,
+        seed=1, resamples=100, confidence=0.95,
+    )
+
+    assert result["estimate"] == 1.5
+    assert result["pair_count"] == 2
 
 
 @pytest.mark.parametrize("orientation", ["UNKNOWN", ""])

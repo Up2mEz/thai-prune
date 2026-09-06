@@ -9,6 +9,7 @@ import json
 import math
 import random
 import shutil
+import statistics
 import subprocess
 import time
 from dataclasses import asdict
@@ -539,6 +540,46 @@ def _mean(key: str) -> Callable[[list[dict[str, Any]]], float]:
     return lambda rows: sum(float(row[key]) for row in rows) / len(rows)
 
 
+def _positive_rate(key: str) -> Callable[[list[dict[str, Any]]], float]:
+    return lambda rows: sum(float(row[key]) > 0.0 for row in rows) / len(rows)
+
+
+def _paired_pair_contrast(
+    rows: list[dict[str, Any]],
+    *,
+    outcome: str,
+    grouping: str,
+    positive: Any,
+    negative: Any,
+    seed: int,
+    resamples: int,
+    confidence: float,
+) -> dict[str, float | int]:
+    """Estimate a paired contrast without treating repeated renders as independent."""
+
+    contrast_rows: list[dict[str, Any]] = []
+    for pair_id in sorted({row["pair_id"] for row in rows}):
+        pair = [row for row in rows if row["pair_id"] == pair_id]
+        positive_values = [float(row[outcome]) for row in pair if row[grouping] == positive]
+        negative_values = [float(row[outcome]) for row in pair if row[grouping] == negative]
+        if not positive_values or not negative_values:
+            raise RuntimeError(f"pair {pair_id} lacks a level for paired {grouping} contrast")
+        contrast_rows.append(
+            {
+                "pair_id": pair_id,
+                "contrast": sum(positive_values) / len(positive_values)
+                - sum(negative_values) / len(negative_values),
+            }
+        )
+    return _cluster_bootstrap(
+        contrast_rows,
+        _mean("contrast"),
+        seed=seed,
+        resamples=resamples,
+        confidence=confidence,
+    )
+
+
 def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, Any]:
     rows = _jsonl(artifact_dir / "calibration_diagnostic" / "image_gain_records.jsonl")
     full = [row for row in rows if row["control_type"] == "FULL_INFORMATION"]
@@ -550,6 +591,11 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
         key: _cluster_bootstrap(full, _mean(key), seed=seed, resamples=resamples, confidence=confidence)
         for key in ("correct_margin", "matched_blank_correct_margin", "image_gain")
     }
+    overall["image_gain_positive_rate"] = _cluster_bootstrap(
+        full, _positive_rate("image_gain"), seed=seed, resamples=resamples,
+        confidence=confidence,
+    )
+    overall["image_gain_median"] = statistics.median(row["image_gain"] for row in full)
     per_component: dict[str, Any] = {}
     condition_rows: list[dict[str, Any]] = []
     member_rows: list[dict[str, Any]] = []
@@ -559,10 +605,49 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
             key: _cluster_bootstrap(subset, _mean(key), seed=seed, resamples=resamples, confidence=confidence)
             for key in ("correct_margin", "matched_blank_correct_margin", "image_gain")
         }
+        per_component[component]["image_gain_positive_rate"] = _cluster_bootstrap(
+            subset, _positive_rate("image_gain"), seed=seed, resamples=resamples,
+            confidence=confidence,
+        )
+        per_component[component]["image_gain_median"] = statistics.median(
+            row["image_gain"] for row in subset
+        )
         per_component[component]["accuracy"] = _cluster_bootstrap(
             subset, lambda x: sum(bool(row["binary_correct"]) for row in x) / len(x),
             seed=seed, resamples=resamples, confidence=confidence,
         )
+        per_component[component]["paired_effects"] = {
+            "size_96_minus_72_accuracy": _paired_pair_contrast(
+                subset, outcome="binary_correct", grouping="font_size",
+                positive=96, negative=72, seed=seed, resamples=resamples,
+                confidence=confidence,
+            ),
+            "size_96_minus_72_image_gain": _paired_pair_contrast(
+                subset, outcome="image_gain", grouping="font_size",
+                positive=96, negative=72, seed=seed, resamples=resamples,
+                confidence=confidence,
+            ),
+            "serif_minus_sans_accuracy": _paired_pair_contrast(
+                subset, outcome="binary_correct", grouping="font_id",
+                positive="noto_serif_thai_regular", negative="noto_sans_thai_regular",
+                seed=seed, resamples=resamples, confidence=confidence,
+            ),
+            "serif_minus_sans_image_gain": _paired_pair_contrast(
+                subset, outcome="image_gain", grouping="font_id",
+                positive="noto_serif_thai_regular", negative="noto_sans_thai_regular",
+                seed=seed, resamples=resamples, confidence=confidence,
+            ),
+            "member_a_minus_b_correct_margin": _paired_pair_contrast(
+                subset, outcome="correct_margin", grouping="displayed_member",
+                positive="a", negative="b", seed=seed, resamples=resamples,
+                confidence=confidence,
+            ),
+            "member_a_minus_b_image_gain": _paired_pair_contrast(
+                subset, outcome="image_gain", grouping="displayed_member",
+                positive="a", negative="b", seed=seed, resamples=resamples,
+                confidence=confidence,
+            ),
+        }
         for font_id in sorted({row["font_id"] for row in subset}):
             for font_size in sorted({int(row["font_size"]) for row in subset}):
                 condition = [row for row in subset if row["font_id"] == font_id and int(row["font_size"]) == font_size]
