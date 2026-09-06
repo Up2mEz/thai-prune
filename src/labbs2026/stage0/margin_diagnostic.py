@@ -142,7 +142,20 @@ def diagnostic_preflight(root: Path, diagnostic_path: Path, runtime_path: Path) 
         "ok": _load_json(root / "infra/kaggle/stage0-margin-diagnostic-kernel-metadata.json")
         == KERNEL_METADATA
     }
-    checks["remote_ref"] = _check_remote_ref(root, runtime)
+    source = runtime.get("source", {})
+    remote_sha, remote_error = _check_remote_ref(
+        root,
+        str(source.get("repository_url", "")),
+        str(source.get("remote_ref", "")),
+    )
+    repository_sha = checks["repository"].get("git_commit")
+    checks["remote_ref"] = {
+        "ok": remote_sha is not None and remote_sha == repository_sha,
+        "local_sha": repository_sha,
+        "remote_sha": remote_sha,
+        "remote_ref": source.get("remote_ref"),
+        "error": remote_error,
+    }
     valid = all(check.get("ok") is True for check in checks.values())
     return {"schema_version": 1, "valid": valid, "checks": checks}
 
