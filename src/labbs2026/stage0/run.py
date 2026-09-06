@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import time
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,6 +23,23 @@ from labbs2026.step3 import (
     seed_everything,
     sha256_file,
 )
+
+
+def canonical_allocation_sha256(allocation: dict[str, Any]) -> str:
+    """Hash only the frozen pair allocation contract, not YAML formatting."""
+
+    import hashlib
+
+    payload = {
+        "strategy": allocation.get("strategy"),
+        "allocation_seed": allocation.get("allocation_seed"),
+        "calibration_pair_ids": allocation.get("calibration_pair_ids"),
+        "locked_validation_pair_ids": allocation.get("locked_validation_pair_ids"),
+    }
+    encoded = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -53,6 +71,13 @@ def calibration_readiness_issues(
     if isinstance(calibration_ids, list) and isinstance(validation_ids, list):
         if set(calibration_ids) & set(validation_ids):
             issues.append("PAIR_SPLIT_OVERLAP")
+        if len(calibration_ids) != len(set(calibration_ids)) or len(validation_ids) != len(
+            set(validation_ids)
+        ):
+            issues.append("PAIR_SPLIT_DUPLICATE_ID")
+    expected_allocation_hash = allocation.get("sha256")
+    if expected_allocation_hash != canonical_allocation_sha256(allocation):
+        issues.append("ALLOCATION_HASH_MISMATCH")
     conditions = config.get("render_condition_selection", {}).get(
         "selected_condition_ids"
     )
@@ -65,6 +90,11 @@ def calibration_readiness_issues(
         not isinstance(blank_ids, list) or not blank_ids
     ):
         issues.append("LANGUAGE_PRIOR_CONTROL_PAIR_IDS_NOT_FROZEN")
+    if isinstance(blank_ids, list) and isinstance(calibration_ids, list):
+        if set(blank_ids) != set(calibration_ids):
+            issues.append("BLANK_CONTROL_IDS_MUST_EQUAL_CALIBRATION_IDS")
+    if config.get("controls", {}).get("control_type") != "LANGUAGE_CANDIDATE_BIAS_BLANK":
+        issues.append("BLANK_CONTROL_TYPE_MISMATCH")
     if config.get("gate_0", {}).get("criteria") is not None:
         issues.append("GATE0_CRITERIA_MUST_NOT_BE_SET_BEFORE_CALIBRATION")
     if config.get("locked_validation", {}).get("authorized") is not False:
@@ -74,16 +104,33 @@ def calibration_readiness_issues(
     else:
         if review.get("decision") != "APPROVED_FOR_CALIBRATION":
             issues.append("HUMAN_REVIEW_NOT_APPROVED")
-        approved_pairs = set(review.get("approved_pair_ids", []))
-        if isinstance(calibration_ids, list) and not set(calibration_ids) <= approved_pairs:
-            issues.append("CALIBRATION_CONTAINS_UNAPPROVED_PAIR")
-        if isinstance(validation_ids, list) and not set(validation_ids) <= approved_pairs:
-            issues.append("VALIDATION_CONTAINS_UNAPPROVED_PAIR")
+        if review.get("approved_allocation_sha256") != expected_allocation_hash:
+            issues.append("HUMAN_REVIEW_ALLOCATION_HASH_MISMATCH")
+        if review.get("approved_inventory_sha256") != config.get(
+            "candidate_inventory_sha256"
+        ):
+            issues.append("HUMAN_REVIEW_INVENTORY_HASH_MISMATCH")
+        if review.get("approved_source_review_packet_sha256") != config.get(
+            "source_review_packet_sha256"
+        ):
+            issues.append("HUMAN_REVIEW_SOURCE_PACKET_HASH_MISMATCH")
         approved_conditions = set(review.get("approved_condition_ids", []))
         if isinstance(conditions, list) and not set(conditions) <= approved_conditions:
             issues.append("CALIBRATION_CONTAINS_UNAPPROVED_CONDITION")
         if review.get("prompt_parser_approved") is not True:
             issues.append("PROMPT_PARSER_NOT_APPROVED")
+        if review.get("authorized_scope") != "STAGE0_CALIBRATION_ONLY":
+            issues.append("HUMAN_REVIEW_SCOPE_MISMATCH")
+        if any(
+            review.get(key) is not False
+            for key in (
+                "locked_validation_authorized",
+                "gate_0_approval_granted",
+                "stage_1a_authorized",
+                "compression_authorized",
+            )
+        ):
+            issues.append("LATER_STAGE_AUTHORIZATION_MUST_REMAIN_FALSE")
     return sorted(set(issues))
 
 
@@ -206,6 +253,10 @@ def run_calibration(
     config_path: Path,
     dataset_review_dir: Path,
     model_config_path: Path,
+    *,
+    runtime: dict[str, Any] | None = None,
+    output_dir: Path | None = None,
+    expected_git_sha: str | None = None,
 ) -> Path:
     root = Path(__file__).resolve().parents[3]
     preflight = inspect_repository(root)
@@ -220,6 +271,25 @@ def run_calibration(
 
     resolved_pairs = _load_json(dataset_review_dir / "resolved_pairs.json")
     render_manifest = _load_json(dataset_review_dir / "render_manifest.json")
+    bundle_manifest = _load_json(dataset_review_dir / "bundle_manifest.json")
+    calibration_ids = set(config["allocation"]["calibration_pair_ids"])
+    locked_ids = set(config["allocation"]["locked_validation_pair_ids"])
+    selected_conditions = set(
+        config["render_condition_selection"]["selected_condition_ids"]
+    )
+    bundled_pair_ids = {pair["pair_id"] for pair in resolved_pairs}
+    rendered_pair_ids = {row["pair_id"] for row in render_manifest}
+    rendered_condition_ids = {row["condition_id"] for row in render_manifest}
+    if bundled_pair_ids != calibration_ids or rendered_pair_ids != calibration_ids:
+        raise RuntimeError("calibration bundle does not contain exactly calibration pair IDs")
+    if rendered_condition_ids != selected_conditions:
+        raise RuntimeError("calibration bundle does not contain exactly frozen conditions")
+    if locked_ids & (bundled_pair_ids | rendered_pair_ids):
+        raise RuntimeError("locked-validation pair IDs are present in the model input bundle")
+    if bundle_manifest.get("source_review_packet_sha256") != config.get(
+        "source_review_packet_sha256"
+    ):
+        raise RuntimeError("calibration bundle source review packet hash mismatch")
     prompt_config = _load_yaml(root / config["prompt_parser"])
     model_config = _load_yaml(model_config_path)
     observations = make_observation_plan(
@@ -231,19 +301,60 @@ def run_calibration(
     commit = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True
     ).stdout.strip()
-    run_id = f"stage0-calibration-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{commit[:8]}"
-    run_dir = root / "runs" / "stage0" / "calibration" / run_id
+    if expected_git_sha is not None and commit != expected_git_sha:
+        raise RuntimeError(
+            f"Git SHA mismatch: expected {expected_git_sha}, observed {commit}"
+        )
+    if output_dir is None:
+        run_id = (
+            f"stage0-calibration-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-"
+            f"{commit[:8]}"
+        )
+        run_dir = root / "runs" / "stage0" / "calibration" / run_id
+    else:
+        run_dir = output_dir.resolve()
+        run_id = run_dir.name
     run_dir.mkdir(parents=True, exist_ok=False)
     control_dir = run_dir / "controls"
     control_dir.mkdir()
     blank = Image.new("RGB", (448, 448), "white")
     blank.save(control_dir / "blank.png", format="PNG", optimize=False)
     seed_everything(int(config["reproducibility"]["seed"]))
-    adapter = build_adapter(model_config, root)
+    adapter = build_adapter(model_config, root, runtime)
     raw_rows: list[dict[str, Any]] = []
     parsed_rows: list[dict[str, Any]] = []
     failures: list[dict[str, Any]] = []
+    started = time.perf_counter()
+    cuda_memory: dict[str, int | None] = {
+        "allocated_after_model_load_bytes": None,
+        "reserved_after_model_load_bytes": None,
+        "peak_allocated_during_inference_bytes": None,
+        "peak_reserved_during_inference_bytes": None,
+    }
+    architecture = adapter.architecture_record()
+    expected_processor = model_config.get("expected_processor", {})
+    for key, expected in expected_processor.items():
+        if architecture.get(key) != expected:
+            raise RuntimeError(
+                f"processor contract mismatch for {key}: "
+                f"expected {expected!r}, observed {architecture.get(key)!r}"
+            )
     with peak_rss_monitor() as memory:
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+        _ = adapter.model
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            cuda_memory["allocated_after_model_load_bytes"] = int(
+                torch.cuda.memory_allocated()
+            )
+            cuda_memory["reserved_after_model_load_bytes"] = int(
+                torch.cuda.memory_reserved()
+            )
+            torch.cuda.reset_peak_memory_stats()
         for observation in observations:
             try:
                 image_path = (
@@ -262,6 +373,7 @@ def run_calibration(
                 parsed_rows.append(
                     {
                         **observation,
+                        "raw_output": result.raw_output,
                         "parsed_output": parsed,
                         "parse_status": parse_status,
                         "is_correct": (
@@ -283,6 +395,14 @@ def run_calibration(
                         "message": str(exc)[:1000],
                     }
                 )
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            cuda_memory["peak_allocated_during_inference_bytes"] = int(
+                torch.cuda.max_memory_allocated()
+            )
+            cuda_memory["peak_reserved_during_inference_bytes"] = int(
+                torch.cuda.max_memory_reserved()
+            )
 
     metrics = compute_stage0_metrics(
         parsed_rows,
@@ -302,15 +422,26 @@ def run_calibration(
         "config_sha256": sha256_file(config_path),
         "dataset_review_dir": str(dataset_review_dir),
         "dataset_review_packet_sha256": sha256_file(dataset_review_dir / "review_packet.json"),
+        "source_review_packet_sha256": config["source_review_packet_sha256"],
+        "dataset_bundle_manifest_sha256": sha256_file(
+            dataset_review_dir / "bundle_manifest.json"
+        ),
+        "allocation_sha256": config["allocation"]["sha256"],
         "model_id": adapter.model_id,
         "model_revision": adapter.revision,
         "processor_revision": adapter.processor_revision,
         "seed": int(config["reproducibility"]["seed"]),
         "environment": environment_record(),
+        "architecture": architecture,
+        "resolved_runtime": (runtime or {}).get("model_runtime", {}),
+        "model_load_seconds": adapter.model_load_seconds,
+        "total_seconds": time.perf_counter() - started,
         "peak_rss_bytes": memory["peak_rss_bytes"],
+        "cuda_memory": cuda_memory,
         "observation_count": len(observations),
         "completed_prediction_count": len(parsed_rows),
         "failure_count": len(failures),
+        "locked_validation_pair_count_exposed_to_model": 0,
     }
     _write_json(run_dir / "manifest.json", manifest)
     _write_json(run_dir / "resolved_config.json", config)

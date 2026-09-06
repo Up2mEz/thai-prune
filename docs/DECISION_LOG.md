@@ -2,6 +2,53 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-06 — Checkpoint A final freeze for Stage 0 calibration
+
+**Stage/Gate:** Stage 0 calibration only; Gate 0 remains `NOT_RUN`.
+
+**Human decision:** `APPROVED FOR STAGE 0 CALIBRATION ONLY`. The calibration
+design status is `FROZEN_CALIBRATION`. This authorizes the exact two-run,
+2,000-call Kaggle T4 workload and does not authorize locked validation, Gate 0
+approval, Stage 1A, Resolution Reduction, Token Pruning, Token Merging, or any
+other compression intervention.
+
+**Frozen evidence identity:**
+
+- candidate inventory SHA-256:
+  `cf69f0d23bec61fbeaca7fd5ed34d48219aaad9624e509cc2208a0c98a8021b2`;
+- source review packet SHA-256:
+  `e340a2b8386751352beb36732d21a6c613fd3bbdd1822262880e4a0a4b671df3`;
+- pair allocation version: `stage0_pair_allocation_v1`;
+- pair allocation SHA-256:
+  `385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8`;
+- 100 calibration and 100 disjoint locked-validation `pair_id`s, balanced at
+  20 per component category in each split;
+- four centered 448 x 448 black-on-white rendering conditions listed in
+  `configs/stage0/calibration_design.yaml`;
+- all 100 calibration pairs receive both orientations of
+  `LANGUAGE_CANDIDATE_BIAS_BLANK`; these controls have no visual ground truth
+  and never enter visual accuracy.
+
+**Frozen numerical/runtime contract:** Kaggle `NvidiaTeslaT4`, `float16`,
+`sdpa`, Python 3.12, `torch==2.14.0+cu130`, `transformers==4.57.6`, pinned
+model and processor revision
+`66285546d2b821cf421d4f5eb2576359d3770cd3`, `use_fast=False`, the pinned
+processor parameters in `configs/stage0/qwen25_vl_3b_calibration.yaml`,
+deterministic decoding (`do_sample=false`, `max_new_tokens=4`), and seed
+`20260906`. The exact rerun measures realized reproducibility; deterministic
+PyTorch algorithms were not newly enabled because the approved configuration
+follows the verified backend proof run.
+
+**Interpretive boundaries:** Current lexical status remains provisional;
+`UNCERTAIN` is neither recoded as `CONSTRUCTED` nor excluded automatically.
+Current `BASE_CHARACTER` pairs remain
+`size_matched_stage2_status = NOT_ASSESSED_NOT_ASSUMED`. The 10 percentage
+point SESOI remains measurement-planning guidance only.
+
+**Required next checkpoint:** stop after calibration and report observed
+evidence, interpretation, proposed numeric Gate 0 criteria, and unresolved
+uncertainty separately. Human review is required before locked validation.
+
 ## 2026-09-06 — Stage 0 Checkpoint A conditional approval
 
 **Stage/Gate:** Steps 4–6 / Stage 0 pre-calibration review

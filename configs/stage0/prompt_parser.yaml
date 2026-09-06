@@ -1,5 +1,5 @@
 schema_version: 1
-status: HUMAN_APPROVED_FOR_CALIBRATION_PENDING_FINAL_DESIGN_FREEZE
+status: FROZEN_CALIBRATION
 prompt_template: |-
   ข้อความใดปรากฏอยู่ในภาพ
   A. {candidate_a}

@@ -60,6 +60,8 @@ def seed_everything(seed: int) -> None:
         import torch
 
         torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
 
@@ -159,6 +161,9 @@ def environment_record() -> dict[str, Any]:
         "cuda_available": torch.cuda.is_available(),
         "torch_cuda_runtime": torch.version.cuda,
         "cudnn_version": torch.backends.cudnn.version(),
+        "deterministic_algorithms_enabled": torch.are_deterministic_algorithms_enabled(),
+        "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
+        "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
         "xpu_available": bool(hasattr(torch, "xpu") and torch.xpu.is_available()),
     }
 

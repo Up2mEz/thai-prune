@@ -18,6 +18,7 @@ def _row(
         "observation_id": observation_id,
         "pair_id": pair_id,
         "component_type": component,
+        "condition_id": "condition_1",
         "control_type": control,
         "expected_label": expected,
         "raw_output": parsed or "invalid",
@@ -84,3 +85,23 @@ def test_reproducibility_reports_field_level_agreement() -> None:
     assert result["same_observation_ids"]
     assert result["agreement_rates"]["raw_output"] == 1.0
     assert result["agreement_rates"]["llm_visual_token_count"] == 1.0
+
+
+def test_metrics_report_condition_precision_and_pair_heterogeneity() -> None:
+    rows = [
+        _row("1", "p1", "A", "A"),
+        _row("2", "p1", "B", "B"),
+        _row("3", "p2", "A", "B"),
+        _row("4", "p2", "B", "A"),
+    ]
+
+    result = compute_stage0_metrics(
+        rows, bootstrap_seed=4, bootstrap_resamples=100, confidence_level=0.95
+    )
+
+    assert result["per_condition"]["condition_1"]["observation_count"] == 4
+    assert result["per_component_pair_clustered_accuracy_interval"]["TONE_MARK"][
+        "pair_count"
+    ] == 2
+    assert result["pair_level_heterogeneity"]["overall"]["perfect_pair_count"] == 1
+    assert result["pair_level_heterogeneity"]["overall"]["zero_accuracy_pair_count"] == 1

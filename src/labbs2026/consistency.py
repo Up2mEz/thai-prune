@@ -166,10 +166,10 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
         issues,
         "kaggle-stage0-approved",
         all(
-            "`KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`" in text
+            "`FROZEN_CALIBRATION`" in text
             for text in (architecture, decisions, claims, active_plan)
         ),
-        "Stage 0 Kaggle approval must agree across the Source of Truth.",
+        "The frozen Stage 0 calibration status must agree across the Source of Truth.",
     )
     _require(
         issues,
@@ -190,7 +190,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
         issues,
         "later-stages-remain-gated",
         "# Gate 0 — Measurement validity\n\n**Status:** NOT_RUN" in decisions
-        and "Steps 4–6 — Stage 0 | `CHECKPOINT_A_FINAL_FREEZE_PENDING`" in active_plan
+        and "Steps 4–6 — Stage 0 | `FROZEN_CALIBRATION`" in active_plan
         and "Locked Stage 0 validation may not begin" in decisions
         and "# Stage 1A — Resolution Sensitivity Pilot\n\n**Status:** BLOCKED" in decisions,
         "Stage 0 preparation must not authorize locked validation or Stage 1A.",

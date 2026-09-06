@@ -1,12 +1,16 @@
-# Stage 0 Checkpoint A — Final Freeze Proposal
+# Stage 0 Checkpoint A — Frozen Calibration Design
 
-**Status:** `AWAITING_FINAL_HUMAN_FREEZE`  
+**Status:** `FROZEN_CALIBRATION`
 **Model exposure:** none  
 **Stage 0 scientific status:** `NOT TESTED`
 
+> Human decision on 2026-09-06: `APPROVED FOR STAGE 0 CALIBRATION ONLY`.
+> Locked validation, Gate 0 approval, Stage 1A, and all compression
+> interventions remain unauthorized.
+
 This packet incorporates the conditional visual approval and all requested
-pre-calibration revisions. Approval of this document would authorize only the
-frozen full-information calibration workload. It would not authorize locked
+pre-calibration revisions. The human freeze authorizes only the frozen
+full-information calibration workload. It does not authorize locked
 validation, Gate 0 approval, Stage 1A, or compression.
 
 ## Immutable review artifact

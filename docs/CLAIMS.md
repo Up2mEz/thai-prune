@@ -55,6 +55,11 @@ status `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION`. No Stage 0 model outcome
 exists yet, so this remains an execution authorization rather than scientific
 evidence.
 
+On 2026-09-06 the exact design advanced to `FROZEN_CALIBRATION`. This permits
+only the registered calibration workload. No calibration result, locked
+validation result, or Gate 0 conclusion exists until corresponding artifacts
+are collected and reviewed.
+
 ---
 
 ## HYPOTHESES

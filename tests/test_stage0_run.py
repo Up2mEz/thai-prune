@@ -1,34 +1,54 @@
 from copy import deepcopy
 
 from labbs2026.stage0.kaggle_workload import derive_workload
-from labbs2026.stage0.run import calibration_readiness_issues, make_observation_plan
+from labbs2026.stage0.run import (
+    calibration_readiness_issues,
+    canonical_allocation_sha256,
+    make_observation_plan,
+)
 
 
 def _frozen_config() -> dict:
-    return {
+    config = {
         "status": "FROZEN_CALIBRATION",
         "compression_family": "FULL_INFORMATION",
+        "candidate_inventory_sha256": "i" * 64,
+        "source_review_packet_sha256": "s" * 64,
         "allocation": {
+            "strategy": "TEST_SPLIT",
+            "allocation_seed": 7,
             "calibration_pair_ids": ["p1"],
             "locked_validation_pair_ids": ["p2"],
         },
         "render_condition_selection": {"selected_condition_ids": ["c1"]},
         "controls": {
             "language_candidate_bias_blank_image": True,
+            "control_type": "LANGUAGE_CANDIDATE_BIAS_BLANK",
             "language_candidate_bias_blank_pair_ids": ["p1"],
         },
         "reproducibility": {"seed": 7, "exact_rerun": True},
         "gate_0": {"criteria": None},
         "locked_validation": {"authorized": False},
     }
+    config["allocation"]["sha256"] = canonical_allocation_sha256(
+        config["allocation"]
+    )
+    return config
 
 
 def _review() -> dict:
     return {
         "decision": "APPROVED_FOR_CALIBRATION",
-        "approved_pair_ids": ["p1", "p2"],
+        "approved_allocation_sha256": _frozen_config()["allocation"]["sha256"],
+        "approved_inventory_sha256": "i" * 64,
+        "approved_source_review_packet_sha256": "s" * 64,
         "approved_condition_ids": ["c1"],
         "prompt_parser_approved": True,
+        "authorized_scope": "STAGE0_CALIBRATION_ONLY",
+        "locked_validation_authorized": False,
+        "gate_0_approval_granted": False,
+        "stage_1a_authorized": False,
+        "compression_authorized": False,
     }
 
 
@@ -46,6 +66,15 @@ def test_pair_overlap_is_rejected() -> None:
     config["allocation"]["locked_validation_pair_ids"] = ["p1"]
 
     assert "PAIR_SPLIT_OVERLAP" in calibration_readiness_issues(config, _review())
+
+
+def test_allocation_change_after_human_freeze_is_rejected() -> None:
+    config = _frozen_config()
+    config["allocation"]["calibration_pair_ids"] = ["changed"]
+
+    issues = calibration_readiness_issues(config, _review())
+
+    assert "ALLOCATION_HASH_MISMATCH" in issues
 
 
 def test_observation_plan_balances_labels_and_separates_controls() -> None:

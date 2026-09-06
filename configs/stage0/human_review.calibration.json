@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_CALIBRATION",
+  "decision": "APPROVED_FOR_CALIBRATION",
+  "reviewer": "human researcher",
+  "reviewed_at_utc": "2026-09-06T08:19:18.8135167Z",
+  "authorization_source": "Checkpoint A final human freeze in project task",
+  "approved_inventory_sha256": "cf69f0d23bec61fbeaca7fd5ed34d48219aaad9624e509cc2208a0c98a8021b2",
+  "approved_source_review_packet_sha256": "e340a2b8386751352beb36732d21a6c613fd3bbdd1822262880e4a0a4b671df3",
+  "approved_allocation_version": "stage0_pair_allocation_v1",
+  "approved_allocation_sha256": "385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8",
+  "approved_calibration_pair_count": 100,
+  "approved_locked_validation_pair_count": 100,
+  "approved_condition_ids": [
+    "noto_sans_thai_regular__72__center",
+    "noto_sans_thai_regular__96__center",
+    "noto_serif_thai_regular__72__center",
+    "noto_serif_thai_regular__96__center"
+  ],
+  "approved_blank_control_type": "LANGUAGE_CANDIDATE_BIAS_BLANK",
+  "approved_blank_pair_count": 100,
+  "prompt_parser_approved": true,
+  "provisional_seoi_absolute_pp": 10,
+  "base_character_size_matched_stage2_status": "NOT_ASSESSED_NOT_ASSUMED",
+  "lexical_status_is_provisional": true,
+  "uncertain_is_constructed": false,
+  "authorized_scope": "STAGE0_CALIBRATION_ONLY",
+  "locked_validation_authorized": false,
+  "gate_0_approval_granted": false,
+  "stage_1a_authorized": false,
+  "compression_authorized": false
+}

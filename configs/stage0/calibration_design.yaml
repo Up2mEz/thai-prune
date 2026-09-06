@@ -1,9 +1,15 @@
 schema_version: 2
-status: PROPOSED_FINAL_FREEZE_PENDING
+status: FROZEN_CALIBRATION
 compression_family: FULL_INFORMATION
 candidate_inventory: configs/stage0/candidate_pairs.yaml
+candidate_inventory_sha256: cf69f0d23bec61fbeaca7fd5ed34d48219aaad9624e509cc2208a0c98a8021b2
+source_review_packet_sha256: e340a2b8386751352beb36732d21a6c613fd3bbdd1822262880e4a0a4b671df3
+calibration_input_bundle: assets/stage0/calibration_input.zip
+calibration_input_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
 rendering_candidates: configs/stage0/rendering_candidates.yaml
 prompt_parser: configs/stage0/prompt_parser.yaml
+model_config: configs/stage0/qwen25_vl_3b_calibration.yaml
+runtime_config: configs/runtime/kaggle_t4.yaml
 backend:
   provider: kaggle
   accelerator: NvidiaTeslaT4
@@ -12,6 +18,8 @@ allocation:
   independent_unit: pair_id
   strategy: BASE_MATCHING_CONSTRAINT_PLUS_SHA256_STRATIFIED_20_20
   allocation_seed: 20260906
+  version: stage0_pair_allocation_v1
+  sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
   calibration_pair_ids:
     - base_ka_pha
     - base_kha_cha
@@ -222,7 +230,7 @@ render_condition_selection:
     - noto_serif_thai_regular__72__center
     - noto_serif_thai_regular__96__center
   candidate_pool_status: HUMAN_APPROVED
-  selected_subset_status: PROPOSED_FINAL_FREEZE_PENDING
+  selected_subset_status: FROZEN_CALIBRATION
 controls:
   language_candidate_bias_blank_image: true
   control_type: LANGUAGE_CANDIDATE_BIAS_BLANK
@@ -351,4 +359,4 @@ gate_0:
   criteria: null
 locked_validation:
   authorized: false
-human_review_record: null
+human_review_record: configs/stage0/human_review.calibration.json

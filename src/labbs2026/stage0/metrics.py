@@ -63,6 +63,51 @@ def _blank_bias_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _pair_heterogeneity(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    by_pair: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        by_pair[row["pair_id"]].append(row)
+    values = np.asarray(
+        [_accuracy(by_pair[pair_id]) for pair_id in sorted(by_pair)], dtype=np.float64
+    )
+    if not len(values):
+        return {
+            "pair_count": 0,
+            "minimum_pair_accuracy": None,
+            "q25_pair_accuracy": None,
+            "median_pair_accuracy": None,
+            "q75_pair_accuracy": None,
+            "maximum_pair_accuracy": None,
+            "standard_deviation_pair_accuracy": None,
+            "perfect_pair_count": 0,
+            "zero_accuracy_pair_count": 0,
+        }
+    return {
+        "pair_count": int(len(values)),
+        "minimum_pair_accuracy": float(np.min(values)),
+        "q25_pair_accuracy": float(np.quantile(values, 0.25)),
+        "median_pair_accuracy": float(np.median(values)),
+        "q75_pair_accuracy": float(np.quantile(values, 0.75)),
+        "maximum_pair_accuracy": float(np.max(values)),
+        "standard_deviation_pair_accuracy": float(np.std(values, ddof=1))
+        if len(values) > 1
+        else 0.0,
+        "perfect_pair_count": int(np.sum(values == 1.0)),
+        "zero_accuracy_pair_count": int(np.sum(values == 0.0)),
+    }
+
+
+def _latency_summary(rows: list[dict[str, Any]], field: str) -> dict[str, Any]:
+    values = sorted(float(row[field]) for row in rows if row.get(field) is not None)
+    return {
+        "count": len(values),
+        "median": median(values) if values else None,
+        "minimum": min(values) if values else None,
+        "maximum": max(values) if values else None,
+        "total": sum(values) if values else None,
+    }
+
+
 def cluster_bootstrap_accuracy(
     rows: list[dict[str, Any]], *, seed: int, resamples: int, confidence_level: float
 ) -> dict[str, float | int | None]:
@@ -109,6 +154,12 @@ def compute_stage0_metrics(
         component: _group_summary([row for row in full if row["component_type"] == component])
         for component in sorted({row["component_type"] for row in full})
     }
+    per_condition = {
+        condition: _group_summary(
+            [row for row in full if row["condition_id"] == condition]
+        )
+        for condition in sorted({row["condition_id"] for row in full})
+    }
     by_lexical_status = {
         status: _group_summary(
             [row for row in full if row.get("displayed_lexical_status") == status]
@@ -122,33 +173,118 @@ def compute_stage0_metrics(
     accuracy_a = by_expected["A"]["accuracy_all_scored_observations"]
     accuracy_b = by_expected["B"]["accuracy_all_scored_observations"]
     order_gap = abs(accuracy_a - accuracy_b) if accuracy_a is not None and accuracy_b is not None else None
-    latency_values = sorted(float(row["generation_seconds"]) for row in rows if row.get("generation_seconds") is not None)
     visual_counts = Counter(
         int(row["llm_visual_token_count"])
         for row in rows
         if row.get("llm_visual_token_count") is not None
     )
+    per_component_intervals = {
+        component: cluster_bootstrap_accuracy(
+            [row for row in full if row["component_type"] == component],
+            seed=bootstrap_seed,
+            resamples=bootstrap_resamples,
+            confidence_level=confidence_level,
+        )
+        for component in per_component
+    }
+    per_condition_intervals = {
+        condition: cluster_bootstrap_accuracy(
+            [row for row in full if row["condition_id"] == condition],
+            seed=bootstrap_seed,
+            resamples=bootstrap_resamples,
+            confidence_level=confidence_level,
+        )
+        for condition in per_condition
+    }
+    overall_interval = cluster_bootstrap_accuracy(
+        full,
+        seed=bootstrap_seed,
+        resamples=bootstrap_resamples,
+        confidence_level=confidence_level,
+    )
+    baseline_accuracy = _accuracy(full)
+    token_counts_by_condition = {
+        condition: dict(
+            sorted(
+                Counter(
+                    int(row["llm_visual_token_count"])
+                    for row in full
+                    if row["condition_id"] == condition
+                    and row.get("llm_visual_token_count") is not None
+                ).items()
+            )
+        )
+        for condition in per_condition
+    }
     return {
         "all": _group_summary(rows),
         "full_information": _group_summary(full),
         "language_candidate_bias_blank": _blank_bias_summary(blank),
         "per_component": per_component,
+        "per_condition": per_condition,
         "by_displayed_lexical_status": by_lexical_status,
         "by_expected_label": by_expected,
         "candidate_order_gap": order_gap,
-        "pair_clustered_accuracy_interval": cluster_bootstrap_accuracy(
-            full,
-            seed=bootstrap_seed,
-            resamples=bootstrap_resamples,
-            confidence_level=confidence_level,
-        ),
-        "generation_seconds": {
-            "count": len(latency_values),
-            "median": median(latency_values) if latency_values else None,
-            "minimum": min(latency_values) if latency_values else None,
-            "maximum": max(latency_values) if latency_values else None,
+        "candidate_order_behavior": {
+            "parsed_choice_a_rate": (
+                sum(row.get("parsed_output") == "A" for row in full)
+                / sum(row.get("parse_status") == "PARSED" for row in full)
+                if any(row.get("parse_status") == "PARSED" for row in full)
+                else None
+            ),
+            "by_expected_label": by_expected,
+            "by_pair_orientation": {
+                orientation: _group_summary(
+                    [row for row in full if row["orientation"] == orientation]
+                )
+                for orientation in ("A_THEN_B", "B_THEN_A")
+            },
         },
+        "pair_clustered_accuracy_interval": overall_interval,
+        "per_component_pair_clustered_accuracy_interval": per_component_intervals,
+        "per_condition_pair_clustered_accuracy_interval": per_condition_intervals,
+        "pair_level_heterogeneity": {
+            "overall": _pair_heterogeneity(full),
+            "per_component": {
+                component: _pair_heterogeneity(
+                    [row for row in full if row["component_type"] == component]
+                )
+                for component in per_component
+            },
+        },
+        "achieved_measurement_precision": {
+            "overall_interval_width": (
+                overall_interval["upper"] - overall_interval["lower"]
+                if overall_interval["upper"] is not None
+                else None
+            ),
+            "per_component_interval_width": {
+                component: interval["upper"] - interval["lower"]
+                if interval["upper"] is not None
+                else None
+                for component, interval in per_component_intervals.items()
+            },
+        },
+        "ceiling_headroom": {
+            "full_information_accuracy": baseline_accuracy,
+            "distance_below_perfect_accuracy": 1.0 - baseline_accuracy
+            if baseline_accuracy is not None
+            else None,
+            "distance_above_binary_chance": baseline_accuracy - 0.5
+            if baseline_accuracy is not None
+            else None,
+            "interpretation_scope": "descriptive calibration only",
+        },
+        "preprocess_seconds": _latency_summary(rows, "preprocess_seconds"),
+        "generation_seconds": _latency_summary(rows, "generation_seconds"),
         "llm_visual_token_count_distribution": dict(sorted(visual_counts.items())),
+        "llm_visual_token_count_by_condition": token_counts_by_condition,
+        "blank_bias_per_component": {
+            component: _blank_bias_summary(
+                [row for row in blank if row["component_type"] == component]
+            )
+            for component in sorted({row["component_type"] for row in blank})
+        },
     }
 
 
