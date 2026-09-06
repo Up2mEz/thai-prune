@@ -583,6 +583,10 @@ def _paired_pair_contrast(
 def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, Any]:
     rows = _jsonl(artifact_dir / "calibration_diagnostic" / "image_gain_records.jsonl")
     full = [row for row in rows if row["control_type"] == "FULL_INFORMATION"]
+    blanks = [
+        row for row in rows
+        if row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+    ]
     if len(full) != 800 or len(rows) != 1000:
         raise RuntimeError("unexpected diagnostic artifact grain")
     seed, resamples, confidence = 20260906, 2000, 0.95
@@ -596,6 +600,19 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
         confidence=confidence,
     )
     overall["image_gain_median"] = statistics.median(row["image_gain"] for row in full)
+    blank_prior = {
+        "overall": {
+            "position_A_minus_B_margin": _cluster_bootstrap(
+                blanks, _mean("position_margin"), seed=seed, resamples=resamples,
+                confidence=confidence,
+            ),
+            "position_A_choice_rate": _cluster_bootstrap(
+                blanks, lambda x: sum(row["binary_prediction"] == "A" for row in x) / len(x),
+                seed=seed, resamples=resamples, confidence=confidence,
+            ),
+        },
+        "per_component": {},
+    }
     per_component: dict[str, Any] = {}
     condition_rows: list[dict[str, Any]] = []
     member_rows: list[dict[str, Any]] = []
@@ -612,6 +629,18 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
         per_component[component]["image_gain_median"] = statistics.median(
             row["image_gain"] for row in subset
         )
+        component_blanks = [row for row in blanks if row["component_type"] == component]
+        blank_prior["per_component"][component] = {
+            "position_A_minus_B_margin": _cluster_bootstrap(
+                component_blanks, _mean("position_margin"), seed=seed,
+                resamples=resamples, confidence=confidence,
+            ),
+            "position_A_choice_rate": _cluster_bootstrap(
+                component_blanks,
+                lambda x: sum(row["binary_prediction"] == "A" for row in x) / len(x),
+                seed=seed, resamples=resamples, confidence=confidence,
+            ),
+        }
         per_component[component]["accuracy"] = _cluster_bootstrap(
             subset, lambda x: sum(bool(row["binary_correct"]) for row in x) / len(x),
             seed=seed, resamples=resamples, confidence=confidence,
@@ -666,6 +695,10 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
             member_rows.append({
                 "component": component, "displayed_canonical_member": member,
                 "correct_margin": _cluster_bootstrap(member_subset, _mean("correct_margin"), seed=seed, resamples=resamples, confidence=confidence),
+                "matched_blank_correct_margin": _cluster_bootstrap(
+                    member_subset, _mean("matched_blank_correct_margin"),
+                    seed=seed, resamples=resamples, confidence=confidence,
+                ),
                 "image_gain": _cluster_bootstrap(member_subset, _mean("image_gain"), seed=seed, resamples=resamples, confidence=confidence),
             })
     pair_rows = []
@@ -684,6 +717,7 @@ def analyze_margin_artifacts(artifact_dir: Path, output_dir: Path) -> dict[str, 
         "independent_unit": "pair_id", "pair_count": 100,
         "exact_reruns_pooled": False, "locked_pair_count": 0,
         "overall": overall, "per_component": per_component,
+        "blank_position_prior": blank_prior,
         "condition_results": condition_rows, "canonical_member_results": member_rows,
         "binary_reference_agreement_rate": sum(row["binary_reference_agrees"] for row in rows) / len(rows),
     }
