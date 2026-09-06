@@ -2,6 +2,42 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-07 — Calibration image-gain diagnostic authorization and result
+
+**Stage/Gate:** Stage 0 calibration diagnostic only; Gate 0 remains `NOT_RUN`.
+
+**Human decision:** Authorize a fail-closed 40-call engineering smoke followed,
+only on smoke PASS, by one 1,000-call A/B decision-margin diagnostic using the
+100 already exposed calibration pairs. Keep prompt, parser, rendering, model,
+runtime, primary binary metric, and all later-stage prohibitions frozen.
+
+**Observed result:** The smoke passed exact token-boundary, independent-forward,
+binary-invariance, and deterministic-margin checks. The 1,000-call diagnostic
+completed with zero failures and no locked-pair exposure. Mean image gain was
+positive overall and within every component, but was weak and highly
+member-dependent for lower-vowel and stacked-tone categories. Blank inputs
+showed an 85% position-A choice rate. Size-related accuracy and image-gain
+directions generally agreed; font effects were not uniform.
+
+**Codex recommendation:** `MEASUREMENT_SCALE_DIAGNOSTIC`. This is a proposal
+for human review, not authorization for additional inference and not a Gate 0
+decision.
+
+**Evidence:**
+
+- run ID: `kaggle-stage0-margin-80088b862c5a-008c5556`;
+- report: `docs/stage0/CHECKPOINT_E_IMAGE_GAIN_DIAGNOSTIC.md`;
+- refreshed primary literature: `docs/LITERATURE.md`.
+
+**Known limitations:** Margin evidence is calibration-only, secondary to the
+registered binary metric, and non-causal. Blank images still contain visual
+tokens. The evidence is Qwen-only and synthetic, tests no compression, and
+does not establish model capacity or publication-dataset validity.
+
+**Consequence:** Stop for human review. Gate 0 criteria, locked validation,
+secondary backbone, Stage 1A, and every compression intervention remain
+blocked.
+
 ## 2026-09-06 — Stage 0 Calibration Repair v2 authorization
 
 **Stage/Gate:** Stage 0 calibration repair only; Gate 0 remains `NOT_RUN`.
