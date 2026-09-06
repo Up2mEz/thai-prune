@@ -263,6 +263,14 @@ run must pin the exact remote commit and preserve config, environment, model
 revision, seed where applicable, and actual token counts in immutable
 artifacts.
 
+For Stage 0 Repair v2, the pinned `Qwen2Tokenizer` maps canonical response
+`A` to token ID 32 and `B` to token ID 33 at the actual assistant generation
+boundary. The repair constrains exactly one generated token to those IDs and
+retains the exact `^[AB]$` parser. This generation constraint does not change
+the image processor, Vision Encoder, or 256-position visual-token measurement
+boundary. Exact evidence is in
+`docs/stage0/TOKENIZER_CONTRACT_REPAIR_V2.md`.
+
 ### 7.3 Stage 1A measurement boundary
 
 Stage 1A changes processor-controlled input resolution. It must record:

@@ -35,6 +35,20 @@ from the smoke may support Gate 0.
 wait for human review. Gate 0 criteria remain unapproved and locked validation
 remains sealed.
 
+**Checkpoint C result presented for human review:** the engineering smoke
+passed all registered acceptance checks, after which two exact repaired
+1,000-call calibration runs completed with zero execution, output-contract,
+or parser failures and 100% raw/parsed/token agreement. The repaired baseline
+was 71.25% overall, with component accuracies from 56.25% to 96.25%.
+`LOWER_VOWEL_VARIANT` and `STACKED_TONE_MARK` have less than the provisional
+10 pp downward headroom above chance at their point estimates;
+`UPPER_VOWEL_VARIANT` has point-estimate but not interval-lower-bound
+headroom. Strong blank A-position preference and large member/condition
+asymmetries remain unresolved. Status is
+`REPAIRED_CALIBRATION_COMPLETE_PENDING_HUMAN_REVIEW`; Gate 0 remains
+`NOT_RUN` and locked validation remains blocked. Full evidence is in
+`docs/stage0/CHECKPOINT_C_REPAIRED_INSTRUMENT.md`.
+
 ## 2026-09-06 — Checkpoint A final freeze for Stage 0 calibration
 
 **Stage/Gate:** Stage 0 calibration only; Gate 0 remains `NOT_RUN`.

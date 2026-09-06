@@ -69,6 +69,14 @@ and not Gate 0 evidence. The historical failure class is
 `REGISTERED_OUTPUT_PARSER_CONTRACT_FAILURE`; Repair v2 must not rewrite the
 old runs or promote their diagnostic accuracy to registered evidence.
 
+Stage 0 Repair v2 subsequently constrained the sole generated token to the
+verified canonical A/B token IDs while keeping the exact parser. Its
+engineering smoke passed, and two repaired calibration runs reproduced
+exactly with zero execution, contract, or parser failures. This supports only
+the exact repaired output-contract and calibration evidence reported in
+`docs/stage0/CHECKPOINT_C_REPAIRED_INSTRUMENT.md`. It is not locked evidence,
+does not approve Gate 0, and provides no compression or H1 evidence.
+
 ---
 
 ## HYPOTHESES
