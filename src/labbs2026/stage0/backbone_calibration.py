@@ -52,7 +52,7 @@ from labbs2026.step3 import environment_record
 
 
 KERNEL_METADATA = {
-    "id": "thanakritsamoena/labbs2026-qwen35-stage0-backbone",
+    "id": "thanakritsamoena/labbs2026-qwen3-5-stage-0-backbone-audit",
     "title": "LabBS2026 Qwen3.5 Stage 0 Backbone Audit",
     "code_file": "worker.py",
     "language": "python",

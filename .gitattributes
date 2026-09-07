@@ -7,3 +7,5 @@
 *.json text eol=lf
 *.jsonl text eol=lf
 uv.lock text eol=lf
+infra/kaggle/*-requirements.in text eol=lf
+infra/kaggle/*-requirements.lock text eol=lf
