@@ -295,6 +295,26 @@ Stage 1A changes processor-controlled input resolution. It must record:
 The resulting actual token count is an outcome of Resolution Reduction. It
 does not make Stage 1A a post-encoder pruning experiment.
 
+### 7.4 Qwen3.5-4B Stage 0 audit record
+
+The audited checkpoint is `Qwen/Qwen3.5-4B` revision
+`851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a`, loaded by
+`Qwen3_5ForConditionalGeneration` under Transformers `5.12.0`. Its processor
+uses patch size 16 and spatial merge size 2. For the frozen 448 x 448 image,
+runtime hooks observed 784 `patch_embed` outputs, 196 spatial-merger
+`pooler_output` representations, and 196 LLM image-placeholder positions.
+
+For this adapter, the reported visual-token boundary is the spatial-merger
+output consumed at the LLM image positions. Pre-merge patches must be reported
+separately. The native 196-position count is an architecture fact, not a
+compression budget or a cause of the observed calibration outcome.
+
+The adapter is architecturally inspectable and T4-feasible, but its Stage 0
+measurement outcome is inadequate under the frozen forced-choice contract.
+Architecture accessibility alone is therefore insufficient for backbone
+selection. Exact evidence is in
+`docs/stage0/QWEN35_BACKBONE_CALIBRATION.md`.
+
 ---
 
 ## 8. Architectural claims that are currently forbidden

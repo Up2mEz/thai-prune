@@ -12,6 +12,7 @@ from labbs2026.kaggle import atomic_write_json, build_submit_command
 from labbs2026.stage0.backbone_calibration import (
     analyze_backbone_artifacts,
     backbone_preflight,
+    compare_with_qwen25,
     prepare_backbone_staging,
     query_kaggle_status,
     verify_backbone_artifacts,
@@ -32,7 +33,7 @@ def main() -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("preflight")
     commands.add_parser("prepare")
-    for name in ("submit-command", "status", "fetch", "verify", "analyze"):
+    for name in ("submit-command", "status", "fetch", "verify", "analyze", "compare"):
         command = commands.add_parser(name)
         command.add_argument("--run-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -52,6 +53,34 @@ def main() -> int:
     if args.command == "analyze":
         artifact_dir = run_dir / "fetched/artifacts" / submission["run_id"]
         result = analyze_backbone_artifacts(artifact_dir, run_dir / "analysis", AUDIT)
+        _print(result)
+        return 0
+    if args.command == "compare":
+        artifact_dir = run_dir / "fetched/artifacts" / submission["run_id"]
+        q25_root = ROOT / "runs/kaggle/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41"
+        q25_margin_root = ROOT / "runs/kaggle/kaggle-stage0-margin-80088b862c5a-008c5556"
+        result = compare_with_qwen25(
+            qwen35_artifact_dir=artifact_dir,
+            qwen35_analysis_path=run_dir / "analysis/qwen35_calibration_analysis.json",
+            qwen25_predictions_path=q25_root / (
+                "fetched/artifacts/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41/"
+                "repaired_calibration/exact_run_1/parsed_predictions.jsonl"
+            ),
+            qwen25_metrics_path=q25_root / (
+                "fetched/artifacts/kaggle-stage0-repair-v2-39cd2e1841bc-4e76ab41/"
+                "repaired_calibration/exact_run_1/metrics.json"
+            ),
+            qwen25_margin_analysis_path=q25_margin_root / "analysis/margin_analysis.json",
+            qwen25_margin_records_path=q25_margin_root / (
+                "fetched/artifacts/kaggle-stage0-margin-80088b862c5a-008c5556/"
+                "calibration_diagnostic/image_gain_records.jsonl"
+            ),
+            qwen25_manifest_path=q25_margin_root / (
+                "fetched/artifacts/kaggle-stage0-margin-80088b862c5a-008c5556/"
+                "calibration_diagnostic/manifest.json"
+            ),
+            output_path=run_dir / "analysis/backbone_comparison.json",
+        )
         _print(result)
         return 0
     status = query_kaggle_status(submission["kernel_id"], ROOT)

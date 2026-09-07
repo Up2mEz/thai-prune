@@ -34,6 +34,37 @@ infeasibility classification, never because of 4B accuracy.
 recommendation and stop for human review. Gate 0 and all later stages remain
 human-owned and blocked.
 
+## 2026-09-07 — Qwen3.5-4B calibration result and backbone recommendation
+
+**Stage/Gate:** Stage 0 open calibration only; Gate 0 remains `NOT_RUN`.
+
+**Observed result:** The pinned Qwen3.5-4B FP16 checkpoint fit on Kaggle Tesla
+T4. The 40-call engineering smoke passed pinned identity, exact one-token A/B,
+direct/generation logit equality, 784-to-196 runtime visual accounting, and
+exact rerun. Two full 1,000-observation calibration runs then reproduced
+exactly with zero parser/execution failures and zero locked-pair exposure.
+Primary-run accuracy was 49.875% (pair-clustered 95% CI 49.00–50.75%). Blank
+controls selected A 100%, expected-A/B accuracies were 93.25%/6.50%, and mean
+image gain was 0.0106 (95% CI -0.0173 to 0.0399). All five components are
+`INADEQUATE` under the pre-registered measurement-planning rules.
+
+**Codex recommendation:** `MEASUREMENT_REDESIGN_REQUIRED`. Do not adopt
+Qwen3.5-4B as primary under the present measurement contract. This is not a
+Gate 0 decision and does not authorize post-outcome prompt retuning, another
+backbone run, dataset changes, locked validation, Stage 1A, or compression.
+
+**Evidence:** `docs/stage0/QWEN35_BACKBONE_CALIBRATION.md`; run
+`kaggle-qwen35-stage0-4fef178183d7-b31935da`; inference commit
+`4fef178183d77c533fcc854a37748ce308688e38`.
+
+**Interpretation boundary:** The result establishes measurement inadequacy for
+this exact Qwen3.5 checkpoint, prompt/label contract, synthetic calibration,
+rendering, and runtime. It does not establish general Thai OCR weakness, an
+architecture ranking, a visual-token-count cause, or any compression effect.
+
+**Consequence:** Stop for human review. Gate 0 remains `NOT_RUN`; locked
+validation and all compression work remain blocked.
+
 ## 2026-09-07 — Calibration image-gain diagnostic authorization and result
 
 **Stage/Gate:** Stage 0 calibration diagnostic only; Gate 0 remains `NOT_RUN`.

@@ -113,3 +113,17 @@ Qwen3.5 accuracy, image gain, bias, or a convenient component pattern may not
 be used after the fact to rewrite why this backbone was selected. A later
 backbone decision must weigh measurement adequacy, architectural inspectability,
 reproducibility, and compute feasibility together.
+
+---
+
+## Post-registration outcome note
+
+This section was added only after the immutable rationale above and the
+inference commit were frozen. Run
+`kaggle-qwen35-stage0-4fef178183d7-b31935da` completed with verified artifacts.
+T4 feasibility and all engineering-smoke contracts passed, but the open
+calibration showed chance-level accuracy, a dominant A-position prior, and
+near-zero aggregate image gain. The resulting recommendation is
+`MEASUREMENT_REDESIGN_REQUIRED`; details are in
+`docs/stage0/QWEN35_BACKBONE_CALIBRATION.md`. The original selection rationale
+is unchanged and no Qwen3.5 outcome was used to select the checkpoint.

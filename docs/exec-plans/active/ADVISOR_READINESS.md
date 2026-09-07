@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** STAGE 0 CHECKPOINT D PENDING HUMAN REVIEW
+**Status:** STAGE 0 QWEN3.5 BACKBONE AUDIT PENDING HUMAN REVIEW
 
 ## Objective
 
@@ -29,7 +29,7 @@ new compression method is required.
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
 | Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
-| Steps 4–6 — Stage 0 | `CHECKPOINT_D_PENDING_HUMAN_REVIEW` | Analysis-only diagnostics used exposed calibration pairs only; multiple member/rendering/prior limitations remain, decision-margin inference is proposed but unauthorized; Gate 0 remains `NOT_RUN` and locked validation is blocked |
+| Steps 4–6 — Stage 0 | `QWEN35_AUDIT_PENDING_HUMAN_REVIEW` | Qwen3.5 T4 engineering contract passed, but open calibration was chance-level with dominant A-position bias and near-zero image gain; recommendation `MEASUREMENT_REDESIGN_REQUIRED`; Gate 0 remains `NOT_RUN` and locked validation is blocked |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

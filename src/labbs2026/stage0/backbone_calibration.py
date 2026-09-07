@@ -569,6 +569,28 @@ def _group_estimates(
     return result
 
 
+def _blank_breakdown(
+    rows: list[dict[str, Any]], key: str,
+    *, seed: int, resamples: int, confidence: float,
+) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for value in sorted({str(row.get(key)) for row in rows}):
+        subset = [row for row in rows if str(row.get(key)) == value]
+        result[value] = {
+            "position_A_minus_B_margin": _estimate(
+                subset, _mean("position_margin"), seed=seed,
+                resamples=resamples, confidence=confidence,
+            ),
+            "position_A_choice_rate": _estimate(
+                subset,
+                lambda data: sum(row["binary_prediction"] == "A" for row in data)
+                / len(data),
+                seed=seed, resamples=resamples, confidence=confidence,
+            ),
+        }
+    return result
+
+
 def analyze_backbone_artifacts(
     artifact_dir: Path, output_dir: Path, audit_path: Path
 ) -> dict[str, Any]:
@@ -586,7 +608,14 @@ def analyze_backbone_artifacts(
     seed = int(calibration["cluster_bootstrap_seed"])
     resamples = int(calibration["cluster_bootstrap_resamples"])
     confidence = float(calibration["confidence_level"])
-    metric_rows = [{**row, "is_correct": row["binary_correct"]} for row in primary]
+    metric_rows = [
+        {
+            **row,
+            "parsed_output": row["binary_prediction"],
+            "is_correct": row["binary_correct"],
+        }
+        for row in primary
+    ]
     registered = compute_stage0_metrics(
         metric_rows, bootstrap_seed=seed,
         bootstrap_resamples=resamples, confidence_level=confidence,
@@ -643,8 +672,17 @@ def analyze_backbone_artifacts(
                     subset, outcome="binary_correct", grouping="font_size", positive=96,
                     negative=72, seed=seed, resamples=resamples, confidence=confidence,
                 ),
+                "size_96_minus_72_image_gain": _paired_pair_contrast(
+                    subset, outcome="image_gain", grouping="font_size", positive=96,
+                    negative=72, seed=seed, resamples=resamples, confidence=confidence,
+                ),
                 "serif_minus_sans_accuracy": _paired_pair_contrast(
                     subset, outcome="binary_correct", grouping="font_id",
+                    positive="noto_serif_thai_regular", negative="noto_sans_thai_regular",
+                    seed=seed, resamples=resamples, confidence=confidence,
+                ),
+                "serif_minus_sans_image_gain": _paired_pair_contrast(
+                    subset, outcome="image_gain", grouping="font_id",
                     positive="noto_serif_thai_regular", negative="noto_sans_thai_regular",
                     seed=seed, resamples=resamples, confidence=confidence,
                 ),
@@ -656,7 +694,20 @@ def analyze_backbone_artifacts(
             },
         }
         for member, estimate in members.items():
-            member_rows.append({"component": component, "member": member, "accuracy": estimate})
+            member_subset = [row for row in subset if row["displayed_member"] == member]
+            member_rows.append({
+                "component": component,
+                "member": member,
+                "accuracy": estimate,
+                "correct_margin": _estimate(
+                    member_subset, _mean("correct_margin"), seed=seed,
+                    resamples=resamples, confidence=confidence,
+                ),
+                "image_gain": _estimate(
+                    member_subset, _mean("image_gain"), seed=seed,
+                    resamples=resamples, confidence=confidence,
+                ),
+            })
         for condition in sorted({row["condition_id"] for row in subset}):
             condition_subset = [row for row in subset if row["condition_id"] == condition]
             condition_rows.append({
@@ -682,24 +733,36 @@ def analyze_backbone_artifacts(
                 seed=seed, resamples=resamples, confidence=confidence,
             ),
         },
-        "by_orientation": _group_estimates(
-            blanks, "orientation", "position_margin", seed=seed,
+        "by_orientation": _blank_breakdown(
+            blanks, "orientation", seed=seed,
             resamples=resamples, confidence=confidence,
         ),
-        "by_candidate_a_lexical_status": _group_estimates(
-            blanks, "candidate_a_lexical_status", "position_margin", seed=seed,
+        "by_candidate_a_lexical_status": _blank_breakdown(
+            blanks, "candidate_a_lexical_status", seed=seed,
             resamples=resamples, confidence=confidence,
         ),
-        "by_component": _group_estimates(
-            blanks, "component_type", "position_margin", seed=seed,
+        "by_component": _blank_breakdown(
+            blanks, "component_type", seed=seed,
             resamples=resamples, confidence=confidence,
         ),
     }
+    canonical_a = [
+        row for row in blanks
+        if (row["orientation"] == "A_THEN_B" and row["binary_prediction"] == "A")
+        or (row["orientation"] == "B_THEN_A" and row["binary_prediction"] == "B")
+    ]
+    blank_prior["canonical_member_a_choice_rate"] = len(canonical_a) / len(blanks)
+    blank_prior["selected_lexical_status_counts"] = dict(Counter(
+        row["candidate_a_lexical_status"]
+        if row["binary_prediction"] == "A"
+        else row["candidate_b_lexical_status"]
+        for row in blanks
+    ))
     statuses = [value["adequacy_status"] for value in by_component.values()]
     decision = (
-        "SWITCH_TO_QWEN35_PRIMARY_BACKBONE"
+        "SWITCH_TO_QWEN35_4B"
         if statuses and all(value == "ADEQUATE" for value in statuses)
-        else "BORDERLINE_REQUIRES_HUMAN_REVIEW"
+        else "QWEN35_4B_BORDERLINE"
         if "INADEQUATE" not in statuses
         else "MEASUREMENT_REDESIGN_REQUIRED"
     )
@@ -722,6 +785,10 @@ def analyze_backbone_artifacts(
                 full, _mean("image_gain"), seed=seed,
                 resamples=resamples, confidence=confidence,
             ),
+            "image_gain_positive_rate": _estimate(
+                full, _positive_rate("image_gain"), seed=seed,
+                resamples=resamples, confidence=confidence,
+            ),
             "image_gain_median": statistics.median(row["image_gain"] for row in full),
         },
         "per_component": by_component,
@@ -737,6 +804,137 @@ def analyze_backbone_artifacts(
     }
     output_dir.mkdir(parents=True, exist_ok=False)
     atomic_write_json(output_dir / "qwen35_calibration_analysis.json", report)
+    return report
+
+
+def compare_with_qwen25(
+    *,
+    qwen35_artifact_dir: Path,
+    qwen35_analysis_path: Path,
+    qwen25_predictions_path: Path,
+    qwen25_metrics_path: Path,
+    qwen25_margin_analysis_path: Path,
+    qwen25_margin_records_path: Path,
+    qwen25_manifest_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    """Paired calibration comparison; every bootstrap resamples ``pair_id``."""
+
+    q35_rows = _jsonl(qwen35_artifact_dir / "open_calibration/exact_run_1/image_gain_records.jsonl")
+    q25_rows = _jsonl(qwen25_predictions_path)
+    q35_full = {row["observation_id"]: row for row in q35_rows if row["control_type"] == "FULL_INFORMATION"}
+    q25_full = {row["observation_id"]: row for row in q25_rows if row["control_type"] == "FULL_INFORMATION"}
+    if set(q35_full) != set(q25_full) or len(q35_full) != 800:
+        raise RuntimeError("backbone comparison requires the same 800 full-information observations")
+    paired = [
+        {
+            "observation_id": key,
+            "pair_id": q35_full[key]["pair_id"],
+            "component_type": q35_full[key]["component_type"],
+            "qwen25_correct": bool(q25_full[key]["is_correct"]),
+            "qwen35_correct": bool(q35_full[key]["binary_correct"]),
+            "qwen35_minus_qwen25": float(bool(q35_full[key]["binary_correct"]))
+            - float(bool(q25_full[key]["is_correct"])),
+        }
+        for key in sorted(q35_full)
+    ]
+    seed, resamples, confidence = 20260906, 2000, 0.95
+    differences = {
+        "overall": _cluster_bootstrap(
+            paired, _mean("qwen35_minus_qwen25"), seed=seed,
+            resamples=resamples, confidence=confidence,
+        ),
+        "per_component": {},
+    }
+    for component in sorted({row["component_type"] for row in paired}):
+        subset = [row for row in paired if row["component_type"] == component]
+        differences["per_component"][component] = _cluster_bootstrap(
+            subset, _mean("qwen35_minus_qwen25"), seed=seed,
+            resamples=resamples, confidence=confidence,
+        )
+    q35 = _load_json(qwen35_analysis_path)
+    q25_metrics = _load_json(qwen25_metrics_path)
+    q25_margin = _load_json(qwen25_margin_analysis_path)
+    q25_margin_rows = _jsonl(qwen25_margin_records_path)
+    q25_blank_rows = [
+        row for row in q25_margin_rows
+        if row["control_type"] == "LANGUAGE_CANDIDATE_BIAS_BLANK"
+    ]
+    if len(q25_blank_rows) != 200:
+        raise RuntimeError("Qwen2.5 comparison requires 200 matched blank records")
+    q25_manifest = _load_json(qwen25_manifest_path)
+    q35_manifest = _load_json(qwen35_artifact_dir / "open_calibration/exact_run_1/manifest.json")
+    q25_status = {
+        "BASE_CHARACTER": "ADEQUATE",
+        "TONE_MARK": "ADEQUATE",
+        "UPPER_VOWEL_VARIANT": "BORDERLINE",
+        "LOWER_VOWEL_VARIANT": "INADEQUATE",
+        "STACKED_TONE_MARK": "INADEQUATE",
+    }
+    component_table = []
+    for component in sorted(q35["per_component"]):
+        q25_accuracy = q25_metrics["per_component"][component]["accuracy_all_scored_observations"]
+        q35_accuracy = q35["per_component"][component]["accuracy"]["estimate"]
+        component_table.append({
+            "component": component,
+            "qwen25_accuracy": q25_accuracy,
+            "qwen35_accuracy": q35_accuracy,
+            "difference_qwen35_minus_qwen25": q35_accuracy - q25_accuracy,
+            "paired_pair_clustered_difference_ci": differences["per_component"][component],
+            "qwen25_status": q25_status[component],
+            "qwen35_status": q35["per_component"][component]["adequacy_status"],
+        })
+    report = {
+        "schema_version": 1,
+        "evidence_status": "PAIRED_OPEN_CALIBRATION_COMPARISON_NOT_LOCKED_VALIDATION",
+        "independent_unit": "pair_id",
+        "image_level_independence_assumed": False,
+        "paired_observation_count": 800,
+        "pair_count": 100,
+        "accuracy_difference": differences,
+        "component_table": component_table,
+        "diagnostic_table": {
+            "overall_accuracy": {
+                "qwen25": q25_metrics["full_information"]["accuracy_all_scored_observations"],
+                "qwen35": q35["overall"]["accuracy"]["estimate"],
+            },
+            "blank_A_choice_rate": {
+                "qwen25": q25_metrics["language_candidate_bias_blank"]["choice_a_rate"],
+                "qwen35": q35["blank_position_prior"]["overall"]["position_A_choice_rate"]["estimate"],
+            },
+            "blank_z_A_minus_z_B": {
+                "qwen25": sum(row["position_margin"] for row in q25_blank_rows)
+                / len(q25_blank_rows),
+                "qwen35": q35["blank_position_prior"]["overall"]["position_A_minus_B_margin"]["estimate"],
+            },
+            "mean_image_gain": {
+                "qwen25": q25_margin["overall"]["image_gain"]["estimate"],
+                "qwen35": q35["overall"]["image_gain"]["estimate"],
+            },
+            "exact_rerun": {"qwen25": "EXACT", "qwen35": q35["reproducibility"]["status"]},
+            "parser_failure_rate": {"qwen25": 0.0, "qwen35": 0.0},
+            "llm_visual_positions": {
+                "qwen25": 256,
+                "qwen35": 196,
+                "note": "Backbone-native full-information counts; not a compression treatment.",
+            },
+            "peak_allocated_vram_bytes": {
+                "qwen25": q25_manifest["cuda_memory"]["peak_allocated_during_inference_bytes"],
+                "qwen35": q35_manifest["cuda_memory"]["peak_allocated_during_inference_bytes"],
+            },
+            "mean_generation_seconds": {
+                "qwen25": q25_metrics["generation_seconds"]["total"] / q25_metrics["generation_seconds"]["count"],
+                "qwen35": q35["registered_metrics"]["generation_seconds"]["total"]
+                / q35["registered_metrics"]["generation_seconds"]["count"],
+            },
+        },
+        "interpretation": (
+            "Qwen3.5-4B is worse on the frozen measurement contract and its nearly "
+            "chance accuracy is explained by a dominant A-position prior plus near-zero "
+            "aggregate image gain, not by adequate visual discrimination."
+        ),
+    }
+    atomic_write_json(output_path, report)
     return report
 
 

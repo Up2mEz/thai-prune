@@ -100,6 +100,18 @@ non-causal measurement diagnostics reported in
 registered metric, validate every component, approve Gate 0, establish model
 capacity, or support any compression/H1/real-world claim.
 
+The pinned `Qwen/Qwen3.5-4B` revision was evaluated only on the already exposed
+100-pair Stage 0 calibration split after a pre-registered selection rationale.
+Its T4 FP16 engineering contract passed and two 1,000-observation runs
+reproduced exactly, but full-information accuracy was 49.875% with a 100%
+blank A-position preference and aggregate image-gain interval crossing zero.
+This supports the bounded claim that Qwen3.5-4B is not an adequate measurement
+instrument under this exact prompt, parser, rendering, dataset, revision, and
+runtime contract. It does not support a general Qwen3.5-versus-Qwen2.5 ranking,
+a Thai-language capability claim, a visual-token-count mechanism, Gate 0, or
+any claim about Resolution Reduction, Token Pruning, Token Merging, H1–H4, or
+real-world text.
+
 ---
 
 ## HYPOTHESES

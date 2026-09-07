@@ -1,12 +1,19 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** ACTIVE — Checkpoint A preparation; no model outcomes yet
+**Status:** HUMAN REVIEW CHECKPOINT — Qwen3.5 measurement audit completed;
+Gate 0 remains `NOT_RUN`
 
 ## Objective
 
 Establish whether the pinned full-information Qwen2.5-VL-3B measurement system
 can discriminate controlled Thai orthographic stimuli. Stage 0 does not vary
 resolution, visual-token budget, or any compression mechanism.
+
+The Qwen2.5 repaired calibration and a separately pre-registered Qwen3.5-4B
+backbone audit are now complete on the open calibration split. Qwen2.5 was not
+adequate across all components; Qwen3.5-4B collapsed to an A-position-biased,
+chance-level measurement. The current recommendation is
+`MEASUREMENT_REDESIGN_REQUIRED`, pending human review.
 
 ## Authorization and stop boundary
 
@@ -23,6 +30,10 @@ Forbidden now:
 - locked Stage 0 validation before criteria are human-frozen;
 - Gate 0 approval;
 - Stage 1A or any compression intervention.
+- post-outcome prompt, label, rendering, pair, or backbone changes presented as
+  the same registered calibration;
+- any further model inference until a human authorizes a new pre-registered
+  diagnostic.
 
 ## Dependencies and checkpoints
 
