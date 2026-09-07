@@ -308,6 +308,9 @@ def _run_pass(
                 prediction = result.prediction
                 margin = _position_margin(result.logit_a, result.logit_b)
                 render = render_by_key.get((observation["pair_id"], observation["condition_id"]))
+                reference = spec.get("binary_reference", {}).get(
+                    observation["observation_id"]
+                )
                 row = {
                     **observation,
                     "font_id": render.get("font_id") if render else None,
@@ -325,9 +328,12 @@ def _run_pass(
                         prediction.parsed_output == observation["expected_label"]
                         if observation["expected_label"] is not None else None
                     ),
-                    "binary_reference_prediction": spec["binary_reference"][observation["observation_id"]],
-                    "binary_reference_agrees": prediction.parsed_output
-                    == spec["binary_reference"][observation["observation_id"]],
+                    "binary_reference_prediction": reference,
+                    "binary_reference_agrees": (
+                        prediction.parsed_output == reference
+                        if reference is not None
+                        else None
+                    ),
                     "raw_output": prediction.raw_output,
                     "parse_status": prediction.parse_status,
                     "generated_token_ids": list(prediction.generated_token_ids),
@@ -358,6 +364,7 @@ def _run_pass(
         "run_status": "VALID" if len(rows) == len(observations) and not failures else "INVALID",
         "git_commit": spec["git_sha"], "model_id": adapter.model_id,
         "model_revision": adapter.revision, "processor_revision": adapter.processor_revision,
+        "tokenizer_revision": adapter.tokenizer_revision,
         "environment": environment_record(), "frozen_environment_contract": spec["environment_contract"],
         "architecture": architecture, "model_load_seconds": adapter.model_load_seconds,
         "observation_count": len(observations), "completed_count": len(rows),

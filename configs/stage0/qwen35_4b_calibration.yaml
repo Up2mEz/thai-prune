@@ -1,0 +1,82 @@
+schema_version: 1
+stage: stage0_qwen35_backbone_calibration
+scientific_scope: FULL_INFORMATION_CALIBRATION_ONLY
+
+model:
+  adapter: qwen35
+  model_id: Qwen/Qwen3.5-4B
+  revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  processor_revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  tokenizer_revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  required_transformers_version: 5.12.0
+  lowest_verified_source_release: 5.2.0
+  official_parameter_count: 4659865088
+  checkpoint_weight_bytes: 9319828096
+  license: apache-2.0
+  use_fast_processor: true
+  device: cuda
+  dtype: float16
+  attention_implementation: sdpa
+  cache_dir: /tmp/huggingface
+
+generation:
+  do_sample: false
+  max_new_tokens: 1
+  min_new_tokens: 1
+  chat_template_kwargs:
+    enable_thinking: false
+  output_contract:
+    mode: canonical_label_token_constraint_v1
+    allowed_labels: [A, B]
+    expected_label_token_ids:
+      A: 32
+      B: 33
+    runtime_reverification_required: true
+
+seed_policy:
+  seed: 20260906
+  python_random: true
+  numpy: true
+  torch_cpu: true
+  torch_cuda_all_devices: true
+  deterministic_decoding: true
+  torch_deterministic_algorithms: false
+
+input_rendering:
+  canvas_size: [448, 448]
+  color_mode: RGB
+  foreground_rgb: [0, 0, 0]
+  background_rgb: [255, 255, 255]
+
+expected_processor:
+  processor_class: Qwen2VLImageProcessor
+  use_fast_processor: true
+  patch_size: 16
+  temporal_patch_size: 2
+  spatial_merge_size: 2
+  min_pixels: 65536
+  max_pixels: 16777216
+  do_resize: true
+  resample: 3
+  do_rescale: true
+  rescale_factor: 0.00392156862745098
+  do_normalize: true
+  image_mean: [0.5, 0.5, 0.5]
+  image_std: [0.5, 0.5, 0.5]
+  do_convert_rgb: true
+
+expected_full_information_processing:
+  original_image_shape: [448, 448]
+  preprocessed_image_shape: [448, 448]
+  image_grid_thw: [1, 28, 28]
+  premerge_patch_count: 784
+  runtime_premerge_patch_count: 784
+  llm_visual_token_count: 196
+  input_image_token_count: 196
+  runtime_vision_output_count: 196
+  runtime_llm_input_position_count: 196
+
+prompt:
+  config: configs/stage0/prompt_parser.yaml
+  version: stage0_forced_choice_th_v1
+  parser_pattern: "^[AB]$"

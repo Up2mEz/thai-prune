@@ -2,6 +2,38 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-07 — Qwen3.5-4B measurement-capacity audit authorization
+
+**Stage/Gate:** Stage 0 calibration-only backbone assessment; Gate 0 remains
+`NOT_RUN`.
+
+**Human decision:** Evaluate `Qwen/Qwen3.5-4B` end to end as a candidate primary
+measurement backbone using only the 100 already exposed calibration pairs.
+Authorize a minimal adapter/factory, tests, Kaggle T4 model-load and engineering
+smoke, and—only if the smoke passes—two exact 1,000-observation full-information
+calibration passes with matched blank controls. The human request explicitly
+forbids locked validation, Gate 0 approval, Stage 1A, Resolution Reduction,
+Token Pruning, Token Merging, and every other compression experiment.
+
+**Pre-registered rationale:** The candidate is opened before any Qwen3.5 Thai
+calibration outcome because it is a compact current-generation open-weight
+multimodal model with official OCR/visual-language capability, an inspectable
+Vision Encoder and spatial merger, reproducible Hugging Face inference, a
+future-accessible post-encoder representation, and Apache-2.0 licensing. The
+exact rationale and pinned pre-inference identity are recorded in
+`docs/stage0/QWEN35_BACKBONE_RATIONALE.md` with outcome state
+`NO_QWEN35_MODEL_OUTPUT_OBSERVED`.
+
+**Selection integrity:** Qwen3.5 may not be chosen because its outcome supports
+a preferred Thai-specific or compression hypothesis. Failure to establish
+baseline measurement capacity is a valid result. A T4 fallback to
+`Qwen/Qwen3.5-2B` may be considered only after a recorded 4B compute
+infeasibility classification, never because of 4B accuracy.
+
+**Mandatory stop:** After the calibration assessment, report a backbone
+recommendation and stop for human review. Gate 0 and all later stages remain
+human-owned and blocked.
+
 ## 2026-09-07 — Calibration image-gain diagnostic authorization and result
 
 **Stage/Gate:** Stage 0 calibration diagnostic only; Gate 0 remains `NOT_RUN`.

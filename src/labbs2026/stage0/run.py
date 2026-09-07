@@ -555,7 +555,7 @@ def run_calibration(
         "model_id": adapter.model_id,
         "model_revision": adapter.revision,
         "processor_revision": adapter.processor_revision,
-        "tokenizer_revision": adapter.processor_revision,
+        "tokenizer_revision": adapter.tokenizer_revision,
         "seed": int(config["reproducibility"]["seed"]),
         "environment": environment_record(),
         "architecture": architecture,
