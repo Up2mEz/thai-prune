@@ -64,7 +64,7 @@ def main() -> None:
             for key in (
                 "audit_config_path", "config_path", "runtime_path", "model_config_path",
                 "prompt_config_path", "bundle_path", "rationale_path",
-                "override_lock_path", "worker_template_path",
+                "override_lock_path", "rendering_config_path", "worker_template_path",
             )
         }
         expected["uv.lock"] = spec["uv_lock_sha256"]

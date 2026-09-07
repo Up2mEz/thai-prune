@@ -216,6 +216,7 @@ def make_backbone_spec(
     audit = _load_yaml(audit_path)
     frozen = audit["frozen_inputs"]
     runtime = load_runtime(runtime_path)
+    design = _load_yaml(root / frozen["calibration_design"])
     paths = {
         "audit_config_path": audit_path.relative_to(root).as_posix(),
         "config_path": frozen["calibration_design"],
@@ -225,6 +226,7 @@ def make_backbone_spec(
         "bundle_path": frozen["calibration_input_bundle"],
         "rationale_path": frozen["rationale"],
         "override_lock_path": frozen["dependency_override_lock"],
+        "rendering_config_path": design["rendering_candidates"],
     }
     hashes = {
         key.replace("_path", "_sha256"): sha256_file(root / value)
@@ -319,13 +321,29 @@ def select_smoke_observations(
 
 
 def _smoke_acceptance(
-    first: list[dict[str, Any]], second: list[dict[str, Any]], expected: dict[str, Any]
+    first: list[dict[str, Any]],
+    second: list[dict[str, Any]],
+    expected: dict[str, Any],
+    manifests: list[dict[str, Any]] | None = None,
+    identity: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     one = {row["observation_id"]: row for row in first}
     two = {row["observation_id"]: row for row in second}
     paired = [(one[key], two[key]) for key in sorted(one)] if set(one) == set(two) else []
     rows = first + second
+    identity_ok = True
+    if manifests is not None and identity is not None:
+        identity_ok = len(manifests) == 2 and all(
+            manifest.get("model_id") == identity["model_id"]
+            and manifest.get("model_revision") == identity["revision"]
+            and manifest.get("processor_revision") == identity["processor_revision"]
+            and manifest.get("tokenizer_revision") == identity["tokenizer_revision"]
+            and manifest.get("architecture", {}).get("transformers_version")
+            == identity["required_transformers_version"]
+            for manifest in manifests
+        )
     criteria = {
+        "pinned_model_identity": identity_ok,
         "call_completion": len(first) == len(second) == 20,
         "one_exact_canonical_token": all(
             len(row["generated_token_ids"]) == 1
@@ -337,6 +355,12 @@ def _smoke_acceptance(
         "generate_direct_logits_exact": all(row["generate_direct_exact"] is True for row in rows),
         "binary_argmax_matches_generation": all(
             row["binary_prediction"] == ("A" if row["logit_A"] >= row["logit_B"] else "B")
+            for row in rows
+        ),
+        "deterministic_one_token_decoding": all(
+            row["resolved_generation_config"].get("do_sample") is False
+            and row["resolved_generation_config"].get("max_new_tokens") == 1
+            and row["resolved_generation_config"].get("min_new_tokens") == 1
             for row in rows
         ),
         "visual_accounting_exact": all(_visual_contract(row, expected) for row in rows),
@@ -422,6 +446,7 @@ def execute_remote_backbone(spec_path: Path) -> None:
         phase = "engineering_smoke"
         smoke_root = artifact_dir / "engineering_smoke"
         smoke_runs: list[list[dict[str, Any]]] = []
+        smoke_manifests: list[dict[str, Any]] = []
         for index in (1, 2):
             run = _run_pass(
                 spec=spec, source=source, input_dir=input_dir, runtime=runtime,
@@ -430,10 +455,26 @@ def execute_remote_backbone(spec_path: Path) -> None:
                 role="QWEN35_ENGINEERING_SMOKE_NOT_SCIENTIFIC_EVIDENCE",
             )
             smoke_runs.append(_jsonl(run / "decision_margins.jsonl"))
+            smoke_manifests.append(_load_json(run / "manifest.json"))
             gc.collect()
             import torch
             torch.cuda.empty_cache()
-        acceptance = _smoke_acceptance(smoke_runs[0], smoke_runs[1], expected_visual)
+        first_smoke_manifest = _load_json(smoke_root / "exact_run_1/manifest.json")
+        atomic_write_json(artifact_dir / "first_call_feasibility.json", {
+            "schema_version": 1,
+            "model_load_seconds": first_smoke_manifest["model_load_seconds"],
+            "allocated_after_model_load_bytes": first_smoke_manifest["cuda_memory"]["allocated_after_model_load_bytes"],
+            "reserved_after_model_load_bytes": first_smoke_manifest["cuda_memory"]["reserved_after_model_load_bytes"],
+            "first_call_probe": first_smoke_manifest["first_call_probe"],
+            "allocated_after_first_call_bytes": first_smoke_manifest["cuda_memory"]["allocated_after_first_call_bytes"],
+            "reserved_after_first_call_bytes": first_smoke_manifest["cuda_memory"]["reserved_after_first_call_bytes"],
+            "peak_allocated_through_first_call_bytes": first_smoke_manifest["cuda_memory"]["peak_allocated_through_first_call_bytes"],
+            "peak_reserved_through_first_call_bytes": first_smoke_manifest["cuda_memory"]["peak_reserved_through_first_call_bytes"],
+        })
+        acceptance = _smoke_acceptance(
+            smoke_runs[0], smoke_runs[1], expected_visual,
+            manifests=smoke_manifests, identity=model_config["model"],
+        )
         atomic_write_json(smoke_root / "acceptance.json", acceptance)
         if acceptance["status"] != "PASS":
             raise RuntimeError("engineering smoke failed; full calibration was not started")
@@ -469,12 +510,17 @@ def execute_remote_backbone(spec_path: Path) -> None:
             "git_sha": spec["git_sha"], "audit_config_sha256": spec["audit_config_sha256"],
             "model_config_sha256": spec["model_config_sha256"],
             "dependency_override_sha256": spec["override_lock_sha256"],
+            "calibration_input_bundle_sha256": spec["bundle_sha256"],
+            "pair_allocation_sha256": spec["allocation_sha256"],
+            "rendering_config_sha256": spec["rendering_config_sha256"],
+            "prompt_config_sha256": spec["prompt_config_sha256"],
             "engineering_smoke_status": "PASS", "engineering_smoke_calls": 40,
             "open_calibration_calls": 2000, "exact_rerun_status": "EXACT",
             "locked_validation_pair_count_exposed_to_model": 0,
             "gate_0_status": "NOT_RUN", "stage_1a_status": "BLOCKED",
             "compression_status": "NOT_RUN",
         })
+        atomic_write_json(artifact_dir / "run_spec.json", spec)
         atomic_write_text(artifact_dir / "checksums.sha256", _checksums(artifact_dir))
         atomic_write_json(artifact_dir / "SUCCESS.json", {
             "schema_version": 1, "run_id": spec["run_id"],
@@ -699,9 +745,10 @@ def query_kaggle_status(kernel_id: str, root: Path) -> dict[str, Any]:
         ["kaggle", "kernels", "status", kernel_id], cwd=root,
         capture_output=True, text=True,
     )
+    raw = "\n".join(part for part in (result.stdout, result.stderr) if part)
     return {
         "schema_version": 1, "kernel_id": kernel_id,
-        "status": parse_kaggle_status(result.stdout, result.stderr),
+        "status": parse_kaggle_status(raw),
         "returncode": result.returncode, "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip(), "queried_at_utc": utc_now(),
     }

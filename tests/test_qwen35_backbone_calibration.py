@@ -26,6 +26,11 @@ def _row(index: int) -> dict:
         "generated_token_ids": [32 if label == "A" else 33],
         "parse_status": "PARSED",
         "output_contract_conformance": True,
+        "resolved_generation_config": {
+            "do_sample": False,
+            "max_new_tokens": 1,
+            "min_new_tokens": 1,
+        },
         "generate_direct_exact": True,
         "binary_prediction": label,
         "logit_A": float(index + (1 if label == "A" else 0)),

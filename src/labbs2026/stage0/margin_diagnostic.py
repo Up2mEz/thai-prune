@@ -282,9 +282,14 @@ def _run_pass(
     cuda_memory: dict[str, int | None] = {
         "allocated_after_model_load_bytes": None,
         "reserved_after_model_load_bytes": None,
+        "allocated_after_first_call_bytes": None,
+        "reserved_after_first_call_bytes": None,
+        "peak_allocated_through_first_call_bytes": None,
+        "peak_reserved_through_first_call_bytes": None,
         "peak_allocated_during_inference_bytes": None,
         "peak_reserved_during_inference_bytes": None,
     }
+    first_call_probe: dict[str, Any] | None = None
     started = time.perf_counter()
     with peak_rss_monitor() as memory:
         import torch
@@ -348,6 +353,26 @@ def _run_pass(
                 if not all(math.isfinite(row[key]) for key in ("logit_A", "logit_B", "position_margin")):
                     raise RuntimeError("non-finite decision logit")
                 rows.append(row)
+                if len(rows) == 1:
+                    first_call_probe = {
+                        "observation_id": row["observation_id"],
+                        "preprocess_seconds": row["preprocess_seconds"],
+                        "inference_seconds": row["generation_seconds"],
+                    }
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                        cuda_memory["allocated_after_first_call_bytes"] = int(
+                            torch.cuda.memory_allocated()
+                        )
+                        cuda_memory["reserved_after_first_call_bytes"] = int(
+                            torch.cuda.memory_reserved()
+                        )
+                        cuda_memory["peak_allocated_through_first_call_bytes"] = int(
+                            torch.cuda.max_memory_allocated()
+                        )
+                        cuda_memory["peak_reserved_through_first_call_bytes"] = int(
+                            torch.cuda.max_memory_reserved()
+                        )
             except BaseException as exc:
                 failures.append({
                     "observation_id": observation["observation_id"],
@@ -370,6 +395,7 @@ def _run_pass(
         "observation_count": len(observations), "completed_count": len(rows),
         "failure_count": len(failures), "total_seconds": time.perf_counter() - started,
         "peak_rss_bytes": memory["peak_rss_bytes"], "cuda_memory": cuda_memory,
+        "first_call_probe": first_call_probe,
         "locked_validation_pair_count_exposed_to_model": 0,
         "primary_metric_replaced": False, "compression_family": "FULL_INFORMATION",
     }
