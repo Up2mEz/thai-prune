@@ -2,7 +2,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-import torch
 from PIL import Image
 
 from labbs2026.adapters.factory import build_adapter, validate_model_config
@@ -10,6 +9,17 @@ from labbs2026.adapters.qwen35 import Qwen35Adapter
 
 
 REVISION = "8" * 40
+
+
+class _Grid:
+    def __getitem__(self, _index: int) -> SimpleNamespace:
+        return SimpleNamespace(tolist=lambda: [1, 28, 28])
+
+
+class _InputIds:
+    def __eq__(self, token_id: int) -> SimpleNamespace:
+        assert token_id == 248056
+        return SimpleNamespace(sum=lambda: SimpleNamespace(item=lambda: 196))
 
 
 def _config() -> dict:
@@ -72,8 +82,8 @@ def test_qwen35_visual_accounting_reconciles_grid_prompt_and_runtime() -> None:
     )
     adapter._processor = SimpleNamespace(image_processor=processor, image_token_id=248056)
     inputs = {
-        "image_grid_thw": torch.tensor([[1, 28, 28]]),
-        "input_ids": torch.tensor([[248056] * 196]),
+        "image_grid_thw": _Grid(),
+        "input_ids": _InputIds(),
     }
     image = Image.new("RGB", (448, 448), "white")
 
@@ -93,8 +103,8 @@ def test_qwen35_visual_accounting_fails_closed_on_runtime_mismatch() -> None:
     processor = SimpleNamespace(patch_size=16, temporal_patch_size=2, merge_size=2)
     adapter._processor = SimpleNamespace(image_processor=processor, image_token_id=248056)
     inputs = {
-        "image_grid_thw": torch.tensor([[1, 28, 28]]),
-        "input_ids": torch.tensor([[248056] * 196]),
+        "image_grid_thw": _Grid(),
+        "input_ids": _InputIds(),
     }
     with pytest.raises(RuntimeError, match="runtime premerge=783"):
         adapter._metadata_from_inputs(inputs, Image.new("RGB", (448, 448)), runtime_count=196)
