@@ -579,7 +579,8 @@ def verify_artifacts(artifact_dir: Path, submission: dict[str, Any], kaggle_stat
 
 def query_status(kernel_id: str, root: Path) -> dict[str, Any]:
     result = subprocess.run(["kaggle", "kernels", "status", kernel_id], cwd=root, capture_output=True, text=True)
-    return {"returncode": result.returncode, "status": parse_kaggle_status(result.stdout, result.stderr), "stdout": result.stdout, "stderr": result.stderr}
+    combined = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    return {"returncode": result.returncode, "status": parse_kaggle_status(combined), "stdout": result.stdout, "stderr": result.stderr}
 
 
 def main() -> int:
