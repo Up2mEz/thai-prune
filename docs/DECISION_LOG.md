@@ -2,6 +2,35 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-08 — Qwen3.5 measurement diagnostic authorization and pre-registration
+
+**Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Human decision:** After the Qwen3.5-4B calibration failure, authorize D1
+position swap, D2 candidate sequence scoring without A/B tokens, D3
+post-merger representation separation, and D4 a clearly magnified visual
+rescue using only the 100 already exposed calibration pairs. Require metrics,
+root-cause decision criteria, and the A/B/C action map to be committed before
+diagnostic outcomes are observed.
+
+**Frozen protocol:**
+`docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md` and
+`configs/stage0/qwen35_measurement_diagnostic.yaml`. `pair_id` remains the
+independent unit and uncertainty uses pair-clustered bootstrap. Candidate
+scoring is blank-corrected sum sequence log-probability. Representation
+retrieval is diagnostic only. Visual rescue changes glyph scale within the
+same 448 x 448 canvas and must retain the same processor and 196 native visual
+positions.
+
+**Still prohibited:** locked validation, frozen-split changes, Gate 0 approval,
+Stage 1A, Resolution Reduction, Token Pruning, Token Merging, the main
+experiment, all compression interventions, and any new-backbone inference.
+
+**Mandatory stop:** After D1-D4, record one bounded root-cause classification
+and one A/B/C recommendation, update reproducibility artifacts, and stop for
+human review.
+
 ## 2026-09-07 — Qwen3.5-4B measurement-capacity audit authorization
 
 **Stage/Gate:** Stage 0 calibration-only backbone assessment; Gate 0 remains

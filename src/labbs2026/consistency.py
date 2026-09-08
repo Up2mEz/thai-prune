@@ -175,6 +175,8 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
             in active_plan
             or "Steps 4–6 — Stage 0 | `CHECKPOINT_D_PENDING_HUMAN_REVIEW`"
             in active_plan
+            or "Steps 4–6 — Stage 0 | `QWEN35_MEASUREMENT_DIAGNOSTIC_AUTHORIZED`"
+            in active_plan
         ),
         "The frozen Stage 0 calibration status must agree across the Source of Truth.",
     )
@@ -205,6 +207,8 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
             or "Steps 4–6 — Stage 0 | `CHECKPOINT_C_PENDING_HUMAN_REVIEW`"
             in active_plan
             or "Steps 4–6 — Stage 0 | `CHECKPOINT_D_PENDING_HUMAN_REVIEW`"
+            in active_plan
+            or "Steps 4–6 — Stage 0 | `QWEN35_MEASUREMENT_DIAGNOSTIC_AUTHORIZED`"
             in active_plan
         )
         and "Locked Stage 0 validation may not begin" in decisions

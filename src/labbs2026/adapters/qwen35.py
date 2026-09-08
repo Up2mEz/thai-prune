@@ -5,7 +5,10 @@ from __future__ import annotations
 import time
 from dataclasses import replace
 from importlib.metadata import version
+from pathlib import Path
 from typing import Any
+
+from PIL import Image
 
 from labbs2026.adapters.base import VisualStageMetadata
 from labbs2026.adapters.qwen25_vl import Qwen25VLAdapter
@@ -175,4 +178,104 @@ class Qwen35Adapter(Qwen25VLAdapter):
                 "output_contract_mode": self.output_contract_mode,
                 "allowed_labels": list(self.allowed_labels),
             },
+        }
+
+    def score_candidate_sequence(
+        self, image_path: Path, prompt: str, candidate: str
+    ) -> dict[str, Any]:
+        """Teacher-force one text candidate without an A/B decision token.
+
+        The returned score is the sum of token log probabilities at the
+        assistant boundary.  The measurement diagnostic subtracts the same
+        candidate's blank-image score before comparing pair members.
+        """
+
+        import torch
+
+        inputs, _image, preprocess_seconds, prefix_text = self._prepare(image_path, prompt)
+        tokenizer = self.processor.tokenizer
+        text_prefix_ids = tokenizer.encode(prefix_text, add_special_tokens=False)
+        combined_text_ids = tokenizer.encode(prefix_text + candidate, add_special_tokens=False)
+        if combined_text_ids[: len(text_prefix_ids)] != text_prefix_ids:
+            raise RuntimeError("candidate text is not suffix-stable at the assistant boundary")
+        candidate_ids = [int(value) for value in combined_text_ids[len(text_prefix_ids) :]]
+        if not candidate_ids:
+            raise RuntimeError("candidate text produced no assistant-boundary tokens")
+
+        # The multimodal processor expands the single image marker in
+        # ``prefix_text`` into one placeholder per visual position.  Preserve
+        # those expanded IDs and append only the verified text suffix.
+        prefix_ids = [int(value) for value in inputs["input_ids"][0].tolist()]
+        combined_ids = prefix_ids + candidate_ids
+
+        model_inputs = dict(inputs)
+        model_inputs["input_ids"] = torch.tensor(
+            [combined_ids], dtype=inputs["input_ids"].dtype, device=self.device
+        )
+        model_inputs["attention_mask"] = torch.ones_like(model_inputs["input_ids"])
+        started = time.perf_counter()
+        with torch.inference_mode():
+            output = self.model(
+                **model_inputs,
+                use_cache=False,
+                return_dict=True,
+                logits_to_keep=len(candidate_ids) + 1,
+            )
+        elapsed = time.perf_counter() - started
+        logits = output.logits[0].float()
+        if logits.shape[0] != len(candidate_ids) + 1:
+            raise RuntimeError("candidate scoring returned an unexpected logit span")
+        token_log_probs: list[float] = []
+        for offset, token_id in enumerate(candidate_ids):
+            row = logits[offset]
+            token_log_probs.append(float((row[token_id] - torch.logsumexp(row, dim=-1)).item()))
+        return {
+            "candidate": candidate,
+            "candidate_token_ids": candidate_ids,
+            "token_count": len(candidate_ids),
+            "token_log_probabilities": token_log_probs,
+            "sum_log_probability": float(sum(token_log_probs)),
+            "mean_log_probability": float(sum(token_log_probs) / len(token_log_probs)),
+            "preprocess_seconds": preprocess_seconds,
+            "forward_seconds": elapsed,
+        }
+
+    def visual_representation(self, image_path: Path, prompt: str) -> dict[str, Any]:
+        """Return the uncompressed post-merger image representation on CPU."""
+
+        import torch
+
+        inputs, image, preprocess_seconds, _prefix_text = self._prepare(image_path, prompt)
+        captured: dict[str, Any] = {}
+
+        def capture_premerge(_module: Any, _args: Any, output: Any) -> None:
+            self._last_runtime_premerge_count = int(output.shape[0])
+
+        def capture_postmerge(_module: Any, _args: Any, output: Any) -> None:
+            captured["representation"] = output.detach().float().cpu()
+
+        hooks = [
+            self.model.model.visual.patch_embed.register_forward_hook(capture_premerge),
+            self.model.model.visual.merger.register_forward_hook(capture_postmerge),
+        ]
+        started = time.perf_counter()
+        try:
+            with torch.inference_mode():
+                self.model(**inputs, use_cache=False, return_dict=True, logits_to_keep=1)
+        finally:
+            for hook in hooks:
+                hook.remove()
+        elapsed = time.perf_counter() - started
+        representation = captured.get("representation")
+        if representation is None or representation.ndim != 2:
+            raise RuntimeError("post-merger visual representation was not captured")
+        metadata = self._metadata_from_inputs(
+            inputs, image, runtime_count=int(representation.shape[0])
+        )
+        return {
+            "representation": representation,
+            "shape": [int(value) for value in representation.shape],
+            "metadata": metadata,
+            "preprocess_seconds": preprocess_seconds,
+            "forward_seconds": elapsed,
         }

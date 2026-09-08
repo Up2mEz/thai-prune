@@ -1,0 +1,89 @@
+schema_version: 1
+status: FROZEN_BEFORE_DIAGNOSTIC_OUTCOME
+stage: stage0_measurement_diagnostic_after_qwen35_calibration_failure
+evidence_scope: OPEN_CALIBRATION_ONLY_DIAGNOSTIC_NOT_PRIMARY_METRIC
+
+frozen_inputs:
+  calibration_design: configs/stage0/calibration_design.yaml
+  calibration_input_bundle: assets/stage0/calibration_input.zip
+  calibration_input_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+  pair_allocation_sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
+  prompt_parser: configs/stage0/prompt_parser.yaml
+  model_config: configs/stage0/qwen35_4b_calibration.yaml
+  protocol: docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md
+  dependency_override_lock: infra/kaggle/qwen35-requirements.lock
+  candidate_inventory_changed: false
+  pair_allocation_changed: false
+  primary_metric_replaced: false
+
+diagnostics:
+  D1_position_swap:
+    pair_count: 100
+    conditions: all_four_frozen_calibration_conditions
+    displayed_members: [a, b]
+    candidate_orders: [registered, swapped]
+    calls: 1600
+  D2_candidate_scoring:
+    prompt: "อ่านข้อความในภาพและตอบเฉพาะข้อความที่เห็น"
+    scoring: teacher_forced_sum_log_probability
+    primary_diagnostic_score: "log P(candidate|image) - log P(candidate|blank)"
+    sensitivity_score: mean_token_log_probability_with_same_blank_correction
+    pair_count: 100
+    full_information_candidate_sequences: 1600
+    blank_candidate_sequences: 200
+  D3_representation:
+    boundary: qwen35_post_spatial_merger_pooler_output
+    conditions: all_four_frozen_calibration_conditions
+    retrieval: leave_one_render_condition_out_nearest_member_centroid_cosine
+    pair_count: 100
+    image_forwards: 800
+    primary_metric: retrieval_accuracy
+    secondary_metric: same_minus_other_cosine_similarity
+  D4_visual_rescue:
+    source_condition: noto_sans_thai_regular__72__center
+    pair_count: 100
+    canvas_size: [448, 448]
+    processor_and_visual_token_contract_changed: false
+    transform: content_bbox_plus_8px_padding_bicubic_fit_to_320px_centered
+    ab_calls: 400
+    candidate_sequences: 400
+    representation_forwards: 0
+
+uncertainty:
+  independent_unit: pair_id
+  confidence_level: 0.95
+  cluster_bootstrap_resamples: 2000
+  cluster_bootstrap_seed: 20260908
+  exact_reruns_pooled: false
+
+decision_criteria:
+  chance_accuracy: 0.50
+  sesoi_absolute_accuracy: 0.10
+  signal_present_if_point_at_least: 0.60
+  signal_present_if_ci_low_above: 0.50
+  position_following_interface_evidence_if_ci_low_at_least: 0.90
+  rescue_gain_if_point_at_least: 0.10
+  rescue_gain_if_ci_low_above: 0.0
+  root_cause_priority:
+    - mixed_if_interface_evidence_and_rescue_gain_and_original_candidate_scoring_not_signal_present
+    - measurement_interface_if_interface_evidence_and_candidate_scoring_or_representation_signal_present
+    - visual_representation_if_no_interface_evidence_and_candidate_scoring_and_representation_not_signal_present_and_rescue_gain
+    - inconclusive_otherwise
+  action_map:
+    measurement/interface: A_RETAIN_QWEN35_REDESIGN_MEASUREMENT
+    visual representation: B_REJECT_QWEN35_EVALUATE_QWEN25_UNDER_NEW_CONTRACT
+    mixed: B_REJECT_QWEN35_EVALUATE_QWEN25_UNDER_NEW_CONTRACT
+    inconclusive: C_SCREEN_ARCHITECTURALLY_DISTINCT_BACKBONE
+
+prohibitions:
+  locked_validation_authorized: false
+  gate_0_change_authorized: false
+  frozen_split_change_authorized: false
+  stage_1a_authorized: false
+  resolution_reduction_authorized: false
+  token_pruning_authorized: false
+  token_merging_authorized: false
+  main_experiment_authorized: false
+  compression_authorized: false
+  backbone_screen_authorized: false
+
