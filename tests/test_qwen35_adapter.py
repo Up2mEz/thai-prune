@@ -115,5 +115,6 @@ def test_qwen35_candidate_scoring_source_keeps_multimodal_sequence_tensors_align
 
     source = inspect.getsource(Qwen35Adapter.score_candidate_sequence)
     assert 'model_inputs["attention_mask"] = torch.cat' in source
-    assert 'model_inputs["token_type_ids"] = torch.cat' in source
+    assert '("token_type_ids", "mm_token_type_ids")' in source
+    assert "model_inputs[type_key] = torch.cat" in source
     assert 'candidate scoring {key} length mismatch' in source
