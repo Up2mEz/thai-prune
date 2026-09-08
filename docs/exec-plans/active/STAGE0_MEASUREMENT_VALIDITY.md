@@ -1,6 +1,6 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** AUTHORIZED OPEN-CALIBRATION MEASUREMENT DIAGNOSTIC;
+**Status:** D1-D4 COMPLETE; `HUMAN_REVIEW_CHECKPOINT`;
 Gate 0 remains `NOT_RUN`
 
 ## Objective
@@ -13,10 +13,11 @@ The Qwen2.5 repaired calibration and a separately pre-registered Qwen3.5-4B
 backbone audit are now complete on the open calibration split. Qwen2.5 was not
 adequate across all components; Qwen3.5-4B collapsed to an A-position-biased,
 chance-level measurement. The current recommendation is
-`MEASUREMENT_REDESIGN_REQUIRED`. The human researcher authorized the frozen
-D1-D4 diagnostic in
-`docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md`; it must stop for human
-review after root-cause classification and one A/B/C recommendation.
+`MEASUREMENT_REDESIGN_REQUIRED`. The frozen D1-D4 diagnostic in
+`docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md` is now complete. Its
+pre-registered classification is `inconclusive`, producing recommendation C:
+screen an architecturally distinct backbone. Execution is stopped for human
+review; no screening run is authorized.
 
 ## Authorization and stop boundary
 
@@ -27,8 +28,8 @@ Authorized now:
 - Unicode, shaping, difference-mask, prompt, parser, record, and metric code;
 - calibration runs after Checkpoint A human approval;
 - a Gate 0 criteria proposal derived from calibration only.
-- D1-D4 measurement diagnostics exactly as pre-registered on 2026-09-08,
-  using only already exposed calibration pairs.
+- analysis and documentation of the completed D1-D4 run using only already
+  exposed calibration pairs.
 
 Forbidden now:
 
@@ -37,7 +38,7 @@ Forbidden now:
 - Stage 1A or any compression intervention.
 - post-outcome prompt, label, rendering, pair, or backbone changes presented as
   the same registered calibration;
-- any model inference beyond the frozen D1-D4 diagnostic.
+- any further model inference, including backbone screening.
 
 ## Dependencies and checkpoints
 

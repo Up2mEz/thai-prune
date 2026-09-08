@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "evidence_status": "OPEN_CALIBRATION_MEASUREMENT_DIAGNOSTIC_ONLY",
+  "run_id": "kaggle-qwen35-measurement-953dd5e386ea-79122b58",
+  "inference_git_sha": "953dd5e386eaeee22b549995b9c80f2a3691ebbf",
+  "preregistration_git_sha": "4243b7f780c561e447d3efa5c624e8fe777559aa",
+  "pair_count": 100,
+  "independent_unit": "pair_id",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 20260908,
+  "locked_pair_count": 0,
+  "compression_status": "NOT_RUN",
+  "D1": {
+    "content_consistent": {"estimate": 0.1075, "ci_low": 0.06625, "ci_high": 0.15375},
+    "position_following": {"estimate": 0.8925, "ci_low": 0.84625, "ci_high": 0.93375},
+    "registered_correct": {"estimate": 0.49875, "ci_low": 0.49, "ci_high": 0.5075},
+    "swapped_correct": {"estimate": 0.49875, "ci_low": 0.48875, "ci_high": 0.5075}
+  },
+  "D2": {
+    "raw_correct": {"estimate": 0.51125, "ci_low": 0.50125, "ci_high": 0.5225},
+    "corrected_correct": {"estimate": 0.52875, "ci_low": 0.5075, "ci_high": 0.55125},
+    "mean_corrected_correct": {"estimate": 0.52125, "ci_low": 0.50375, "ci_high": 0.54}
+  },
+  "D3": {
+    "retrieval_correct": {"estimate": 0.97875, "ci_low": 0.9675, "ci_high": 0.98875},
+    "similarity_margin": {"estimate": 0.031143670827150347, "ci_low": 0.026044421195983887, "ci_high": 0.03669678755104542}
+  },
+  "D4": {
+    "corrected_correct": {"estimate": 0.655, "ci_low": 0.605, "ci_high": 0.705},
+    "corrected_accuracy_gain_vs_source": {"estimate": 0.16, "ci_low": 0.105, "ci_high": 0.215},
+    "raw_correct": {"estimate": 0.635, "ci_low": 0.585, "ci_high": 0.685},
+    "mean_corrected_correct": {"estimate": 0.625, "ci_low": 0.575, "ci_high": 0.67},
+    "content_consistent": {"estimate": 0.445, "ci_low": 0.365, "ci_high": 0.525},
+    "position_following": {"estimate": 0.555, "ci_low": 0.475, "ci_high": 0.635}
+  },
+  "per_component": {
+    "BASE_CHARACTER": {
+      "D1_position_following": {"estimate": 0.98125, "ci_low": 0.95, "ci_high": 1.0},
+      "D2_corrected_correct": {"estimate": 0.56875, "ci_low": 0.4875, "ci_high": 0.65625},
+      "D3_retrieval_correct": {"estimate": 0.9875, "ci_low": 0.96875, "ci_high": 1.0},
+      "D4_corrected_correct": {"estimate": 0.925, "ci_low": 0.85, "ci_high": 1.0},
+      "D4_gain_vs_source": {"estimate": 0.4, "ci_low": 0.275, "ci_high": 0.525}
+    },
+    "LOWER_VOWEL_VARIANT": {
+      "D1_position_following": {"estimate": 0.94375, "ci_low": 0.8875, "ci_high": 1.0},
+      "D2_corrected_correct": {"estimate": 0.525, "ci_low": 0.49375, "ci_high": 0.55625},
+      "D3_retrieval_correct": {"estimate": 0.975, "ci_low": 0.94375, "ci_high": 1.0},
+      "D4_corrected_correct": {"estimate": 0.525, "ci_low": 0.45, "ci_high": 0.6},
+      "D4_gain_vs_source": {"estimate": 0.05, "ci_low": -0.05, "ci_high": 0.15}
+    },
+    "STACKED_TONE_MARK": {
+      "D1_position_following": {"estimate": 0.86875, "ci_low": 0.775, "ci_high": 0.95},
+      "D2_corrected_correct": {"estimate": 0.5125, "ci_low": 0.4875, "ci_high": 0.54375},
+      "D3_retrieval_correct": {"estimate": 0.9875, "ci_low": 0.96875, "ci_high": 1.0},
+      "D4_corrected_correct": {"estimate": 0.55, "ci_low": 0.5, "ci_high": 0.625},
+      "D4_gain_vs_source": {"estimate": 0.05, "ci_low": -0.05, "ci_high": 0.15}
+    },
+    "TONE_MARK": {
+      "D1_position_following": {"estimate": 0.775, "ci_low": 0.6125, "ci_high": 0.9125},
+      "D2_corrected_correct": {"estimate": 0.51875, "ci_low": 0.48125, "ci_high": 0.5625},
+      "D3_retrieval_correct": {"estimate": 0.9875, "ci_low": 0.9625, "ci_high": 1.0},
+      "D4_corrected_correct": {"estimate": 0.775, "ci_low": 0.675, "ci_high": 0.9},
+      "D4_gain_vs_source": {"estimate": 0.3, "ci_low": 0.2, "ci_high": 0.4}
+    },
+    "UPPER_VOWEL_VARIANT": {
+      "D1_position_following": {"estimate": 0.89375, "ci_low": 0.79375, "ci_high": 0.975},
+      "D2_corrected_correct": {"estimate": 0.51875, "ci_low": 0.49375, "ci_high": 0.54375},
+      "D3_retrieval_correct": {"estimate": 0.95625, "ci_low": 0.93125, "ci_high": 0.98125},
+      "D4_corrected_correct": {"estimate": 0.5, "ci_low": 0.425, "ci_high": 0.575},
+      "D4_gain_vs_source": {"estimate": 0.0, "ci_low": -0.075, "ci_high": 0.075}
+    }
+  },
+  "root_cause": {
+    "classification": "inconclusive",
+    "interface_evidence": false,
+    "d2_signal_present": false,
+    "d3_signal_present": true,
+    "d4_rescue_gain_present": true,
+    "action": "C_SCREEN_ARCHITECTURALLY_DISTINCT_BACKBONE"
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "D1_rows": 800,
+    "D2_rows": 800,
+    "D3_rows": 800,
+    "D4_rows": 200,
+    "native_visual_positions": [196]
+  }
+}

@@ -112,6 +112,19 @@ a Thai-language capability claim, a visual-token-count mechanism, Gate 0, or
 any claim about Resolution Reduction, Token Pruning, Token Merging, H1–H4, or
 real-world text.
 
+The pre-registered Qwen3.5 D1-D4 diagnostic subsequently found very low A/B
+content consistency, candidate scores near chance after blank correction,
+strong separation in a post-spatial-merger representation probe, and a
+positive visual-rescue gain when glyphs were clearly magnified. Under the
+frozen classifier these jointly support only an `inconclusive` root-cause
+classification and a recommendation to screen an architecturally distinct
+backbone. D3 is a diagnostic probe rather than a primary metric, and D4 is a
+scale rescue rather than compression evidence. The result does not establish
+a purely interface or purely visual cause, does not rank Qwen3.5 against
+Qwen2.5 under D1-D4, and does not support Gate 0, H1-H4, real-world Thai OCR,
+or any compression claim. Exact estimates, pair-clustered intervals, and
+scope are in `docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_REPORT.md`.
+
 ---
 
 ## HYPOTHESES

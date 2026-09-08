@@ -2,6 +2,41 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-08 — Qwen3.5 measurement diagnostic result and stop
+
+**Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Observed result:** The verified D1-D4 run used only the 100 previously exposed
+calibration `pair_id`s. D1 content consistency was 10.75% (pair-clustered 95%
+CI 6.63-15.38%) and position following was 89.25% (84.63-93.38%). D2
+blank-corrected candidate accuracy was 52.88% (50.75-55.13%). D3
+post-spatial-merger retrieval accuracy was 97.88% (96.75-98.88%). D4 magnified
+visual rescue reached 65.50% corrected accuracy (60.50-70.50%) and improved
+16.00 percentage points (10.50-21.50) over its matched original-source
+condition.
+
+**Frozen classification:** `inconclusive`. The D1 estimate showed strong
+position sensitivity, but its lower CI did not reach the pre-registered 90%
+interface threshold. D2 did not reach the registered signal criterion, while
+D3 and D4 did. This tension must not be post hoc relabeled as `mixed`.
+
+**Codex recommendation:** **C. screen an architecturally distinct backbone**.
+Recommend `google/gemma-3-4b-it` for human consideration because it is a
+different multimodal model family and 4B-scale T4 fit is plausible, not yet
+verified. Do not run it without a separate human authorization and frozen
+screening contract.
+
+**Evidence:** `docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_REPORT.md`; run
+`kaggle-qwen35-measurement-953dd5e386ea-79122b58`; inference commit
+`953dd5e386eaeee22b549995b9c80f2a3691ebbf`; pre-registration commit
+`4243b7f780c561e447d3efa5c624e8fe777559aa`.
+
+**Consequence:** Stop at `HUMAN_REVIEW_CHECKPOINT`. No Qwen2.5 D1-D4 comparison
+is valid because Qwen2.5 has not been evaluated under the same diagnostic
+contract. Locked validation, Gate 0, Stage 1A, every compression intervention,
+the main experiment, and a new-backbone run remain blocked.
+
 ## 2026-09-08 — Qwen3.5 measurement diagnostic authorization and pre-registration
 
 **Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
