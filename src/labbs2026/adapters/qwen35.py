@@ -212,7 +212,27 @@ class Qwen35Adapter(Qwen25VLAdapter):
         model_inputs["input_ids"] = torch.tensor(
             [combined_ids], dtype=inputs["input_ids"].dtype, device=self.device
         )
-        model_inputs["attention_mask"] = torch.ones_like(model_inputs["input_ids"])
+        suffix_mask = torch.ones(
+            (1, len(candidate_ids)),
+            dtype=inputs["attention_mask"].dtype,
+            device=self.device,
+        )
+        model_inputs["attention_mask"] = torch.cat(
+            [inputs["attention_mask"], suffix_mask], dim=1
+        )
+        if "token_type_ids" in inputs:
+            suffix_types = torch.zeros(
+                (1, len(candidate_ids)),
+                dtype=inputs["token_type_ids"].dtype,
+                device=self.device,
+            )
+            model_inputs["token_type_ids"] = torch.cat(
+                [inputs["token_type_ids"], suffix_types], dim=1
+            )
+        sequence_length = model_inputs["input_ids"].shape[1]
+        for key in ("attention_mask", "token_type_ids"):
+            if key in model_inputs and model_inputs[key].shape[1] != sequence_length:
+                raise RuntimeError(f"candidate scoring {key} length mismatch")
         started = time.perf_counter()
         with torch.inference_mode():
             output = self.model(

@@ -108,3 +108,12 @@ def test_qwen35_visual_accounting_fails_closed_on_runtime_mismatch() -> None:
     }
     with pytest.raises(RuntimeError, match="runtime premerge=783"):
         adapter._metadata_from_inputs(inputs, Image.new("RGB", (448, 448)), runtime_count=196)
+
+
+def test_qwen35_candidate_scoring_source_keeps_multimodal_sequence_tensors_aligned() -> None:
+    import inspect
+
+    source = inspect.getsource(Qwen35Adapter.score_candidate_sequence)
+    assert 'model_inputs["attention_mask"] = torch.cat' in source
+    assert 'model_inputs["token_type_ids"] = torch.cat' in source
+    assert 'candidate scoring {key} length mismatch' in source
