@@ -5,7 +5,8 @@
 
 ## Proposed 2026-09-12 specialization pivot — fallback pending
 
-Status: `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; Stage S0 remains unauthorized.
+Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; the smoke passed engineering
+checks and proposes S0 readiness, but Stage S0 remains unauthorized.
 
 The proposed amended question is whether OCR specialization changes robustness
 to visual-information reduction and whether any effect differs across Thai

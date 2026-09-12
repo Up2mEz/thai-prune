@@ -2,6 +2,34 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Paddle/Wayu engineering smoke complete; human review required
+
+**Scope:** Non-scientific engineering validation only. The authorized 40-call
+workload completed once on Kaggle T4 with no retry or resubmission.
+
+**Observed engineering evidence:** Both exact revisions resolved and loaded as
+`PaddleOCRVLForConditionalGeneration` with `PaddleOCRVLProcessor`. All 40 calls
+used the identical `OCR:` contract and matched PNG hashes. All 20 exact-repeat
+groups were identical. Every call recorded `image_grid_thw=[1,32,32]`, 1,024
+pre-merge positions, 256 projector positions, 256 LLM image placeholders, and
+finite expected intermediate tensors. Output slicing and Unicode decoding
+passed. Kaggle selected Tesla T4; peak reserved VRAM was approximately 1.810
+GiB per sequentially loaded model. `locked_pair_count=0`; failure log was empty;
+local artifact verification was `VERIFIED`.
+
+**Codex recommendation:**
+`ENGINEERING_SMOKE_PASS_S0_READY_PROPOSED`.
+
+**Scientific boundary:** No accuracy, model ranking, specialization benefit,
+measurement capacity, component effect, or compression robustness was
+calculated or interpreted. This recommendation is not Stage S0 approval.
+
+**Decision state:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`. Stage S0, locked
+validation, Resolution Reduction, Token Pruning, Token Merging, scientific
+representation comparison, fine-tuning, and new-method work remain prohibited.
+Full evidence is in `PADDLE_WAYU_ENGINEERING_SMOKE_REPORT.md` and the immutable
+run `kaggle-paddle-wayu-smoke-dcd835673e1c-28c1cecd`.
+
 ## 2026-09-12 — Paddle/Wayu engineering smoke authorized
 
 **Human decision:** Accept the fallback audit and current-scope

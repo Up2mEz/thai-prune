@@ -1,6 +1,6 @@
 # PaddleOCR-VL / Wayu-Paxa Fallback Pair Clearance
 
-> Status: `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`
+> Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`
 > Audited: 2026-09-12
 > Scope: current official terms, model cards, immutable repository metadata,
 > safetensors headers, configuration, processor, tokenizer, and source code.

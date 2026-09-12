@@ -359,8 +359,12 @@ must remain consistent with the reduced sequence. Exact evidence and all five
 intervention locations are in `FALLBACK_PAIR_CLEARANCE.md` and
 `architecture/PADDLEOCRVL16_WAYU_PAXA_CONFIG_DIFF.json`.
 
-Status is `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; only the exact 40-call smoke
-is authorized. Stage S0 and compression remain unauthorized.
+The exact 40-call smoke subsequently verified the native runtime paths and
+observed `[1024,1152]` patch/encoder features, `[256,1024]` projector output,
+and 256 LLM image placeholders for both models on the frozen 448x448 inputs.
+This is engineering evidence only. Current status is
+`HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; Stage S0 and compression remain
+unauthorized.
 
 ---
 

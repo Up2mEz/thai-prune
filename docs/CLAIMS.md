@@ -164,8 +164,9 @@ The primary proposed test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is secondary/descriptive unless S0
 establishes adequate component-level measurement capacity.
 
-**Status:** `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; untested and not an active
-registered hypothesis. Stage S0 remains unauthorized.
+**Status:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; untested and not an active
+registered hypothesis. The engineering smoke passed, but Stage S0 remains
+unauthorized.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a

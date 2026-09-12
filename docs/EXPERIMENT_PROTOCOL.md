@@ -4,7 +4,7 @@
 
 ## Proposed 2026-09-12 specialization amendment — fallback not executable
 
-Status: `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; Stage S0 remains unauthorized.
+Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; Stage S0 remains unauthorized.
 
 The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
 smoke, compression, or benchmarking is authorized. The model-agnostic research
