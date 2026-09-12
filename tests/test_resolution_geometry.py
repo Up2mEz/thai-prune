@@ -101,4 +101,30 @@ def test_primary_analysis_and_pipeline_amendments_are_machine_frozen():
         "EXIF_ROTATION",
     ]
     assert config["full_validity_condition"]["evaluated_after_complete_panel_is_immutable"]
-    assert config["terminal_state"] == "REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION"
+    assert config["terminal_state"] == "FINAL_LOCKED_PANEL_AUTHORIZATION_READY"
+    assert config["authorization"]["final_locked_panel_authorization_ready"]
+    assert not config["authorization"]["locked_inference"]
+
+
+def test_final_interpretation_and_execution_blinding_are_frozen():
+    root = Path(__file__).resolve().parents[1]
+    config = yaml.safe_load(
+        (root / "configs/stage0/overall_model_budget_design.yaml").read_text("utf-8")
+    )
+    primary = config["primary_analysis"]
+    assert primary["meaningful_effect"]["sesoi"] == 0.10
+    assert not primary["confidence_intervals"]["holm_adjusted"]
+    assert not primary["confidence_intervals"]["simultaneous"]
+    logic = primary["interpretation_logic"]
+    assert logic["meaningful_supported_label"] == "MEANINGFUL_MODEL_BUDGET_INTERACTION_SUPPORTED"
+    assert logic["detected_below_sesoi_label"] == "INTERACTION_DETECTED_BELOW_PLANNED_SESOI"
+    assert logic["suggestive_not_confirmed_label"] == "SUGGESTIVE_MEANINGFUL_INTERACTION_NOT_CONFIRMED"
+    assert logic["no_confirmatory_evidence_label"] == "NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE"
+    assert not logic["nonsignificant_is_equivalence"]
+    assert not logic["nonsignificant_proves_equal_robustness"]
+    execution = config["execution"]
+    assert execution["scientific_output_unseal_requirements"] == [
+        "ALL_6400_CALLS_COMPLETE",
+        "ARTIFACTS_AND_CHECKSUMS_IMMUTABLE",
+        "LOCAL_ARTIFACT_VERIFICATION_PASS",
+    ]

@@ -165,7 +165,7 @@ The frozen primary test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is descriptive/diagnostic under the
 current dataset and cannot be promoted without a separately powered approval.
 
-**Status:** `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`;
+**Status:** `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`;
 the one-shot 6,400-call panel, categorical omnibus interaction, three DID
 contrasts, target-aware random effects, exact downsampling pipeline, and
 estimator fallback are frozen, but the interaction remains untested. The S0
@@ -185,6 +185,12 @@ under the registered planning criterion. It would not establish measurement
 capacity for every component. If FULL validity fails after the complete panel
 is immutable, reduced-budget results are `NOT_INTERPRETABLE` and cannot be
 promoted to scientific claims.
+
+The absolute SESOI is 10 percentage points. A non-significant omnibus test is
+classified only as `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`; it is
+not equivalence or proof that the models have equal robustness. The three
+pair-clustered bootstrap 95% CIs are reported separately and are not described
+as Holm-adjusted CIs; Holm multiplicity control applies to p-values.
 
 ### Historical H1 — Differential component degradation
 Under decreasing visual-token budgets, distinctions involving small Thai orthographic components may degrade differently from other character distinctions.

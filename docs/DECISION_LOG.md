@@ -2,7 +2,39 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Final pre-inference interpretation amendment complete
+
+**Human decision:** Keep the frozen models, dataset, four-budget grid, image
+pipeline, target-aware random effects, metrics, and 6,400-call workload
+unchanged. Freeze the final interpretation before any locked execution.
+
+**Decision rule:** The primary test is the categorical global
+`MODEL x BUDGET` omnibus at two-sided alpha 0.05. Report `DID_196`, `DID_121`,
+and `DID_64` with separate pair-clustered bootstrap 95% CIs and Holm-adjusted
+p-values. The CIs are not Holm-adjusted. The absolute SESOI is 10 percentage
+points. The four exact registered labels are
+`MEANINGFUL_MODEL_BUDGET_INTERACTION_SUPPORTED`,
+`INTERACTION_DETECTED_BELOW_PLANNED_SESOI`,
+`SUGGESTIVE_MEANINGFUL_INTERACTION_NOT_CONFIRMED`, and
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. Non-significance is not
+equivalence or proof of equal robustness.
+
+**Execution blinding:** Scientific predictions and summaries remain sealed
+until all 6,400 calls complete, artifacts/checksums are immutable, and local
+verification passes. Runtime display is limited to engineering-only progress,
+failure codes without prediction content, GPU/runtime state, and token
+accounting.
+
+**No execution in this amendment:** No calibration, simulation, prompt tuning,
+dataset modification, design search, locked image generation, or model
+inference occurred. A separate explicit human run order is still required.
+
+**Terminal state:** `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+
 ## 2026-09-13 — Locked-panel design amended; final authorization pending
+
+> Historical pre-final state retained. Its pending interpretation layer is
+> superseded by the final pre-inference amendment above.
 
 **Human decision:** Accepted the overall non-directional `MODEL x BUDGET`
 direction but withheld locked inference. The model pair, dataset membership,

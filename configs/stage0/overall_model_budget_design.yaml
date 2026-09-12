@@ -1,5 +1,5 @@
 schema_version: 2
-status: REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION
+status: FINAL_LOCKED_PANEL_AUTHORIZATION_READY
 frozen_date: 2026-09-13
 research_question: Does Thai-specific OCR adaptation change the degradation curve under controlled visual-information reduction?
 
@@ -67,6 +67,9 @@ execution:
   intermediate_scientific_outcome_access: FORBIDDEN
   analyze_only_after_complete_panel_immutable: true
   allowed_early_stop: FAIL_CLOSED_ENGINEERING_CORRUPTION_ONLY
+  runtime_output_allowlist: [COMPLETED_CALL_COUNT, EXECUTION_FAILURE_CODE_WITHOUT_PREDICTION_CONTENT, GPU_RUNTIME_STATUS, TOKEN_ACCOUNTING_VALIDATION]
+  scientific_output_denylist: [PREDICTIONS, ACCURACY, CER, DID_VALUES, PER_MODEL_SUMMARIES, COMPONENT_OUTCOMES, FULL_VALIDITY_RESULTS]
+  scientific_output_unseal_requirements: [ALL_6400_CALLS_COMPLETE, ARTIFACTS_AND_CHECKSUMS_IMMUTABLE, LOCAL_ARTIFACT_VERIFICATION_PASS]
   registered_locked_pair_count: 100
   unauthorized_or_out_of_workload_locked_pair_count: 0
 
@@ -99,6 +102,28 @@ primary_analysis:
   uncertainty: {method: PAIR_ID_CLUSTER_BOOTSTRAP, resamples: 10000, seed: 20260913, ci: PERCENTILE_95}
   bootstrap_p_value: ONE_PLUS_COUNT_ABS_CENTERED_REPLICATE_GE_ABS_ESTIMATE_DIVIDED_BY_10001
   multiplicity: {method: HOLM, family: [DID_196, DID_121, DID_64], familywise_alpha: 0.05}
+  confidence_intervals:
+    method: SEPARATE_PAIR_ID_CLUSTER_BOOTSTRAP_PERCENTILE_95
+    holm_adjusted: false
+    simultaneous: false
+    prohibited_description: HOLM_ADJUSTED_CI
+  meaningful_effect:
+    measure: ABSOLUTE_DID
+    sesoi: 0.10
+    unit: ABSOLUTE_PROBABILITY_10_PERCENTAGE_POINTS
+  interpretation_logic:
+    significance_comparison: P_VALUE_LESS_THAN_OR_EQUAL_TO_ALPHA
+    omnibus_alpha: 0.05
+    meaningful_supported: OMNIBUS_SIGNIFICANT_AND_ANY_MEANINGFUL_DID_HOLM_SIGNIFICANT
+    meaningful_supported_label: MEANINGFUL_MODEL_BUDGET_INTERACTION_SUPPORTED
+    detected_below_sesoi: OMNIBUS_SIGNIFICANT_AND_ALL_ABSOLUTE_DID_BELOW_0_10
+    detected_below_sesoi_label: INTERACTION_DETECTED_BELOW_PLANNED_SESOI
+    suggestive_not_confirmed: OMNIBUS_SIGNIFICANT_AND_ANY_ABSOLUTE_DID_AT_LEAST_0_10_AND_NO_MEANINGFUL_DID_HOLM_SIGNIFICANT
+    suggestive_not_confirmed_label: SUGGESTIVE_MEANINGFUL_INTERACTION_NOT_CONFIRMED
+    no_confirmatory_evidence: OMNIBUS_NOT_SIGNIFICANT
+    no_confirmatory_evidence_label: NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE
+    nonsignificant_is_equivalence: false
+    nonsignificant_proves_equal_robustness: false
   component_interactions: DESCRIPTIVE_DIAGNOSTIC_ONLY
   no_directional_assumption: true
   diagnostics:
@@ -145,10 +170,11 @@ exclusion_rules:
   model_or_processor_revision_mismatch: FAIL_CLOSED
 
 authorization:
+  final_locked_panel_authorization_ready: true
   locked_image_generation: false
   locked_inference: false
   resolution_reduction_inference: false
   token_pruning: false
   token_merging: false
   fine_tuning: false
-terminal_state: REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION
+terminal_state: FINAL_LOCKED_PANEL_AUTHORIZATION_READY

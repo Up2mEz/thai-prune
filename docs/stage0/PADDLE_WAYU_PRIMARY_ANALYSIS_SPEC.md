@@ -1,6 +1,8 @@
 # Paddle/Wayu Frozen Primary Analysis Specification
 
-> Status: `PRE_REGISTERED_NOT_AUTHORIZED_NOT_RUN`
+> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+>
+> Execution: `NOT_RUN`
 >
 > This specification was chosen from design information and existing S0
 > full-information artifacts only. It contains no locked outcome.
@@ -58,6 +60,33 @@ bootstrap replicates as `z*=DID*-DID_hat` and compute the two-sided p-value as
 `(1 + count(abs(z*) >= abs(DID_hat))) / 10001`. Apply Holm's step-down procedure
 across the three p-values at familywise alpha 0.05. Report every contrast
 regardless of sign or significance.
+
+The three percentile 95% CIs are separate pair_id-clustered bootstrap CIs.
+They are **not Holm-adjusted CIs** and must not be described as simultaneous or
+multiplicity-adjusted intervals. Multiplicity control applies to the three
+p-values only.
+
+## Frozen confirmatory interpretation
+
+The absolute smallest effect size of interest (SESOI) is 10 percentage points:
+`absolute(DID) >= 0.10`. Significance uses `p <= 0.05` for both the categorical
+global omnibus test and Holm-adjusted DID p-values. Apply exactly one label:
+
+1. Omnibus significant and at least one DID has both Holm-adjusted `p <= 0.05`
+   and `absolute(DID) >= 0.10`:
+   `MEANINGFUL_MODEL_BUDGET_INTERACTION_SUPPORTED`.
+2. Omnibus significant but all three observed `absolute(DID) < 0.10`:
+   `INTERACTION_DETECTED_BELOW_PLANNED_SESOI`.
+3. Omnibus significant, at least one observed `absolute(DID) >= 0.10`, but no
+   meaningful-sized DID has Holm-adjusted `p <= 0.05`:
+   `SUGGESTIVE_MEANINGFUL_INTERACTION_NOT_CONFIRMED`.
+4. Omnibus `p > 0.05`:
+   `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`.
+
+Rule 4 is absence of confirmatory interaction evidence under this design. It is
+not equivalence, proof of equal robustness, or proof that every true DID is
+smaller than the SESOI. The implementation is frozen in
+`src/labbs2026/stage0/interaction_decision.py`.
 
 ## Why the target-aware random structure is frozen
 

@@ -1,6 +1,6 @@
 # Overall MODEL x BUDGET Design Freeze
 
-> Status: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`
+> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
 >
 > Freeze date: 2026-09-13
 >
@@ -53,6 +53,9 @@ exact_correct ~ MODEL * BUDGET
   trend is assumed.
 - Budget-specific reduced-versus-FULL contrasts use Holm correction across the
   three contrasts when making inferential claims.
+- The absolute SESOI is 10 percentage points. The four exact interpretation
+  labels and the non-equivalence boundary for a non-significant omnibus are
+  frozen in `docs/stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`.
 
 The log-odds interaction is not the user-facing effect size. For every reduced
 budget, design-standardized empirical g-computation over the balanced frozen
@@ -208,6 +211,7 @@ does not establish compression robustness, specialization-induced robustness,
 an observed `MODEL x BUDGET` interaction, component degradation, causal effects
 of Thai training, or a need for a new method.
 
-No locked image generation, locked inference, or Resolution Reduction inference
-is authorized. Terminal state:
-`REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+This pre-inference design is ready for a separate human execution
+authorization. No locked image generation, locked inference, or Resolution
+Reduction inference ran during this amendment. Terminal state:
+`FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.

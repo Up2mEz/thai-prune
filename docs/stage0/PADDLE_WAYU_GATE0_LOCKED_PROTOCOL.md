@@ -1,6 +1,8 @@
 # Paddle/Wayu One-Shot Locked Confirmatory Panel Protocol
 
-> Status: `PREPARED_NOT_AUTHORIZED_NOT_RUN`
+> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+>
+> Execution: `NOT_RUN`
 >
 > The historical filename is retained for stable references. Gate-0 is no
 > longer a staged execution. It is the FULL-validity condition evaluated only
@@ -20,12 +22,19 @@ The four categorical budgets are the actual LLM image-position counts
 cell must be materialized and executed in the same run. There is no 1,600-call
 FULL-only run and no conditional 4,800-call continuation.
 
-The runner may stop only for a fail-closed engineering corruption. It must not
-calculate, print, display, summarize, or expose accuracy, CER, component,
-model, budget, or FULL-validity outcomes while calls remain. Raw per-call
-records are append-only operational evidence, not an intermediate scientific
-analysis. Scientific analysis begins only after all 6,400 records and their
-manifest/checksums are sealed immutable.
+The runner may stop only for a fail-closed engineering corruption. During the
+one-shot run it must not display or inspect scientific predictions, accuracy,
+CER, DID values, per-model summaries, component outcomes, or FULL-validity
+results. Runtime output is restricted to completed call count, execution
+failure codes without prediction content, GPU/runtime status, and token-
+accounting validation. Raw scientific records are append-only sealed evidence,
+not an intermediate display or analysis.
+
+Scientific output may be unsealed only after all three conditions hold:
+
+1. all 6,400 registered calls completed;
+2. artifacts and checksums are immutable;
+3. local artifact verification passes.
 
 After sealing:
 
@@ -109,4 +118,4 @@ No post-outcome exclusion, replacement, parser repair, per-example retry, or
 silent estimator switch is allowed. A partial or corrupt run is preserved with
 a failure manifest and is not a valid panel.
 
-Terminal state: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+Terminal state: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
