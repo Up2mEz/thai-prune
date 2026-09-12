@@ -1,6 +1,6 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** PILOT PROTOCOL REVISED; `QUICK_HUMAN_PROTOCOL_CHECK`;
+**Status:** CONDITION C AMENDED; `FINAL_VISUAL_PROTOCOL_APPROVAL`;
 Gate 0 remains `NOT_RUN`
 
 ## Objective
@@ -19,10 +19,12 @@ pre-registered classification is `inconclusive`, producing recommendation C:
 screen an architecturally distinct backbone. Execution is stopped for human
 review; no screening run is authorized.
 
-The human researcher subsequently approved an A/B/C measurement-contract
-pilot in principle with required revisions. The revised protocol and exact
-config are now recorded, but only documentation and non-model validation are
-authorized until the required quick human protocol check is complete.
+The human researcher subsequently approved the selection, A aggregation,
+paired analysis, SESOI, uncertainty, and protections, but required Condition C
+to use the same center-target-only readout as B and exact target-pixel
+identity. The amended protocol/config are recorded; only deterministic
+stimulus construction, contact sheets, and non-model validation are authorized
+until final visual/protocol approval.
 
 ## Authorization and stop boundary
 
@@ -33,8 +35,8 @@ Authorized now:
 - Unicode, shaping, difference-mask, prompt, parser, record, and metric code;
 - analysis and documentation of the completed D1-D4 run using only already
   exposed calibration pairs.
-- protocol/config revision and non-model validation for the proposed 25-pair
-  A/B/C measurement-contract pilot.
+- protocol/config amendment, deterministic B/C contact sheets, and target-
+  pixel identity validation for the proposed 25-pair pilot.
 
 Forbidden now:
 

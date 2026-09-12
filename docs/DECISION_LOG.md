@@ -2,6 +2,40 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Condition C pre-inference amendment required
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;
+Gate 0 remains `NOT_RUN`.
+
+**Human decision:** Approve the 25-pair selection, Condition A aggregation,
+`pair_id` analysis, 10 pp SESOI, uncertainty, locked-set protection, and
+general decision logic. Require Condition C revision and final visual/protocol
+approval before inference.
+
+**Amendment:** Conditions B and C now share one exact center-target-only prompt
+and return one target string. C is constructed from the exact frozen B PNG by
+adding fixed anchors and separators only outside the target cell. Literal pipe
+output and full-line alignment are removed. The paired contrast is renamed
+`delta_surrounding = C - B` and supports only an association with adding the
+frozen controlled surrounding visual layout, not a single causal mechanism or
+natural-language contextual effect. Full-line transcription is deferred to a
+separate future diagnostic.
+
+**Required pre-inference evidence:** paired B/C contact sheets and a byte-level
+report showing identical B/C target-crop RGB hashes for every one of the 200
+selected target observations, plus invariant non-target layers within each
+font/size condition.
+
+**Historical provenance:** Commit
+`13c64500442bc3790362f82964ad39666fc8b382` preserves the superseded
+pre-inference C contract. No pilot model output was observed before this
+amendment.
+
+**Current authorization:** Protocol/config amendment, deterministic stimulus
+construction, contact sheets, and pixel-identity validation only. Model
+inference, locked validation, backbone screening, compression, and the main
+experiment remain unauthorized.
+
 ## 2026-09-12 — Measurement-contract pilot approved with revisions before inference
 
 **Stage/Gate:** Qwen3.5 open-calibration measurement diagnostic only; Gate 0

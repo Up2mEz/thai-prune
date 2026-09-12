@@ -1,10 +1,16 @@
 schema_version: 1
-status: REVISED_PENDING_QUICK_HUMAN_PROTOCOL_CHECK
+status: CONDITION_C_AMENDED_PENDING_FINAL_VISUAL_PROTOCOL_APPROVAL
 outcome_visibility: NO_PILOT_MODEL_OUTPUT_OBSERVED
 stage: stage0_qwen35_measurement_contract_pilot
 scientific_scope: OPEN_CALIBRATION_ONLY_MEASUREMENT_DIAGNOSTIC
 
 protocol: docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_PROTOCOL.md
+historical_preregistration:
+  git_commit: 13c64500442bc3790362f82964ad39666fc8b382
+  config_sha256: ba2fc7e1cc7994e1a95ca409c3956d586522b4f26087c1d437efa4ae4b8fec35
+  protocol_sha256: 9c2177a24142914d2e24c39f38d628dc2adb5d1bf98b47c5dde98a00479bd2f4
+  pilot_model_output_observed: false
+  superseded_scope: CONDITION_B_C_PROMPT_AND_CONDITION_C_READOUT_ONLY
 source_design: configs/stage0/calibration_design.yaml
 source_bundle: assets/stage0/calibration_input.zip
 source_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
@@ -79,16 +85,19 @@ conditions:
   B_isolated_transcription:
     image_source: EXACT_CONDITION_A_PNG_PIXELS
     image_transform: NONE
-    prompt_id: exact_transcription_th_v1
+    prompt_id: center_target_transcription_th_v2
   C_line_layout_transcription:
     layout_id: fixed_five_cell_center_target_v1
-    reference_template: "ก|น|{TARGET}|ม|ล"
+    visual_template: "ก|น|{TARGET}|ม|ล"
+    response_contract: CENTER_TARGET_ONLY_SAME_AS_CONDITION_B
+    expected_output: DISPLAYED_TARGET_MEMBER_ONLY
     anchors: ["ก", "น", "ม", "ล"]
     target_cell_index_one_based: 3
     target_position_assignment: CONSTANT_CENTER_CELL_3
+    target_source: EXACT_CONDITION_B_PNG_TARGET_LAYER
 
 prompts:
-  exact_transcription_th_v1: "อ่านข้อความทั้งหมดในภาพจากซ้ายไปขวา แล้วตอบเฉพาะข้อความที่เห็นแบบตรงตัว ห้ามอธิบาย"
+  center_target_transcription_th_v2: "อ่านข้อความตรงกลางภาพตามที่เห็น แล้วตอบเฉพาะข้อความนั้น ห้ามอธิบาย"
 
 line_layout:
   canvas_size: [448, 448]
@@ -112,7 +121,7 @@ line_layout:
     - {x: [295, 297], y: [168, 280]}
     - {x: [375, 377], y: [168, 280]}
   anchor_rendering: SHAPE_ONCE_PER_FONT_SIZE_CENTER_IN_FIXED_CELL
-  target_rendering: SHARED_PAIR_UNION_BBOX_ORIGIN_CENTER_IN_TARGET_CELL
+  target_rendering: COPY_EXACT_CONDITION_B_PNG_THEN_ADD_ONLY_OUTSIDE_TARGET_CELL
   per_member_scaling: false
   per_member_centering: false
   required_checks:
@@ -120,6 +129,7 @@ line_layout:
     - byte_identical_pixels_outside_target_cell_between_members
     - anchor_layer_hash_recorded
     - non_target_pixel_hash_recorded
+    - B_C_target_crop_raw_RGB_sha256_equal_for_every_observation
 
 decoding:
   do_sample: false
@@ -140,13 +150,12 @@ normalization:
 
 target_alignment:
   condition_B: WHOLE_SINGLE_LINE_OUTPUT
-  condition_C: ASCII_PIPE_SPLIT_EXACTLY_FIVE_FIELDS_TARGET_FIELD_3
-  strip_field_surrounding_unicode_whitespace: true
+  condition_C: WHOLE_SINGLE_LINE_OUTPUT_IDENTICAL_TO_CONDITION_B
+  literal_pipe_output_required: false
   heuristic_realignment_allowed: false
 
 error_taxonomy_precedence:
   - output_contract_failure
-  - insertion_alignment_failure
   - deletion
   - correct_target
   - opposite_member_substitution
@@ -170,7 +179,7 @@ uncertainty:
 
 primary_contrasts:
   delta_interface: target_accuracy_B_minus_target_accuracy_A
-  delta_line: target_accuracy_C_minus_target_accuracy_B
+  delta_surrounding: target_accuracy_C_minus_target_accuracy_B
   form_difference_before_pair_aggregation: true
   sesoi_absolute: 0.10
   important_effect_if_point_at_least: 0.10
@@ -180,20 +189,18 @@ primary_contrasts:
   gate_0_metric: false
 
 secondary_metrics:
-  - raw_codepoint_full_line_CER
-  - NFC_normalized_full_line_CER
-  - full_line_exact_accuracy
-  - target_word_accuracy
+  - raw_codepoint_target_CER
+  - NFC_normalized_target_CER
+  - target_exact_accuracy
   - target_component_accuracy
   - target_error_taxonomy_rates
   - substitution_direction
   - output_contract_failure_rate
-  - insertion_alignment_failure_rate
   - descriptive_results_by_component
 
 decision_rule:
   important_delta_interface: FORCED_CHOICE_RESPONSE_CONTRACT_CONTRIBUTES_MATERIALLY
-  important_delta_line: FIXED_LINE_LAYOUT_AND_SURROUNDING_VISUAL_CONTEXT_CONTRIBUTE_MATERIALLY
+  important_delta_surrounding: ADDING_FROZEN_CONTROLLED_SURROUNDING_VISUAL_LAYOUT_IS_ASSOCIATED_WITH_IMPORTANT_TARGET_READOUT_CHANGE
   either_important_without_interpretability_flag: PIVOT_MEASUREMENT_DESIGN_FOR_FURTHER_OPEN_CALIBRATION
   neither_important_and_both_ci_high_at_most_sesoi: SECONDARY_BACKBONE_SCREENING
   component_or_failure_flag: MIXED_TARGETED_INSTRUMENT_REVIEW
@@ -202,7 +209,7 @@ decision_rule:
     opposite_sign_component_point_estimates_minimum_count: 2
     minimum_range_between_component_point_estimates: 0.20
   failure_flag:
-    combined_output_and_alignment_rate_at_least: 0.20
+    output_contract_failure_rate_at_least: 0.20
     scope: ANY_COMPONENT_OR_OVERALL
 
 reproducibility:
@@ -229,4 +236,4 @@ prohibitions:
   compression_authorized: false
   post_outcome_tuning_authorized: false
 
-mandatory_next_state: QUICK_HUMAN_PROTOCOL_CHECK_BEFORE_INFERENCE
+mandatory_next_state: FINAL_VISUAL_PROTOCOL_APPROVAL_BEFORE_INFERENCE
