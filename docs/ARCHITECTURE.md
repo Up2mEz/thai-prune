@@ -317,6 +317,53 @@ selection. Exact evidence is in
 
 ---
 
+### 7.5 Proposed Qwen3-VL 2B / Typhoon OCR 1.5 audit
+
+The proposed specialization pair is frozen for audit purposes at
+`Qwen/Qwen3-VL-2B-Instruct@89644892e4d85e24eaac8bacfd4f463576704203`
+and
+`typhoon-ai/typhoon-ocr1.5-2b@15b381a2d62569e6736f9c085859dff68e48608d`.
+Their public configs declare the same Qwen3-VL 2B architecture, patch size 16,
+spatial merge size 2, and DeepStack indexes `[5, 11, 17]`. Remote safetensors
+headers contain the same 625 tensor names, shapes, and dtypes. This establishes
+structural compatibility only; it does not establish equal weight values,
+identify the exact parent revision, or prove fine-tuning was the only change.
+
+The machine-readable diff is
+`docs/architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`. Runtime processor,
+Vision Encoder, DeepStack, and LLM-boundary count equivalence remains untested.
+No inference or compression is authorized while the proposal is
+`SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW` and
+`LEGAL_TERMS_CLEARANCE_REQUIRED` is unresolved.
+
+Human review subsequently set this branch to
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`. This section is retained as historical
+architecture/provenance evidence and does not authorize Typhoon use.
+
+### 7.6 PaddleOCR-VL-1.6 / Wayu-Paxa fallback source audit
+
+The fallback repositories are pinned at
+`PaddlePaddle/PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42`
+and
+`wayu-ai/wayu-paxa-ocr-zero@af0204b4f334a6d5068b6bac2b3738932d6e289b`.
+They share a 608-tensor generative core by key/shape/dtype, while the base has
+12 additional legacy vision packing/head tensors. Both declare patch size 14,
+spatial merge size 2, pre-merge hidden size 1152, and projector output hidden
+size 1024. For `image_grid_thw=(t,h,w)`, inspectable counts are
+`N_pre=t*h*w` and `N_llm=t*(h/2)*(w/2)`.
+
+The natural post-encoder/pre-LLM boundary is the projector output at
+`model.projector` (legacy base name `mlp_AR`). Actual Token Pruning there is
+not a hook-only change: image placeholders, masks, and 3D position metadata
+must remain consistent with the reduced sequence. Exact evidence and all five
+intervention locations are in `FALLBACK_PAIR_CLEARANCE.md` and
+`architecture/PADDLEOCRVL16_WAYU_PAXA_CONFIG_DIFF.json`.
+
+Status is `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; only the exact 40-call smoke
+is authorized. Stage S0 and compression remain unauthorized.
+
+---
+
 ## 8. Architectural claims that are currently forbidden
 
 Until directly supported by experimental evidence, do not claim that:

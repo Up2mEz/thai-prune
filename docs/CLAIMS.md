@@ -35,6 +35,21 @@ None yet. No main experiment has been completed.
 
 ## SUPPORTED_WITH_LIMITS
 
+### Proposed specialization-pair architecture audit
+
+At the pinned public repository revisions recorded on 2026-09-12,
+`Qwen/Qwen3-VL-2B-Instruct` and `typhoon-ai/typhoon-ocr1.5-2b` declare the same
+`Qwen3VLForConditionalGeneration` architecture/config dimensions, BF16
+parameter count, patch size, spatial merge size, DeepStack indexes, and
+state-dict key/shape/dtype structure. Typhoon public metadata declares the
+Qwen model ID as its fine-tuning base.
+
+This supports only the wording “closely related base and OCR-specialized
+descendant.” It does not establish the immutable parent revision, equality of
+all non-training conditions, which weights changed, or fine-tuning as the only
+causal difference. No model inference was performed. The audit is in
+`docs/architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`.
+
 ### Step 3 engineering feasibility
 
 The pinned `Qwen/Qwen2.5-VL-3B-Instruct` revision completed the local Step 3
@@ -141,6 +156,24 @@ in `docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
 
 ## HYPOTHESES
 
+### Proposed specialization hypothesis — model-agnostic; fallback pending
+
+OCR specialization may change the degradation curve under decreasing realized
+visual-information budgets for a sufficiently matched base/descendant pair.
+The primary proposed test is a non-directional `MODEL x BUDGET` interaction.
+A `MODEL x BUDGET x COMPONENT` interaction is secondary/descriptive unless S0
+establishes adequate component-level measurement capacity.
+
+**Status:** `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; untested and not an active
+registered hypothesis. Stage S0 remains unauthorized.
+
+The Typhoon candidate was subsequently set to
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
+scientific rejection. The model-agnostic hypothesis remains proposed. The
+PaddleOCR-VL-1.6 / Wayu-Paxa fallback is approved only for the exact
+non-scientific 40-call engineering smoke and has no scientific outcome
+evidence.
+
 ### H1 — Differential component degradation
 Under decreasing visual-token budgets, distinctions involving small Thai orthographic components may degrade differently from other character distinctions.
 
@@ -199,6 +232,17 @@ The following claims are currently forbidden:
 - "A phenomenon observed in one Qwen model generalizes to all VLMs."
 - "Synthetic controlled results demonstrate real-world OCR failure."
 - "A statistically significant effect is automatically practically important."
+- "Typhoon OCR is more robust than Qwen3-VL under visual-information reduction."
+- "OCR specialization improves compression robustness."
+- "Fine-tuning is the only difference between the proposed checkpoints."
+- "OCR specialization causes an attention or representation change."
+- "Representation quality explains transcription performance."
+- "Thai orthographic components degrade differently under the proposed pivot."
+- "The previous Qwen3.5 transcription failure is evidence for a Typhoon specialization effect."
+- "PaddleOCR-VL-1.6 and Wayu-Paxa differ only by Thai training data."
+- "The audited Paddle/Wayu pair is T4-feasible."
+- "Wayu-Paxa is more robust than PaddleOCR-VL-1.6 under visual-information reduction."
+- "The Paddle/Wayu source-only audit is Gate 0 or compression evidence."
 
 The following inference is also forbidden:
 

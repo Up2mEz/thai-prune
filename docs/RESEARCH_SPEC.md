@@ -3,6 +3,29 @@
 > Status: pre-registration draft. Scientific gates remain human-owned
 > decisions; H1 directionality was frozen on 2026-09-04.
 
+## Proposed 2026-09-12 specialization pivot — fallback pending
+
+Status: `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; Stage S0 remains unauthorized.
+
+The proposed amended question is whether OCR specialization changes robustness
+to visual-information reduction and whether any effect differs across Thai
+orthographic component types. This question remains model-agnostic. The
+Typhoon candidate is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is not a scientific
+rejection. A source-only audit recommends PaddleOCR-VL-1.6 and its
+Thai-specialized Wayu-Paxa full-finetuned descendant for an engineering smoke,
+pending human approval.
+
+The proposed primary hypothesis is a non-directional `MODEL x BUDGET`
+interaction. `MODEL x BUDGET x COMPONENT` is conditional secondary/descriptive
+work until baseline measurement capacity is adequate. The fallback terms gate,
+provenance limits, compression boundaries, and exact proposed non-scientific
+workload are in `FALLBACK_PAIR_CLEARANCE.md`. The historical Typhoon proposal
+remains in `SPECIALIZATION_PIVOT_REVIEW.md`.
+
+This proposal does not replace the current specification, authorize inference,
+or change any existing gate. `Gate 0` remains `NOT_RUN`; prior Qwen2.5 and
+Qwen3.5 evidence retains only its original diagnostic scope.
+
 ## 1. Research objective
 
 Evaluate whether controlled Thai orthographic distinctions show different

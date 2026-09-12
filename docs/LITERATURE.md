@@ -1,6 +1,6 @@
 # Literature Evidence Matrix
 
-> Checked: 2026-09-06. This is an evidence matrix, not evidence that the
+> Checked: 2026-09-12. This is an evidence matrix, not evidence that the
 > search is exhaustive. Absence from this matrix must not be described as
 > absence from the literature.
 
@@ -53,6 +53,8 @@ discovery only; claims below come from the primary paper or official code.
 | [UniPruneBench](https://arxiv.org/abs/2511.02650) | 2025/2026 | How do pruning methods compare under a unified protocol? | LLaVA-1.5, InternVL3, Qwen2.5-VL | Multiple ViT-only, pre-LLM, and LLM methods | Yes; reports OCR as sensitive | No controlled Thai components | Establishes that OCR sensitivity and strong random/downsampling baselines must be considered | Why a specific script component fails or whether Thai differs by component | Public benchmark code not located in this pass; status `Unknown` | 2026-09-04 |
 | [LLMC+](https://arxiv.org/abs/2508.09981) | 2025/2026 | Can VLM compression methods be benchmarked in a modular toolkit? | Multiple VLM families | Multiple token-reduction and model-compression locations | Detail-sensitive tasks included | No Thai minimal-pair design | Shows detail-sensitive degradation and provides reusable baseline infrastructure | The project's component-level estimand | [LightCompress](https://github.com/ModelTC/LightCompress) | 2026-09-04 |
 | [ThaiOCRBench](https://aclanthology.org/2025.ijcnlp-long.89/) | 2025 | How well do VLMs perform on Thai text-rich tasks? | Proprietary and open VLMs | No controlled compression intervention | Yes, Thai | Fine-grained recognition, but not controlled orthographic pairs | Establishes a Thai external-validity benchmark and documents recognition/error categories | Compression causality, component-by-budget interaction, or minimal-pair discrimination | [Official code/data](https://github.com/scbdatax/ThaiOCRBench) | 2026-09-04 |
+| [Typhoon OCR](https://arxiv.org/abs/2601.14722) | 2026 | Can Thai/document-specialized SFT improve end-to-end Thai and English document extraction? | Typhoon OCR V1; V1.5 uses Qwen3-VL 2B | No controlled compression intervention | Yes, Thai/English OCR | Document-level evaluation; not controlled orthographic pairs | Establishes OCR specialization, Thai-focused/synthetic training, and document-benchmark improvements as prior work; V1.5 reports full-parameter SFT on Qwen3-VL 2B | Robustness under matched information reduction, isolated-component capacity, a causal specialization effect, or an immutable parent revision | [Official code](https://github.com/scb-10x/typhoon-ocr) and [model](https://huggingface.co/typhoon-ai/typhoon-ocr1.5-2b) | 2026-09-12 |
+| [How Far Can Synthetic Data Take Thai OCR?](https://arxiv.org/abs/2609.03595) | 2026 | Which synthetic-document properties transfer to real Thai OCR, and how far can synthetic-only training go? | Qwen3-VL-2B experiments; Wayu-Paxa-OCR-Zero full fine-tune of PaddleOCR-VL-1.6 | No controlled visual-token compression | Yes, Thai/English OCR | Document/region CER, not controlled orthographic minimal pairs | Declares all-parameter fine-tuning on 45,723 synthetic pages and establishes Thai specialization as prior work; exposes a public base/descendant candidate | Robustness under controlled information budgets, component-by-budget interaction, exact immutable parent revision, or training-data-only causality | [Model](https://huggingface.co/wayu-ai/wayu-paxa-ocr-zero), [inference code](https://github.com/wayu-research/wayu-ocr-inference), and [data generator](https://github.com/wayu-research/docaug) | 2026-09-12 |
 | [Fico](https://aclanthology.org/2026.findings-acl.1758/) | 2026 | How robust are VLMs to controlled visual fidelity and density? | 13 VLMs, 3 OCR-specialized models | Rendering density/resolution; visual-text compression | Yes | Controlled fidelity variants, not Thai component pairs | Establishes that controlled visual fidelity can expose failures missed by VQA and that OCR differs from higher-level tasks | Post-encoder pruning behavior or Thai orthographic category effects | [Official code/data](https://github.com/wang-research-lab/fico-bench) | 2026-09-06 |
 | [Visual Merit or Linguistic Crutch?](https://arxiv.org/abs/2601.03714) | 2026 | How much does DeepSeek-OCR rely on language priors? | DeepSeek-OCR and 13 baselines | Visual-token density and semantic corruption | Yes | Semantic corruption controls, not Thai minimal pairs | Directly supports language-prior diagnostics and reports increased prior sensitivity under lower visual-token regimes | Uncompressed Qwen behavior, component-specific degradation, or a Token Pruning mechanism | [Official data/results/scripts](https://github.com/dududuck00/DeepSeekOCR) | 2026-09-06 |
 | [FastOCR](https://arxiv.org/abs/2605.17447) | 2026 | Can OCR inference attend dynamically without permanent token eviction? | Five VLMs including Qwen2.5-VL | Decoder-time KV/attention selection; tokens are not permanently evicted | Yes | No Thai component-controlled evaluation reported | Existing OCR-aware alternative that separates per-step attention from physical token deletion | That permanent pruning fails on every OCR setup or on Thai specifically | No official code located in this pass | 2026-09-04 |
@@ -106,6 +108,10 @@ Compatibility is with the planned primary backbone
 - Resolution and visibility are established sources of OCR/fine-detail
   sensitivity. They do not identify the causal mechanism of an effect in the
   current Thai rendering design.
+- Thai/document OCR specialization and its document-level benefit are already
+  established research directions. The public Typhoon artifacts do not test
+  robustness under matched visual-information reduction or controlled Thai
+  orthographic components.
 
 ### What this pass did not find established
 
@@ -124,6 +130,14 @@ shift for controlled Thai orthographic minimal pairs on a pinned
 `Qwen2.5-VL-3B-Instruct` revision. This diagnostic remains a bounded local
 measurement question rather than a claimed new method.
 
+The 2026-09-12 specialization-pivot refresh did not locate an inspected study
+that jointly compares a declared base checkpoint with its OCR-specialized
+descendant across realized visual-information budgets using controlled Thai
+orthographic minimal pairs and `pair_id`-clustered analysis. This is a
+candidate bounded evaluation gap, not proof of novelty and not a causal
+fine-tuning claim. Exact provenance, prompt-fairness, terms, and stage-gate
+constraints are in `SPECIALIZATION_PIVOT_REVIEW.md`.
+
 This is a bounded search result, not proof that no such work exists.
 
 ## Novelty assessment
@@ -137,6 +151,12 @@ fidelity matters", and "Thai VLM OCR is difficult" are already occupied.
 
 There is currently no literature-based justification for a new method. The
 next evidence needed is measurement validity, not method development.
+
+For the proposed specialization pivot, the candidate contribution is the
+non-directional `MODEL x BUDGET` degradation comparison. The later
+`MODEL x BUDGET x COMPONENT` question is conditional on measurement capacity.
+Neither question is authorized for inference while the pivot remains
+`SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW`.
 
 ## Stop/pivot signals
 

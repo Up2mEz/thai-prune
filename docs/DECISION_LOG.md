@@ -2,6 +2,110 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Paddle/Wayu engineering smoke authorized
+
+**Human decision:** Accept the fallback audit and current-scope
+`TERMS_CLEAR` classification. The PaddleOCR-VL-1.6 / Wayu-Paxa pair is
+`APPROVED_FOR_ENGINEERING_SMOKE_ONLY` for exactly 40 calls: five already
+exposed open-calibration `pair_id` values, two members, two models, and two
+exact repeats under the shared direct region-recognition prompt `OCR:`.
+
+**Purpose:** Engineering validation only. Accuracy, model ranking,
+specialization benefit, component capacity, and compression robustness are not
+smoke gates and must not be calculated or interpreted.
+
+**Fail-closed boundary:** Any checkpoint, loading, processor, prompt, output
+slicing, Unicode, determinism, visual-token accounting, tensor/module, runtime,
+T4, or locked-set failure stops the run. Engineering repair requires another
+human review before rerun.
+
+**Still prohibited:** Stage S0, locked validation, Resolution Reduction, Token
+Pruning, Token Merging, scientific representation comparison, fine-tuning,
+new-method work, and comparison with historical Qwen3.5 outputs.
+
+**Mandatory stop:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`.
+
+## 2026-09-12 — Paddle/Wayu engineering smoke authorized
+
+**Human decision:** Accept the fallback-pair audit and current-scope
+`TERMS_CLEAR` classification. The PaddleOCR-VL-1.6 / Wayu-Paxa candidate pair
+is `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`.
+
+**Authorized workload:** exactly 40 non-scientific calls: five already-exposed
+open-calibration `pair_id` values, both members, both models, and two exact
+repeats. Both models use identical PNGs and the direct region-recognition
+prompt `OCR:`. Accuracy is not an engineering gate and no scientific model or
+component comparison may be calculated or interpreted.
+
+**Fail-closed boundary:** any identity, loading, processor, prompt, output
+slicing, Unicode, determinism, token-accounting, tensor-path/shape, runtime,
+T4-feasibility, or locked-set failure stops the run. An engineering repair
+requires a new human review before rerun.
+
+**Still prohibited:** Stage S0, locked validation, Resolution Reduction, Token
+Pruning, Token Merging, scientific representation comparison, fine-tuning,
+new-method work, and comparison with Qwen3.5 diagnostic history. After the
+smoke report, stop for human review; do not advance automatically.
+
+## 2026-09-12 — Typhoon branch closed; fallback pair audited
+
+**Human decision:** Typhoon OCR is `NOT_PURSUED_DUE_TO_USAGE_TERMS`. The
+current OpenTyphoon competitive-benchmarking consent dependency is not
+operationally acceptable for this project. This is not a scientific rejection.
+Prior provenance, architecture, literature, and design records are preserved.
+
+**Fallback source-only audit:** The candidate
+`PaddlePaddle/PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42`
+and
+`wayu-ai/wayu-paxa-ocr-zero@af0204b4f334a6d5068b6bac2b3738932d6e289b`
+is classified `TERMS_CLEAR`. Official sources declare Wayu as a full fine-tune
+of the Paddle base on 45,723 synthetic pages and the shared 608-tensor
+generative core has matching key names, shapes, and dtypes. The exact immutable
+fine-tuning parent revision and equality of common weight values are not
+established; PaddleOCR-VL-1.6 is itself an OCR model.
+
+**Codex recommendation:** `APPROVE_PADDLE_WAYU_FOR_ENGINEERING_SMOKE` using
+the exact 40-call, open-calibration-only workload proposed in
+`FALLBACK_PAIR_CLEARANCE.md`. This recommendation does not authorize execution.
+
+**Current decision:** `FALLBACK_PAIR_PENDING_HUMAN_REVIEW`.
+
+**Not authorized:** any Typhoon use; any fallback-model inference; locked
+validation; Resolution Reduction; Token Pruning; Token Merging; fine-tuning;
+or Gate 0 change. The research question remains model-agnostic.
+
+## 2026-09-12 — Specialization pivot proposed; human review required
+
+**Stage/Gate:** Proposed amendment only; `Gate 0` remains `NOT_RUN`.
+
+**Proposal:** Evaluate a closely related base and OCR-specialized descendant,
+`Qwen/Qwen3-VL-2B-Instruct` and `typhoon-ai/typhoon-ocr1.5-2b`, under a staged
+S0-S5 plan. The proposed primary question is a non-directional
+`MODEL x BUDGET` interaction. A component-level three-way interaction remains
+conditional on measurement capacity.
+
+**Audit evidence:** Both pinned repositories declare the same Qwen3-VL 2B
+architecture/config structure, parameter count, patch/merge settings,
+DeepStack indexes, and 625 compatible state-dict key names/shapes/dtypes.
+Typhoon declares the Qwen model ID as its fine-tuning base, but does not declare
+the immutable parent revision. Weight values and full training lineage were
+not established. Exact evidence is in `SPECIALIZATION_PIVOT_REVIEW.md` and
+`architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`.
+
+**Blocking issue:** The Typhoon model card links OpenTyphoon Terms whose
+current text prohibits competitive benchmarking without prior express written
+consent. Future model use therefore requires
+`LEGAL_TERMS_CLEARANCE_REQUIRED`; this is not a legal conclusion about the
+interaction between those terms and the HF `apache-2.0` tag.
+
+**Decision:** `SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW`.
+
+**Not authorized:** model inference, engineering smoke, locked validation,
+Resolution Reduction, Token Pruning, Token Merging, fine-tuning, prompt tuning,
+or new-method implementation. Historical Qwen2.5/Qwen3.5 decisions and
+artifacts are not overwritten and cannot be used as matched specialization
+evidence.
+
 ## 2026-09-12 — Measurement-contract pilot result and human-review stop
 
 **Observed result:** The verified 25-pair open-calibration pilot produced A

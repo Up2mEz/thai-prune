@@ -2,6 +2,44 @@
 
 > Status: living protocol before the main experiment. Changes that affect scientific interpretation must be logged in `docs/DECISION_LOG.md`.
 
+## Proposed 2026-09-12 specialization amendment — fallback not executable
+
+Status: `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`; Stage S0 remains unauthorized.
+
+The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
+smoke, compression, or benchmarking is authorized. The model-agnostic research
+question is unchanged. The PaddleOCR-VL-1.6 / Wayu-Paxa pair has only a
+source-and-terms clearance and human authorization for the exact 40-call
+non-scientific smoke in `FALLBACK_PAIR_CLEARANCE.md`. This does not authorize
+Stage S0.
+
+If the fallback engineering smoke is later approved and passes, a separate
+human decision is still required to freeze any S0 scientific workload. The
+earlier 25-`pair_id`, 400-call Typhoon proposal below is historical and is not
+transferred automatically to Paddle/Wayu.
+
+For provenance, the historical non-executable proposal required prompt
+selection from a separate non-scientific smoke before S0 outcomes. Its
+preferred contract applied the exact pinned official Typhoon
+OCR prompt to both models with identical deterministic decoding and one
+parser. If the base cannot execute that interface in the smoke, a predeclared
+two-contract sensitivity design may compare a shared semantic OCR contract
+with each model's frozen interface; prompt/interface effects must then be
+reported separately from checkpoint capability.
+
+Before any authorized fallback run, the current terms/model cards must be
+snapshotted because the terms may change. `TERMS_CLEAR` in the source-only
+audit is not permanent legal advice.
+Before S1, processor-only and runtime evidence must map requested resolution to
+actual grid, pre-merge patches, post-merge primary visual positions, DeepStack
+accounting, and LLM image-placeholder positions. Resolution Reduction,
+pre-encoder reduction, post-encoder Token Pruning, Token Merging/Pooling, and
+dynamic decoding-time access remain distinct interventions.
+
+The historical Typhoon contract is `SPECIALIZATION_PIVOT_REVIEW.md`; the
+fallback source-only audit is `FALLBACK_PAIR_CLEARANCE.md`. This section does
+not authorize execution or alter the active stages below.
+
 ## 1. Purpose
 
 This protocol defines how experiments are conducted so that observed effects can be attributed as cleanly as possible to the intended manipulation rather than to prompt variation, rendering artifacts, language priors, uncontrolled model changes, or selective analysis.
