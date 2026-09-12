@@ -1,0 +1,232 @@
+schema_version: 1
+status: REVISED_PENDING_QUICK_HUMAN_PROTOCOL_CHECK
+outcome_visibility: NO_PILOT_MODEL_OUTPUT_OBSERVED
+stage: stage0_qwen35_measurement_contract_pilot
+scientific_scope: OPEN_CALIBRATION_ONLY_MEASUREMENT_DIAGNOSTIC
+
+protocol: docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_PROTOCOL.md
+source_design: configs/stage0/calibration_design.yaml
+source_bundle: assets/stage0/calibration_input.zip
+source_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+source_allocation_sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
+
+selection:
+  independent_unit: pair_id
+  source_scope: ALREADY_EXPOSED_CALIBRATION_PAIR_IDS_ONLY
+  algorithm: sha256_component_stratified_first_k_v1
+  seed: 20260912
+  hash_input: "measurement-contract-pilot-v1|20260912|<component_type>|<pair_id>"
+  rank_order: ascending_hex_sha256
+  take_per_component: 5
+  selected_pair_count: 25
+  selected_id_set_sha256: 0dce30a370d40fffde1d1d9000e786835021054c828e3453ed22b828c7b6bebe
+  selected_pairs:
+    BASE_CHARACTER:
+      - base_m1_ue07_ue1c
+      - base_m1_ue19_ue2d
+      - base_m1_ue09_ue1e
+      - base_m1_ue08_ue1d
+      - base_m1_ue0d_ue21
+    LOWER_VOWEL_VARIANT:
+      - lower_variant_ue2b
+      - lower_pa
+      - lower_variant_ue1d
+      - lower_variant_ue06
+      - lower_variant_ue16
+    STACKED_TONE_MARK:
+      - stacked_tone_ue13
+      - stacked_tone_ue08
+      - stacked_tone_ue0d
+      - stacked_tone_ue15
+      - stacked_tone_ue17
+    TONE_MARK:
+      - tone_ue13
+      - tone_ue1a
+      - tone_ue27
+      - tone_ue18
+      - tone_ue20
+    UPPER_VOWEL_VARIANT:
+      - upper_variant_ue0b
+      - upper_kha
+      - upper_kho
+      - upper_variant_ue08
+      - upper_variant_ue1d
+
+model:
+  config: configs/stage0/qwen35_4b_calibration.yaml
+  model_id: Qwen/Qwen3.5-4B
+  revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  processor_revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  tokenizer_revision: 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+  runtime: configs/runtime/kaggle_t4_qwen35.yaml
+
+render_conditions:
+  - noto_sans_thai_regular__72__center
+  - noto_sans_thai_regular__96__center
+  - noto_serif_thai_regular__72__center
+  - noto_serif_thai_regular__96__center
+members: [a, b]
+target_observations_per_condition: 200
+
+conditions:
+  A_forced_choice:
+    source_run_id: kaggle-qwen35-measurement-953dd5e386ea-79122b58
+    source_diagnostic: D1_position_swap
+    inference_action: REUSE_VERIFIED_ROWS_NO_NEW_INFERENCE
+    candidate_orders: [registered, swapped]
+    comparable_score: "(correct_registered_order + correct_swapped_order) / 2"
+    orders_are_independent: false
+  B_isolated_transcription:
+    image_source: EXACT_CONDITION_A_PNG_PIXELS
+    image_transform: NONE
+    prompt_id: exact_transcription_th_v1
+  C_line_layout_transcription:
+    layout_id: fixed_five_cell_center_target_v1
+    reference_template: "ก|น|{TARGET}|ม|ล"
+    anchors: ["ก", "น", "ม", "ล"]
+    target_cell_index_one_based: 3
+    target_position_assignment: CONSTANT_CENTER_CELL_3
+
+prompts:
+  exact_transcription_th_v1: "อ่านข้อความทั้งหมดในภาพจากซ้ายไปขวา แล้วตอบเฉพาะข้อความที่เห็นแบบตรงตัว ห้ามอธิบาย"
+
+line_layout:
+  canvas_size: [448, 448]
+  color_mode: RGB
+  background_rgb: [255, 255, 255]
+  foreground_rgb: [0, 0, 0]
+  vertical_item_interval: [144, 304]
+  cells_half_open:
+    anchor_1: [0, 64]
+    separator_1: [64, 80]
+    anchor_2: [80, 144]
+    separator_2: [144, 160]
+    target: [160, 288]
+    separator_3: [288, 304]
+    anchor_3: [304, 368]
+    separator_4: [368, 384]
+    anchor_4: [384, 448]
+  separator_rectangles_half_open:
+    - {x: [71, 73], y: [168, 280]}
+    - {x: [151, 153], y: [168, 280]}
+    - {x: [295, 297], y: [168, 280]}
+    - {x: [375, 377], y: [168, 280]}
+  anchor_rendering: SHAPE_ONCE_PER_FONT_SIZE_CENTER_IN_FIXED_CELL
+  target_rendering: SHARED_PAIR_UNION_BBOX_ORIGIN_CENTER_IN_TARGET_CELL
+  per_member_scaling: false
+  per_member_centering: false
+  required_checks:
+    - all_ink_inside_assigned_item_cell
+    - byte_identical_pixels_outside_target_cell_between_members
+    - anchor_layer_hash_recorded
+    - non_target_pixel_hash_recorded
+
+decoding:
+  do_sample: false
+  min_new_tokens: 1
+  max_new_tokens: 32
+  enable_thinking: false
+  token_constraint: NONE
+  per_example_retry: false
+  raw_output_and_token_ids_required: true
+
+normalization:
+  primary: RAW_CODEPOINT_AFTER_LINE_ENDING_CANONICALIZATION_AND_OUTER_STRIP
+  line_endings: CRLF_AND_CR_TO_LF
+  strip_surrounding_unicode_whitespace: true
+  preserve_internal_characters: true
+  unicode_normalization_primary: NONE
+  unicode_normalization_sensitivity: NFC
+
+target_alignment:
+  condition_B: WHOLE_SINGLE_LINE_OUTPUT
+  condition_C: ASCII_PIPE_SPLIT_EXACTLY_FIVE_FIELDS_TARGET_FIELD_3
+  strip_field_surrounding_unicode_whitespace: true
+  heuristic_realignment_allowed: false
+
+error_taxonomy_precedence:
+  - output_contract_failure
+  - insertion_alignment_failure
+  - deletion
+  - correct_target
+  - opposite_member_substitution
+  - other_substitution
+failures_in_accuracy_denominator: true
+
+target_component_rules:
+  BASE_CHARACTER: FIRST_THAI_BASE_CONSONANT_EQUALS_TRUTH
+  TONE_MARK: U_0E48_PRESENCE_EQUALS_TRUTH
+  UPPER_VOWEL_VARIANT: EXCLUSIVE_U_0E34_VS_U_0E35_EQUALS_TRUTH
+  LOWER_VOWEL_VARIANT: EXCLUSIVE_U_0E38_VS_U_0E39_EQUALS_TRUTH
+  STACKED_TONE_MARK: U_0E48_PRESENCE_EQUALS_TRUTH_AND_REGISTERED_UPPER_VOWEL_PRESENT
+
+uncertainty:
+  independent_unit: pair_id
+  repeated_observations: [member, font_id, font_size, candidate_order, condition]
+  confidence_level: 0.95
+  method: PAIR_CLUSTERED_PAIRED_PERCENTILE_BOOTSTRAP
+  resamples: 2000
+  seed: 20260912
+
+primary_contrasts:
+  delta_interface: target_accuracy_B_minus_target_accuracy_A
+  delta_line: target_accuracy_C_minus_target_accuracy_B
+  form_difference_before_pair_aggregation: true
+  sesoi_absolute: 0.10
+  important_effect_if_point_at_least: 0.10
+  important_effect_if_ci_low_above: 0.0
+  chance_threshold_for_transcription: NONE
+  absolute_transcription_validity_threshold: NONE
+  gate_0_metric: false
+
+secondary_metrics:
+  - raw_codepoint_full_line_CER
+  - NFC_normalized_full_line_CER
+  - full_line_exact_accuracy
+  - target_word_accuracy
+  - target_component_accuracy
+  - target_error_taxonomy_rates
+  - substitution_direction
+  - output_contract_failure_rate
+  - insertion_alignment_failure_rate
+  - descriptive_results_by_component
+
+decision_rule:
+  important_delta_interface: FORCED_CHOICE_RESPONSE_CONTRACT_CONTRIBUTES_MATERIALLY
+  important_delta_line: FIXED_LINE_LAYOUT_AND_SURROUNDING_VISUAL_CONTEXT_CONTRIBUTE_MATERIALLY
+  either_important_without_interpretability_flag: PIVOT_MEASUREMENT_DESIGN_FOR_FURTHER_OPEN_CALIBRATION
+  neither_important_and_both_ci_high_at_most_sesoi: SECONDARY_BACKBONE_SCREENING
+  component_or_failure_flag: MIXED_TARGETED_INSTRUMENT_REVIEW
+  otherwise: INCONCLUSIVE
+  component_flag:
+    opposite_sign_component_point_estimates_minimum_count: 2
+    minimum_range_between_component_point_estimates: 0.20
+  failure_flag:
+    combined_output_and_alignment_rate_at_least: 0.20
+    scope: ANY_COMPONENT_OR_OVERALL
+
+reproducibility:
+  record_config_hash: true
+  record_input_hashes: true
+  record_git_commit: true
+  record_environment: true
+  record_actual_visual_counts: true
+  record_failures: true
+  record_artifact_checksums: true
+  condition_A_exact_source_required: true
+
+prohibitions:
+  inference_authorized: false
+  locked_validation_authorized: false
+  gate_0_change_authorized: false
+  frozen_split_change_authorized: false
+  backbone_screen_authorized: false
+  stage_1a_authorized: false
+  resolution_reduction_authorized: false
+  token_pruning_authorized: false
+  token_merging_authorized: false
+  main_experiment_authorized: false
+  compression_authorized: false
+  post_outcome_tuning_authorized: false
+
+mandatory_next_state: QUICK_HUMAN_PROTOCOL_CHECK_BEFORE_INFERENCE

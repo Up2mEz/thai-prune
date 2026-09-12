@@ -1,6 +1,6 @@
 # Advisor Readiness Execution Plan
 
-**Status:** STAGE 0 DIAGNOSTIC COMPLETE; HUMAN REVIEW CHECKPOINT
+**Status:** MEASUREMENT-CONTRACT PILOT PROTOCOL PENDING HUMAN CHECK
 
 ## Objective
 
@@ -14,11 +14,12 @@ new compression method is required.
 2. Complete literature and novelty triage.
 3. Reconcile the research Source of Truth.
 4. Step 3 is complete after human approval of the A/B smoke controls.
-5. Steps 4–6 / Stage 0 preparation and calibration are authorized.
-6. Do not run model calibration before Checkpoint A human freeze.
+5. The revised A/B/C pilot protocol may receive non-model validation only.
+6. Do not run pilot inference before the required quick human protocol check.
 7. Do not run locked validation before calibration-derived Gate 0 criteria and
    Checkpoint B human freeze.
-8. Stage 1A and every compression intervention remain unauthorized.
+8. Backbone screening, Stage 1A, and every compression intervention remain
+   unauthorized.
 
 ## Implementation status
 
@@ -29,7 +30,7 @@ new compression method is required.
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
 | Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
-| Steps 4–6 — Stage 0 | `HUMAN_REVIEW_CHECKPOINT` | Qwen3.5 D1-D4 open-calibration diagnostic completed and classified `inconclusive` under frozen criteria; recommendation C is to screen an architecturally distinct backbone, but no screening run is authorized; Gate 0 remains `NOT_RUN` and locked validation is blocked |
+| Steps 4–6 — Stage 0 | `PILOT_PROTOCOL_PENDING_HUMAN_CHECK` | Human approved A/B/C measurement-contract pilot in principle with required revisions; revised protocol/config are frozen for quick review, but inference, backbone screening, Gate 0, locked validation, and compression remain unauthorized |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 

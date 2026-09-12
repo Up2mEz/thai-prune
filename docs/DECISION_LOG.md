@@ -2,6 +2,35 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Measurement-contract pilot approved with revisions before inference
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Human decision:** Approve in principle a three-condition pilot using A
+forced-choice, B isolated transcription, and C line-layout transcription, but
+require a revised frozen protocol and another quick human check before any
+model inference.
+
+**Required revisions recorded:** B/C have no 50% chance-validity threshold;
+the primary diagnostics are paired `delta_interface = B - A` and
+`delta_line = C - B`, with a 10 percentage-point SESOI and an important effect
+requiring point estimate at least +10 pp plus pair-clustered paired 95% CI
+lower bound above zero. A's two candidate orders reduce to one target-level
+score and are not independent. C uses fixed cells whose non-target pixels are
+invariant across target members, and is explicitly a line-layout—not natural-
+language context—diagnostic. Selection, prompt, decoding, normalization,
+alignment, taxonomy, metrics, and stop rules are fixed before inference.
+
+**Revised protocol:**
+`docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_PROTOCOL.md` and
+`configs/stage0/qwen35_measurement_contract_pilot.yaml`.
+
+**Current authorization:** Documentation and non-model validation only.
+Inference remains unauthorized pending the quick human protocol check.
+Locked validation, backbone screening, split changes, Gate 0, Stage 1A,
+compression, and the main experiment remain prohibited.
+
 ## 2026-09-08 — Qwen3.5 measurement diagnostic result and stop
 
 **Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
