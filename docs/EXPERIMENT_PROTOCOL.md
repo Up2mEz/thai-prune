@@ -4,8 +4,9 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation amendment — S0 only
 
-Status: `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`. The frozen S0 baseline has
-completed; proposed next-stage validity criteria remain pending human review.
+Status: `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`. The S0 baseline and
+S0-only identifiability audit have completed; the overall interaction design
+and revised Gate criteria remain proposals pending human review.
 
 The primary comparison is **base OCR VLM versus Thai-specialized OCR
 descendant**. Do not describe it as general VLM versus OCR-specialized VLM.

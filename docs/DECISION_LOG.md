@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Measurement-readiness audit complete; human review required
+
+**Human input:** Accepted `BASELINE_CAPACITY_MIXED_CRITERIA_REVIEW_REQUIRED` and
+authorized an identifiability audit using existing S0 open-calibration artifacts
+only. Numeric criteria were explicitly not frozen. Locked validation, model
+inference, compression, budget selection based on output, and fine-tuning were
+not authorized.
+
+**Audit:** The SESOI-derived headroom rule classified BASE
+`LOWER_VOWEL_VARIANT`, `STACKED_TONE_MARK`, and `UPPER_VOWEL_VARIANT` as
+`FLOOR_LIMITED`. Overall 95-cluster design simulations showed materially higher
+10 pp interaction detection than 19-cluster component simulations. Exact
+assumptions, results, metric review, and analysis-model recommendation are in
+`MEASUREMENT_READINESS_AUDIT.md`.
+
+**Agent recommendation:** `FREEZE_OVERALL_MODEL_BUDGET_DESIGN`. This is a
+proposal for the analysis structure only; it does not itself freeze criteria,
+select budgets, authorize compression, or open locked validation.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`.
+
 ## 2026-09-12 — Paddle/Wayu S0 complete; mandatory human-review stop
 
 **Run:** `kaggle-paddle-wayu-s0-a7f3eec06bce-832fe44f` completed the frozen

@@ -5,9 +5,10 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation study — S0 authorized
 
-Status: `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`. The authorized S0 run is
-complete; no locked validation or visual-information budget intervention is
-authorized pending human review.
+Status: `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`. The S0-only
+identifiability audit recommends an overall `MODEL x BUDGET` primary design,
+but numeric criteria remain unfrozen and no locked validation or
+visual-information budget intervention is authorized pending human review.
 
 The revised research question is:
 
