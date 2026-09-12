@@ -2,9 +2,9 @@
 
 > **NON-SCIENTIFIC ENGINEERING OBSERVATIONS ONLY**
 >
-> Run completed: 2026-09-12  
-> Status: `ENGINEERING_SMOKE_PASS`  
-> Terminal state: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`  
+> Run completed: 2026-09-12
+> Status: `ENGINEERING_SMOKE_PASS`
+> Terminal state: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`
 > Stage S0 authorization: **No**
 
 ## 1. Decision
@@ -166,4 +166,3 @@ HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE
 ```
 
 Do not proceed to Stage S0 without a new explicit human decision.
-
