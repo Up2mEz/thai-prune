@@ -131,7 +131,7 @@ shift for controlled Thai orthographic minimal pairs on a pinned
 measurement question rather than a claimed new method.
 
 The 2026-09-12 specialization-pivot refresh did not locate an inspected study
-that jointly compares a declared base checkpoint with its OCR-specialized
+that jointly compares a base OCR checkpoint with its Thai-specialized OCR
 descendant across realized visual-information budgets using controlled Thai
 orthographic minimal pairs and `pair_id`-clustered analysis. This is a
 candidate bounded evaluation gap, not proof of novelty and not a causal
@@ -152,11 +152,14 @@ fidelity matters", and "Thai VLM OCR is difficult" are already occupied.
 There is currently no literature-based justification for a new method. The
 next evidence needed is measurement validity, not method development.
 
-For the proposed specialization pivot, the candidate contribution is the
-non-directional `MODEL x BUDGET` degradation comparison. The later
+For the Thai-specific OCR adaptation study, the candidate contribution is the
+non-directional `MODEL x BUDGET` degradation comparison between a base OCR VLM
+and its Thai-specialized OCR descendant. The later
 `MODEL x BUDGET x COMPONENT` question is conditional on measurement capacity.
-Neither question is authorized for inference while the pivot remains
-`SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW`.
+S0 is authorized only to calibrate full-information baseline measurement; it
+does not test either interaction. Thai OCR fine-tuning and the 45,723-page
+synthetic dataset are prior work, not the novelty claim, and the public record
+does not prove that training data is the only checkpoint difference.
 
 ## Stop/pivot signals
 

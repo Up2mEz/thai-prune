@@ -156,17 +156,18 @@ in `docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
 
 ## HYPOTHESES
 
-### Proposed specialization hypothesis — model-agnostic; fallback pending
+### Thai-specific OCR adaptation hypothesis — S0 baseline only
 
-OCR specialization may change the degradation curve under decreasing realized
-visual-information budgets for a sufficiently matched base/descendant pair.
+Thai-specific OCR adaptation may change the degradation curve under decreasing
+realized visual-information budgets for the base OCR VLM and its declared
+Thai-specialized OCR descendant.
 The primary proposed test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is secondary/descriptive unless S0
 establishes adequate component-level measurement capacity.
 
-**Status:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; untested and not an active
-registered hypothesis. The engineering smoke passed, but Stage S0 remains
-unauthorized.
+**Status:** `APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`; the future
+interaction remains untested and is not an active result. S0 may assess only
+full-information baseline measurement capacity.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
@@ -244,6 +245,9 @@ The following claims are currently forbidden:
 - "The audited Paddle/Wayu pair is T4-feasible."
 - "Wayu-Paxa is more robust than PaddleOCR-VL-1.6 under visual-information reduction."
 - "The Paddle/Wayu source-only audit is Gate 0 or compression evidence."
+- "PaddleOCR-VL-1.6 is a general-purpose VLM control against an OCR model."
+- "S0 tests the MODEL x BUDGET interaction."
+- "The 45,723-page synthetic training set is the only checkpoint difference."
 
 The following inference is also forbidden:
 

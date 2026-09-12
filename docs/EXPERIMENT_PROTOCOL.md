@@ -2,21 +2,28 @@
 
 > Status: living protocol before the main experiment. Changes that affect scientific interpretation must be logged in `docs/DECISION_LOG.md`.
 
-## Proposed 2026-09-12 specialization amendment — fallback not executable
+## 2026-09-12 Thai-specific OCR adaptation amendment — S0 only
 
-Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; Stage S0 remains unauthorized.
+Status: `APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`.
+
+The primary comparison is **base OCR VLM versus Thai-specialized OCR
+descendant**. Do not describe it as general VLM versus OCR-specialized VLM.
+The research question is: “Does Thai-specific OCR adaptation change robustness
+to controlled visual-information reduction?” The future primary interaction
+remains non-directional `MODEL x BUDGET`; S0 measures only full-information
+baseline capacity and does not test that interaction.
 
 The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
 smoke, compression, or benchmarking is authorized. The model-agnostic research
 question is unchanged. The PaddleOCR-VL-1.6 / Wayu-Paxa pair has only a
-source-and-terms clearance and human authorization for the exact 40-call
-non-scientific smoke in `FALLBACK_PAIR_CLEARANCE.md`. This does not authorize
-Stage S0.
+source-and-terms clearance, passed the exact 40-call engineering smoke, and is
+authorized only for the separately frozen S0 open-calibration baseline. The
+45,723-page synthetic training set is not assumed to be the only checkpoint
+difference.
 
-If the fallback engineering smoke is later approved and passes, a separate
-human decision is still required to freeze any S0 scientific workload. The
-earlier 25-`pair_id`, 400-call Typhoon proposal below is historical and is not
-transferred automatically to Paddle/Wayu.
+The earlier 25-`pair_id`, 400-call Typhoon proposal below is historical and is
+not transferred to Paddle/Wayu. The current S0 contract excludes the five
+engineering-smoke pairs and uses the remaining 95 open-calibration pairs only.
 
 For provenance, the historical non-executable proposal required prompt
 selection from a separate non-scientific smoke before S0 outcomes. Its

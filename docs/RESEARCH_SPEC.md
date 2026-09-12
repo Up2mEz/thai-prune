@@ -3,29 +3,34 @@
 > Status: pre-registration draft. Scientific gates remain human-owned
 > decisions; H1 directionality was frozen on 2026-09-04.
 
-## Proposed 2026-09-12 specialization pivot — fallback pending
+## 2026-09-12 Thai-specific OCR adaptation study — S0 authorized
 
-Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; the smoke passed engineering
-checks and proposes S0 readiness, but Stage S0 remains unauthorized.
+Status: `APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`.
 
-The proposed amended question is whether OCR specialization changes robustness
-to visual-information reduction and whether any effect differs across Thai
-orthographic component types. This question remains model-agnostic. The
-Typhoon candidate is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is not a scientific
-rejection. A source-only audit recommends PaddleOCR-VL-1.6 and its
-Thai-specialized Wayu-Paxa full-finetuned descendant for an engineering smoke,
-pending human approval.
+The revised research question is:
+
+> Does Thai-specific OCR adaptation change robustness to controlled
+> visual-information reduction?
+
+The current comparison is **base OCR VLM versus Thai-specialized OCR
+descendant**, not general VLM versus OCR-specialized VLM. `MODEL` represents
+`PaddlePaddle/PaddleOCR-VL-1.6` as the base OCR model and
+`wayu-ai/wayu-paxa-ocr-zero` as its declared Thai-specific OCR adaptation.
+PaddleOCR-VL-1.6 is already an OCR/document-recognition model.
 
 The proposed primary hypothesis is a non-directional `MODEL x BUDGET`
 interaction. `MODEL x BUDGET x COMPONENT` is conditional secondary/descriptive
-work until baseline measurement capacity is adequate. The fallback terms gate,
+work until baseline measurement capacity is adequate. The 45,723-page
+synthetic training set must not be described as the only difference between
+the checkpoints. The fallback terms gate,
 provenance limits, compression boundaries, and exact proposed non-scientific
 workload are in `FALLBACK_PAIR_CLEARANCE.md`. The historical Typhoon proposal
 remains in `SPECIALIZATION_PIVOT_REVIEW.md`.
 
-This proposal does not replace the current specification, authorize inference,
-or change any existing gate. `Gate 0` remains `NOT_RUN`; prior Qwen2.5 and
-Qwen3.5 evidence retains only its original diagnostic scope.
+The human-approved S0 is open-calibration full-information baseline measurement
+only. It does not test `MODEL x BUDGET`, compression robustness, or authorize
+locked validation. `Gate 0` remains `NOT_RUN`; prior Qwen2.5 and Qwen3.5
+evidence retains only its original diagnostic scope.
 
 ## 1. Research objective
 

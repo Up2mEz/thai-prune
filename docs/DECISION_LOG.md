@@ -2,6 +2,33 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Scientific framing amended; S0 baseline authorized
+
+**Human decision:** Accept the Paddle/Wayu engineering smoke and set
+`APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`.
+
+**Required framing:** The comparison is **base OCR VLM versus Thai-specialized
+OCR descendant**, or **Thai-specific OCR adaptation**. It is not general VLM
+versus OCR-specialized VLM because PaddleOCR-VL-1.6 is already an
+OCR/document-recognition model. The revised question is: “Does Thai-specific
+OCR adaptation change robustness to controlled visual-information reduction?”
+The future primary interaction remains non-directional `MODEL x BUDGET`.
+
+**Causal boundary:** Do not claim that the 45,723-page synthetic training set
+is the only difference between checkpoints.
+
+**Authorized scope:** S0 open-calibration full-information baseline only. Use
+the remaining 95 open-calibration `pair_id` values after excluding the five
+engineering-smoke pairs; do not replace them from locked validation. The exact
+workload is 95 pairs x 2 members x 2 fonts x 2 sizes x 2 models = 1,520 calls,
+with identical registered 448x448 PNGs, prompt `OCR:`, deterministic greedy
+decoding, and a parser frozen before inference.
+
+**Not authorized:** locked validation, Resolution Reduction, Token Pruning,
+Token Merging, any other compression or representation intervention,
+fine-tuning, new-method work, or scientific comparison with Qwen3.5 history.
+After S0 analysis, stop at `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`.
+
 ## 2026-09-12 — Paddle/Wayu engineering smoke complete; human review required
 
 **Scope:** Non-scientific engineering validation only. The authorized 40-call

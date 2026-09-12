@@ -1,6 +1,6 @@
 # PaddleOCR-VL / Wayu-Paxa Fallback Pair Clearance
 
-> Status: `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`
+> Status: `APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`
 > Audited: 2026-09-12
 > Scope: current official terms, model cards, immutable repository metadata,
 > safetensors headers, configuration, processor, tokenizer, and source code.
@@ -15,14 +15,16 @@
 - This is a recommendation for a non-scientific smoke only. It is not human
   approval, a Gate 0 decision, or evidence for robustness under compression.
 
-The research question remains model-agnostic:
+The revised research question is:
 
-> Does OCR specialization change robustness to controlled visual-information
-> reduction?
+> Does Thai-specific OCR adaptation change robustness to controlled
+> visual-information reduction?
 
 For this particular candidate pair, “specialization” means additional Thai
 OCR full fine-tuning of an already OCR-specialized multilingual/document OCR
-base. It does not mean general-purpose VLM versus OCR model.
+base. The primary comparison is therefore base OCR VLM versus Thai-specialized
+OCR descendant, not general-purpose VLM versus OCR model. The declared
+45,723-page synthetic training set is not assumed to be the only difference.
 
 ## 2. Terms and license audit
 
