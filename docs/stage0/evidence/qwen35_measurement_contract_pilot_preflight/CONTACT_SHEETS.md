@@ -1,0 +1,87 @@
+# B/C Measurement-Contract Pilot Contact Sheets
+
+**Status:** `PENDING_FINAL_HUMAN_VISUAL_PROTOCOL_APPROVAL`
+
+Left is Condition B (isolated target). Right is Condition C (the exact
+B pixels plus frozen surrounding layout outside the target cell).
+No model inference was used to create these sheets.
+
+## `base_character__noto_sans_thai_regular__72__center.png`
+
+![base_character__noto_sans_thai_regular__72__center.png](contact_sheets/base_character__noto_sans_thai_regular__72__center.png)
+
+## `base_character__noto_sans_thai_regular__96__center.png`
+
+![base_character__noto_sans_thai_regular__96__center.png](contact_sheets/base_character__noto_sans_thai_regular__96__center.png)
+
+## `base_character__noto_serif_thai_regular__72__center.png`
+
+![base_character__noto_serif_thai_regular__72__center.png](contact_sheets/base_character__noto_serif_thai_regular__72__center.png)
+
+## `base_character__noto_serif_thai_regular__96__center.png`
+
+![base_character__noto_serif_thai_regular__96__center.png](contact_sheets/base_character__noto_serif_thai_regular__96__center.png)
+
+## `lower_vowel_variant__noto_sans_thai_regular__72__center.png`
+
+![lower_vowel_variant__noto_sans_thai_regular__72__center.png](contact_sheets/lower_vowel_variant__noto_sans_thai_regular__72__center.png)
+
+## `lower_vowel_variant__noto_sans_thai_regular__96__center.png`
+
+![lower_vowel_variant__noto_sans_thai_regular__96__center.png](contact_sheets/lower_vowel_variant__noto_sans_thai_regular__96__center.png)
+
+## `lower_vowel_variant__noto_serif_thai_regular__72__center.png`
+
+![lower_vowel_variant__noto_serif_thai_regular__72__center.png](contact_sheets/lower_vowel_variant__noto_serif_thai_regular__72__center.png)
+
+## `lower_vowel_variant__noto_serif_thai_regular__96__center.png`
+
+![lower_vowel_variant__noto_serif_thai_regular__96__center.png](contact_sheets/lower_vowel_variant__noto_serif_thai_regular__96__center.png)
+
+## `stacked_tone_mark__noto_sans_thai_regular__72__center.png`
+
+![stacked_tone_mark__noto_sans_thai_regular__72__center.png](contact_sheets/stacked_tone_mark__noto_sans_thai_regular__72__center.png)
+
+## `stacked_tone_mark__noto_sans_thai_regular__96__center.png`
+
+![stacked_tone_mark__noto_sans_thai_regular__96__center.png](contact_sheets/stacked_tone_mark__noto_sans_thai_regular__96__center.png)
+
+## `stacked_tone_mark__noto_serif_thai_regular__72__center.png`
+
+![stacked_tone_mark__noto_serif_thai_regular__72__center.png](contact_sheets/stacked_tone_mark__noto_serif_thai_regular__72__center.png)
+
+## `stacked_tone_mark__noto_serif_thai_regular__96__center.png`
+
+![stacked_tone_mark__noto_serif_thai_regular__96__center.png](contact_sheets/stacked_tone_mark__noto_serif_thai_regular__96__center.png)
+
+## `tone_mark__noto_sans_thai_regular__72__center.png`
+
+![tone_mark__noto_sans_thai_regular__72__center.png](contact_sheets/tone_mark__noto_sans_thai_regular__72__center.png)
+
+## `tone_mark__noto_sans_thai_regular__96__center.png`
+
+![tone_mark__noto_sans_thai_regular__96__center.png](contact_sheets/tone_mark__noto_sans_thai_regular__96__center.png)
+
+## `tone_mark__noto_serif_thai_regular__72__center.png`
+
+![tone_mark__noto_serif_thai_regular__72__center.png](contact_sheets/tone_mark__noto_serif_thai_regular__72__center.png)
+
+## `tone_mark__noto_serif_thai_regular__96__center.png`
+
+![tone_mark__noto_serif_thai_regular__96__center.png](contact_sheets/tone_mark__noto_serif_thai_regular__96__center.png)
+
+## `upper_vowel_variant__noto_sans_thai_regular__72__center.png`
+
+![upper_vowel_variant__noto_sans_thai_regular__72__center.png](contact_sheets/upper_vowel_variant__noto_sans_thai_regular__72__center.png)
+
+## `upper_vowel_variant__noto_sans_thai_regular__96__center.png`
+
+![upper_vowel_variant__noto_sans_thai_regular__96__center.png](contact_sheets/upper_vowel_variant__noto_sans_thai_regular__96__center.png)
+
+## `upper_vowel_variant__noto_serif_thai_regular__72__center.png`
+
+![upper_vowel_variant__noto_serif_thai_regular__72__center.png](contact_sheets/upper_vowel_variant__noto_serif_thai_regular__72__center.png)
+
+## `upper_vowel_variant__noto_serif_thai_regular__96__center.png`
+
+![upper_vowel_variant__noto_serif_thai_regular__96__center.png](contact_sheets/upper_vowel_variant__noto_serif_thai_regular__96__center.png)

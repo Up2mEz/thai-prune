@@ -26,6 +26,14 @@ report showing identical B/C target-crop RGB hashes for every one of the 200
 selected target observations, plus invariant non-target layers within each
 font/size condition.
 
+**Generated non-model evidence:**
+`docs/stage0/evidence/qwen35_measurement_contract_pilot_preflight/CONTACT_SHEETS.md`
+contains 20 paired B/C sheets. The corresponding
+`pixel_identity_validation.json` reports 200/200 target observations passing
+raw-RGB target-crop identity, zero non-target invariance failures, zero locked
+pairs, and `model_inference_performed=false`. Human visual/protocol approval
+remains pending.
+
 **Historical provenance:** Commit
 `13c64500442bc3790362f82964ad39666fc8b382` preserves the superseded
 pre-inference C contract. No pilot model output was observed before this
