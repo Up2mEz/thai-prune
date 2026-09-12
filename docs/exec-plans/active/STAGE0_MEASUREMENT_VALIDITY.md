@@ -1,6 +1,6 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** `PILOT_INFERENCE_AUTHORIZED`; stop at human review after pilot;
+**Status:** `PILOT_COMPLETE_HUMAN_REVIEW_REQUIRED`;
 Gate 0 remains `NOT_RUN`
 
 ## Objective
@@ -25,11 +25,13 @@ to use the same center-target-only readout as B and exact target-pixel
 identity. The amended protocol/config are recorded; only deterministic
 stimulus construction, contact sheets, and non-model validation are authorized
 until final visual/protocol approval. That final review passed on 2026-09-12;
-only the frozen 25-pair Qwen3.5 pilot is now authorized.
+only the frozen 25-pair Qwen3.5 pilot was authorized. The verified run is now
+complete and the frozen decision is `MIXED_TARGETED_INSTRUMENT_REVIEW` because
+Condition C crossed the registered output-failure flag. Execution is stopped.
 
 ## Authorization and stop boundary
 
-Authorized now:
+Completed authorization:
 
 - candidate-pair inventory and non-model validation;
 - deterministic HarfBuzz + FreeType rendering;
@@ -40,6 +42,8 @@ Authorized now:
   pixel identity validation for the proposed 25-pair pilot.
 - the exact frozen B/C pilot inference and registered A/B/C analysis, followed
   immediately by a human-review stop.
+
+No further model inference is currently authorized.
 
 Forbidden now:
 

@@ -2,6 +2,26 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Measurement-contract pilot result and human-review stop
+
+**Observed result:** The verified 25-pair open-calibration pilot produced A
+accuracy 49.50% (pair-clustered 95% CI 47.50–51.00%), B 0.00% (0–0%), and C
+0.00% (0–0%). `delta_interface` was -49.50 pp (-51.00 to -47.50), while
+`delta_surrounding` was 0.00 pp (0–0). B/C had no exact or opposite-member
+outputs. Condition C's output-contract-failure rate was 22.5% (17.0–29.0%),
+exceeding the frozen 20% interpretability flag. `locked_pair_count=0`.
+
+**Frozen decision:** `MIXED_TARGETED_INSTRUMENT_REVIEW`. Direct transcription
+did not rescue the current model and therefore does not support A/B interface
+as the sole/main explanation. The result also does not establish visual-
+representation failure because transcription readout remained invalid and the
+prior D3 representation probe was strong.
+
+**Stop boundary:** Human review is required. Do not screen another backbone,
+change Gate 0, run compression, tune the prompt/layout, open locked validation,
+or start the main experiment. Full evidence is in
+`docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
+
 ## 2026-09-12 — Final visual/protocol approval for pilot inference
 
 **Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;

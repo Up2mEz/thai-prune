@@ -125,6 +125,18 @@ Qwen2.5 under D1-D4, and does not support Gate 0, H1-H4, real-world Thai OCR,
 or any compression claim. Exact estimates, pair-clustered intervals, and
 scope are in `docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_REPORT.md`.
 
+The subsequent frozen 25-pair measurement-contract pilot found exact target
+accuracy of 0% in both isolated direct transcription and center-target
+transcription with artificial surrounding layout. This supports only the
+bounded statement that direct transcription did not rescue this exact
+Qwen3.5 revision, prompt, rendering, decoding, and open-calibration subset; it
+does not establish that the A/B interface is harmless or that visual
+representation is absent. Because Condition C crossed the preregistered 20%
+output-contract-failure flag, the frozen decision is
+`MIXED_TARGETED_INSTRUMENT_REVIEW`. It does not authorize backbone screening,
+Gate 0, compression, or a Qwen3.5-versus-Qwen2.5 comparison. Exact evidence is
+in `docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
+
 ---
 
 ## HYPOTHESES

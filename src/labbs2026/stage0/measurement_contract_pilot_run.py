@@ -9,6 +9,7 @@ import json
 import subprocess
 import tempfile
 import time
+import unicodedata
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -68,6 +69,27 @@ def _levenshtein(a: str, b: str) -> int:
             current.append(min(current[-1] + 1, previous[j] + 1, previous[j - 1] + (ca != cb)))
         previous = current
     return previous[-1]
+
+
+def component_correct(output: str, truth: str, component: str) -> bool:
+    if component == "BASE_CHARACTER":
+        bases = [char for char in output if "\u0e01" <= char <= "\u0e2e"]
+        truth_bases = [char for char in truth if "\u0e01" <= char <= "\u0e2e"]
+        return bool(bases and truth_bases and bases[0] == truth_bases[0])
+    if component == "TONE_MARK":
+        return ("\u0e48" in output) == ("\u0e48" in truth)
+    alternatives = {
+        "UPPER_VOWEL_VARIANT": ("\u0e34", "\u0e35"),
+        "LOWER_VOWEL_VARIANT": ("\u0e38", "\u0e39"),
+    }
+    if component in alternatives:
+        first, second = alternatives[component]
+        expected = first if first in truth else second
+        return (expected in output) and ((second if expected == first else first) not in output)
+    if component == "STACKED_TONE_MARK":
+        registered_upper = next((char for char in truth if char in "\u0e34\u0e35\u0e36\u0e37\u0e47"), None)
+        return bool(registered_upper and registered_upper in output and (("\u0e48" in output) == ("\u0e48" in truth)))
+    raise ValueError(f"unknown component: {component}")
 
 
 def _selected(config: dict[str, Any]) -> list[str]:
@@ -172,6 +194,13 @@ def analyze(artifact: Path, output: Path, config_path: Path, a_path: Path) -> di
     for component in sorted({r["component_type"] for r in combined}):
         subset = [r for r in combined if r["component_type"] == component]
         per_component[component] = {name: _interval(subset, name, config) for name in ("A", "B", "C", "delta_interface", "delta_surrounding")}
+    for row in bc:
+        normalized = row["normalized_output"]
+        nfc_output = unicodedata.normalize("NFC", normalized)
+        nfc_truth = unicodedata.normalize("NFC", row["displayed_text"])
+        row["raw_codepoint_CER"] = _levenshtein(normalized, row["displayed_text"]) / max(1, len(row["displayed_text"]))
+        row["NFC_codepoint_CER"] = _levenshtein(nfc_output, nfc_truth) / max(1, len(nfc_truth))
+        row["target_component_correct"] = component_correct(normalized, row["displayed_text"], row["component_type"]) if row["taxonomy"] != "output_contract_failure" else False
     taxonomy = {condition: dict(Counter(r["taxonomy"] for r in bc if r["condition"] == condition)) for condition in ("B", "C")}
     taxonomy_by_component = {component: {condition: dict(Counter(r["taxonomy"] for r in bc if r["condition"] == condition and r["component_type"] == component)) for condition in ("B", "C")} for component in per_component}
     important = {name: metrics[name]["estimate"] >= config["primary_contrasts"]["important_effect_if_point_at_least"] and metrics[name]["ci_low"] > config["primary_contrasts"]["important_effect_if_ci_low_above"] for name in ("delta_interface", "delta_surrounding")}
@@ -193,7 +222,17 @@ def analyze(artifact: Path, output: Path, config_path: Path, a_path: Path) -> di
         decision = "SECONDARY_BACKBONE_SCREENING"
     else:
         decision = "INCONCLUSIVE"
-    report = {"schema_version": 1, "evidence_scope": "OPEN_CALIBRATION_ONLY_MEASUREMENT_DIAGNOSTIC", "independent_unit": "pair_id", "pair_count": 25, "locked_pair_count": 0, "metrics": metrics, "important_effect": important, "error_taxonomy": taxonomy, "error_taxonomy_by_component": taxonomy_by_component, "per_component_descriptive": per_component, "interpretability_flags": {"component_flag": component_flag, "output_contract_failure_flag": failure_flag}, "frozen_decision": decision, "gate_0_status": "NOT_RUN", "compression_status": "NOT_RUN", "human_review_checkpoint": "STOP"}
+    secondary = {}
+    taxonomy_rates = {}
+    categories = config["error_taxonomy_precedence"]
+    for condition in ("B", "C"):
+        subset = [r for r in bc if r["condition"] == condition]
+        secondary[condition] = {key: _interval(subset, key, config) for key in ("target_correct", "target_component_correct", "raw_codepoint_CER", "NFC_codepoint_CER")}
+        taxonomy_rates[condition] = {}
+        for category in categories:
+            rows = [{"pair_id": r["pair_id"], "indicator": r["taxonomy"] == category} for r in subset]
+            taxonomy_rates[condition][category] = _interval(rows, "indicator", config)
+    report = {"schema_version": 2, "evidence_scope": "OPEN_CALIBRATION_ONLY_MEASUREMENT_DIAGNOSTIC", "independent_unit": "pair_id", "pair_count": 25, "locked_pair_count": 0, "metrics": metrics, "important_effect": important, "secondary_metrics": secondary, "error_taxonomy": taxonomy, "error_taxonomy_pair_clustered_rates": taxonomy_rates, "condition_A_invalid_or_missing_order_count": 0, "error_taxonomy_by_component": taxonomy_by_component, "per_component_descriptive": per_component, "interpretability_flags": {"component_flag": component_flag, "output_contract_failure_flag": failure_flag}, "frozen_decision": decision, "gate_0_status": "NOT_RUN", "compression_status": "NOT_RUN", "human_review_checkpoint": "STOP"}
     output.mkdir(parents=True, exist_ok=False)
     atomic_write_json(output / "measurement_contract_pilot_analysis.json", report)
     _write_jsonl(output / "paired_observations.jsonl", combined)

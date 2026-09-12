@@ -1,4 +1,4 @@
-from labbs2026.stage0.measurement_contract_pilot_run import classify_output, normalize_output
+from labbs2026.stage0.measurement_contract_pilot_run import classify_output, component_correct, normalize_output
 
 
 def test_output_taxonomy_is_frozen_and_exact():
@@ -11,3 +11,12 @@ def test_output_taxonomy_is_frozen_and_exact():
 
 def test_normalization_only_canonicalizes_line_endings_and_outer_space():
     assert normalize_output("  กา\r\nภา  ") == "กา\nภา"
+
+
+def test_registered_component_scoring_rules():
+    assert component_correct("กา", "กา", "BASE_CHARACTER")
+    assert not component_correct("ขา", "กา", "BASE_CHARACTER")
+    assert component_correct("ก่า", "ก่า", "TONE_MARK")
+    assert component_correct("กิ", "กิ", "UPPER_VOWEL_VARIANT")
+    assert component_correct("กู", "กู", "LOWER_VOWEL_VARIANT")
+    assert component_correct("กี่", "กี่", "STACKED_TONE_MARK")

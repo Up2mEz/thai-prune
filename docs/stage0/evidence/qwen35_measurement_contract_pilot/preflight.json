@@ -1,0 +1,1 @@
+{"checks":{"A_reference_hash":true,"all_other_prohibitions":true,"authorized_frozen_status":true,"remote_exact_sha":true,"selected_25_unique":true,"source_bundle_hash":true,"tracked_tree_clean":true},"git_sha":"39dd417672656d18d38a640e5b77452740afcab7","remote_error":null,"remote_sha":"39dd417672656d18d38a640e5b77452740afcab7","schema_version":1,"valid":true}

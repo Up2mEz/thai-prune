@@ -31,7 +31,7 @@ new compression method is required.
 | Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
 | Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
 | Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
-| Steps 4–6 — Stage 0 | `PILOT_INFERENCE_AUTHORIZED` | Final B/C visual/protocol review passed; only the frozen 25-pair Qwen3.5 contract pilot is authorized, followed by a human-review stop; backbone screening, Gate 0, locked validation, and compression remain unauthorized |
+| Steps 4–6 — Stage 0 | `PILOT_COMPLETE_HUMAN_REVIEW_REQUIRED` | The verified 25-pair Qwen3.5 pilot produced A=49.5%, B=0%, C=0%; Condition C crossed the frozen output-failure flag, so the decision is `MIXED_TARGETED_INSTRUMENT_REVIEW` and execution is stopped; backbone screening, Gate 0, locked validation, and compression remain unauthorized |
 | Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
 | Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
 
