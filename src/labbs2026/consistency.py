@@ -181,6 +181,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
             or "Steps 4–6 — Stage 0 | `PILOT_PROTOCOL_PENDING_HUMAN_CHECK`"
             in active_plan
             or "Steps 4–6 — Stage 0 | `PILOT_FINAL_VISUAL_PROTOCOL_APPROVAL_PENDING`"
+            or "Steps 4–6 — Stage 0 | `PILOT_INFERENCE_AUTHORIZED`"
             in active_plan
         ),
         "The frozen Stage 0 calibration status must agree across the Source of Truth.",
@@ -219,6 +220,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
             or "Steps 4–6 — Stage 0 | `PILOT_PROTOCOL_PENDING_HUMAN_CHECK`"
             in active_plan
             or "Steps 4–6 — Stage 0 | `PILOT_FINAL_VISUAL_PROTOCOL_APPROVAL_PENDING`"
+            or "Steps 4–6 — Stage 0 | `PILOT_INFERENCE_AUTHORIZED`"
             in active_plan
         )
         and "Locked Stage 0 validation may not begin" in decisions

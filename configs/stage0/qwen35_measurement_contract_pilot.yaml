@@ -1,5 +1,5 @@
 schema_version: 1
-status: CONDITION_C_AMENDED_PENDING_FINAL_VISUAL_PROTOCOL_APPROVAL
+status: FROZEN_AUTHORIZED_FOR_PILOT_INFERENCE
 outcome_visibility: NO_PILOT_MODEL_OUTPUT_OBSERVED
 stage: stage0_qwen35_measurement_contract_pilot
 scientific_scope: OPEN_CALIBRATION_ONLY_MEASUREMENT_DIAGNOSTIC
@@ -82,6 +82,9 @@ conditions:
     candidate_orders: [registered, swapped]
     comparable_score: "(correct_registered_order + correct_swapped_order) / 2"
     orders_are_independent: false
+    frozen_reference: assets/stage0/qwen35_contract_pilot_A_reference.jsonl
+    frozen_reference_sha256: dfd12fcabf346fbede27c7616d9c209c6f5900bc9294a52499d827a5e2524762
+    provenance_record: assets/stage0/qwen35_contract_pilot_A_reference.json
   B_isolated_transcription:
     image_source: EXACT_CONDITION_A_PNG_PIXELS
     image_transform: NONE
@@ -223,7 +226,7 @@ reproducibility:
   condition_A_exact_source_required: true
 
 prohibitions:
-  inference_authorized: false
+  inference_authorized: true
   locked_validation_authorized: false
   gate_0_change_authorized: false
   frozen_split_change_authorized: false
@@ -236,4 +239,4 @@ prohibitions:
   compression_authorized: false
   post_outcome_tuning_authorized: false
 
-mandatory_next_state: FINAL_VISUAL_PROTOCOL_APPROVAL_BEFORE_INFERENCE
+mandatory_next_state: HUMAN_REVIEW_AFTER_PILOT

@@ -1,6 +1,11 @@
 # Qwen3.5 Measurement-Contract Pilot Protocol — Pre-Inference Amendment
 
-**Status:** `CONDITION_C_AMENDED_PENDING_FINAL_VISUAL_PROTOCOL_APPROVAL`
+**Status:** `FROZEN_AUTHORIZED_FOR_PILOT_INFERENCE`
+
+**Final human approval:** 2026-09-12. The approved execution is limited to
+this frozen 25-pair Qwen3.5 pilot and must stop for human review after the
+registered analysis. All interpretation boundaries in this document remain
+unchanged.
 
 **Outcome visibility:** `NO_PILOT_MODEL_OUTPUT_OBSERVED`
 

@@ -1,6 +1,6 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** CONDITION C AMENDED; `FINAL_VISUAL_PROTOCOL_APPROVAL`;
+**Status:** `PILOT_INFERENCE_AUTHORIZED`; stop at human review after pilot;
 Gate 0 remains `NOT_RUN`
 
 ## Objective
@@ -24,7 +24,8 @@ paired analysis, SESOI, uncertainty, and protections, but required Condition C
 to use the same center-target-only readout as B and exact target-pixel
 identity. The amended protocol/config are recorded; only deterministic
 stimulus construction, contact sheets, and non-model validation are authorized
-until final visual/protocol approval.
+until final visual/protocol approval. That final review passed on 2026-09-12;
+only the frozen 25-pair Qwen3.5 pilot is now authorized.
 
 ## Authorization and stop boundary
 
@@ -37,6 +38,8 @@ Authorized now:
   exposed calibration pairs.
 - protocol/config amendment, deterministic B/C contact sheets, and target-
   pixel identity validation for the proposed 25-pair pilot.
+- the exact frozen B/C pilot inference and registered A/B/C analysis, followed
+  immediately by a human-review stop.
 
 Forbidden now:
 
@@ -45,7 +48,7 @@ Forbidden now:
 - Stage 1A or any compression intervention.
 - post-outcome prompt, label, rendering, pair, or backbone changes presented as
   the same registered calibration;
-- any further model inference, including backbone screening.
+- any model inference beyond this frozen pilot, including backbone screening.
 
 ## Dependencies and checkpoints
 

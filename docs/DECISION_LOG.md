@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Final visual/protocol approval for pilot inference
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;
+Gate 0 remains `NOT_RUN`.
+
+**Human decision:** The B/C contact sheets across all five components, both
+fonts, and both sizes passed visual review. The existing 200/200 byte-level
+target-pixel identity validation is accepted. Run only the frozen 25-pair
+Qwen3.5 pilot, then stop for human review.
+
+**Frozen interpretation:** Condition C is a controlled artificial surrounding-
+layout diagnostic, not natural-language context, positional robustness, or a
+realistic document-layout test. `delta_surrounding = C - B` supports only a
+statement associated with adding the frozen surrounding layout around the
+same centered target.
+
+**Authorization:** Conditions B/C inference and the registered A/B/C analysis
+are authorized. Condition A must reuse its verified D1 rows. Locked validation,
+backbone screening, Gate 0 changes, compression, post-outcome tuning, and the
+main experiment remain prohibited.
+
 ## 2026-09-12 — Condition C pre-inference amendment required
 
 **Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;

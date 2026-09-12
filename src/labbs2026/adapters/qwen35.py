@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from dataclasses import replace
+from dataclasses import asdict, replace
 from importlib.metadata import version
 from pathlib import Path
 from typing import Any
@@ -177,6 +177,56 @@ class Qwen35Adapter(Qwen25VLAdapter):
                 "max_new_tokens": self.max_new_tokens,
                 "output_contract_mode": self.output_contract_mode,
                 "allowed_labels": list(self.allowed_labels),
+            },
+        }
+
+    def transcribe_target(
+        self, image_path: Path, prompt: str, *, min_new_tokens: int = 1
+    ) -> dict[str, Any]:
+        """Generate an unconstrained transcription while preserving raw evidence."""
+
+        import torch
+
+        if self.output_contract_mode != "free_generation":
+            raise RuntimeError("target transcription requires free_generation")
+        inputs, image, preprocess_seconds, _prefix_text = self._prepare(image_path, prompt)
+        captured: dict[str, int] = {}
+        hooks = self._register_runtime_visual_hooks(captured)
+        started = time.perf_counter()
+        try:
+            with torch.inference_mode():
+                generated = self.model.generate(
+                    **inputs,
+                    do_sample=self.do_sample,
+                    min_new_tokens=min_new_tokens,
+                    max_new_tokens=self.max_new_tokens,
+                )
+        finally:
+            for hook in hooks:
+                hook.remove()
+        generation_seconds = time.perf_counter() - started
+        generated_only = generated[:, inputs["input_ids"].shape[1] :]
+        token_ids = [int(value) for value in generated_only[0].tolist()]
+        raw_output = self.processor.batch_decode(
+            generated_only,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False,
+        )[0]
+        runtime_count = captured.get("postmerge")
+        if runtime_count is None:
+            raise RuntimeError("Vision Encoder output count was not observed during generation")
+        metadata = self._metadata_from_inputs(inputs, image, runtime_count=runtime_count)
+        return {
+            "raw_output": raw_output,
+            "generated_token_ids": token_ids,
+            "visual_stage_metadata": asdict(metadata),
+            "preprocess_seconds": preprocess_seconds,
+            "generation_seconds": generation_seconds,
+            "resolved_generation_config": {
+                "do_sample": self.do_sample,
+                "min_new_tokens": min_new_tokens,
+                "max_new_tokens": self.max_new_tokens,
+                "output_contract_mode": self.output_contract_mode,
             },
         }
 
