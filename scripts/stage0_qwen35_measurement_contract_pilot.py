@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -28,6 +29,16 @@ def _clean() -> bool:
     return subprocess.run(["git", "diff", "--quiet"], cwd=ROOT).returncode == 0 and subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0
 
 
+def _git_blob_sha256(relative: str, revision: str = "HEAD") -> str:
+    payload = subprocess.run(
+        ["git", "show", f"{revision}:{relative}"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout
+    return hashlib.sha256(payload).hexdigest()
+
+
 def preflight() -> dict:
     config, runtime = _yaml(CONFIG), load_runtime(RUNTIME)
     git_sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, check=True, capture_output=True, text=True).stdout.strip()
@@ -40,7 +51,7 @@ def preflight() -> dict:
         "all_other_prohibitions": all(v is False for k, v in config["prohibitions"].items() if k != "inference_authorized"),
         "selected_25_unique": len(selected) == len(set(selected)) == 25,
         "source_bundle_hash": sha256_file(ROOT / config["source_bundle"]) == config["source_bundle_sha256"],
-        "A_reference_hash": sha256_file(ROOT / a["frozen_reference"]) == a["frozen_reference_sha256"],
+        "A_reference_hash": _git_blob_sha256(a["frozen_reference"]) == a["frozen_reference_sha256"],
     }
     return {"schema_version": 1, "valid": all(checks.values()), "git_sha": git_sha, "remote_sha": remote, "remote_error": error, "checks": checks}
 
@@ -51,7 +62,7 @@ def prepare() -> dict:
         raise RuntimeError("pilot preflight failed")
     config, runtime, git_sha = _yaml(CONFIG), load_runtime(RUNTIME), check["git_sha"]
     paths = [CONFIG.relative_to(ROOT).as_posix(), RUNTIME.relative_to(ROOT).as_posix(), WORKER.relative_to(ROOT).as_posix(), config["protocol"], config["source_bundle"], config["model"]["config"], config["conditions"]["A_forced_choice"]["frozen_reference"], config["conditions"]["A_forced_choice"]["provenance_record"], "configs/stage0/candidate_pairs.yaml", "uv.lock", runtime["uv"]["qwen35_override_lock"]]
-    hashes = {p: sha256_file(ROOT / p) for p in paths}
+    hashes = {p: _git_blob_sha256(p, git_sha) for p in paths}
     run_id = f"kaggle-qwen35-contract-{git_sha[:12]}-{hashes[CONFIG.relative_to(ROOT).as_posix()][:8]}"
     spec = {"schema_version": 1, "run_type": "QWEN35_FROZEN_25_PAIR_MEASUREMENT_CONTRACT_PILOT", "run_id": run_id, "git_sha": git_sha, "repository_url": runtime["source"]["repository_url"], "remote_ref": runtime["source"]["remote_ref"], "source_hashes": hashes, "config_path": CONFIG.relative_to(ROOT).as_posix(), "runtime_path": RUNTIME.relative_to(ROOT).as_posix(), "source_dir": runtime["paths"]["source_dir"], "output_root": runtime["paths"]["output_root"], "requested_accelerator": runtime["accelerator"], "environment_contract": runtime["evidence_environment_contract"], "python_version": runtime["python"]["version"], "uv_bootstrap_version": runtime["uv"]["bootstrap_version"], "uv_sync_args": runtime["uv"]["sync_args"], "qwen35_override_lock": runtime["uv"]["qwen35_override_lock"], "kernel_id": KERNEL["id"], "locked_validation_authorized": False, "compression_status": "NOT_RUN", "gate_0_status": "NOT_RUN", "created_at_utc": utc_now()}
     run_dir, staging = ROOT / "runs/kaggle" / run_id, ROOT / "runs/kaggle" / run_id / "staging"

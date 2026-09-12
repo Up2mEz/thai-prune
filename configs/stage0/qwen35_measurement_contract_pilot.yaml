@@ -83,7 +83,7 @@ conditions:
     comparable_score: "(correct_registered_order + correct_swapped_order) / 2"
     orders_are_independent: false
     frozen_reference: assets/stage0/qwen35_contract_pilot_A_reference.jsonl
-    frozen_reference_sha256: dfd12fcabf346fbede27c7616d9c209c6f5900bc9294a52499d827a5e2524762
+    frozen_reference_sha256: e418e8a415f36b616af81b9e14624d0d93c26d83d879c1ff57143165c9462e1a
     provenance_record: assets/stage0/qwen35_contract_pilot_A_reference.json
   B_isolated_transcription:
     image_source: EXACT_CONDITION_A_PNG_PIXELS
