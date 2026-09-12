@@ -89,7 +89,7 @@ def execute_remote(spec_path: Path) -> None:
         if len(selected) != 25 or len(set(selected)) != 25:
             raise RuntimeError("selected pair contract mismatch")
         phase = "open_bundle_verification"
-        input_dir = Path(tempfile.mkdtemp(prefix="labbs-contract-pilot-"))
+        input_dir = Path(tempfile.mkdtemp(prefix="labbs-contract-pilot-")) / "extracted"
         bundle = extract_and_verify_calibration_bundle(source / config["source_bundle"], input_dir, config["source_bundle_sha256"])
         if bundle["locked_validation_pair_count_in_bundle"] != 0:
             raise RuntimeError("locked pair found in source bundle")
