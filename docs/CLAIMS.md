@@ -156,31 +156,32 @@ in `docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
 
 ## HYPOTHESES
 
-### Thai-specific OCR adaptation hypothesis — S0 baseline only
+### Thai-specific OCR adaptation hypothesis — frozen overall design
 
 Thai-specific OCR adaptation may change the degradation curve under decreasing
 realized visual-information budgets for the base OCR VLM and its declared
 Thai-specialized OCR descendant.
-The primary proposed test is a non-directional `MODEL x BUDGET` interaction.
-A `MODEL x BUDGET x COMPONENT` interaction is secondary/descriptive unless S0
-establishes adequate component-level measurement capacity.
+The frozen primary test is a non-directional `MODEL x BUDGET` interaction.
+A `MODEL x BUDGET x COMPONENT` interaction is descriptive/diagnostic under the
+current dataset and cannot be promoted without a separately powered approval.
 
-**Status:** `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`; the future
-interaction remains untested and is not an active result. The design simulation
-supports only a proposal that the overall interaction may be identifiable under
-its stated assumptions; it is not compression evidence.
+**Status:** `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`;
+the overall non-directional interaction design and Gate-0 criteria are frozen,
+but the interaction remains untested. The design simulation is planning
+evidence under stated assumptions, not compression evidence.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
-scientific rejection. The model-agnostic hypothesis remains proposed. The
-PaddleOCR-VL-1.6 / Wayu-Paxa fallback is approved only for the exact
-non-scientific 40-call engineering smoke and has no scientific outcome
-evidence.
+scientific rejection. PaddleOCR-VL-1.6 / Wayu-Paxa completed the accepted
+engineering smoke and S0 full-information open-calibration baseline. Those
+results remain baseline association evidence, not `MODEL x BUDGET` or
+compression evidence.
 
-### H1 — Differential component degradation
+### Historical H1 — Differential component degradation
 Under decreasing visual-token budgets, distinctions involving small Thai orthographic components may degrade differently from other character distinctions.
 
-**Status:** untested.
+**Status:** untested and descriptive/diagnostic under the current dataset; not
+the active confirmatory primary hypothesis.
 
 **Directionality:** frozen as non-directional on 2026-09-04. The stronger claim
 that micro-features degrade more than base-character distinctions is not
@@ -249,6 +250,9 @@ The following claims are currently forbidden:
 - "PaddleOCR-VL-1.6 is a general-purpose VLM control against an OCR model."
 - "S0 tests the MODEL x BUDGET interaction."
 - "The 45,723-page synthetic training set is the only checkpoint difference."
+- "The frozen 256/196/121/64 budget grid is Token Pruning."
+- "The design freeze authorizes locked validation or Resolution Reduction inference."
+- "The experiment has 84-97% power" without stating the registered simulation assumptions.
 
 The following inference is also forbidden:
 

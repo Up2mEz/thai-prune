@@ -4,23 +4,31 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation amendment — S0 only
 
-Status: `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`. The S0 baseline and
-S0-only identifiability audit have completed; the overall interaction design
-and revised Gate criteria remain proposals pending human review.
+Status: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
+The overall interaction design, Gate-0 criteria, complete future Input
+Resolution Reduction grid, primary analysis, metrics, exclusions, and locked
+reuse governance are frozen. No locked or reduced-resolution inference is
+authorized.
 
 The primary comparison is **base OCR VLM versus Thai-specialized OCR
 descendant**. Do not describe it as general VLM versus OCR-specialized VLM.
-The research question is: “Does Thai-specific OCR adaptation change robustness
-to controlled visual-information reduction?” The future primary interaction
-remains non-directional `MODEL x BUDGET`; S0 measures only full-information
-baseline capacity and does not test that interaction.
+The research question is: “Does Thai-specific OCR adaptation change the
+degradation curve under controlled visual-information reduction?” The frozen
+primary interaction is non-directional `MODEL x BUDGET`; S0 measured only
+full-information baseline capacity and did not test that interaction.
+
+The complete frozen design is in `OVERALL_MODEL_BUDGET_FREEZE.md`. The future
+budget variable is categorical actual LLM image-placeholder count at
+`256/196/121/64`, realized by processor targets `448/392/308/224` using Input
+Resolution Reduction only. `MODEL x BUDGET x COMPONENT` is
+descriptive/diagnostic. The prepared locked FULL protocol remains unauthorized.
 
 The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
-smoke, compression, or benchmarking is authorized. The model-agnostic research
-question is unchanged. The PaddleOCR-VL-1.6 / Wayu-Paxa pair has only a
-source-and-terms clearance, passed the exact 40-call engineering smoke, and is
-authorized only for the separately frozen S0 open-calibration baseline. The
-45,723-page synthetic training set is not assumed to be the only checkpoint
+smoke, compression, or benchmarking is authorized. The broader historical
+model-agnostic question remains in the record, while the active confirmatory
+question is now frozen for PaddleOCR-VL-1.6 and Wayu-Paxa. This pair passed the
+engineering smoke and completed the authorized S0 open-calibration baseline.
+The 45,723-page synthetic training set is not assumed to be the only checkpoint
 difference.
 
 The earlier 25-`pair_id`, 400-call Typhoon proposal below is historical and is
@@ -75,12 +83,17 @@ Goal: verify that the dataset, task, prompt, parser, model adapter, and metrics 
 Primary question:
 > Can the uncompressed/full-information model reliably discriminate the controlled stimuli?
 
-### Stage 1 — Differential degradation
-Goal: determine whether component categories show different degradation as visual information/token budget decreases.
+### Stage 1 — Overall differential degradation
+Goal: determine whether the BASE and SPECIALIZED checkpoints have different
+exact-transcription degradation curves as actual visual-information budget
+decreases under Input Resolution Reduction. Component curves are
+descriptive/diagnostic.
 
-### Stage 1A — Resolution Sensitivity Pilot
-Goal: obtain preliminary evidence about sensitivity to processor-controlled
-input Resolution Reduction after Gate 0 is human-approved `PASS`.
+### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen Paddle/Wayu design
+The earlier pilot concept is preserved as history. The frozen first
+Paddle/Wayu budget experiment is the overall `MODEL x BUDGET` design in
+`OVERALL_MODEL_BUDGET_FREEZE.md`, still conditional on a human-approved Gate 0
+and separate execution authorization.
 
 Stage 1A is not the main Stage 1 experiment and cannot approve Gate 1. It does
 not test post-encoder Token Pruning and cannot reject H3 because only one
@@ -278,13 +291,15 @@ Every compression configuration must record:
 - method-specific parameters.
 
 ### 9.1 Budget grid
-Initial pilot budgets may use a coarse grid such as:
+The historical pilot proposal used a coarse nominal grid such as:
 
 ```text
 100%, 75%, 50%, 25%
 ```
 
-However, final main-experiment budgets must be chosen before the main analysis and recorded explicitly.
+The active Paddle/Wayu grid is now frozen at actual LLM image-position counts
+`256/196/121/64` before locked output. Do not replace these with nominal
+percentages.
 
 For Stage 1A, the grid is selected using processor/token mapping only, before
 opening predictions. If processor rounding maps requested budgets to duplicate
@@ -328,25 +343,25 @@ before later-stage evidence is collected.
 
 ---
 
-## 11. Main statistical question
+## 11. Active main statistical question
 
-The central Stage 1/2 question is not simply whether accuracy decreases.
-
-It is whether degradation depends on component type as budget changes.
+The active question is not simply whether accuracy decreases. It is whether
+degradation differs by MODEL as budget changes after accounting for different
+FULL baselines.
 
 Conceptually:
 
 ```text
-correct
-~ budget
-+ component_type
-+ budget × component_type
-+ visual confound variables
+exact_correct
+~ MODEL * BUDGET
++ FONT + FONT_SIZE + MEMBER + COMPONENT
++ (1 | pair_id)
 ```
 
-The interaction `budget × component_type` is therefore central.
-
-The final statistical model must be selected based on the data structure before final analysis. Possible approaches include mixed-effects logistic regression and paired/bootstrap analyses.
+The confirmatory interaction is `MODEL x BUDGET`. The frozen model is
+mixed-effects logistic regression, translated to marginal probability-scale
+Difference-in-Differences with pair-clustered uncertainty. Component
+interactions are descriptive/diagnostic.
 
 Do not treat a visually different graph as statistically established evidence by itself.
 

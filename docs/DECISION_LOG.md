@@ -2,6 +2,40 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Overall MODEL x BUDGET design and Gate-0 criteria frozen
+
+**Human decision:** Accepted `FREEZE_OVERALL_MODEL_BUDGET_DESIGN`. The future
+primary question is whether Thai-specific OCR adaptation changes the degradation
+curve under controlled visual-information reduction. The non-directional
+confirmatory effect is `MODEL x BUDGET`; component interactions remain
+descriptive/diagnostic under the current design.
+
+**Frozen analysis:** Observation-level mixed-effects logistic regression with
+`MODEL * BUDGET`, font, font size, member, and component main effects plus a
+`pair_id` random intercept. The user-facing effect is the marginal
+probability-scale Difference-in-Differences with pair-clustered uncertainty;
+pair-level paired bootstrap and codepoint CER are sensitivities.
+
+**Frozen Gate-0 criteria:** Each model's overall exact-accuracy lower
+pair-clustered 95% CI must be at least 20%; output-contract failure at most 1%
+per model; exact visual-token accounting; zero unauthorized/out-of-workload
+locked pairs; and no parser/runtime corruption. There is no baseline upper
+limit, Thai-output gate, raw render-range gate, or component gate on the overall
+experiment.
+
+**Frozen future mechanism/grid:** Input Resolution Reduction only, with actual
+LLM image-position budgets `256/196/121/64` from processor targets
+`448/392/308/224`. No reduced-resolution outcome was observed. The same 100
+locked pairs are intended for Gate-0 FULL and the later budget panel, so the
+complete grid, analysis, metrics, and exclusions are frozen before locked
+output.
+
+**Still unauthorized:** locked inference, Resolution Reduction inference,
+Token Pruning, Token Merging, fine-tuning, and method development.
+
+**Terminal state:**
+`OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
+
 ## 2026-09-12 — Measurement-readiness audit complete; human review required
 
 **Human input:** Accepted `BASELINE_CAPACITY_MIXED_CRITERIA_REVIEW_REQUIRED` and
