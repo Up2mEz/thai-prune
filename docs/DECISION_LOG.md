@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-12 — Paddle/Wayu S0 complete; mandatory human-review stop
+
+**Run:** `kaggle-paddle-wayu-s0-a7f3eec06bce-832fe44f` completed the frozen
+1,520-call open-calibration full-information baseline. Verification was
+`VERIFIED`, artifact checksums matched, failures were empty, and
+`locked_pair_count=0`.
+
+**Calibration observation:** Pair-clustered exact accuracy was 29.74% [23.29,
+36.71] for BASE and 45.53% [38.68, 52.50] for SPECIALIZED; the paired
+`SPECIALIZED - BASE` estimate was +15.79 pp [+9.08, +22.63]. Several BASE
+component cells remained close to floor. These are open-calibration baseline
+associations, not compression or causal evidence.
+
+**Agent recommendation:**
+`BASELINE_CAPACITY_MIXED_CRITERIA_REVIEW_REQUIRED`. Proposed numerical validity
+criteria are documented in `PADDLE_WAYU_S0_OPEN_CALIBRATION_REPORT.md`; they are
+not frozen or authorized until human review.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`. No locked
+validation, budget intervention, compression, or later stage is authorized.
+
 ## 2026-09-12 — Scientific framing amended; S0 baseline authorized
 
 **Human decision:** Accept the Paddle/Wayu engineering smoke and set

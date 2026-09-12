@@ -165,9 +165,9 @@ The primary proposed test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is secondary/descriptive unless S0
 establishes adequate component-level measurement capacity.
 
-**Status:** `APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`; the future
-interaction remains untested and is not an active result. S0 may assess only
-full-information baseline measurement capacity.
+**Status:** `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`; the future interaction
+remains untested and is not an active result. S0 assessed only the
+full-information open-calibration baseline and proposed mixed-capacity review.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
