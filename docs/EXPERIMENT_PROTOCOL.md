@@ -4,11 +4,11 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation amendment — S0 only
 
-Status: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
-The overall interaction design, Gate-0 criteria, complete future Input
-Resolution Reduction grid, primary analysis, metrics, exclusions, and locked
-reuse governance are frozen. No locked or reduced-resolution inference is
-authorized.
+Status: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+The overall interaction design, FULL-validity criteria, one-shot 6,400-call
+Input Resolution Reduction panel, target-aware random effects, estimator
+diagnostics/fallback, metrics, and exclusions are frozen. No locked image
+generation, locked inference, or reduced-resolution inference is authorized.
 
 The primary comparison is **base OCR VLM versus Thai-specialized OCR
 descendant**. Do not describe it as general VLM versus OCR-specialized VLM.
@@ -21,7 +21,9 @@ The complete frozen design is in `OVERALL_MODEL_BUDGET_FREEZE.md`. The future
 budget variable is categorical actual LLM image-placeholder count at
 `256/196/121/64`, realized by processor targets `448/392/308/224` using Input
 Resolution Reduction only. `MODEL x BUDGET x COMPONENT` is
-descriptive/diagnostic. The prepared locked FULL protocol remains unauthorized.
+descriptive/diagnostic. The prepared one-shot locked-panel protocol remains
+unauthorized. It forbids a FULL-only run, conditional continuation, and access
+to intermediate scientific outcomes.
 
 The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
 smoke, compression, or benchmarking is authorized. The broader historical
@@ -92,8 +94,8 @@ descriptive/diagnostic.
 ### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen Paddle/Wayu design
 The earlier pilot concept is preserved as history. The frozen first
 Paddle/Wayu budget experiment is the overall `MODEL x BUDGET` design in
-`OVERALL_MODEL_BUDGET_FREEZE.md`, still conditional on a human-approved Gate 0
-and separate execution authorization.
+`OVERALL_MODEL_BUDGET_FREEZE.md`, pending final one-shot panel authorization.
+FULL validity is evaluated only after the complete panel is immutable.
 
 Stage 1A is not the main Stage 1 experiment and cannot approve Gate 1. It does
 not test post-encoder Token Pruning and cannot reject H3 because only one
@@ -355,13 +357,17 @@ Conceptually:
 exact_correct
 ~ MODEL * BUDGET
 + FONT + FONT_SIZE + MEMBER + COMPONENT
-+ (1 | pair_id)
++ (1 | pair_id) + (1 | pair_id:member)
 ```
 
-The confirmatory interaction is `MODEL x BUDGET`. The frozen model is
-mixed-effects logistic regression, translated to marginal probability-scale
-Difference-in-Differences with pair-clustered uncertainty. Component
-interactions are descriptive/diagnostic.
+The confirmatory interaction is `MODEL x BUDGET`; `BUDGET` is a categorical
+four-level factor. The global omnibus is the registered 3-df likelihood-ratio
+test against the model without the interaction. Report all three frozen
+`DID_196`, `DID_121`, and `DID_64` marginal probability-scale contrasts with
+pair-clustered uncertainty and Holm multiplicity control. The exact GLMM
+diagnostics and direction-independent fallback are in
+`stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`. Component interactions are
+descriptive/diagnostic.
 
 Do not treat a visually different graph as statistically established evidence by itself.
 

@@ -1,85 +1,112 @@
-# Paddle/Wayu Gate-0 Locked Full-Information Protocol
+# Paddle/Wayu One-Shot Locked Confirmatory Panel Protocol
 
 > Status: `PREPARED_NOT_AUTHORIZED_NOT_RUN`
 >
-> This document prepares the protocol only. No locked image bundle was built,
-> inspected, or sent to a processor/model in this task.
+> The historical filename is retained for stable references. Gate-0 is no
+> longer a staged execution. It is the FULL-validity condition evaluated only
+> after the complete one-shot panel is immutable.
 
-## Purpose and frozen scope
+No locked image bundle was built, inspected, or sent to a processor/model while
+preparing this amendment.
 
-Gate 0 asks only whether each pinned checkpoint has sufficient overall
-full-information exact-transcription measurement capacity under the frozen
-contract. It does not test `MODEL x BUDGET`, Input Resolution Reduction,
-component-specific degradation, or compression robustness.
+## One-shot execution contract
 
-Use exactly the 100 `locked_validation_pair_ids` already frozen in
-`configs/stage0/calibration_design.yaml`, with no replacement based on S0. Each
-pair contributes two members, two registered fonts, and two registered sizes.
-The two models receive identical PNG bytes. The planned Gate-0 workload is:
+The only registered locked workload is:
 
-`100 pairs x 2 members x 2 fonts x 2 sizes x 2 models = 1,600 calls`.
+`100 pair_id x 2 members x 2 fonts x 2 sizes x 2 models x 4 budgets = 6,400 calls`.
 
-Only budget `B256_FULL` is allowed: 448x448 processor input,
-`image_grid_thw=[1,32,32]`, 1,024 pre-merge patches, 256 projector positions,
-and 256 LLM image placeholders. Prompt is exactly `OCR:`; decoding is greedy;
-the primary parser removes leading/trailing whitespace only.
+The four categorical budgets are the actual LLM image-position counts
+`256/196/121/64`, mapped to processor inputs `448/392/308/224`. Every registered
+cell must be materialized and executed in the same run. There is no 1,600-call
+FULL-only run and no conditional 4,800-call continuation.
 
-## Frozen Gate-0 criteria
+The runner may stop only for a fail-closed engineering corruption. It must not
+calculate, print, display, summarize, or expose accuracy, CER, component,
+model, budget, or FULL-validity outcomes while calls remain. Raw per-call
+records are append-only operational evidence, not an intermediate scientific
+analysis. Scientific analysis begins only after all 6,400 records and their
+manifest/checksums are sealed immutable.
 
-Gate-0 measurement validity requires all of the following:
+After sealing:
 
-1. For each model separately, the lower pair-clustered 95% CI for overall exact
-   transcription accuracy is at least 20%. This is `2 x` the 10 pp SESOI from
-   the absolute zero floor. There is no upper-baseline requirement.
-2. Output-contract failure is at most 1% for each model. Contract failures and
-   empty outputs remain in the denominator and count as incorrect.
-3. Visual-token accounting, generation boundary, model/processor revision,
-   input hashes, and parser operation match the frozen contract on every call.
-4. No parser/runtime corruption occurs and no unregistered locked pair appears.
+1. evaluate the registered FULL-validity criteria using only `B256_FULL`;
+2. if FULL validity fails, label the primary `MODEL x BUDGET` analysis
+   `NOT_INTERPRETABLE_FULL_VALIDITY_FAILED` and do not promote reduced-budget
+   results to scientific claims;
+3. if FULL validity passes, run the frozen primary analysis without changing
+   pairs, budgets, metrics, exclusions, model structure, or multiplicity.
 
-Thai-output rate is diagnostic only. Component headroom classifications do not
-block the overall Gate. Font and size effects are estimated as paired
-`pair_id`-clustered contrasts and reported; there is no arbitrary render-range
-pass threshold. Severe unexplained instability is flagged for human review.
+## Immutable stimulus and INPUT RESOLUTION REDUCTION pipeline
 
-The historical name `locked_pair_count=0` meant zero unauthorized exposure.
-Because an authorized Gate-0 run intentionally contains 100 registered locked
-pairs, its manifest must instead report both
-`registered_locked_pair_count=100` and
-`unauthorized_or_out_of_workload_locked_pair_count=0`. An unqualified count
-must not be used.
+The registered 448x448 RGB PNG is the immutable source for all four budgets.
+`B256_FULL` uses byte-identical source PNG bytes. Reduced PNGs are produced once
+from that exact source; text is never re-rendered at a lower size.
 
-## Analysis and failure handling
+- library: `Pillow==12.3.0`;
+- function: `PIL.Image.Image.resize`;
+- exact call: `source.resize((width, height), Image.Resampling.BICUBIC, reducing_gap=None)`;
+- interpolation/antialias: `BICUBIC`; Pillow has no separate antialias boolean
+  for this call, so the registered antialias behavior is the one-step BICUBIC
+  kernel with `reducing_gap=None`;
+- dimensions: exact integer square sizes; no aspect-ratio calculation or
+  coordinate rounding;
+- mode: input must already be `RGB`; output remains 8-bit `RGB`;
+- PNG encoding: Pillow PNG writer, `optimize=False`, `compress_level=9`, no
+  metadata written for reduced images;
+- forbidden: sharpening, thresholding, OCR-specific preprocessing, EXIF
+  rotation, adaptive sizing, or any per-image parameter change.
 
-Aggregate the eight member/font/size observations within `pair_id` before the
-10,000-resample percentile bootstrap (`seed=20260913`). Report each model's
-overall exact accuracy and CI. Gate 0 remains a human decision; software reports
-criterion states without opening a later stage.
+Before model loading, a stimulus manifest must record SHA-256 hashes of every
+source file, source RGB pixel buffer, output file, and output RGB pixel buffer.
+The runtime must verify exact dimensions and the expected processor accounting:
 
-No post-outcome pair or observation exclusion, replacement, parser repair, or
-per-example retry is allowed. A missing/corrupt input, revision mismatch,
-non-isolatable generation boundary, token mismatch, or runtime corruption stops
-the run. Partial results are preserved but cannot be used as a valid Gate-0
-decision.
+| Input | `image_grid_thw` | Pre-merge | Actual LLM positions |
+|---:|---:|---:|---:|
+| 448x448 | `[1,32,32]` | 1,024 | 256 |
+| 392x392 | `[1,28,28]` | 784 | 196 |
+| 308x308 | `[1,22,22]` | 484 | 121 |
+| 224x224 | `[1,16,16]` | 256 | 64 |
 
-## Locked reuse governance
+Processor calls must pass `min_pixels=max_pixels=width*height`. The intervention
+is named **INPUT RESOLUTION REDUCTION**. The study does not identify visual-token
+count alone as the cause because image sampling changes before the Vision Encoder.
 
-The same 100 registered locked pairs are intended to form the later
-`MODEL x BUDGET` panel. To prevent the locked full-information outcome from
-tuning that experiment, the complete grid is frozen before any locked output:
+## FULL-validity condition
 
-- `B256_FULL`: 256 actual LLM image positions;
-- `B196`: 196 positions;
-- `B121`: 121 positions;
-- `B64`: 64 positions.
+PASS means only:
 
-The complete panel is 6,400 calls. Gate 0 would execute only the 1,600 FULL
-calls; if and only if a later human decision authorizes continuation after Gate
-0, the remaining 4,800 reduced-resolution calls use the already frozen grid,
-analysis, metrics, and exclusions. Locked baseline accuracy cannot change a
-budget, prompt, parser, pair, outcome, model, contrast, or exclusion rule.
+> overall primary `MODEL x BUDGET` analysis is measurement-interpretable under
+> the registered planning criterion.
 
-If this reuse contract is later changed or cannot be enforced, stop and create
-a new human-approved split/protocol before locked inference.
+It requires all of the following on `B256_FULL`:
 
-Terminal state: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
+1. each model's lower pair-clustered percentile 95% CI for overall exact
+   accuracy is at least 20%;
+2. output-contract failure is at most 1% separately for each model;
+3. exact visual-token accounting on every call;
+4. no model/processor/input/generation-boundary mismatch, Unicode/parser
+   corruption, NaN/Inf, or unexplained runtime corruption;
+5. `unauthorized_or_out_of_workload_locked_pair_count=0`.
+
+The authorized panel intentionally contains
+`registered_locked_pair_count=100`. The legacy phrase `locked_pair_count=0`
+means zero unauthorized or out-of-workload locked pairs and must be emitted
+with the qualified field name above.
+
+There is no upper-baseline gate. Thai-output rate and paired font/size effects
+are diagnostic. PASS is not evidence that all five orthographic components
+have valid measurement capacity. Component curves remain descriptive and no
+pair may be removed based on S0 or locked difficulty.
+
+## Analysis and estimator failure
+
+The exact primary and fallback procedures are frozen in
+`docs/stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`. The selected target-aware
+random structure is `(1 | pair_id) + (1 | pair_id:member)`. `pair_id` remains
+the top-level bootstrap/resampling unit.
+
+No post-outcome exclusion, replacement, parser repair, per-example retry, or
+silent estimator switch is allowed. A partial or corrupt run is preserved with
+a failure manifest and is not a valid panel.
+
+Terminal state: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.

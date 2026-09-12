@@ -58,8 +58,47 @@ def test_locked_panel_counts_and_authorization_are_fail_closed():
         (root / config["dataset"]["allocation_source"]).read_text("utf-8")
     )
     assert len(design["allocation"]["locked_validation_pair_ids"]) == 100
-    assert config["dataset"]["gate0_full_information_calls"] == 100 * 2 * 4 * 2
-    assert config["dataset"]["complete_four_budget_calls"] == 100 * 2 * 4 * 2 * 4
-    assert config["dataset"]["reuse_locked_pairs_in_future_budget_experiment"]
+    assert config["execution"]["total_calls"] == 100 * 2 * 4 * 2 * 4
+    assert config["execution"]["mode"] == "ONE_SHOT_LOCKED_CONFIRMATORY_PANEL"
+    assert config["execution"]["gate0_full_only_run"] == "FORBIDDEN"
+    assert config["execution"]["conditional_continuation"] == "FORBIDDEN"
+    assert config["execution"]["intermediate_scientific_outcome_access"] == "FORBIDDEN"
+    assert config["execution"]["registered_locked_pair_count"] == 100
+    assert config["execution"]["unauthorized_or_out_of_workload_locked_pair_count"] == 0
+    assert not config["authorization"]["locked_image_generation"]
     assert not config["authorization"]["locked_inference"]
     assert not config["authorization"]["resolution_reduction_inference"]
+
+
+def test_primary_analysis_and_pipeline_amendments_are_machine_frozen():
+    root = Path(__file__).resolve().parents[1]
+    config = yaml.safe_load(
+        (root / "configs/stage0/overall_model_budget_design.yaml").read_text("utf-8")
+    )
+    primary = config["primary_analysis"]
+    assert primary["budget_coding"] == "CATEGORICAL_WITH_B256_FULL_REFERENCE_NO_LINEAR_TREND"
+    assert "(1 | pair_id:member)" in primary["full_formula"]
+    assert "MODEL * BUDGET" in primary["full_formula"]
+    assert "MODEL * BUDGET" not in primary["null_formula"]
+    assert primary["confirmatory_test"]["reference_distribution"] == "CHI_SQUARE_DF_3"
+    assert [entry["name"] for entry in primary["did_estimands"]] == [
+        "DID_196",
+        "DID_121",
+        "DID_64",
+    ]
+    assert primary["multiplicity"]["method"] == "HOLM"
+    assert primary["fallback"]["silent_switch"] == "FORBIDDEN"
+
+    downsampling = config["intervention"]["downsampling"]
+    assert downsampling["version"] == "12.3.0"
+    assert downsampling["interpolation"] == "Image.Resampling.BICUBIC"
+    assert downsampling["reducing_gap"] is None
+    assert downsampling["forbidden"] == [
+        "SHARPENING",
+        "THRESHOLDING",
+        "OCR_SPECIFIC_PREPROCESSING",
+        "ADAPTIVE_PER_IMAGE_RESIZING",
+        "EXIF_ROTATION",
+    ]
+    assert config["full_validity_condition"]["evaluated_after_complete_panel_is_immutable"]
+    assert config["terminal_state"] == "REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION"

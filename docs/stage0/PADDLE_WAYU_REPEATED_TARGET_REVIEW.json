@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "EXISTING_S0_FULL_INFORMATION_ONLY_NO_NEW_MODEL_INFERENCE",
+  "pair_count": 95,
+  "target_count": 190,
+  "observations_per_target": 8,
+  "fixed_effect_residualization": [
+    "MODEL",
+    "FONT",
+    "FONT_SIZE",
+    "MEMBER",
+    "COMPONENT"
+  ],
+  "residual_variance": 0.20128289473684213,
+  "same_target_off_diagonal_residual_covariance": 0.07951795607439653,
+  "cross_member_same_pair_residual_covariance": 0.02407202216066482,
+  "target_level_excess_covariance": 0.05544593391373171,
+  "target_level_excess_fraction_of_residual_variance": 0.27546272119258763,
+  "pair_cluster_bootstrap": {
+    "resamples": 10000,
+    "seed": 20260913,
+    "ci_type": "PERCENTILE_95",
+    "ci_low": 0.03468889122477246,
+    "median": 0.055020033636723406,
+    "ci_high": 0.07876814157103276,
+    "fraction_at_or_below_zero": 0.0
+  },
+  "structure_comparison": {
+    "A": {
+      "formula": "(1 | pair_id)",
+      "identifiability": "IDENTIFIABLE_BUT_CANNOT_REPRESENT_TARGET_EXCESS_COVARIANCE",
+      "convergence_assessment": "LOWER_COMPLEXITY_NOT_A_SUFFICIENT_REASON_TO_IGNORE_OBSERVED_DEPENDENCE",
+      "singular_fit_risk": "LOWER_THAN_B_BUT_METHOD_MISSPECIFICATION_RISK_IS_MATERIAL",
+      "assessment": "INADEQUATE_FOR_OBSERVED_TARGET_LEVEL_DEPENDENCE"
+    },
+    "B": {
+      "formula": "(1 | pair_id) + (1 | pair_id:member)",
+      "identifiability": "SUPPORTED_BY_190_S0_TARGET_LEVELS_WITH_8_REPEATS_EACH",
+      "convergence_assessment": "NOT_GUARANTEED_PRELOCKED_REGISTERED_DIAGNOSTICS_REQUIRED",
+      "singular_fit_risk": "NONZERO_TWO_NESTED_VARIANCE_COMPONENTS",
+      "assessment": "SELECTED_PRIMARY_TARGET_AWARE_STRUCTURE",
+      "future_pair_levels": 100,
+      "future_target_levels": 200,
+      "future_observations_per_target": 32
+    }
+  },
+  "interpretation": "Positive target-level excess covariance indicates that repeated renders, models, and future budgets for one target remain correlated beyond the pair-level intercept. This is a design diagnostic, not compression evidence.",
+  "limitations": [
+    "The covariance diagnostic uses a linear-probability residual scale, not a locked GLMM fit.",
+    "S0 contains FULL information only, so it cannot estimate any budget effect.",
+    "A two-level random-intercept GLMM can still be singular; registered diagnostics and fallback govern that event."
+  ],
+  "source_run_id": "kaggle-paddle-wayu-s0-a7f3eec06bce-832fe44f",
+  "source_git_sha": "a7f3eec06bce27bf178cefbe895a8c3ae44de1c3",
+  "locked_validation_access": false,
+  "new_model_inference": false
+}

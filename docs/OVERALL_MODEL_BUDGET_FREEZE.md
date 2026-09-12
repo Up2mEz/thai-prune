@@ -1,6 +1,6 @@
 # Overall MODEL x BUDGET Design Freeze
 
-> Status: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`
+> Status: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`
 >
 > Freeze date: 2026-09-13
 >
@@ -38,7 +38,7 @@ regression:
 ```text
 exact_correct ~ MODEL * BUDGET
               + FONT + FONT_SIZE + MEMBER + COMPONENT
-              + (1 | pair_id)
+              + (1 | pair_id) + (1 | pair_id:member)
 ```
 
 - `MODEL`: categorical; BASE reference.
@@ -47,14 +47,16 @@ exact_correct ~ MODEL * BUDGET
 - `FONT`, `FONT_SIZE`, `MEMBER`, and `COMPONENT`: nuisance/main-effect
   adjustments. Component is justified by the heterogeneous S0 baselines; no
   confirmatory component interaction is included.
-- Primary confirmatory test: two-sided joint 3-df test that all reduced-budget
-  `MODEL x BUDGET` coefficients are zero, alpha 0.05.
+- Primary confirmatory test: likelihood-ratio comparison against the otherwise
+  identical model without `MODEL x BUDGET`: `2 * (logLik(full)-logLik(null))`,
+  chi-square df=3, two-sided alpha 0.05. `BUDGET` is categorical; no linear
+  trend is assumed.
 - Budget-specific reduced-versus-FULL contrasts use Holm correction across the
   three contrasts when making inferential claims.
 
 The log-odds interaction is not the user-facing effect size. For every reduced
-budget, marginal predictions/g-computation over the frozen pair/render
-distribution report:
+budget, design-standardized empirical g-computation over the balanced frozen
+pair/render distribution reports:
 
 ```text
 [SPECIALIZED(reduced) - SPECIALIZED(FULL)]
@@ -71,14 +73,18 @@ and their Difference-in-Differences. Codepoint CER is a secondary sensitivity
 metric; it does not replace the exact-transcription primary outcome.
 
 All registered observations remain in analysis. Contract failures and empty
-outputs score incorrect. There is no post-outcome replacement/exclusion. If the
-primary mixed model is non-convergent or singular under the frozen fit checks,
-record `PRIMARY_MODEL_NOT_ESTIMABLE` and stop for review; do not promote a
-sensitivity result to primary after seeing outcomes.
+outputs score incorrect. There is no post-outcome replacement/exclusion. The
+exact `R==4.5.2`, `lme4==1.1-38` fit, convergence/separation diagnostics, named
+`DID_196/DID_121/DID_64` estimands, Holm procedure, and direction-independent
+pair-clustered fallback are frozen in
+`docs/stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`. An estimator switch is
+allowed only after a registered GLMM diagnostic failure and must be disclosed.
 
-## 3. Frozen Gate-0 measurement-validity criteria
+## 3. Frozen FULL-validity condition
 
-Gate-0 FULL measurement validity requires:
+FULL validity is evaluated only after the complete 6,400-call panel is sealed.
+PASS means “the overall primary `MODEL x BUDGET` analysis is
+measurement-interpretable under the registered planning criterion.” It requires:
 
 1. Each model's lower pair-clustered 95% CI for overall exact transcription
    accuracy is at least 20%. This is `2 x` the 10 pp SESOI from the zero floor.
@@ -95,13 +101,13 @@ reported and the future model adjusts for both factors; no raw render-cell range
 threshold is a hard gate. Component headroom remains diagnostic and does not
 block the overall experiment when overall Gate-0 criteria pass.
 
-An authorized locked Gate-0 workload intentionally contains the 100 registered
+An authorized locked panel intentionally contains the 100 registered
 locked pairs. Its manifest must distinguish
 `registered_locked_pair_count=100` from
 `unauthorized_or_out_of_workload_locked_pair_count=0`; the legacy unqualified
 `locked_pair_count` must not be used for this run.
 
-## 4. Processor-only candidate resolution mapping
+## 4. Processor-only geometry and frozen image pipeline
 
 Both pinned processors were loaded without model weights using Transformers
 `5.12.0`. Their geometry matched: `patch_size=14`, `merge_size=2`, temporal grid
@@ -128,11 +134,14 @@ uv run --with transformers==5.12.0 --with pillow --with numpy python scripts/pro
 | 252x252 | `[1,18,18]` | 324 | 81 | 31.64% |
 | 224x224 | `[1,16,16]` | 256 | 64 | 25.00% |
 
-The processor's default minimum area is 112,896 pixels (336²). Therefore a
-small source image alone could be upscaled to 336x336. Every frozen condition
-must pass equal `min_pixels` and `max_pixels` explicitly so the realized target
-cannot drift. The original registered 448x448 PNG remains the source; the
-processor performs the frozen BICUBIC resize.
+The processor's default minimum area is 112,896 pixels (336²). Therefore every
+condition passes equal `min_pixels` and `max_pixels`. The registered 448x448 RGB
+PNG is immutable. `B256_FULL` preserves its exact bytes; reduced PNGs use
+`Pillow==12.3.0`, `PIL.Image.Image.resize`, `Image.Resampling.BICUBIC`,
+`reducing_gap=None`, exact integer dimensions, `optimize=False`, and
+`compress_level=9`. No lower-resolution re-render, sharpening, thresholding,
+OCR preprocessing, EXIF rotation, or adaptive sizing is allowed. Source/output
+file and RGB-pixel SHA-256 hashes are recorded before model loading.
 
 ## 5. Frozen future budget grid
 
@@ -154,24 +163,35 @@ image before the Vision Encoder. It is not Pre-encoder token selection,
 post-encoder Token Pruning, Token Merging/Pooling, or dynamic decoding-time
 token access. Evidence must remain mechanism-specific.
 
-## 6. Locked-validation protocol and reuse governance
+## 6. One-shot locked-panel governance
 
-The Gate-0 locked FULL protocol is prepared in
-`docs/stage0/PADDLE_WAYU_GATE0_LOCKED_PROTOCOL.md` but remains unauthorized and
-unrun. It uses exactly the previously frozen 100 locked `pair_id` values, two
-members, two registered fonts, two sizes, two models, and FULL only: 1,600
-calls. No locked bundle was materialized or inspected in this task.
+The amended protocol in
+`docs/stage0/PADDLE_WAYU_GATE0_LOCKED_PROTOCOL.md` remains unauthorized and
+unrun. The historical filename is retained, but Gate-0 is no longer a staged
+execution. The only registered workload is:
 
-The same 100 locked pairs are intended for the later four-budget registered
-panel. Consequently, the complete 6,400-call grid, primary analysis, metrics,
-and exclusions are frozen now—before the first locked FULL output. If Gate 0 is
-later human-approved, the remaining three budgets account for 4,800 calls. The
-locked baseline cannot be used to tune the grid or analysis.
+`100 pairs x 2 members x 2 fonts x 2 sizes x 2 models x 4 budgets = 6,400 calls`.
 
-If this same-panel reuse guarantee cannot be enforced, stop before locked
-inference and adopt a new human-approved data split/protocol.
+All budgets run without opening intermediate scientific outcomes. There is no
+FULL-only decision followed by conditional continuation. Only after the full
+panel and checksums are immutable is the FULL-validity condition evaluated. If
+FULL validity fails, the primary analysis is
+`NOT_INTERPRETABLE_FULL_VALIDITY_FAILED`; reduced-budget results cannot be
+promoted to scientific claims. No locked image bundle was materialized or
+inspected in this amendment.
 
-## 7. Simulation interpretation
+## 7. Repeated-target review
+
+Using only preserved S0 FULL artifacts, a fixed-effect-residual covariance
+diagnostic found target-level excess covariance `0.05545`, pair-bootstrap 95%
+CI `[0.03469, 0.07877]`. This is about 27.55% of residual variance and indicates
+that target repeats remain correlated beyond a pair-only intercept. Structure
+A `(1|pair_id)` was rejected in favor of structure B
+`(1|pair_id) + (1|pair_id:member)`. The locked design has 100 pair levels, 200
+target levels, and 32 observations per target, but singular-fit risk is not
+zero; the frozen diagnostics/fallback govern that event.
+
+## 8. Simulation interpretation
 
 Allowed planning statement: under the registered simulation assumptions, the
 95-cluster design showed approximately 84–97% probability of detecting a 10 pp
@@ -180,7 +200,7 @@ unconditional power claim and is not empirical compression evidence. Component
 simulations of approximately 34–56% support keeping component analyses
 descriptive under the present design.
 
-## 8. Claims and authorization boundary
+## 9. Claims and authorization boundary
 
 This freeze establishes a question, estimand, analysis, Gate-0 criteria,
 processor-realizable budget grid, exclusions, and locked-data governance. It
@@ -188,5 +208,6 @@ does not establish compression robustness, specialization-induced robustness,
 an observed `MODEL x BUDGET` interaction, component degradation, causal effects
 of Thai training, or a need for a new method.
 
-No locked inference or Resolution Reduction inference is authorized. Terminal
-state: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
+No locked image generation, locked inference, or Resolution Reduction inference
+is authorized. Terminal state:
+`REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.

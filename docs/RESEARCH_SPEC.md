@@ -5,10 +5,11 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation study — S0 authorized
 
-Status: `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
-The non-directional overall `MODEL x BUDGET` design, primary analysis, Gate-0
-criteria, and future Input Resolution Reduction grid are frozen. No locked
-inference or reduced-resolution inference is authorized.
+Status: `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+The non-directional overall `MODEL x BUDGET` design, FULL-validity criteria,
+one-shot 6,400-call panel, target-aware random effects, primary/fallback
+analysis, and Input Resolution Reduction pipeline are frozen. No locked image
+generation, locked inference, or reduced-resolution inference is authorized.
 
 The revised research question is:
 
@@ -31,9 +32,10 @@ workload are in `FALLBACK_PAIR_CLEARANCE.md`. The historical Typhoon proposal
 remains in `SPECIALIZATION_PIVOT_REVIEW.md`.
 
 S0 remains open-calibration full-information baseline measurement only. It did
-not test `MODEL x BUDGET` or compression robustness. `Gate 0` remains
-`NOT_RUN`; its criteria are now frozen, but locked validation remains
-unauthorized. Prior Qwen2.5 and Qwen3.5 evidence retains only its original
+not test `MODEL x BUDGET` or compression robustness. The historical staged
+`Gate 0` execution remains `NOT_RUN` and has been replaced prospectively by a
+FULL-validity condition evaluated only after the whole locked panel is
+immutable. Prior Qwen2.5 and Qwen3.5 evidence retains only its original
 diagnostic scope.
 
 ## 1. Research objective
@@ -129,19 +131,24 @@ Stage 0 asks whether the selected model, controlled dataset, forced-choice
 task, parser, and metrics can measure the intended distinctions at
 full-information settings.
 
-1. `Stage 0 calibration` estimates measurement quality.
-2. The human researcher freezes justified Gate 0 criteria.
-3. `Stage 0 locked validation` evaluates those criteria on locked data.
-4. The human researcher records `PASS`, `FAIL`, or `INCONCLUSIVE`.
+1. `Stage 0 calibration` estimates measurement quality on open data.
+2. The human researcher freezes justified FULL-validity criteria and the whole
+   confirmatory panel before any locked outcome.
+3. One authorized one-shot locked panel executes all four budgets without
+   intermediate scientific outcome access.
+4. After the panel is immutable, the FULL condition is evaluated. Failure
+   makes the overall `MODEL x BUDGET` analysis `NOT_INTERPRETABLE`; PASS permits
+   the already-frozen primary analysis.
 
 No compression outcome may be used to select Gate 0 thresholds.
 
 ### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen first experiment
 
-The earlier Stage 1A concept was a conditional non-gate pilot. The 2026-09-13
-freeze supersedes it for the first Paddle/Wayu experiment with a registered
-overall `MODEL x BUDGET` Input Resolution Reduction design. It remains blocked
-until Gate 0 is human-approved `PASS` and separate execution is authorized.
+The earlier Stage 1A concept was a conditional non-gate pilot. The amended
+2026-09-13 freeze supersedes it with one registered Paddle/Wayu
+`MODEL x BUDGET` Input Resolution Reduction panel. It remains blocked until
+final human authorization; there is no conditional continuation after a
+FULL-only run.
 
 Stage 1A evidence is `Preliminary/Pilot`. It cannot approve Gate 1, reject a
 post-encoder Token Pruning hypothesis, or test H3. Post-encoder compression

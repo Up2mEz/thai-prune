@@ -2,7 +2,45 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Locked-panel design amended; final authorization pending
+
+**Human decision:** Accepted the overall non-directional `MODEL x BUDGET`
+direction but withheld locked inference. The model pair, dataset membership,
+five component categories, and processor budget grid are not reopened.
+
+**Selection-bias repair:** The former FULL-first Gate-0 run plus conditional
+continuation is removed. The only registered locked execution is one immutable
+6,400-call panel: 100 pairs x 2 members x 2 fonts x 2 sizes x 2 models x 4
+budgets. No intermediate scientific outcome may be opened. FULL validity is
+evaluated only after the whole panel is sealed; failure makes the primary
+analysis `NOT_INTERPRETABLE_FULL_VALIDITY_FAILED`.
+
+**Frozen analysis amendment:** `BUDGET` is categorical. The global primary is
+the 3-df likelihood-ratio omnibus `MODEL x BUDGET` test. Report all three
+probability-scale `DID_196`, `DID_121`, and `DID_64` contrasts with pair-cluster
+bootstrap uncertainty and Holm control. Existing S0 artifacts showed target-
+level excess residual covariance `0.05545`, pair-bootstrap 95% CI `[0.03469,
+0.07877]`; therefore the primary random structure is
+`(1 | pair_id) + (1 | pair_id:member)`. `pair_id` remains the resampling unit.
+
+**Pipeline and estimator contracts:** Every reduced PNG is a deterministic
+Pillow 12.3.0 BICUBIC downsample of the immutable registered 448x448 RGB source,
+with exact file/pixel hashes and no re-rendering or OCR preprocessing. GLMM
+convergence, Hessian, singularity, finite-value, and separation diagnostics are
+frozen. Diagnostic failure is reported transparently and invokes only the
+pre-registered pair-clustered marginal-DID fallback; no outcome-dependent
+model repair is allowed.
+
+**Still unauthorized:** locked image generation, locked inference, Resolution
+Reduction inference, Token Pruning, Token Merging, fine-tuning, and method work.
+
+**Terminal state:**
+`REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+
 ## 2026-09-13 — Overall MODEL x BUDGET design and Gate-0 criteria frozen
+
+> Historical decision retained. Its FULL-first conditional execution and
+> pair-only random-intercept details are superseded by the amendment above.
 
 **Human decision:** Accepted `FREEZE_OVERALL_MODEL_BUDGET_DESIGN`. The future
 primary question is whether Thai-specific OCR adaptation changes the degradation

@@ -165,10 +165,12 @@ The frozen primary test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is descriptive/diagnostic under the
 current dataset and cannot be promoted without a separately powered approval.
 
-**Status:** `OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`;
-the overall non-directional interaction design and Gate-0 criteria are frozen,
-but the interaction remains untested. The design simulation is planning
-evidence under stated assumptions, not compression evidence.
+**Status:** `REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`;
+the one-shot 6,400-call panel, categorical omnibus interaction, three DID
+contrasts, target-aware random effects, exact downsampling pipeline, and
+estimator fallback are frozen, but the interaction remains untested. The S0
+repeated-target covariance review supports the analysis structure only; it is
+not compression evidence.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
@@ -176,6 +178,13 @@ scientific rejection. PaddleOCR-VL-1.6 / Wayu-Paxa completed the accepted
 engineering smoke and S0 full-information open-calibration baseline. Those
 results remain baseline association evidence, not `MODEL x BUDGET` or
 compression evidence.
+
+The future FULL-validity PASS, if authorized and attained, would mean only that
+the overall primary `MODEL x BUDGET` analysis is measurement-interpretable
+under the registered planning criterion. It would not establish measurement
+capacity for every component. If FULL validity fails after the complete panel
+is immutable, reduced-budget results are `NOT_INTERPRETABLE` and cannot be
+promoted to scientific claims.
 
 ### Historical H1 — Differential component degradation
 Under decreasing visual-token budgets, distinctions involving small Thai orthographic components may degrade differently from other character distinctions.

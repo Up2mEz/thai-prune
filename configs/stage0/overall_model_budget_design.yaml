@@ -1,105 +1,139 @@
-schema_version: 1
-status: OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION
+schema_version: 2
+status: REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION
 frozen_date: 2026-09-13
 research_question: Does Thai-specific OCR adaptation change the degradation curve under controlled visual-information reduction?
 
 models:
-  - role: BASE
-    model_id: PaddlePaddle/PaddleOCR-VL-1.6
-    revision: c5630abae1d940eafe0697512a0325494b02ab42
-  - role: SPECIALIZED
-    model_id: wayu-ai/wayu-paxa-ocr-zero
-    revision: af0204b4f334a6d5068b6bac2b3738932d6e289b
+  - {role: BASE, model_id: PaddlePaddle/PaddleOCR-VL-1.6, revision: c5630abae1d940eafe0697512a0325494b02ab42}
+  - {role: SPECIALIZED, model_id: wayu-ai/wayu-paxa-ocr-zero, revision: af0204b4f334a6d5068b6bac2b3738932d6e289b}
 
 intervention:
   family: INPUT_RESOLUTION_REDUCTION
+  causal_boundary: IMAGE_SAMPLING_AND_ACTUAL_VISUAL_POSITIONS_CHANGE_TOGETHER
   processor_geometry_evidence: docs/stage0/PADDLE_WAYU_PROCESSOR_GEOMETRY.json
-  excluded_families:
-    - PRE_ENCODER_REDUCTION
-    - POST_ENCODER_TOKEN_PRUNING
-    - TOKEN_MERGING_OR_POOLING
-    - DYNAMIC_DECODING_TIME_TOKEN_ACCESS
   source_canvas: [448, 448]
-  processor_resample: BICUBIC
+  source_contract: IMMUTABLE_REGISTERED_448X448_RGB_PNG
+  no_lower_resolution_rerendering: true
+  downsampling:
+    library: Pillow
+    version: 12.3.0
+    function: PIL.Image.Image.resize
+    interpolation: Image.Resampling.BICUBIC
+    antialias: BICUBIC_KERNEL_NO_SEPARATE_BOOLEAN
+    reducing_gap: null
+    rounding: NONE_EXACT_INTEGER_WIDTH_HEIGHT
+    input_mode: RGB
+    output_mode: RGB
+    output_bit_depth: 8
+    encoding: PNG
+    optimize: false
+    compress_level: 9
+    metadata: NONE_WRITTEN_FOR_REDUCED_IMAGES
+    hash_algorithm: SHA256
+    required_hashes: [SOURCE_FILE, SOURCE_RGB_PIXELS, OUTPUT_FILE, OUTPUT_RGB_PIXELS]
+    forbidden: [SHARPENING, THRESHOLDING, OCR_SPECIFIC_PREPROCESSING, ADAPTIVE_PER_IMAGE_RESIZING, EXIF_ROTATION]
+  processor_call: {force_equal_min_max_pixels: true, interpolation_after_materialization: NONE_EXPECTED}
   patch_size: 14
   spatial_merge_size: 2
   temporal_grid: 1
   scientific_budget_unit: ACTUAL_LLM_IMAGE_PLACEHOLDERS
-  force_exact_processor_area: true
   budgets:
-    - {budget_id: B256_FULL, input_resolution: [448, 448], min_pixels: 200704, max_pixels: 200704, image_grid_thw: [1, 32, 32], pre_merge_patches: 1024, projector_positions: 256, llm_image_placeholders: 256, fraction_full: 1.0}
-    - {budget_id: B196, input_resolution: [392, 392], min_pixels: 153664, max_pixels: 153664, image_grid_thw: [1, 28, 28], pre_merge_patches: 784, projector_positions: 196, llm_image_placeholders: 196, fraction_full: 0.765625}
-    - {budget_id: B121, input_resolution: [308, 308], min_pixels: 94864, max_pixels: 94864, image_grid_thw: [1, 22, 22], pre_merge_patches: 484, projector_positions: 121, llm_image_placeholders: 121, fraction_full: 0.47265625}
-    - {budget_id: B64, input_resolution: [224, 224], min_pixels: 50176, max_pixels: 50176, image_grid_thw: [1, 16, 16], pre_merge_patches: 256, projector_positions: 64, llm_image_placeholders: 64, fraction_full: 0.25}
+    - {budget_id: B256_FULL, input_resolution: [448, 448], min_pixels: 200704, max_pixels: 200704, image_grid_thw: [1, 32, 32], pre_merge_patches: 1024, llm_image_placeholders: 256, source_operation: BYTE_IDENTICAL_SOURCE}
+    - {budget_id: B196, input_resolution: [392, 392], min_pixels: 153664, max_pixels: 153664, image_grid_thw: [1, 28, 28], pre_merge_patches: 784, llm_image_placeholders: 196, source_operation: DETERMINISTIC_DOWNSAMPLE_FROM_448}
+    - {budget_id: B121, input_resolution: [308, 308], min_pixels: 94864, max_pixels: 94864, image_grid_thw: [1, 22, 22], pre_merge_patches: 484, llm_image_placeholders: 121, source_operation: DETERMINISTIC_DOWNSAMPLE_FROM_448}
+    - {budget_id: B64, input_resolution: [224, 224], min_pixels: 50176, max_pixels: 50176, image_grid_thw: [1, 16, 16], pre_merge_patches: 256, llm_image_placeholders: 64, source_operation: DETERMINISTIC_DOWNSAMPLE_FROM_448}
+  excluded_families: [PRE_ENCODER_REDUCTION, POST_ENCODER_TOKEN_PRUNING, TOKEN_MERGING_OR_POOLING, DYNAMIC_DECODING_TIME_TOKEN_ACCESS]
 
 dataset:
   allocation_source: configs/stage0/calibration_design.yaml
   pair_source: configs/stage0/candidate_pairs.yaml
   split: PREVIOUSLY_FROZEN_LOCKED_VALIDATION
   pair_count: 100
-  components:
-    - BASE_CHARACTER
-    - TONE_MARK
-    - UPPER_VOWEL_VARIANT
-    - LOWER_VOWEL_VARIANT
-    - STACKED_TONE_MARK
+  components: [BASE_CHARACTER, TONE_MARK, UPPER_VOWEL_VARIANT, LOWER_VOWEL_VARIANT, STACKED_TONE_MARK]
   members: [a, b]
   render_conditions:
     - noto_sans_thai_regular__72__center
     - noto_sans_thai_regular__96__center
     - noto_serif_thai_regular__72__center
     - noto_serif_thai_regular__96__center
-  reuse_locked_pairs_in_future_budget_experiment: true
-  gate0_full_information_calls: 1600
-  complete_four_budget_calls: 6400
-  reduced_budget_calls_after_gate0_pass: 4800
   no_pair_replacement: true
+
+execution:
+  mode: ONE_SHOT_LOCKED_CONFIRMATORY_PANEL
+  total_calls: 6400
+  formula: 100_PAIR_X_2_MEMBER_X_2_FONT_X_2_SIZE_X_2_MODEL_X_4_BUDGET
+  gate0_full_only_run: FORBIDDEN
+  conditional_continuation: FORBIDDEN
+  intermediate_scientific_outcome_access: FORBIDDEN
+  analyze_only_after_complete_panel_immutable: true
+  allowed_early_stop: FAIL_CLOSED_ENGINEERING_CORRUPTION_ONLY
+  registered_locked_pair_count: 100
+  unauthorized_or_out_of_workload_locked_pair_count: 0
 
 prompt: "OCR:"
 decoding: {do_sample: false, num_beams: 1, max_new_tokens: 32, use_cache: true, per_example_retry: false}
-primary_parser:
-  operation: PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY
-  unicode_normalization: NONE
-  autocorrect: false
-  punctuation_removal: false
-  fuzzy_replacement: false
-
+primary_parser: {operation: PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY, unicode_normalization: NONE, autocorrect: false, punctuation_removal: false, fuzzy_replacement: false}
 primary_outcome: EXACT_TARGET_TRANSCRIPTION_CORRECT
-primary_analysis:
-  model_family: MIXED_EFFECTS_LOGISTIC_REGRESSION
-  formula: exact_correct ~ MODEL * BUDGET + FONT + FONT_SIZE + MEMBER + COMPONENT + (1 | pair_id)
-  budget_coding: CATEGORICAL_WITH_B256_FULL_REFERENCE
-  model_coding: BASE_REFERENCE
-  font_coding: CATEGORICAL
-  font_size_coding: CATEGORICAL
-  member_coding: CATEGORICAL_A_REFERENCE
-  component_role: NUISANCE_MAIN_EFFECT_ONLY
-  confirmatory_test: TWO_SIDED_JOINT_3_DF_MODEL_BY_BUDGET_INTERACTION
-  alpha: 0.05
-  user_facing_effect: MARGINAL_G_COMPUTED_DIFFERENCE_IN_DIFFERENCES
-  uncertainty: PAIR_ID_CLUSTER_BOOTSTRAP_PERCENTILE_95_CI
-  bootstrap_resamples: 10000
-  bootstrap_seed: 20260913
-  budget_specific_multiplicity: HOLM_ACROSS_THREE_REDUCED_VS_FULL_CONTRASTS
-  component_interactions: DESCRIPTIVE_DIAGNOSTIC_ONLY
-  repeated_observations_not_independent: [MEMBER, FONT, FONT_SIZE, BUDGET, MODEL]
-  no_directional_assumption: true
-sensitivity_analysis:
-  primary: PAIR_LEVEL_PAIRED_BOOTSTRAP_OF_MODEL_SPECIFIC_CHANGES_FROM_FULL
-  secondary_metric: CODEPOINT_CER
 
-gate0_measurement_validity:
-  full_information_only: true
+primary_analysis:
+  specification: docs/stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md
+  model_family: BINOMIAL_LOGIT_GLMM
+  implementation: {language: R, version: 4.5.2, package: lme4, package_version: 1.1-38, function: glmer, nAGQ: 1, optimizer: bobyqa, maxfun: 200000}
+  full_formula: exact_correct ~ MODEL * BUDGET + FONT + FONT_SIZE + MEMBER + COMPONENT + (1 | pair_id) + (1 | pair_id:member)
+  null_formula: exact_correct ~ MODEL + BUDGET + FONT + FONT_SIZE + MEMBER + COMPONENT + (1 | pair_id) + (1 | pair_id:member)
+  budget_coding: CATEGORICAL_WITH_B256_FULL_REFERENCE_NO_LINEAR_TREND
+  model_coding: BASE_REFERENCE
+  component_role: NUISANCE_MAIN_EFFECT_ONLY
+  random_effect_decision_evidence: docs/stage0/PADDLE_WAYU_REPEATED_TARGET_REVIEW.json
+  confirmatory_test:
+    name: GLOBAL_OMNIBUS_MODEL_BY_BUDGET_INTERACTION
+    statistic: TWICE_LOG_LIKELIHOOD_DIFFERENCE_FULL_MINUS_NULL
+    reference_distribution: CHI_SQUARE_DF_3
+    alpha: 0.05
+  did_estimands:
+    - {name: DID_196, reduced_budget: B196, reference_budget: B256_FULL}
+    - {name: DID_121, reduced_budget: B121, reference_budget: B256_FULL}
+    - {name: DID_64, reduced_budget: B64, reference_budget: B256_FULL}
+  did_estimator: DESIGN_STANDARDIZED_EMPIRICAL_CELL_MEANS_BALANCED_PANEL
+  random_effect_predictions_in_did: EXCLUDED
+  uncertainty: {method: PAIR_ID_CLUSTER_BOOTSTRAP, resamples: 10000, seed: 20260913, ci: PERCENTILE_95}
+  bootstrap_p_value: ONE_PLUS_COUNT_ABS_CENTERED_REPLICATE_GE_ABS_ESTIMATE_DIVIDED_BY_10001
+  multiplicity: {method: HOLM, family: [DID_196, DID_121, DID_64], familywise_alpha: 0.05}
+  component_interactions: DESCRIPTIVE_DIAGNOSTIC_ONLY
+  no_directional_assumption: true
+  diagnostics:
+    optimizer_code: ZERO
+    lme4_messages: EMPTY
+    max_absolute_scaled_gradient: 0.002
+    hessian: POSITIVE_DEFINITE
+    singular_fit: {allowed: false, tolerance: 0.0001}
+    finite_coefficients_covariance: REQUIRED
+    absolute_fixed_coefficient_failure_threshold: 20
+    standard_error_failure_threshold: 10
+    separation: {package: detectseparation, package_version: 0.3, allowed: false}
+  failure_status: PRIMARY_GLMM_DIAGNOSTIC_FAILURE
+  fallback:
+    estimator: PAIR_LEVEL_MARGINAL_DID_VECTOR
+    cluster_unit: pair_id
+    resamples: 10000
+    seed: 20260913
+    global_test: WALD_DID_VECTOR_CHI_SQUARE_DF_3_FROM_BOOTSTRAP_COVARIANCE
+    noninvertible_covariance_status: FALLBACK_GLOBAL_TEST_NOT_ESTIMABLE
+    multiplicity: HOLM_ACROSS_THREE_NULL_CENTERED_BOOTSTRAP_P_VALUES
+    silent_switch: FORBIDDEN
+
+full_validity_condition:
+  evaluated_after_complete_panel_is_immutable: true
+  budget: B256_FULL
+  pass_definition: OVERALL_PRIMARY_MODEL_BY_BUDGET_ANALYSIS_IS_MEASUREMENT_INTERPRETABLE_UNDER_REGISTERED_PLANNING_CRITERION
   exact_accuracy_lower_pair_clustered_ci_minimum_per_model: 0.20
-  rationale: TWO_TIMES_10PP_SESOI_FROM_ZERO_FLOOR
-  baseline_upper_bound_requirement: NONE
   output_contract_failure_maximum_per_model: 0.01
   visual_token_accounting: EXACT_EVERY_CALL
   unauthorized_or_out_of_workload_locked_pair_count: 0
   parser_runtime_corruption: NONE
   thai_output_rate: DIAGNOSTIC_NOT_GATE
-  rendering_effects: PAIRED_CLUSTERED_CI_AND_MODEL_ADJUSTMENT_NOT_HARD_THRESHOLD
-  component_headroom: DIAGNOSTIC_DOES_NOT_BLOCK_OVERALL_GATE
+  component_headroom: DESCRIPTIVE_DIAGNOSTIC_NOT_OVERALL_GATE
+  failure_effect: PRIMARY_MODEL_BY_BUDGET_NOT_INTERPRETABLE
 
 exclusion_rules:
   post_outcome_pair_or_observation_exclusion: FORBIDDEN
@@ -111,9 +145,10 @@ exclusion_rules:
   model_or_processor_revision_mismatch: FAIL_CLOSED
 
 authorization:
+  locked_image_generation: false
   locked_inference: false
   resolution_reduction_inference: false
   token_pruning: false
   token_merging: false
   fine_tuning: false
-terminal_state: OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION
+terminal_state: REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION
