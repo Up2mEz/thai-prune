@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+import zlib
 from pathlib import Path
 from typing import Any
 
@@ -37,7 +38,7 @@ CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
 TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt3_transport.yaml"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
-CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_B64__"
+CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
 DATASET_METADATA_FILENAME = "dataset-metadata.json"
 KERNEL = {
     "id": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
@@ -338,7 +339,7 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
             },
             "locked_content_manifest": {
                 "source_path": transport["content_manifest_path"],
-                "packaged_path": "worker.py:LOCKED_CONTENT_MANIFEST_B64 -> /tmp/labbs-paddle-wayu-locked-package/locked_content_manifest.json",
+                "packaged_path": "worker.py:LOCKED_CONTENT_MANIFEST_ZLIB_B64 -> zlib decompress -> /tmp/labbs-paddle-wayu-locked-package/locked_content_manifest.json",
                 "file_size": len(content_manifest_bytes),
                 "sha256": hashlib.sha256(content_manifest_bytes).hexdigest(),
                 "expected_sha256": transport["content_manifest_sha256"],
@@ -366,7 +367,7 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
     rendered = rendered.replace(DESIGN_PLACEHOLDER, base64.b64encode(frozen_bytes).decode("ascii"))
     rendered = rendered.replace(
         CONTENT_MANIFEST_PLACEHOLDER,
-        base64.b64encode(content_manifest_bytes).decode("ascii"),
+        base64.b64encode(zlib.compress(content_manifest_bytes, level=9)).decode("ascii"),
     )
     atomic_write_text(staging / "worker.py", rendered)
     atomic_write_json(staging / "kernel-metadata.json", KERNEL)

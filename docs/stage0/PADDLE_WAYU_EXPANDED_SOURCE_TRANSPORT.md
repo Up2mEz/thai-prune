@@ -49,8 +49,9 @@ manifest hash, and frozen content-manifest hash all passed.
 The worker repeats these checks before source checkout, environment setup,
 locked image generation, or model loading. The execution module verifies the
 same content manifest again before copying the expanded source into sealed
-artifacts. It never creates a replacement ZIP.
+artifacts. The worker embeds a deterministic zlib-compressed copy of the
+manifest and verifies the SHA-256 of the decompressed canonical bytes. It never
+creates a replacement ZIP.
 
 No research hypothesis, estimand, analysis, budget, Dataset membership,
 stimulus, model revision, prompt, parser, or claim boundary changes.
-

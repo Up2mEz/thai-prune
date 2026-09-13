@@ -34,6 +34,23 @@ def test_packaged_design_hash_parse_and_contract(tmp_path: Path) -> None:
     )
 
 
+def test_compressed_content_manifest_preserves_uncompressed_identity(
+    tmp_path: Path,
+) -> None:
+    worker = _worker_module()
+    payload = b'{"files":[]}\n'
+    compressed = __import__("zlib").compress(payload, level=9)
+    encoded = __import__("base64").b64encode(compressed).decode("ascii")
+    expected = hashlib.sha256(payload).hexdigest()
+    output = tmp_path / "manifest.json"
+
+    record = worker._decode_verified_zlib_payload(encoded, output, expected)
+
+    assert output.read_bytes() == payload
+    assert record["sha256"] == expected
+    assert record["encoding"] == "BASE64_ZLIB_LEVEL_9"
+
+
 def test_packaged_design_contract_fails_closed_on_change() -> None:
     worker = _worker_module()
     design = yaml.safe_load(

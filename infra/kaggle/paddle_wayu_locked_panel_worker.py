@@ -10,12 +10,13 @@ import re
 import subprocess
 import sys
 import unicodedata
+import zlib
 from pathlib import Path, PurePosixPath
 
 
 RUN_SPEC_B64 = "__LABBS_RUN_SPEC_B64__"
 FROZEN_DESIGN_B64 = "__LABBS_FROZEN_DESIGN_B64__"
-LOCKED_CONTENT_MANIFEST_B64 = "__LABBS_LOCKED_CONTENT_MANIFEST_B64__"
+LOCKED_CONTENT_MANIFEST_ZLIB_B64 = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
 
 
 def _sha(path: Path) -> str:
@@ -51,6 +52,26 @@ def _decode_verified_payload(encoded: str, path: Path, expected_sha256: str) -> 
         "file_size": len(payload),
         "sha256": observed,
         "expected_sha256": expected_sha256,
+    }
+
+
+def _decode_verified_zlib_payload(
+    encoded: str, path: Path, expected_sha256: str
+) -> dict:
+    compressed = base64.b64decode(encoded, validate=True)
+    payload = zlib.decompress(compressed)
+    observed = hashlib.sha256(payload).hexdigest()
+    if observed != expected_sha256:
+        raise RuntimeError(f"compressed payload hash mismatch: {path.name}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(payload)
+    return {
+        "packaged_path": str(path),
+        "compressed_size": len(compressed),
+        "file_size": len(payload),
+        "sha256": observed,
+        "expected_sha256": expected_sha256,
+        "encoding": "BASE64_ZLIB_LEVEL_9",
     }
 
 
@@ -178,8 +199,8 @@ def main() -> None:
         design_record = _decode_verified_payload(
             FROZEN_DESIGN_B64, package_root / "frozen_design.yaml", spec["frozen_design_sha256"]
         )
-        content_manifest_record = _decode_verified_payload(
-            LOCKED_CONTENT_MANIFEST_B64,
+        content_manifest_record = _decode_verified_zlib_payload(
+            LOCKED_CONTENT_MANIFEST_ZLIB_B64,
             package_root / "locked_content_manifest.json",
             spec["locked_content_manifest_sha256"],
         )
