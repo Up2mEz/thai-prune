@@ -10,6 +10,7 @@ import os
 import shutil
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -25,16 +26,17 @@ from labbs2026.kaggle import (
     sha256_file,
     utc_now,
 )
-from labbs2026.stage0.locked_panel_bundle import build_locked_source_bundle
+from labbs2026.stage0.locked_panel_bundle import verify_locked_source_bundle
 from labbs2026.stage0.locked_panel_analysis import finalize_analysis, write_analysis_inputs
 from labbs2026.stage0.measurement_diagnostic import query_status
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
+TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt3_transport.yaml"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
-BUNDLE_PLACEHOLDER = "__LABBS_LOCKED_SOURCE_BUNDLE_B64__"
+DATASET_METADATA_FILENAME = "dataset-metadata.json"
 KERNEL = {
     "id": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
     "title": "LabBS2026 Paddle Wayu Locked Model Budget Panel",
@@ -45,7 +47,7 @@ KERNEL = {
     "enable_gpu": True,
     "enable_internet": True,
     "machine_shape": "NvidiaTeslaT4",
-    "dataset_sources": [],
+    "dataset_sources": ["thanakritsamoena/labbs2026-paddle-wayu-locked-source"],
     "competition_sources": [],
     "kernel_sources": [],
     "model_sources": [],
@@ -77,8 +79,92 @@ def _blob_hash(relative: str, revision: str) -> str:
     return hashlib.sha256(_git_bytes(revision, relative)).hexdigest()
 
 
-def preflight() -> dict[str, Any]:
+def _locked_dataset_files(dataset_root: Path, transport: dict[str, Any]) -> tuple[Path, Path]:
+    archive = dataset_root / transport["archive_filename"]
+    manifest = dataset_root / transport["external_manifest_filename"]
+    return archive, manifest
+
+
+def _validate_locked_dataset(dataset_root: Path, transport: dict[str, Any]) -> dict[str, Any]:
+    archive, manifest_path = _locked_dataset_files(dataset_root, transport)
+    expected_names = {transport["archive_filename"], transport["external_manifest_filename"]}
+    observed_names = {path.name for path in dataset_root.iterdir() if path.is_file() and path.name != DATASET_METADATA_FILENAME}
+    manifest = json.loads(manifest_path.read_text("utf-8"))
+    bundle = verify_locked_source_bundle(archive, transport["archive_sha256"])
+    with zipfile.ZipFile(archive) as locked_zip:
+        observed_archive_manifest_sha256 = hashlib.sha256(
+            locked_zip.read("bundle_manifest.json")
+        ).hexdigest()
+    checks = {
+        "minimum_file_allowlist": observed_names == expected_names,
+        "archive_bytes": archive.stat().st_size == transport["archive_bytes"],
+        "archive_sha256": sha256_file(archive) == transport["archive_sha256"],
+        "external_manifest_sha256": sha256_file(manifest_path) == transport["external_manifest_sha256"],
+        "external_manifest_content": manifest == {
+            "schema_version": 1,
+            "scientific_scope": "AUTHORIZED_LOCKED_PANEL_SOURCE_448_RGB",
+            "archive_filename": transport["archive_filename"],
+            "archive_bytes": transport["archive_bytes"],
+            "archive_sha256": transport["archive_sha256"],
+            "archive_manifest_sha256": transport["archive_manifest_sha256"],
+        },
+        "archive_manifest_sha256": observed_archive_manifest_sha256 == transport["archive_manifest_sha256"],
+        "registered_locked_pairs": bundle["registered_locked_pair_count"] == 100,
+        "source_pngs": bundle["source_png_count"] == 800,
+    }
+    return {
+        "valid": all(checks.values()),
+        "checks": checks,
+        "bundle": {
+            "bundle_sha256": transport["archive_sha256"],
+            "allocation_sha256": bundle["allocation_sha256"],
+            "registered_locked_pair_count": bundle["registered_locked_pair_count"],
+            "source_png_count": bundle["source_png_count"],
+        },
+    }
+
+
+def prepare_dataset(source_archive: Path, output_dir: Path) -> dict[str, Any]:
+    transport = _yaml(TRANSPORT_CONFIG)
+    if output_dir.exists():
+        raise FileExistsError(f"refusing to overwrite dataset staging: {output_dir}")
+    if source_archive.stat().st_size != transport["archive_bytes"] or sha256_file(source_archive) != transport["archive_sha256"]:
+        raise RuntimeError("source archive identity mismatch")
+    output_dir.mkdir(parents=True)
+    archive, manifest_path = _locked_dataset_files(output_dir, transport)
+    shutil.copyfile(source_archive, archive)
+    external_manifest = {
+        "schema_version": 1,
+        "scientific_scope": "AUTHORIZED_LOCKED_PANEL_SOURCE_448_RGB",
+        "archive_filename": transport["archive_filename"],
+        "archive_bytes": transport["archive_bytes"],
+        "archive_sha256": transport["archive_sha256"],
+        "archive_manifest_sha256": transport["archive_manifest_sha256"],
+    }
+    atomic_write_json(manifest_path, external_manifest)
+    atomic_write_json(output_dir / DATASET_METADATA_FILENAME, {
+        "title": transport["dataset_title"],
+        "id": transport["dataset_id"],
+        "licenses": [{"name": "other"}],
+    })
+    validation = _validate_locked_dataset(output_dir, transport)
+    if not validation["valid"]:
+        raise RuntimeError(f"locked dataset staging failed validation: {validation}")
+    return {
+        "dataset_id": transport["dataset_id"],
+        "private_required": transport["dataset_private"],
+        "staging": str(output_dir.resolve()),
+        "archive_bytes": archive.stat().st_size,
+        "archive_sha256": sha256_file(archive),
+        "manifest_sha256": sha256_file(manifest_path),
+        "data_file_count": 2,
+        "validation": validation,
+    }
+
+
+def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
     config = _yaml(CONFIG)
+    transport = _yaml(TRANSPORT_CONFIG)
     runtime = load_runtime(ROOT / config["runtime_config"])
     frozen_sha = config["frozen_design_git_sha"]
     design_bytes = _git_bytes(frozen_sha, config["frozen_design_path"])
@@ -94,7 +180,10 @@ def preflight() -> dict[str, Any]:
     checks = {
         "tracked_tree_clean": _tracked_clean(),
         "remote_exact_sha": remote_error is None and remote == git_sha,
-        "human_authorization": config["status"] == "HUMAN_APPROVED_ENGINEERING_REPAIR_AND_EXACT_RERUN",
+        "human_authorization": transport["status"] == "HUMAN_APPROVED_PACKAGE_LIMIT_REPAIR_AND_ATTEMPT_3",
+        "attempt_3": transport["attempt"] == 3,
+        "private_dataset": transport["dataset_private"] is True,
+        "dataset_source_exact": KERNEL["dataset_sources"] == [transport["dataset_id"]],
         "frozen_design_sha": hashlib.sha256(design_bytes).hexdigest() == config["frozen_design_sha256"],
         "frozen_pipeline_sha": _blob_hash(config["frozen_resolution_pipeline_path"], frozen_sha) == config["frozen_resolution_pipeline_sha256"],
         "current_pipeline_unchanged": sha256_file(ROOT / config["frozen_resolution_pipeline_path"]) == config["frozen_resolution_pipeline_sha256"],
@@ -107,6 +196,10 @@ def preflight() -> dict[str, Any]:
         "prompt_exact": design["prompt"] == "OCR:",
         "parser_exact": design["primary_parser"]["operation"] == "PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY",
     }
+    dataset_validation = None
+    if dataset_root is not None:
+        dataset_validation = _validate_locked_dataset(dataset_root, transport)
+        checks["locked_dataset_local_validation"] = dataset_validation["valid"]
     return {
         "schema_version": 1,
         "valid": all(checks.values()),
@@ -114,34 +207,31 @@ def preflight() -> dict[str, Any]:
         "remote_sha": remote,
         "remote_error": remote_error,
         "frozen_design_git_sha": frozen_sha,
+        "dataset_validation": dataset_validation,
         "checks": checks,
     }
 
 
-def prepare() -> dict[str, Any]:
-    check = preflight()
+def prepare(dataset_root: Path) -> dict[str, Any]:
+    check = preflight(dataset_root)
     if not check["valid"]:
         raise RuntimeError(f"locked-panel preflight failed: {check}")
     config = _yaml(CONFIG)
+    transport = _yaml(TRANSPORT_CONFIG)
     runtime = load_runtime(ROOT / config["runtime_config"])
     git_sha = check["git_sha"]
     frozen_bytes = _git_bytes(config["frozen_design_git_sha"], config["frozen_design_path"])
-    run_id = f"kaggle-paddle-wayu-locked-panel-attempt2-{git_sha[:12]}"
+    run_id = f"kaggle-paddle-wayu-locked-panel-attempt3-{git_sha[:12]}"
     run_dir = ROOT / "runs/kaggle" / run_id
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
-    packaged_sources = run_dir / "packaged_sources"
-    packaged_sources.mkdir()
-    bundle_path = packaged_sources / "locked_source_bundle.zip"
-    bundle = build_locked_source_bundle(
-        ROOT / config["source_review_dir"],
-        ROOT / "configs/stage0/calibration_design.yaml",
-        bundle_path,
-    )
+    bundle_path, dataset_manifest_path = _locked_dataset_files(dataset_root, transport)
+    bundle = check["dataset_validation"]["bundle"]
     runtime_hash = sha256_file(ROOT / config["runtime_config"])
     allocation = _yaml(ROOT / "configs/stage0/calibration_design.yaml")["allocation"]
     paths = [
         CONFIG.relative_to(ROOT).as_posix(),
+        TRANSPORT_CONFIG.relative_to(ROOT).as_posix(),
         config["runtime_config"],
         WORKER.relative_to(ROOT).as_posix(),
         "src/labbs2026/stage0/paddle_wayu_locked_panel.py",
@@ -175,8 +265,14 @@ def prepare() -> dict[str, Any]:
         "remote_ref": runtime["source"]["remote_ref"],
         "source_hashes": hashes,
         "locked_source_bundle_sha256": bundle["bundle_sha256"],
+        "locked_source_bundle_bytes": transport["archive_bytes"],
+        "locked_source_archive_filename": transport["archive_filename"],
+        "locked_source_archive_manifest_sha256": transport["archive_manifest_sha256"],
+        "locked_source_dataset_id": transport["dataset_id"],
+        "locked_source_dataset_manifest_filename": transport["external_manifest_filename"],
+        "locked_source_dataset_manifest_sha256": transport["external_manifest_sha256"],
         "staged_frozen_design_path": "/tmp/labbs-paddle-wayu-locked-package/frozen_design.yaml",
-        "staged_locked_bundle_path": "/tmp/labbs-paddle-wayu-locked-package/locked_source_bundle.zip",
+        "staged_locked_bundle_path": "KAGGLE_DATASET_DISCOVERY_REQUIRED",
         "packaged_artifacts": {
             "frozen_design": {
                 "source_path": f"git:{config['frozen_design_git_sha']}:{config['frozen_design_path']}",
@@ -187,10 +283,17 @@ def prepare() -> dict[str, Any]:
             },
             "locked_source_bundle": {
                 "source_path": str(bundle_path.resolve()),
-                "packaged_path": "worker.py:LOCKED_SOURCE_BUNDLE_B64 -> /tmp/labbs-paddle-wayu-locked-package/locked_source_bundle.zip",
+                "packaged_path": f"Kaggle Dataset {transport['dataset_id']}:{transport['archive_filename']}",
                 "file_size": bundle_path.stat().st_size,
                 "sha256": bundle["bundle_sha256"],
                 "expected_sha256": bundle["bundle_sha256"],
+            },
+            "locked_source_dataset_manifest": {
+                "source_path": str(dataset_manifest_path.resolve()),
+                "packaged_path": f"Kaggle Dataset {transport['dataset_id']}:{transport['external_manifest_filename']}",
+                "file_size": dataset_manifest_path.stat().st_size,
+                "sha256": sha256_file(dataset_manifest_path),
+                "expected_sha256": transport["external_manifest_sha256"],
             },
         },
         "source_dir": runtime["paths"]["source_dir"],
@@ -204,13 +307,9 @@ def prepare() -> dict[str, Any]:
         "created_at_utc": utc_now(),
     }
     rendered = render_worker(WORKER.read_text("utf-8"), spec)
-    if rendered.count(DESIGN_PLACEHOLDER) != 1 or rendered.count(BUNDLE_PLACEHOLDER) != 1:
-        raise RuntimeError("worker payload placeholders are not unique")
+    if rendered.count(DESIGN_PLACEHOLDER) != 1:
+        raise RuntimeError("worker frozen-design placeholder is not unique")
     rendered = rendered.replace(DESIGN_PLACEHOLDER, base64.b64encode(frozen_bytes).decode("ascii"))
-    rendered = rendered.replace(
-        BUNDLE_PLACEHOLDER,
-        base64.b64encode(bundle_path.read_bytes()).decode("ascii"),
-    )
     atomic_write_text(staging / "worker.py", rendered)
     atomic_write_json(staging / "kernel-metadata.json", KERNEL)
     atomic_write_json(run_dir / "submission.json", spec)
@@ -220,6 +319,7 @@ def prepare() -> dict[str, Any]:
     environment = dict(os.environ)
     environment["LABBS_AUTHORIZATION_ONLY"] = "1"
     environment["LABBS_AUTH_VALIDATION_OUTPUT_ROOT"] = str(validation_root.resolve())
+    environment["LABBS_AUTH_VALIDATION_DATASET_ROOT"] = str(dataset_root.resolve())
     validation = subprocess.run(
         [sys.executable, str(staging / "worker.py")], cwd=ROOT,
         env=environment, capture_output=True, text=True,
@@ -231,10 +331,24 @@ def prepare() -> dict[str, Any]:
     if record["status"] != "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION":
         raise RuntimeError("authorization-only staging validation did not reach the required stop")
     atomic_write_json(run_dir / "authorization_staging_validation.json", record)
+    staging_files = sorted(path for path in staging.iterdir() if path.is_file())
+    package_audit = {
+        "schema_version": 1,
+        "allowlist": ["kernel-metadata.json", "worker.py"],
+        "file_count": len(staging_files),
+        "files": [{"name": path.name, "bytes": path.stat().st_size, "sha256": sha256_file(path)} for path in staging_files],
+        "submission_directory_bytes": sum(path.stat().st_size for path in staging_files),
+        "largest_file": max(staging_files, key=lambda path: path.stat().st_size).name,
+        "locked_source_archive_in_submission": any(path.name == transport["archive_filename"] for path in staging_files),
+    }
+    if {path.name for path in staging_files} != set(package_audit["allowlist"]) or package_audit["locked_source_archive_in_submission"]:
+        raise RuntimeError(f"Attempt 3 staging allowlist failed: {package_audit}")
+    atomic_write_json(run_dir / "package_audit.json", package_audit)
     return {
         "run_id": run_id,
         "run_dir": str(run_dir),
         "authorization_staging_validation": record["status"],
+        "package_audit": package_audit,
         "submit_command": build_submit_command(staging),
     }
 
@@ -345,18 +459,26 @@ def analyze(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("preflight")
-    commands.add_parser("prepare")
+    preflight_command = commands.add_parser("preflight")
+    preflight_command.add_argument("--dataset-root", type=Path, required=True)
+    prepare_dataset_command = commands.add_parser("prepare-dataset")
+    prepare_dataset_command.add_argument("--source-archive", type=Path, required=True)
+    prepare_dataset_command.add_argument("--output-dir", type=Path, required=True)
+    prepare_command = commands.add_parser("prepare")
+    prepare_command.add_argument("--dataset-root", type=Path, required=True)
     for name in ("status", "fetch", "verify", "analyze"):
         command = commands.add_parser(name)
         command.add_argument("--run-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "preflight":
-        result = preflight()
+        result = preflight(args.dataset_root.resolve())
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["valid"] else 1
+    if args.command == "prepare-dataset":
+        print(json.dumps(prepare_dataset(args.source_archive.resolve(), args.output_dir.resolve()), ensure_ascii=False, indent=2))
+        return 0
     if args.command == "prepare":
-        print(json.dumps(prepare(), ensure_ascii=False, indent=2))
+        print(json.dumps(prepare(args.dataset_root.resolve()), ensure_ascii=False, indent=2))
         return 0
     run_dir = args.run_dir.resolve()
     spec = json.loads((run_dir / "submission.json").read_text("utf-8"))

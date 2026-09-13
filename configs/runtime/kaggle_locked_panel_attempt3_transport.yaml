@@ -1,0 +1,13 @@
+schema_version: 1
+status: HUMAN_APPROVED_PACKAGE_LIMIT_REPAIR_AND_ATTEMPT_3
+attempt: 3
+dataset_id: thanakritsamoena/labbs2026-paddle-wayu-locked-source
+dataset_title: LabBS2026 Paddle Wayu Locked Source
+dataset_private: true
+archive_filename: locked_source.zip
+archive_bytes: 2114013
+archive_sha256: 9edff88382c51ed4d48a073813b4309535fb34ba5318ea85ca8ea6da75bc229e
+archive_manifest_sha256: 572ca192fb360121fba7eabd7d347492dd276069c11d3528db7130b572f2b26a
+external_manifest_filename: locked_source_manifest.json
+external_manifest_sha256: d422ba795b02404ff496b1611653a3401992ee2d452b93b9a5b4712a33ea1487
+automatic_retry: false

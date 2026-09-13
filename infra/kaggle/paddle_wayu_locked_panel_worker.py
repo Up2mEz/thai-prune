@@ -9,12 +9,12 @@ import os
 import re
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 
 RUN_SPEC_B64 = "__LABBS_RUN_SPEC_B64__"
 FROZEN_DESIGN_B64 = "__LABBS_FROZEN_DESIGN_B64__"
-LOCKED_SOURCE_BUNDLE_B64 = "__LABBS_LOCKED_SOURCE_BUNDLE_B64__"
 
 
 def _sha(path: Path) -> str:
@@ -50,6 +50,69 @@ def _decode_verified_payload(encoded: str, path: Path, expected_sha256: str) -> 
         "file_size": len(payload),
         "sha256": observed,
         "expected_sha256": expected_sha256,
+    }
+
+
+def _locate_and_verify_locked_source(dataset_root: Path, spec: dict) -> dict:
+    archive_name = spec["locked_source_archive_filename"]
+    manifest_name = spec["locked_source_dataset_manifest_filename"]
+    archives = sorted(dataset_root.rglob(archive_name))
+    manifests = sorted(dataset_root.rglob(manifest_name))
+    if len(archives) != 1 or len(manifests) != 1:
+        raise RuntimeError(
+            f"expected exactly one locked source archive and manifest; "
+            f"observed archive={len(archives)}, manifest={len(manifests)}"
+        )
+    archive, manifest_path = archives[0], manifests[0]
+    if archive.parent != manifest_path.parent:
+        raise RuntimeError("locked source archive and manifest are not colocated")
+    observed_manifest_sha = _sha(manifest_path)
+    if observed_manifest_sha != spec["locked_source_dataset_manifest_sha256"]:
+        raise RuntimeError("locked source dataset manifest hash mismatch")
+    manifest = json.loads(manifest_path.read_text("utf-8"))
+    expected_manifest = {
+        "schema_version": 1,
+        "scientific_scope": "AUTHORIZED_LOCKED_PANEL_SOURCE_448_RGB",
+        "archive_filename": archive_name,
+        "archive_bytes": spec["locked_source_bundle_bytes"],
+        "archive_sha256": spec["locked_source_bundle_sha256"],
+        "archive_manifest_sha256": spec["locked_source_archive_manifest_sha256"],
+    }
+    if manifest != expected_manifest:
+        raise RuntimeError("locked source dataset manifest content mismatch")
+    observed_archive_sha = _sha(archive)
+    if archive.stat().st_size != spec["locked_source_bundle_bytes"]:
+        raise RuntimeError("locked source archive byte-size mismatch")
+    if observed_archive_sha != spec["locked_source_bundle_sha256"]:
+        raise RuntimeError("locked source archive hash mismatch")
+    with zipfile.ZipFile(archive) as bundle:
+        names = bundle.namelist()
+        if names.count("bundle_manifest.json") != 1:
+            raise RuntimeError("locked source archive manifest is not unique")
+        archive_manifest_bytes = bundle.read("bundle_manifest.json")
+        if hashlib.sha256(archive_manifest_bytes).hexdigest() != spec["locked_source_archive_manifest_sha256"]:
+            raise RuntimeError("locked source archive manifest hash mismatch")
+        archive_manifest = json.loads(archive_manifest_bytes)
+        if archive_manifest["registered_locked_pair_count"] != 100:
+            raise RuntimeError("locked source archive pair count mismatch")
+        if archive_manifest["source_png_count"] != 800:
+            raise RuntimeError("locked source archive image count mismatch")
+        if set(names) != set(archive_manifest["file_sha256"]) | {"bundle_manifest.json"}:
+            raise RuntimeError("locked source archive member set mismatch")
+        for relative, expected in archive_manifest["file_sha256"].items():
+            if hashlib.sha256(bundle.read(relative)).hexdigest() != expected:
+                raise RuntimeError(f"locked source archive member mismatch: {relative}")
+    return {
+        "dataset_root": str(dataset_root),
+        "dataset_directory": str(archive.parent),
+        "archive_path": str(archive),
+        "archive_file_size": archive.stat().st_size,
+        "archive_sha256": observed_archive_sha,
+        "dataset_manifest_path": str(manifest_path),
+        "dataset_manifest_sha256": observed_manifest_sha,
+        "archive_manifest_sha256": spec["locked_source_archive_manifest_sha256"],
+        "registered_locked_pair_count": 100,
+        "source_png_count": 800,
     }
 
 
@@ -100,10 +163,12 @@ def main() -> None:
         design_record = _decode_verified_payload(
             FROZEN_DESIGN_B64, package_root / "frozen_design.yaml", spec["frozen_design_sha256"]
         )
-        bundle_record = _decode_verified_payload(
-            LOCKED_SOURCE_BUNDLE_B64, package_root / "locked_source_bundle.zip",
-            spec["locked_source_bundle_sha256"],
+        dataset_root = Path(
+            os.environ["LABBS_AUTH_VALIDATION_DATASET_ROOT"]
+            if authorization_only
+            else "/kaggle/input"
         )
+        bundle_record = _locate_and_verify_locked_source(dataset_root, spec)
         design = yaml.safe_load((package_root / "frozen_design.yaml").read_text("utf-8"))
         if not isinstance(design, dict):
             raise RuntimeError("packaged frozen design did not parse as a YAML mapping")
@@ -122,7 +187,7 @@ def main() -> None:
         if authorization_only:
             return
         spec["staged_frozen_design_path"] = str(package_root / "frozen_design.yaml")
-        spec["staged_locked_bundle_path"] = str(package_root / "locked_source_bundle.zip")
+        spec["staged_locked_bundle_path"] = bundle_record["archive_path"]
         phase = "source_checkout"
         source = Path(spec["source_dir"])
         source.mkdir(parents=True, exist_ok=False)

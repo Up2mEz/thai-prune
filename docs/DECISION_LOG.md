@@ -2,6 +2,29 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 3 stopped at private-Dataset pre-submission gate
+
+**Human decision:** Accept `PACKAGE_OR_PAYLOAD_LIMIT_ERROR` and authorize
+`PACKAGE_LIMIT_REPAIR_AND_ATTEMPT_3`, conditional on a private Dataset and a
+successful authorization-only validation before exactly one submission.
+
+**Observed engineering evidence:** Local two-file Dataset staging preserved the
+2,114,013-byte locked archive at its existing SHA-256 and passed archive and
+manifest verification. Kaggle created private Dataset
+`thanakritsamoena/labbs2026-paddle-wayu-locked-source`, ID `12006749`, version
+1. Kaggle then expanded the ZIP into paths under `locked_source/`; an exact
+read-only request for remote `locked_source.zip` returned HTTP 404.
+
+**Fail-closed result:** `ATTEMPT_3_PRE_SUBMISSION_ENGINEERING_VALIDATION_FAILED`.
+The required archive could not be resolved from the Dataset mount contract, so
+Attempt 3 staging and `SaveKernel` were not executed. Scientific calls remain
+0/6,400; no locked image was visually inspected and no model was loaded.
+
+**Decision boundary:** No automatic Dataset version repair, alternate filename,
+kernel submission, or retry is authorized. The Dataset remains private. Stop
+for human review because an alternate opaque-file transport would change the
+approved engineering contract.
+
 ## 2026-09-13 — Attempt 2 HTTP 400 diagnostic completed; Attempt 3 blocked
 
 **Human authorization:** `ATTEMPT_2_HTTP400_DIAGNOSTIC_ONLY`. Read-only Kaggle
