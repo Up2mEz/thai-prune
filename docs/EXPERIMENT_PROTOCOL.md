@@ -4,12 +4,13 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation amendment — S0 only
 
-Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+Status: `LOCKED_PANEL_EXECUTION_AUTHORIZED`.
 The overall interaction design, FULL-validity criteria, one-shot 6,400-call
 Input Resolution Reduction panel, target-aware random effects, estimator
 diagnostics/fallback, metrics, and exclusions are frozen. No locked image
-generation, locked inference, or reduced-resolution inference occurred in this
-amendment. Execution still requires an explicit human run order.
+generation, locked inference, or reduced-resolution inference occurred in the
+pre-inference amendment. The explicit frozen one-shot run order was issued on
+2026-09-13; later interventions remain blocked.
 
 The primary comparison is **base OCR VLM versus Thai-specialized OCR
 descendant**. Do not describe it as general VLM versus OCR-specialized VLM.

@@ -5,12 +5,13 @@
 
 ## 2026-09-12 Thai-specific OCR adaptation study — S0 authorized
 
-Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+Status: `LOCKED_PANEL_EXECUTION_AUTHORIZED`.
 The non-directional overall `MODEL x BUDGET` design, FULL-validity criteria,
 one-shot 6,400-call panel, target-aware random effects, primary/fallback
 analysis, and Input Resolution Reduction pipeline are frozen. No locked image
 generation, locked inference, or reduced-resolution inference occurred in the
-pre-inference amendment. Execution still requires an explicit human run order.
+pre-inference amendment. The human issued the explicit frozen one-shot run
+order on 2026-09-13; no downstream intervention is thereby authorized.
 
 The revised research question is:
 

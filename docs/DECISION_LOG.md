@@ -2,6 +2,31 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Frozen one-shot locked panel execution authorized
+
+**Human decision:** `FINAL LOCKED PANEL AUTHORIZATION: APPROVED`. Execute the
+frozen commit `871996221a36a56a401fa040c239f55768561210` design as one 6,400-call
+locked panel with no scientific design changes and no intermediate scientific
+outcome access.
+
+**Execution boundary:** Runtime visibility is engineering-only. Scientific
+records remain sealed until all calls complete, checksums are immutable, and
+local verification passes. Any identity, input, resize, token, boundary,
+missing/duplicate-call, tensor/runtime, provenance, or checksum failure stops
+before unsealing.
+
+**After verified execution:** Apply the frozen FULL-validity check, primary
+categorical omnibus, three DIDs, pair-clustered CIs, Holm adjustment, four-case
+SESOI classifier, sensitivities, and descriptive/diagnostic component report in
+the registered order. Then stop for human review.
+
+**Authorized mechanism only:** controlled BICUBIC Input Resolution Reduction;
+no post-encoder Token Pruning, Token Merging, general compression claim,
+fine-tuning, post-hoc rescue, or method development.
+
+**Required terminal state:**
+`HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
 ## 2026-09-13 — Final pre-inference interpretation amendment complete
 
 **Human decision:** Keep the frozen models, dataset, four-budget grid, image
