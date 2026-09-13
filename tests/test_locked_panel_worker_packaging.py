@@ -31,7 +31,16 @@ def test_packaged_design_hash_parse_and_contract(tmp_path: Path) -> None:
     design = yaml.safe_load(output.read_text("utf-8"))
     worker._validate_scientific_contract(
         design,
-        {"SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210"},
+        {
+            "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
+            "PROTOCOL_AMENDMENT_COMMIT": "ee9f8c4f85feea935f8c99d05005deea16c30442",
+            "attempt": 5,
+            "run_id": "kaggle-paddle-wayu-locked-panel-attempt5",
+            "authorization_label": "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED",
+            "ATTEMPT5_EXECUTION_COMMIT": "e" * 40,
+            "git_sha": "e" * 40,
+            "effective_scientific_protocol": "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
+        },
     )
 
 
@@ -61,7 +70,16 @@ def test_packaged_design_contract_fails_closed_on_change() -> None:
     with pytest.raises(RuntimeError, match="frozen scientific contract mismatch"):
         worker._validate_scientific_contract(
             design,
-            {"SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210"},
+            {
+                "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
+                "PROTOCOL_AMENDMENT_COMMIT": "ee9f8c4f85feea935f8c99d05005deea16c30442",
+                "attempt": 5,
+                "run_id": "kaggle-paddle-wayu-locked-panel-attempt5",
+                "authorization_label": "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED",
+                "ATTEMPT5_EXECUTION_COMMIT": "e" * 40,
+                "git_sha": "e" * 40,
+                "effective_scientific_protocol": "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
+            },
         )
 
 

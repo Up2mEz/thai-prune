@@ -16,6 +16,7 @@ from labbs2026.stage0.paddle_wayu_locked_panel import (
 ROOT = Path(__file__).resolve().parents[1]
 ATTEMPT3 = ROOT / "configs/runtime/kaggle_locked_panel_attempt3_transport.yaml"
 ATTEMPT4 = ROOT / "configs/runtime/kaggle_locked_panel_attempt4_transport.yaml"
+ATTEMPT5 = ROOT / "configs/runtime/kaggle_locked_panel_attempt5_transport.yaml"
 
 
 def _yaml(path: Path) -> dict:
@@ -33,22 +34,40 @@ def _lifecycle_module():
     return module
 
 
-def test_attempt4_execution_identity_is_exact_and_committed_once() -> None:
-    identity = _yaml(ATTEMPT4)
+def test_attempt5_execution_identity_is_exact_and_committed_once() -> None:
+    identity = _yaml(ATTEMPT5)
     lifecycle = _lifecycle_module()
-    assert lifecycle.TRANSPORT_CONFIG == ATTEMPT4
-    assert identity["attempt"] == 4
-    assert identity["status"] == "LOCKED_PANEL_RERUN_AUTHORIZED"
-    assert identity["run_id"] == "kaggle-paddle-wayu-locked-panel-attempt4"
+    assert lifecycle.TRANSPORT_CONFIG == ATTEMPT5
+    assert identity["attempt"] == 5
+    assert identity["status"] == "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED"
+    assert identity["run_id"] == "kaggle-paddle-wayu-locked-panel-attempt5"
+    assert identity["original_scientific_design_commit"] == FROZEN_DESIGN_SHA
+    assert identity["protocol_amendment_commit"] == lifecycle.ACCEPTED_AMENDMENT_COMMIT
 
 
-def test_attempt4_transport_changes_only_execution_identity() -> None:
-    attempt3 = _yaml(ATTEMPT3)
+def test_attempt5_transport_changes_only_execution_identity_and_provenance() -> None:
     attempt4 = _yaml(ATTEMPT4)
-    for key in ("status", "attempt", "run_id"):
-        attempt3.pop(key, None)
+    attempt5 = _yaml(ATTEMPT5)
+    for key in (
+        "status",
+        "attempt",
+        "run_id",
+        "original_scientific_design_commit",
+        "protocol_amendment_commit",
+    ):
         attempt4.pop(key, None)
-    assert attempt4 == attempt3
+        attempt5.pop(key, None)
+    assert attempt5 == attempt4
+
+
+def test_attempt5_has_no_additional_scientific_diff_after_amendment() -> None:
+    lifecycle = _lifecycle_module()
+    identity = _yaml(ATTEMPT5)
+    audit = lifecycle.effective_protocol_diff_audit("HEAD", identity)
+    assert audit["valid"] is True
+    assert audit["classification"] == (
+        "ADDITIONAL_SCIENTIFIC_DIFF_AFTER_ACCEPTED_AMENDMENT_EMPTY"
+    )
 
 
 def test_frozen_scientific_files_remain_exact() -> None:

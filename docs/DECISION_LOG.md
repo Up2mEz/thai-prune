@@ -2,6 +2,41 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 5 fresh full locked panel authorized
+
+**Human decision:** Accept the validated U+FFFD per-call protocol amendment at
+commit `ee9f8c4f85feea935f8c99d05005deea16c30442` and authorize exactly one fresh
+Attempt 5 under `ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED`.
+
+**Effective protocol provenance:** Attempt 5 combines original scientific
+design commit `871996221a36a56a401fa040c239f55768561210` with the accepted
+U+FFFD amendment commit above. The future Attempt-5 execution commit is a
+separate engineering provenance identity and must be resolved from the exact
+pushed commit used for submission.
+
+**Frozen Attempt-5 execution identity:** `attempt=5`, stable run ID
+`kaggle-paddle-wayu-locked-panel-attempt5`, and the authorization label above
+come from the single committed transport config. Bootstrap and core must
+validate exact agreement; no runtime identity override is permitted.
+
+**Attempt-4 exclusion:** Attempt 4 remains an immutable excluded partial run at
+4,136/6,400 calls. Its canonical artifact SHA-256 is
+`e6db8c69b530464bbebdcfa0c8640c1b3c1f771d4b5f89fcb71ef2af8cca8127`.
+Its scientific outputs remain sealed and contribute zero observations to
+Attempt 5 or final analysis.
+
+**Execution boundary:** Submit exactly once only after local validation,
+effective-protocol diff audit, exact push verification, Dataset/content audit,
+package audit, runtime-import preflight, and authorization/handoff validation
+all pass. No retry, resume, alternate commit, or Attempt 6 is authorized.
+
+**Analysis boundary:** Unseal only after 6,400/6,400 calls, immutable checksum
+finalization, and local verification. Then apply the registered FULL validity
+gate and frozen analysis in order. If any unexpected fatal failure occurs,
+preserve sealed evidence and stop for human review.
+
+**Mandatory final stop:** `HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
 ## 2026-09-13 — U+FFFD per-call protocol amendment authorized for local validation
 
 **Human decision:** Accept the open-data Unicode diagnostic and authorize

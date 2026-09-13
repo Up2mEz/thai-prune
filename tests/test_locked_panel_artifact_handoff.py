@@ -18,6 +18,8 @@ from labbs2026.stage0.paddle_wayu_locked_panel import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+IDENTITY = ROOT / "configs/runtime/kaggle_locked_panel_attempt5_transport.yaml"
+IDENTITY_SHA256 = hashlib.sha256(IDENTITY.read_bytes()).hexdigest()
 
 
 def _worker_module():
@@ -32,12 +34,16 @@ def _worker_module():
 def _spec(tmp_path: Path) -> dict:
     return {
         "output_root": str(tmp_path / "artifacts"),
-        "run_id": "kaggle-paddle-wayu-locked-panel-attempt4",
-        "attempt": 4,
-        "authorization_label": "LOCKED_PANEL_RERUN_AUTHORIZED",
+        "run_id": "kaggle-paddle-wayu-locked-panel-attempt5",
+        "attempt": 5,
+        "authorization_label": "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED",
         "git_sha": "e" * 40,
-        "SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
-        "EXECUTION_REPAIR_COMMIT": "e" * 40,
+        "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
+        "PROTOCOL_AMENDMENT_COMMIT": "ee9f8c4f85feea935f8c99d05005deea16c30442",
+        "ATTEMPT5_EXECUTION_COMMIT": "e" * 40,
+        "effective_scientific_protocol": "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
+        "execution_identity_config_path": IDENTITY.relative_to(ROOT).as_posix(),
+        "execution_identity_config_sha256": IDENTITY_SHA256,
         "frozen_design_sha256": "f" * 64,
         "locked_content_manifest_sha256": "c" * 64,
         "original_transport_archive_sha256": "a" * 64,
@@ -56,8 +62,10 @@ def _authorization(spec: dict) -> dict:
         "attempt": spec["attempt"],
         "authorization_label": spec["authorization_label"],
         "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
-        "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
-        "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+        "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"],
+        "PROTOCOL_AMENDMENT_COMMIT": spec["PROTOCOL_AMENDMENT_COMMIT"],
+        "ATTEMPT5_EXECUTION_COMMIT": spec["ATTEMPT5_EXECUTION_COMMIT"],
+        "effective_scientific_protocol": spec["effective_scientific_protocol"],
         "kaggle_dataset_numeric_id": spec["kaggle_dataset_numeric_id"],
         "kaggle_dataset_version": spec["kaggle_dataset_version"],
         "frozen_design": {

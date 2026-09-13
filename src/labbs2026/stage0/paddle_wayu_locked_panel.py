@@ -82,19 +82,34 @@ def _authorization_record(path: Path, spec: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError("invalid bootstrap authorization JSON") from exc
     if not isinstance(value, dict) or value.get("schema_version") != 1:
         raise RuntimeError("bootstrap authorization schema mismatch")
+    identity_path = Path.cwd() / spec["execution_identity_config_path"]
+    identity = _yaml(identity_path)
     exact = {
         "status": value.get("status") == "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
         "authorization_only": value.get("authorization_only") is False,
         "run_id": value.get("run_id") == spec["run_id"],
-        "attempt": value.get("attempt") == spec.get("attempt") == 4,
+        "identity_config_sha256": sha256_file(identity_path)
+        == spec["execution_identity_config_sha256"],
+        "identity_config_run_id": identity.get("run_id")
+        == value.get("run_id")
+        == spec["run_id"],
+        "identity_config_attempt": identity.get("attempt")
+        == value.get("attempt")
+        == spec.get("attempt"),
         "authorization_label": value.get("authorization_label")
         == spec.get("authorization_label")
-        == "LOCKED_PANEL_RERUN_AUTHORIZED",
-        "scientific_design_commit": value.get("SCIENTIFIC_DESIGN_COMMIT")
-        == spec["SCIENTIFIC_DESIGN_COMMIT"],
-        "execution_commit": value.get("EXECUTION_REPAIR_COMMIT")
-        == spec["EXECUTION_REPAIR_COMMIT"]
+        == identity.get("status"),
+        "original_scientific_design_commit": value.get("ORIGINAL_SCIENTIFIC_DESIGN_COMMIT")
+        == spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"]
+        == identity.get("original_scientific_design_commit"),
+        "protocol_amendment_commit": value.get("PROTOCOL_AMENDMENT_COMMIT")
+        == spec["PROTOCOL_AMENDMENT_COMMIT"]
+        == identity.get("protocol_amendment_commit"),
+        "execution_commit": value.get("ATTEMPT5_EXECUTION_COMMIT")
+        == spec["ATTEMPT5_EXECUTION_COMMIT"]
         == spec["git_sha"],
+        "effective_protocol": value.get("effective_scientific_protocol")
+        == spec["effective_scientific_protocol"],
         "dataset_id": value.get("kaggle_dataset_numeric_id")
         == spec["kaggle_dataset_numeric_id"],
         "dataset_version": value.get("kaggle_dataset_version")
@@ -183,8 +198,10 @@ def claim_bootstrap_artifact_ownership(
         "authorization_label": spec["authorization_label"],
         "timestamp_utc": utc_now(),
         "authorization_artifact_sha256": sha256_file(authorization_path),
-        "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
-        "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+        "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"],
+        "PROTOCOL_AMENDMENT_COMMIT": spec["PROTOCOL_AMENDMENT_COMMIT"],
+        "ATTEMPT5_EXECUTION_COMMIT": spec["ATTEMPT5_EXECUTION_COMMIT"],
+        "effective_scientific_protocol": spec["effective_scientific_protocol"],
         "frozen_design_sha256": spec["frozen_design_sha256"],
         "locked_content_manifest_sha256": spec["locked_content_manifest_sha256"],
     }
@@ -605,8 +622,10 @@ def execute_remote_panel(spec_path: Path) -> None:
             "authorization_label": spec["authorization_label"],
             "run_type": "PADDLE_WAYU_FROZEN_ONE_SHOT_LOCKED_MODEL_BUDGET_PANEL",
             "execution_git_sha": spec["git_sha"],
-            "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
-            "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+            "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"],
+            "PROTOCOL_AMENDMENT_COMMIT": spec["PROTOCOL_AMENDMENT_COMMIT"],
+            "ATTEMPT5_EXECUTION_COMMIT": spec["ATTEMPT5_EXECUTION_COMMIT"],
+            "effective_scientific_protocol": spec["effective_scientific_protocol"],
             "frozen_design_git_sha": FROZEN_DESIGN_SHA,
             "frozen_design_sha256": FROZEN_DESIGN_FILE_SHA256,
             "frozen_pipeline_sha256": FROZEN_PIPELINE_FILE_SHA256,
@@ -647,8 +666,9 @@ def execute_remote_panel(spec_path: Path) -> None:
             "attempt": spec.get("attempt"),
             "authorization_label": spec.get("authorization_label"),
             "scientific_completed_call_count": _completed_call_count(ledger_path),
-            "SCIENTIFIC_DESIGN_COMMIT": spec.get("SCIENTIFIC_DESIGN_COMMIT"),
-            "EXECUTION_REPAIR_COMMIT": spec.get("EXECUTION_REPAIR_COMMIT"),
+            "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec.get("ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"),
+            "PROTOCOL_AMENDMENT_COMMIT": spec.get("PROTOCOL_AMENDMENT_COMMIT"),
+            "ATTEMPT5_EXECUTION_COMMIT": spec.get("ATTEMPT5_EXECUTION_COMMIT"),
             "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
             "phase": phase,
             "exception_type": type(exc).__name__,

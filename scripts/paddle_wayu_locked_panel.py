@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import base64
 import hashlib
 import json
@@ -35,7 +36,8 @@ from labbs2026.stage0.measurement_diagnostic import query_status
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
-TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt4_transport.yaml"
+TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt5_transport.yaml"
+ACCEPTED_AMENDMENT_COMMIT = "ee9f8c4f85feea935f8c99d05005deea16c30442"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
 CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
@@ -80,6 +82,56 @@ def _git_bytes(revision: str, relative: str) -> bytes:
 
 def _blob_hash(relative: str, revision: str) -> str:
     return hashlib.sha256(_git_bytes(revision, relative)).hexdigest()
+
+
+def _function_ast(source: bytes, function_name: str) -> str:
+    tree = ast.parse(source.decode("utf-8"))
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
+            return ast.dump(node, include_attributes=False)
+    raise RuntimeError(f"function missing from protocol audit: {function_name}")
+
+
+def effective_protocol_diff_audit(git_sha: str, transport: dict[str, Any]) -> dict[str, Any]:
+    runner_path = "src/labbs2026/stage0/paddle_wayu_locked_panel.py"
+    analysis_path = "src/labbs2026/stage0/locked_panel_analysis.py"
+    amendment = transport["protocol_amendment_commit"]
+    current_runner = _git_bytes(git_sha, runner_path)
+    accepted_runner = _git_bytes(amendment, runner_path)
+    protected_functions = (
+        "build_workload",
+        "materialize_stimuli",
+        "classify_decoded_output_contract",
+        "decode_generated_tokens",
+        "_run_model",
+    )
+    function_checks = {
+        name: _function_ast(current_runner, name) == _function_ast(accepted_runner, name)
+        for name in protected_functions
+    }
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", amendment, git_sha],
+        cwd=ROOT,
+    ).returncode == 0
+    checks = {
+        "accepted_amendment_exact": amendment == ACCEPTED_AMENDMENT_COMMIT,
+        "accepted_amendment_is_ancestor": ancestor,
+        "scientific_execution_functions_unchanged": all(function_checks.values()),
+        "registered_analysis_unchanged": _blob_hash(analysis_path, git_sha)
+        == _blob_hash(analysis_path, amendment),
+        "frozen_design_identity": transport["original_scientific_design_commit"]
+        == "871996221a36a56a401fa040c239f55768561210",
+    }
+    return {
+        "classification": (
+            "ADDITIONAL_SCIENTIFIC_DIFF_AFTER_ACCEPTED_AMENDMENT_EMPTY"
+            if all(checks.values())
+            else "UNAUTHORIZED_ADDITIONAL_SCIENTIFIC_DIFF_DETECTED"
+        ),
+        "valid": all(checks.values()),
+        "checks": checks,
+        "protected_function_equivalence": function_checks,
+    }
 
 
 def _locked_dataset_files(dataset_root: Path, transport: dict[str, Any]) -> tuple[Path, Path]:
@@ -219,16 +271,22 @@ def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
         ROOT, runtime["source"]["repository_url"], runtime["source"]["remote_ref"]
     )
     review = ROOT / config["source_review_dir"]
+    protocol_audit = effective_protocol_diff_audit(git_sha, transport)
     checks = {
         "tracked_tree_clean": _tracked_clean(),
         "remote_exact_sha": remote_error is None and remote == git_sha,
-        "human_authorization": transport["status"] == "LOCKED_PANEL_RERUN_AUTHORIZED",
-        "attempt_4": transport["attempt"] == 4,
-        "attempt_4_run_id": transport["run_id"]
-        == "kaggle-paddle-wayu-locked-panel-attempt4",
-        "attempt_4_run_root_absent": not (
+        "human_authorization": transport["status"] == "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED",
+        "attempt_5": transport["attempt"] == 5,
+        "attempt_5_run_id": transport["run_id"]
+        == "kaggle-paddle-wayu-locked-panel-attempt5",
+        "attempt_5_run_root_absent": not (
             ROOT / "runs/kaggle" / transport["run_id"]
         ).exists(),
+        "original_design_commit": transport["original_scientific_design_commit"]
+        == config["frozen_design_git_sha"],
+        "protocol_amendment_commit": transport["protocol_amendment_commit"]
+        == ACCEPTED_AMENDMENT_COMMIT,
+        "effective_protocol_diff": protocol_audit["valid"],
         "private_dataset": transport["dataset_private"] is True,
         "dataset_numeric_id": transport["dataset_numeric_id"] == 12006749,
         "dataset_version": transport["dataset_version"] == 1,
@@ -256,6 +314,9 @@ def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
         "remote_sha": remote,
         "remote_error": remote_error,
         "frozen_design_git_sha": frozen_sha,
+        "original_scientific_design_commit": transport["original_scientific_design_commit"],
+        "protocol_amendment_commit": transport["protocol_amendment_commit"],
+        "effective_protocol_diff_audit": protocol_audit,
         "dataset_validation": dataset_validation,
         "checks": checks,
     }
@@ -304,8 +365,12 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "attempt": transport["attempt"],
         "authorization_label": transport["status"],
         "git_sha": git_sha,
-        "SCIENTIFIC_DESIGN_COMMIT": config["frozen_design_git_sha"],
-        "EXECUTION_REPAIR_COMMIT": git_sha,
+        "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": transport["original_scientific_design_commit"],
+        "PROTOCOL_AMENDMENT_COMMIT": transport["protocol_amendment_commit"],
+        "ATTEMPT5_EXECUTION_COMMIT": git_sha,
+        "effective_scientific_protocol": "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
+        "execution_identity_config_path": TRANSPORT_CONFIG.relative_to(ROOT).as_posix(),
+        "execution_identity_config_sha256": hashes[TRANSPORT_CONFIG.relative_to(ROOT).as_posix()],
         "frozen_design_git_sha": config["frozen_design_git_sha"],
         "frozen_design_sha256": config["frozen_design_sha256"],
         "runtime_config_sha256": runtime_hash,
@@ -415,7 +480,7 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "locked_source_archive_in_submission": any(path.name == transport["archive_filename"] for path in staging_files),
     }
     if {path.name for path in staging_files} != set(package_audit["allowlist"]) or package_audit["locked_source_archive_in_submission"]:
-        raise RuntimeError(f"Attempt 4 staging allowlist failed: {package_audit}")
+        raise RuntimeError(f"Attempt 5 staging allowlist failed: {package_audit}")
     atomic_write_json(run_dir / "package_audit.json", package_audit)
     return {
         "run_id": run_id,
@@ -472,13 +537,15 @@ def verify(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
         raw_specialized = artifact / "sealed/raw_outputs_specialized.jsonl"
         checks.update({
             "run_id_match": manifest["run_id"] == spec["run_id"],
-            "attempt_4_identity": manifest["attempt"] == spec["attempt"] == 4
+            "attempt_5_identity": manifest["attempt"] == spec["attempt"] == 5
             and manifest["authorization_label"]
             == spec["authorization_label"]
-            == "LOCKED_PANEL_RERUN_AUTHORIZED",
+            == "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED",
             "execution_git_sha_match": manifest["execution_git_sha"] == spec["git_sha"],
-            "separate_scientific_identity": manifest["SCIENTIFIC_DESIGN_COMMIT"] == spec["SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
-            "separate_execution_identity": manifest["EXECUTION_REPAIR_COMMIT"] == spec["EXECUTION_REPAIR_COMMIT"] == spec["git_sha"],
+            "original_scientific_design_identity": manifest["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"] == spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
+            "protocol_amendment_identity": manifest["PROTOCOL_AMENDMENT_COMMIT"] == spec["PROTOCOL_AMENDMENT_COMMIT"] == ACCEPTED_AMENDMENT_COMMIT,
+            "attempt5_execution_identity": manifest["ATTEMPT5_EXECUTION_COMMIT"] == spec["ATTEMPT5_EXECUTION_COMMIT"] == spec["git_sha"],
+            "effective_protocol_identity": manifest["effective_scientific_protocol"] == spec["effective_scientific_protocol"] == "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
             "frozen_design_sha_match": manifest["frozen_design_git_sha"] == spec["frozen_design_git_sha"],
             "frozen_design_hash_match": manifest["frozen_design_sha256"] == spec["frozen_design_sha256"],
             "runtime_config_hash_match": manifest["runtime_config_sha256"] == spec["runtime_config_sha256"],

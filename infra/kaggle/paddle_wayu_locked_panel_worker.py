@@ -252,7 +252,14 @@ def _validate_scientific_contract(design: dict, spec: dict) -> None:
     ]
     analysis = design["primary_analysis"]
     checks = {
-        "scientific_design_commit": spec["SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
+        "original_scientific_design_commit": spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
+        "protocol_amendment_commit": spec["PROTOCOL_AMENDMENT_COMMIT"] == "ee9f8c4f85feea935f8c99d05005deea16c30442",
+        "attempt5_execution_identity": spec["attempt"] == 5
+        and spec["run_id"] == "kaggle-paddle-wayu-locked-panel-attempt5"
+        and spec["authorization_label"] == "ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED"
+        and spec["ATTEMPT5_EXECUTION_COMMIT"] == spec["git_sha"],
+        "effective_protocol_identity": spec["effective_scientific_protocol"]
+        == "ORIGINAL_SCIENTIFIC_DESIGN_PLUS_U_FFFD_PER_CALL_PROTOCOL_AMENDMENT",
         "models_and_revisions": models == expected_models,
         "prompt": design["prompt"] == "OCR:",
         "parser": design["primary_parser"]["operation"] == "PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY",
@@ -317,8 +324,10 @@ def main() -> None:
             "attempt": spec["attempt"],
             "authorization_label": spec["authorization_label"],
             "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
-            "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
-            "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+            "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec["ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"],
+            "PROTOCOL_AMENDMENT_COMMIT": spec["PROTOCOL_AMENDMENT_COMMIT"],
+            "ATTEMPT5_EXECUTION_COMMIT": spec["ATTEMPT5_EXECUTION_COMMIT"],
+            "effective_scientific_protocol": spec["effective_scientific_protocol"],
             "kaggle_dataset_numeric_id": spec["kaggle_dataset_numeric_id"],
             "kaggle_dataset_version": spec["kaggle_dataset_version"],
             "frozen_design": design_record,
@@ -380,8 +389,9 @@ def main() -> None:
             "attempt": spec.get("attempt"),
             "authorization_label": spec.get("authorization_label"),
             "scientific_completed_call_count": 0,
-            "SCIENTIFIC_DESIGN_COMMIT": spec.get("SCIENTIFIC_DESIGN_COMMIT"),
-            "EXECUTION_REPAIR_COMMIT": spec.get("EXECUTION_REPAIR_COMMIT"),
+            "ORIGINAL_SCIENTIFIC_DESIGN_COMMIT": spec.get("ORIGINAL_SCIENTIFIC_DESIGN_COMMIT"),
+            "PROTOCOL_AMENDMENT_COMMIT": spec.get("PROTOCOL_AMENDMENT_COMMIT"),
+            "ATTEMPT5_EXECUTION_COMMIT": spec.get("ATTEMPT5_EXECUTION_COMMIT"),
             "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
             "phase": phase,
             "exception_type": type(exc).__name__,
