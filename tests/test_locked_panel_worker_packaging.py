@@ -1,8 +1,6 @@
 import hashlib
 import importlib.util
-import json
 from pathlib import Path
-import zipfile
 
 import pytest
 import yaml
@@ -51,61 +49,48 @@ def test_packaged_design_contract_fails_closed_on_change() -> None:
 
 def test_locked_source_dataset_is_located_and_verified(tmp_path: Path) -> None:
     worker = _worker_module()
-    dataset = tmp_path / "mounted-dataset"
-    dataset.mkdir()
-    member = b"png"
-    archive_manifest = {
-        "registered_locked_pair_count": 100,
-        "source_png_count": 800,
-        "file_sha256": {"renders/a.png": hashlib.sha256(member).hexdigest()},
+    source = tmp_path / "mounted-dataset" / "locked_source"
+    (source / "renders").mkdir(parents=True)
+    (source / "a.json").write_bytes(b"{}\n")
+    (source / "renders/a.png").write_bytes(b"png")
+    files = [
+        {"path": "a.json", "bytes": 3, "sha256": hashlib.sha256(b"{}\n").hexdigest()},
+        {"path": "renders/a.png", "bytes": 3, "sha256": hashlib.sha256(b"png").hexdigest()},
+    ]
+    content_manifest = {
+        "member_count": 2,
+        "total_uncompressed_bytes": 6,
+        "files": files,
     }
-    archive_manifest_bytes = json.dumps(archive_manifest).encode("utf-8")
-    archive = dataset / "locked_source.zip"
-    with zipfile.ZipFile(archive, "w") as bundle:
-        bundle.writestr("bundle_manifest.json", archive_manifest_bytes)
-        bundle.writestr("renders/a.png", member)
     spec = {
-        "locked_source_archive_filename": "locked_source.zip",
-        "locked_source_dataset_manifest_filename": "locked_source_manifest.json",
-        "locked_source_bundle_bytes": archive.stat().st_size,
-        "locked_source_bundle_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
-        "locked_source_archive_manifest_sha256": hashlib.sha256(archive_manifest_bytes).hexdigest(),
+        "locked_source_expanded_directory": "locked_source",
+        "locked_content_manifest_sha256": "f" * 64,
+        "original_transport_archive_sha256": "e" * 64,
     }
-    manifest = {
-        "schema_version": 1,
-        "scientific_scope": "AUTHORIZED_LOCKED_PANEL_SOURCE_448_RGB",
-        "archive_filename": "locked_source.zip",
-        "archive_bytes": spec["locked_source_bundle_bytes"],
-        "archive_sha256": spec["locked_source_bundle_sha256"],
-        "archive_manifest_sha256": spec["locked_source_archive_manifest_sha256"],
-    }
-    manifest_path = dataset / "locked_source_manifest.json"
-    manifest_path.write_text(
-        json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
-        encoding="utf-8",
-    )
-    spec["locked_source_dataset_manifest_sha256"] = hashlib.sha256(
-        manifest_path.read_bytes()
-    ).hexdigest()
 
-    record = worker._locate_and_verify_locked_source(tmp_path, spec)
+    record = worker._locate_and_verify_locked_source(tmp_path, content_manifest, spec)
 
-    assert record["registered_locked_pair_count"] == 100
-    assert record["source_png_count"] == 800
+    assert record["member_count"] == 2
+    assert record["total_uncompressed_bytes"] == 6
+    assert record["exact_path_set"] is True
 
 
-def test_locked_source_dataset_fails_closed_on_archive_change(tmp_path: Path) -> None:
+def test_locked_source_dataset_fails_closed_on_content_change(tmp_path: Path) -> None:
     worker = _worker_module()
-    (tmp_path / "locked_source.zip").write_bytes(b"changed")
-    manifest = tmp_path / "locked_source_manifest.json"
-    manifest.write_text("{}\n", encoding="utf-8")
-    spec = {
-        "locked_source_archive_filename": "locked_source.zip",
-        "locked_source_dataset_manifest_filename": "locked_source_manifest.json",
-        "locked_source_bundle_bytes": 7,
-        "locked_source_bundle_sha256": "0" * 64,
-        "locked_source_archive_manifest_sha256": "1" * 64,
-        "locked_source_dataset_manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
+    source = tmp_path / "locked_source"
+    source.mkdir()
+    (source / "a.json").write_bytes(b"changed")
+    content_manifest = {
+        "member_count": 1,
+        "total_uncompressed_bytes": 3,
+        "files": [
+            {"path": "a.json", "bytes": 3, "sha256": hashlib.sha256(b"old").hexdigest()}
+        ],
     }
-    with pytest.raises(RuntimeError, match="manifest content mismatch"):
-        worker._locate_and_verify_locked_source(tmp_path, spec)
+    spec = {
+        "locked_source_expanded_directory": "locked_source",
+        "locked_content_manifest_sha256": "f" * 64,
+        "original_transport_archive_sha256": "e" * 64,
+    }
+    with pytest.raises(RuntimeError, match="size mismatch"):
+        worker._locate_and_verify_locked_source(tmp_path, content_manifest, spec)

@@ -27,6 +27,7 @@ from labbs2026.kaggle import (
     utc_now,
 )
 from labbs2026.stage0.locked_panel_bundle import verify_locked_source_bundle
+from labbs2026.stage0.locked_content_manifest import verify_expanded_locked_content
 from labbs2026.stage0.locked_panel_analysis import finalize_analysis, write_analysis_inputs
 from labbs2026.stage0.measurement_diagnostic import query_status
 
@@ -36,6 +37,7 @@ CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
 TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt3_transport.yaml"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
+CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_B64__"
 DATASET_METADATA_FILENAME = "dataset-metadata.json"
 KERNEL = {
     "id": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
@@ -112,6 +114,45 @@ def _validate_locked_dataset(dataset_root: Path, transport: dict[str, Any]) -> d
         "registered_locked_pairs": bundle["registered_locked_pair_count"] == 100,
         "source_pngs": bundle["source_png_count"] == 800,
     }
+
+
+def _validate_expanded_locked_dataset(
+    dataset_root: Path, transport: dict[str, Any]
+) -> dict[str, Any]:
+    content_manifest_path = ROOT / transport["content_manifest_path"]
+    if sha256_file(content_manifest_path) != transport["content_manifest_sha256"]:
+        raise RuntimeError("frozen content manifest hash mismatch")
+    content_manifest = json.loads(content_manifest_path.read_text("utf-8"))
+    candidates = sorted(
+        path
+        for path in dataset_root.rglob(transport["expanded_source_directory"])
+        if path.is_dir()
+    )
+    if len(candidates) != 1:
+        raise RuntimeError(
+            f"expected exactly one expanded locked source directory; observed={len(candidates)}"
+        )
+    source_root = candidates[0]
+    content = verify_expanded_locked_content(source_root, content_manifest)
+    external_manifests = sorted(dataset_root.rglob(transport["external_manifest_filename"]))
+    checks = {
+        "expanded_directory_unique": len(candidates) == 1,
+        "content_manifest_sha256": sha256_file(content_manifest_path) == transport["content_manifest_sha256"],
+        "content_manifest_member_count": content_manifest["member_count"] == transport["content_member_count"],
+        "content_manifest_total_bytes": content_manifest["total_uncompressed_bytes"] == transport["content_total_uncompressed_bytes"],
+        "original_archive_provenance": content_manifest["original_transport_archive_sha256"] == transport["archive_sha256"],
+        "external_manifest_unique": len(external_manifests) == 1,
+        "external_manifest_sha256": len(external_manifests) == 1 and sha256_file(external_manifests[0]) == transport["external_manifest_sha256"],
+        "exact_path_set": content["exact_path_set"],
+        "all_sizes_match": content["all_sizes_match"],
+        "all_sha256_match": content["all_sha256_match"],
+    }
+    return {
+        "valid": all(checks.values()),
+        "checks": checks,
+        "source_root": str(source_root.resolve()),
+        "content": content,
+    }
     return {
         "valid": all(checks.values()),
         "checks": checks,
@@ -180,9 +221,11 @@ def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
     checks = {
         "tracked_tree_clean": _tracked_clean(),
         "remote_exact_sha": remote_error is None and remote == git_sha,
-        "human_authorization": transport["status"] == "HUMAN_APPROVED_PACKAGE_LIMIT_REPAIR_AND_ATTEMPT_3",
+        "human_authorization": transport["status"] == "HUMAN_APPROVED_EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3",
         "attempt_3": transport["attempt"] == 3,
         "private_dataset": transport["dataset_private"] is True,
+        "dataset_numeric_id": transport["dataset_numeric_id"] == 12006749,
+        "dataset_version": transport["dataset_version"] == 1,
         "dataset_source_exact": KERNEL["dataset_sources"] == [transport["dataset_id"]],
         "frozen_design_sha": hashlib.sha256(design_bytes).hexdigest() == config["frozen_design_sha256"],
         "frozen_pipeline_sha": _blob_hash(config["frozen_resolution_pipeline_path"], frozen_sha) == config["frozen_resolution_pipeline_sha256"],
@@ -198,7 +241,7 @@ def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
     }
     dataset_validation = None
     if dataset_root is not None:
-        dataset_validation = _validate_locked_dataset(dataset_root, transport)
+        dataset_validation = _validate_expanded_locked_dataset(dataset_root, transport)
         checks["locked_dataset_local_validation"] = dataset_validation["valid"]
     return {
         "schema_version": 1,
@@ -225,17 +268,20 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
     run_dir = ROOT / "runs/kaggle" / run_id
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
-    bundle_path, dataset_manifest_path = _locked_dataset_files(dataset_root, transport)
-    bundle = check["dataset_validation"]["bundle"]
+    expanded_source_path = Path(check["dataset_validation"]["source_root"])
+    content_manifest_path = ROOT / transport["content_manifest_path"]
+    content_manifest_bytes = content_manifest_path.read_bytes()
     runtime_hash = sha256_file(ROOT / config["runtime_config"])
     allocation = _yaml(ROOT / "configs/stage0/calibration_design.yaml")["allocation"]
     paths = [
         CONFIG.relative_to(ROOT).as_posix(),
         TRANSPORT_CONFIG.relative_to(ROOT).as_posix(),
+        transport["content_manifest_path"],
         config["runtime_config"],
         WORKER.relative_to(ROOT).as_posix(),
         "src/labbs2026/stage0/paddle_wayu_locked_panel.py",
         "src/labbs2026/stage0/locked_panel_bundle.py",
+        "src/labbs2026/stage0/locked_content_manifest.py",
         "src/labbs2026/stage0/resolution_pipeline.py",
         "src/labbs2026/stage0/paddle_wayu_smoke.py",
         "src/labbs2026/stage0/bundle.py",
@@ -264,15 +310,17 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "repository_url": runtime["source"]["repository_url"],
         "remote_ref": runtime["source"]["remote_ref"],
         "source_hashes": hashes,
-        "locked_source_bundle_sha256": bundle["bundle_sha256"],
-        "locked_source_bundle_bytes": transport["archive_bytes"],
-        "locked_source_archive_filename": transport["archive_filename"],
-        "locked_source_archive_manifest_sha256": transport["archive_manifest_sha256"],
+        "original_transport_archive_sha256": transport["archive_sha256"],
+        "locked_content_manifest_sha256": transport["content_manifest_sha256"],
+        "locked_content_member_count": transport["content_member_count"],
+        "locked_content_total_uncompressed_bytes": transport["content_total_uncompressed_bytes"],
         "locked_source_dataset_id": transport["dataset_id"],
-        "locked_source_dataset_manifest_filename": transport["external_manifest_filename"],
-        "locked_source_dataset_manifest_sha256": transport["external_manifest_sha256"],
+        "kaggle_dataset_numeric_id": transport["dataset_numeric_id"],
+        "kaggle_dataset_version": transport["dataset_version"],
+        "locked_source_expanded_directory": transport["expanded_source_directory"],
         "staged_frozen_design_path": "/tmp/labbs-paddle-wayu-locked-package/frozen_design.yaml",
-        "staged_locked_bundle_path": "KAGGLE_DATASET_DISCOVERY_REQUIRED",
+        "staged_locked_content_manifest_path": "/tmp/labbs-paddle-wayu-locked-package/locked_content_manifest.json",
+        "staged_locked_source_dir": "KAGGLE_DATASET_DISCOVERY_REQUIRED",
         "packaged_artifacts": {
             "frozen_design": {
                 "source_path": f"git:{config['frozen_design_git_sha']}:{config['frozen_design_path']}",
@@ -281,19 +329,25 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
                 "sha256": hashlib.sha256(frozen_bytes).hexdigest(),
                 "expected_sha256": config["frozen_design_sha256"],
             },
-            "locked_source_bundle": {
-                "source_path": str(bundle_path.resolve()),
-                "packaged_path": f"Kaggle Dataset {transport['dataset_id']}:{transport['archive_filename']}",
-                "file_size": bundle_path.stat().st_size,
-                "sha256": bundle["bundle_sha256"],
-                "expected_sha256": bundle["bundle_sha256"],
+            "original_transport_archive": {
+                "source_path": "immutable Attempt 2 locked_source_bundle.zip",
+                "packaged_path": None,
+                "file_size": transport["archive_bytes"],
+                "sha256": transport["archive_sha256"],
+                "expected_sha256": transport["archive_sha256"],
             },
-            "locked_source_dataset_manifest": {
-                "source_path": str(dataset_manifest_path.resolve()),
-                "packaged_path": f"Kaggle Dataset {transport['dataset_id']}:{transport['external_manifest_filename']}",
-                "file_size": dataset_manifest_path.stat().st_size,
-                "sha256": sha256_file(dataset_manifest_path),
-                "expected_sha256": transport["external_manifest_sha256"],
+            "locked_content_manifest": {
+                "source_path": transport["content_manifest_path"],
+                "packaged_path": "worker.py:LOCKED_CONTENT_MANIFEST_B64 -> /tmp/labbs-paddle-wayu-locked-package/locked_content_manifest.json",
+                "file_size": len(content_manifest_bytes),
+                "sha256": hashlib.sha256(content_manifest_bytes).hexdigest(),
+                "expected_sha256": transport["content_manifest_sha256"],
+            },
+            "expanded_locked_source": {
+                "source_path": str(expanded_source_path),
+                "packaged_path": f"Kaggle Dataset {transport['dataset_id']}:{transport['expanded_source_directory']}/",
+                "member_count": transport["content_member_count"],
+                "total_uncompressed_bytes": transport["content_total_uncompressed_bytes"],
             },
         },
         "source_dir": runtime["paths"]["source_dir"],
@@ -307,14 +361,25 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "created_at_utc": utc_now(),
     }
     rendered = render_worker(WORKER.read_text("utf-8"), spec)
-    if rendered.count(DESIGN_PLACEHOLDER) != 1:
-        raise RuntimeError("worker frozen-design placeholder is not unique")
+    if rendered.count(DESIGN_PLACEHOLDER) != 1 or rendered.count(CONTENT_MANIFEST_PLACEHOLDER) != 1:
+        raise RuntimeError("worker embedded-manifest placeholders are not unique")
     rendered = rendered.replace(DESIGN_PLACEHOLDER, base64.b64encode(frozen_bytes).decode("ascii"))
+    rendered = rendered.replace(
+        CONTENT_MANIFEST_PLACEHOLDER,
+        base64.b64encode(content_manifest_bytes).decode("ascii"),
+    )
     atomic_write_text(staging / "worker.py", rendered)
     atomic_write_json(staging / "kernel-metadata.json", KERNEL)
     atomic_write_json(run_dir / "submission.json", spec)
     atomic_write_json(run_dir / "preflight.json", check)
-    atomic_write_json(run_dir / "locked_source_bundle_manifest.json", bundle)
+    atomic_write_json(run_dir / "locked_content_identity.json", {
+        "ORIGINAL_TRANSPORT_ARCHIVE_SHA256": transport["archive_sha256"],
+        "LOCKED_CONTENT_MANIFEST_SHA256": transport["content_manifest_sha256"],
+        "KAGGLE_DATASET_ID": transport["dataset_numeric_id"],
+        "KAGGLE_DATASET_VERSION": transport["dataset_version"],
+        "member_count": transport["content_member_count"],
+        "total_uncompressed_bytes": transport["content_total_uncompressed_bytes"],
+    })
     validation_root = run_dir / "authorization_validation"
     environment = dict(os.environ)
     environment["LABBS_AUTHORIZATION_ONLY"] = "1"
@@ -406,7 +471,9 @@ def verify(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
             "frozen_design_hash_match": manifest["frozen_design_sha256"] == spec["frozen_design_sha256"],
             "runtime_config_hash_match": manifest["runtime_config_sha256"] == spec["runtime_config_sha256"],
             "locked_allocation_hash_match": manifest["locked_allocation_sha256"] == spec["locked_allocation_sha256"],
-            "source_bundle_hash_match": manifest["locked_source_bundle_sha256"] == spec["locked_source_bundle_sha256"],
+            "original_transport_archive_provenance": manifest["ORIGINAL_TRANSPORT_ARCHIVE_SHA256"] == spec["original_transport_archive_sha256"],
+            "locked_content_manifest_hash_match": manifest["LOCKED_CONTENT_MANIFEST_SHA256"] == spec["locked_content_manifest_sha256"],
+            "kaggle_dataset_identity": manifest["KAGGLE_DATASET_ID"] == spec["kaggle_dataset_numeric_id"] and manifest["KAGGLE_DATASET_VERSION"] == spec["kaggle_dataset_version"],
             "model_revision_hashes_match": manifest["model_revision_hashes"] == spec["model_revision_hashes"],
             "exact_models_and_revisions": observed_models == expected_models,
             "exact_6400_calls": manifest["call_count"] == manifest["unique_call_count"] == len(ledger) == 6400,

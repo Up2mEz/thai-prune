@@ -8,7 +8,6 @@ import json
 import os
 import shutil
 import time
-import zipfile
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -17,7 +16,7 @@ import yaml
 from PIL import Image
 
 from labbs2026.kaggle import atomic_write_json, atomic_write_text, cuda_preflight, sha256_file, utc_now
-from labbs2026.stage0.locked_panel_bundle import verify_locked_source_bundle
+from labbs2026.stage0.locked_content_manifest import verify_expanded_locked_content
 from labbs2026.stage0.paddle_wayu_smoke import (
     _environment,
     _jsonable,
@@ -126,14 +125,8 @@ def build_workload(
     return calls
 
 
-def _extract_sources(bundle: Path, destination: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    destination.mkdir(parents=True, exist_ok=False)
-    with zipfile.ZipFile(bundle) as archive:
-        for info in archive.infolist():
-            target = (destination / info.filename).resolve()
-            if not target.is_relative_to(destination.resolve()):
-                raise RuntimeError("unsafe locked bundle path")
-        archive.extractall(destination)
+def _copy_expanded_sources(source: Path, destination: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    shutil.copytree(source, destination)
     pairs = json.loads((destination / "resolved_pairs.json").read_text("utf-8"))
     renders = json.loads((destination / "render_manifest.json").read_text("utf-8"))
     return pairs, renders
@@ -329,7 +322,8 @@ def execute_remote_panel(spec_path: Path) -> None:
         if not spec.get("locked_panel_authorized") or spec["frozen_design_git_sha"] != FROZEN_DESIGN_SHA:
             raise RuntimeError("locked-panel authorization mismatch")
         frozen_path = Path(spec["staged_frozen_design_path"])
-        bundle_path = Path(spec["staged_locked_bundle_path"])
+        expanded_source_path = Path(spec["staged_locked_source_dir"])
+        content_manifest_path = Path(spec["staged_locked_content_manifest_path"])
         if sha256_file(frozen_path) != FROZEN_DESIGN_FILE_SHA256:
             raise RuntimeError("frozen design blob mismatch")
         if sha256_file(Path.cwd() / "src/labbs2026/stage0/resolution_pipeline.py") != FROZEN_PIPELINE_FILE_SHA256:
@@ -337,16 +331,23 @@ def execute_remote_panel(spec_path: Path) -> None:
         design = _yaml(frozen_path)
         if design["execution"]["total_calls"] != EXPECTED_CALLS:
             raise RuntimeError("frozen workload count mismatch")
-        bundle_manifest = verify_locked_source_bundle(bundle_path, spec["locked_source_bundle_sha256"])
+        if sha256_file(content_manifest_path) != spec["locked_content_manifest_sha256"]:
+            raise RuntimeError("locked content manifest hash mismatch")
+        content_manifest = json.loads(content_manifest_path.read_text("utf-8"))
+        content_verification = verify_expanded_locked_content(
+            expanded_source_path, content_manifest
+        )
+        bundle_manifest = json.loads(
+            (expanded_source_path / "bundle_manifest.json").read_text("utf-8")
+        )
         phase = "cuda_preflight"
         gpu = cuda_preflight(spec["requested_accelerator"])
         atomic_write_json(engineering / "environment_manifest.json", {
             "schema_version": 1, "gpu": gpu, "environment": _environment(),
         })
         phase = "source_and_stimulus_preparation"
-        shutil.copyfile(bundle_path, sealed / "locked_source_bundle.zip")
         source_root = sealed / "source_448"
-        pairs, renders = _extract_sources(bundle_path, source_root)
+        pairs, renders = _copy_expanded_sources(expanded_source_path, source_root)
         allocation = _yaml(Path.cwd() / design["dataset"]["allocation_source"])
         if allocation["allocation"]["sha256"] != spec["locked_allocation_sha256"]:
             raise RuntimeError("locked allocation hash mismatch")
@@ -398,7 +399,12 @@ def execute_remote_panel(spec_path: Path) -> None:
             "frozen_design_sha256": FROZEN_DESIGN_FILE_SHA256,
             "frozen_pipeline_sha256": FROZEN_PIPELINE_FILE_SHA256,
             "runtime_config_sha256": spec["runtime_config_sha256"],
-            "locked_source_bundle_sha256": spec["locked_source_bundle_sha256"],
+            "ORIGINAL_TRANSPORT_ARCHIVE_SHA256": spec["original_transport_archive_sha256"],
+            "LOCKED_CONTENT_MANIFEST_SHA256": spec["locked_content_manifest_sha256"],
+            "KAGGLE_DATASET_ID": spec["kaggle_dataset_numeric_id"],
+            "KAGGLE_DATASET_VERSION": spec["kaggle_dataset_version"],
+            "locked_content_member_count": content_verification["member_count"],
+            "locked_content_total_uncompressed_bytes": content_verification["total_uncompressed_bytes"],
             "locked_allocation_sha256": spec["locked_allocation_sha256"],
             "model_revision_hashes": spec["model_revision_hashes"],
             "registered_locked_pair_count": 100,

@@ -2,6 +2,30 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Expanded locked-source transport authorized
+
+**Human decision:** Accept the safe Attempt 3 pre-submission stop and authorize
+`EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3`. Reuse private Kaggle Dataset
+ID `12006749`, version 1; do not create version 2 unless content verification
+fails.
+
+**Identity amendment:** The immutable original ZIP SHA-256 remains historical
+transport provenance. Runtime scientific-input identity is the frozen,
+lexicographically sorted manifest of exact relative POSIX path, uncompressed
+byte size, and uncompressed-file SHA-256 for every regular archive member.
+
+**Verified evidence:** The original archive produced 803 manifest records and
+3,794,984 uncompressed bytes. Content-manifest SHA-256 is
+`5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb`.
+Read-only verification of Dataset version 1 passed exact path set, all sizes,
+all SHA-256 values, external-manifest identity, and unique expanded-source
+directory checks. No image was decoded or scientifically inspected.
+
+**Execution boundary:** Attempt 3 may be submitted exactly once only after the
+remaining repository, worker authorization-only, frozen-design, private
+Dataset/version, and payload allowlist checks pass. No retry or resubmission.
+Scientific outputs remain sealed under the frozen execution rules.
+
 ## 2026-09-13 — Attempt 3 stopped at private-Dataset pre-submission gate
 
 **Human decision:** Accept `PACKAGE_OR_PAYLOAD_LIMIT_ERROR` and authorize

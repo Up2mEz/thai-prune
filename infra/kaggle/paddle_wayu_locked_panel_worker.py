@@ -9,12 +9,13 @@ import os
 import re
 import subprocess
 import sys
-import zipfile
-from pathlib import Path
+import unicodedata
+from pathlib import Path, PurePosixPath
 
 
 RUN_SPEC_B64 = "__LABBS_RUN_SPEC_B64__"
 FROZEN_DESIGN_B64 = "__LABBS_FROZEN_DESIGN_B64__"
+LOCKED_CONTENT_MANIFEST_B64 = "__LABBS_LOCKED_CONTENT_MANIFEST_B64__"
 
 
 def _sha(path: Path) -> str:
@@ -53,66 +54,80 @@ def _decode_verified_payload(encoded: str, path: Path, expected_sha256: str) -> 
     }
 
 
-def _locate_and_verify_locked_source(dataset_root: Path, spec: dict) -> dict:
-    archive_name = spec["locked_source_archive_filename"]
-    manifest_name = spec["locked_source_dataset_manifest_filename"]
-    archives = sorted(dataset_root.rglob(archive_name))
-    manifests = sorted(dataset_root.rglob(manifest_name))
-    if len(archives) != 1 or len(manifests) != 1:
+def _normalized_relative(path: Path, root: Path) -> str:
+    relative = path.relative_to(root).as_posix()
+    pure = PurePosixPath(relative)
+    if (
+        not relative
+        or "\\" in relative
+        or pure.is_absolute()
+        or any(part in ("", ".", "..") for part in pure.parts)
+        or unicodedata.normalize("NFC", relative) != relative
+        or pure.as_posix() != relative
+    ):
+        raise RuntimeError(f"invalid expanded source path: {relative!r}")
+    return relative
+
+
+def _locate_and_verify_locked_source(
+    dataset_root: Path, content_manifest: dict, spec: dict
+) -> dict:
+    candidates = sorted(
+        path
+        for path in dataset_root.rglob(spec["locked_source_expanded_directory"])
+        if path.is_dir()
+    )
+    if len(candidates) != 1:
         raise RuntimeError(
-            f"expected exactly one locked source archive and manifest; "
-            f"observed archive={len(archives)}, manifest={len(manifests)}"
+            f"expected exactly one expanded locked source directory; observed={len(candidates)}"
         )
-    archive, manifest_path = archives[0], manifests[0]
-    if archive.parent != manifest_path.parent:
-        raise RuntimeError("locked source archive and manifest are not colocated")
-    observed_manifest_sha = _sha(manifest_path)
-    if observed_manifest_sha != spec["locked_source_dataset_manifest_sha256"]:
-        raise RuntimeError("locked source dataset manifest hash mismatch")
-    manifest = json.loads(manifest_path.read_text("utf-8"))
-    expected_manifest = {
-        "schema_version": 1,
-        "scientific_scope": "AUTHORIZED_LOCKED_PANEL_SOURCE_448_RGB",
-        "archive_filename": archive_name,
-        "archive_bytes": spec["locked_source_bundle_bytes"],
-        "archive_sha256": spec["locked_source_bundle_sha256"],
-        "archive_manifest_sha256": spec["locked_source_archive_manifest_sha256"],
-    }
-    if manifest != expected_manifest:
-        raise RuntimeError("locked source dataset manifest content mismatch")
-    observed_archive_sha = _sha(archive)
-    if archive.stat().st_size != spec["locked_source_bundle_bytes"]:
-        raise RuntimeError("locked source archive byte-size mismatch")
-    if observed_archive_sha != spec["locked_source_bundle_sha256"]:
-        raise RuntimeError("locked source archive hash mismatch")
-    with zipfile.ZipFile(archive) as bundle:
-        names = bundle.namelist()
-        if names.count("bundle_manifest.json") != 1:
-            raise RuntimeError("locked source archive manifest is not unique")
-        archive_manifest_bytes = bundle.read("bundle_manifest.json")
-        if hashlib.sha256(archive_manifest_bytes).hexdigest() != spec["locked_source_archive_manifest_sha256"]:
-            raise RuntimeError("locked source archive manifest hash mismatch")
-        archive_manifest = json.loads(archive_manifest_bytes)
-        if archive_manifest["registered_locked_pair_count"] != 100:
-            raise RuntimeError("locked source archive pair count mismatch")
-        if archive_manifest["source_png_count"] != 800:
-            raise RuntimeError("locked source archive image count mismatch")
-        if set(names) != set(archive_manifest["file_sha256"]) | {"bundle_manifest.json"}:
-            raise RuntimeError("locked source archive member set mismatch")
-        for relative, expected in archive_manifest["file_sha256"].items():
-            if hashlib.sha256(bundle.read(relative)).hexdigest() != expected:
-                raise RuntimeError(f"locked source archive member mismatch: {relative}")
+    source_root = candidates[0]
+    if source_root.is_symlink():
+        raise RuntimeError("expanded locked source directory is a symlink")
+    expected = {row["path"]: row for row in content_manifest["files"]}
+    if len(expected) != content_manifest["member_count"]:
+        raise RuntimeError("content manifest contains duplicate paths")
+    observed = {}
+    casefold_paths = set()
+    for path in source_root.rglob("*"):
+        if path.is_symlink():
+            raise RuntimeError("symlink in expanded locked source")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise RuntimeError("non-regular expanded locked source entry")
+        relative = _normalized_relative(path, source_root)
+        folded = relative.casefold()
+        if relative in observed or folded in casefold_paths:
+            raise RuntimeError("duplicate or case-colliding expanded source path")
+        observed[relative] = path
+        casefold_paths.add(folded)
+    if set(observed) != set(expected):
+        raise RuntimeError(
+            f"expanded locked source path-set mismatch: "
+            f"missing={len(set(expected) - set(observed))}, "
+            f"unexpected={len(set(observed) - set(expected))}"
+        )
+    total_bytes = 0
+    for relative, record in expected.items():
+        path = observed[relative]
+        if path.stat().st_size != record["bytes"]:
+            raise RuntimeError(f"expanded locked source size mismatch: {relative}")
+        if _sha(path) != record["sha256"]:
+            raise RuntimeError(f"expanded locked source hash mismatch: {relative}")
+        total_bytes += record["bytes"]
+    if total_bytes != content_manifest["total_uncompressed_bytes"]:
+        raise RuntimeError("expanded locked source total-byte mismatch")
     return {
         "dataset_root": str(dataset_root),
-        "dataset_directory": str(archive.parent),
-        "archive_path": str(archive),
-        "archive_file_size": archive.stat().st_size,
-        "archive_sha256": observed_archive_sha,
-        "dataset_manifest_path": str(manifest_path),
-        "dataset_manifest_sha256": observed_manifest_sha,
-        "archive_manifest_sha256": spec["locked_source_archive_manifest_sha256"],
-        "registered_locked_pair_count": 100,
-        "source_png_count": 800,
+        "expanded_source_directory": str(source_root),
+        "member_count": len(observed),
+        "total_uncompressed_bytes": total_bytes,
+        "content_manifest_sha256": spec["locked_content_manifest_sha256"],
+        "original_transport_archive_sha256": spec["original_transport_archive_sha256"],
+        "exact_path_set": True,
+        "all_sizes_match": True,
+        "all_sha256_match": True,
     }
 
 
@@ -163,12 +178,22 @@ def main() -> None:
         design_record = _decode_verified_payload(
             FROZEN_DESIGN_B64, package_root / "frozen_design.yaml", spec["frozen_design_sha256"]
         )
+        content_manifest_record = _decode_verified_payload(
+            LOCKED_CONTENT_MANIFEST_B64,
+            package_root / "locked_content_manifest.json",
+            spec["locked_content_manifest_sha256"],
+        )
+        content_manifest = json.loads(
+            (package_root / "locked_content_manifest.json").read_text("utf-8")
+        )
+        if content_manifest["original_transport_archive_sha256"] != spec["original_transport_archive_sha256"]:
+            raise RuntimeError("original transport archive provenance mismatch")
         dataset_root = Path(
             os.environ["LABBS_AUTH_VALIDATION_DATASET_ROOT"]
             if authorization_only
             else "/kaggle/input"
         )
-        bundle_record = _locate_and_verify_locked_source(dataset_root, spec)
+        bundle_record = _locate_and_verify_locked_source(dataset_root, content_manifest, spec)
         design = yaml.safe_load((package_root / "frozen_design.yaml").read_text("utf-8"))
         if not isinstance(design, dict):
             raise RuntimeError("packaged frozen design did not parse as a YAML mapping")
@@ -179,7 +204,8 @@ def main() -> None:
             "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
             "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
             "frozen_design": design_record,
-            "locked_source_bundle": bundle_record,
+            "locked_content_manifest": content_manifest_record,
+            "locked_source_content": bundle_record,
             "scientific_contract_valid": True,
             "authorization_only": authorization_only,
         }
@@ -187,7 +213,10 @@ def main() -> None:
         if authorization_only:
             return
         spec["staged_frozen_design_path"] = str(package_root / "frozen_design.yaml")
-        spec["staged_locked_bundle_path"] = bundle_record["archive_path"]
+        spec["staged_locked_content_manifest_path"] = str(
+            package_root / "locked_content_manifest.json"
+        )
+        spec["staged_locked_source_dir"] = bundle_record["expanded_source_directory"]
         phase = "source_checkout"
         source = Path(spec["source_dir"])
         source.mkdir(parents=True, exist_ok=False)
