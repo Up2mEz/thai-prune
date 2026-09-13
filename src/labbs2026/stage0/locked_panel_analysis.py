@@ -15,6 +15,7 @@ from scipy.stats import chi2
 from labbs2026.kaggle import atomic_write_json, atomic_write_text, utc_now
 from labbs2026.stage0.interaction_decision import DID_NAMES, classify_interaction
 from labbs2026.stage0.paddle_wayu_s0 import classify_output, codepoint_edit_distance, primary_parse
+from labbs2026.stage0.paddle_wayu_locked_panel import classify_decoded_output_contract
 
 
 RESAMPLES = 10_000
@@ -38,6 +39,19 @@ def derive_outcomes(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for row in rows:
         parsed = primary_parse(row["raw_output"])
         distance = codepoint_edit_distance(parsed, row["target"])
+        contract = classify_decoded_output_contract(row["raw_output"])
+        if "u_fffd_present" in row and row["u_fffd_present"] != contract["u_fffd_present"]:
+            raise RuntimeError("sealed U+FFFD flag does not match decoded raw output")
+        if (
+            "output_contract_failure" in row
+            and row["output_contract_failure"] != contract["output_contract_failure"]
+        ):
+            raise RuntimeError("sealed output-contract flag does not match decoded raw output")
+        if (
+            "output_contract_failure_reason" in row
+            and row["output_contract_failure_reason"] != contract["output_contract_failure_reason"]
+        ):
+            raise RuntimeError("sealed output-contract reason does not match decoded raw output")
         derived.append({
             "call_id": row["call_id"],
             "pair_id": row["pair_id"],
@@ -51,8 +65,14 @@ def derive_outcomes(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "COMPONENT": row["component_type"],
             "exact_correct": int(parsed == row["target"]),
             "codepoint_cer": distance / max(1, len(row["target"])),
-            "error_category": classify_output(parsed, row["target"], row["opposite_member"]),
-            "output_contract_failure": any(char.isspace() for char in parsed),
+            "error_category": (
+                "output_contract_failure"
+                if contract["output_contract_failure"]
+                else classify_output(parsed, row["target"], row["opposite_member"])
+            ),
+            "output_contract_failure": contract["output_contract_failure"],
+            "output_contract_failure_reason": contract["output_contract_failure_reason"],
+            "u_fffd_present": contract["u_fffd_present"],
             "empty_output": parsed == "",
         })
     return derived
@@ -231,7 +251,8 @@ def write_analysis_inputs(artifact: Path, output_dir: Path) -> dict[str, Any]:
     fieldnames = [
         "call_id", "pair_id", "target_id", "MODEL", "BUDGET", "FONT",
         "FONT_SIZE", "MEMBER", "member", "COMPONENT", "exact_correct", "codepoint_cer",
-        "error_category", "output_contract_failure", "empty_output",
+        "error_category", "output_contract_failure", "output_contract_failure_reason",
+        "u_fffd_present", "empty_output",
     ]
     with (output_dir / "analysis_rows.csv").open("x", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

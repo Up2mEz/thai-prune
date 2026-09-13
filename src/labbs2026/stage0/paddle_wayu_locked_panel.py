@@ -34,6 +34,12 @@ FROZEN_PIPELINE_FILE_SHA256 = "8aea843de4ed3785ebfc016fff0ed3226ce9653497c9a4699
 EXPECTED_CALLS = 6400
 AUTHORIZATION_FILENAME = "AUTHORIZATION_VALIDATED.json"
 CORE_OWNERSHIP_FILENAME = "CORE_OWNERSHIP_CLAIMED.json"
+U_FFFD_FAILURE_REASON = "U_FFFD_REPLACEMENT_CHARACTER"
+WHITESPACE_FAILURE_REASON = "INTERNAL_WHITESPACE_PRESENT_AFTER_PRIMARY_PARSE"
+FROZEN_DECODE_KWARGS = {
+    "skip_special_tokens": True,
+    "clean_up_tokenization_spaces": False,
+}
 
 
 def _recursive_checksums(artifact_dir: Path) -> str:
@@ -208,6 +214,57 @@ def _completed_call_count(ledger_path: Path) -> int:
 def _jsonl_append(handle: Any, value: dict[str, Any]) -> None:
     handle.write(json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n")
     handle.flush()
+
+
+def classify_decoded_output_contract(raw: str) -> dict[str, Any]:
+    """Classify a successfully decoded string without modifying its codepoints."""
+    if raw.encode("utf-8").decode("utf-8") != raw:
+        raise RuntimeError("Unicode decoding corruption")
+    parsed = raw.strip()
+    u_fffd_present = "\ufffd" in raw
+    reason = None
+    if u_fffd_present:
+        reason = U_FFFD_FAILURE_REASON
+    elif any(char.isspace() for char in parsed):
+        reason = WHITESPACE_FAILURE_REASON
+    return {
+        "raw_output": raw,
+        "u_fffd_present": u_fffd_present,
+        "output_contract_failure": reason is not None,
+        "output_contract_failure_reason": reason,
+    }
+
+
+def decode_generated_tokens(
+    processor: Any,
+    generated_token_ids: list[int],
+    *,
+    max_new_tokens: int,
+) -> dict[str, Any]:
+    """Apply the frozen decoder and attach sealed per-call termination metadata."""
+    generated = [int(token_id) for token_id in generated_token_ids]
+    if len(generated) > max_new_tokens:
+        raise RuntimeError("generated token count exceeds frozen max_new_tokens")
+    raw = processor.decode(generated, **FROZEN_DECODE_KWARGS)
+    contract = classify_decoded_output_contract(raw)
+    eos_value = processor.tokenizer.eos_token_id
+    if eos_value is None:
+        eos = set()
+    elif isinstance(eos_value, int):
+        eos = {eos_value}
+    else:
+        eos = {int(token_id) for token_id in eos_value}
+    return {
+        **contract,
+        "generated_token_count": len(generated),
+        "eos_reached": any(token_id in eos for token_id in generated),
+        "max_new_tokens_reached": len(generated) == max_new_tokens,
+    }
+
+
+def engineering_progress_message(completed: int) -> str:
+    """Return blinded live telemetry with no scientific identity or output."""
+    return f"ENGINEERING_PROGRESS completed_calls={completed}/{EXPECTED_CALLS}"
 
 
 def _safe_call_id(row: dict[str, Any]) -> str:
@@ -414,9 +471,11 @@ def _run_model(
             if not torch.equal(output_cpu[:, :input_length], input_ids):
                 raise RuntimeError("generated output boundary corruption")
             generated = output_cpu[0, input_length:].tolist()
-            raw = processor.decode(generated, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-            if raw.encode("utf-8").decode("utf-8") != raw or "\ufffd" in raw:
-                raise RuntimeError("Unicode decoding corruption")
+            decoded = decode_generated_tokens(
+                processor,
+                generated,
+                max_new_tokens=int(design["decoding"]["max_new_tokens"]),
+            )
             scientific = {
                 **frozen,
                 "materialized_image_sha256": sha256_file(image_path),
@@ -425,7 +484,7 @@ def _run_model(
                 "full_output_token_ids": output_cpu[0].tolist(),
                 "generated_token_ids": generated,
                 "output_slice_start": input_length,
-                "raw_output": raw,
+                **decoded,
             }
             _jsonl_append(raw_handle, scientific)
             engineering = {
@@ -444,7 +503,7 @@ def _run_model(
             _jsonl_append(ledger_handle, engineering)
             completed += 1
             if completed % 100 == 0:
-                print(f"ENGINEERING_PROGRESS completed_calls={completed}/{EXPECTED_CALLS}", flush=True)
+                print(engineering_progress_message(completed), flush=True)
     runtime = {
         "role": role,
         "model_load_seconds": load_seconds,

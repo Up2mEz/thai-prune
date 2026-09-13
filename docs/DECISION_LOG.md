@@ -2,6 +2,41 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — U+FFFD per-call protocol amendment authorized for local validation
+
+**Human decision:** Accept the open-data Unicode diagnostic and authorize
+`U_FFFD_PER_CALL_PROTOCOL_AMENDMENT_LOCAL_VALIDATION_AUTHORIZED`. Attempt 5 is
+not authorized.
+
+**Amendment:** After successful frozen decoding, a string containing U+FFFD no
+longer aborts the entire run. It is preserved unmodified as a per-call
+`output_contract_failure` with reason `U_FFFD_REPLACEMENT_CHARACTER`, primary
+exact score zero, denominator retained, no retry, and execution continues.
+This is classified
+`SCIENTIFIC_RUN_CONTROL_AND_FAILURE_TAXONOMY_AMENDMENT`, not engineering-only.
+
+**Unchanged contract:** Models/revisions, generation, prompt,
+`max_new_tokens=32`, EOS, processor/tokenizer, decode arguments, output slicing,
+normalization, data, rendering, budgets, BICUBIC resize, exact-match, CER
+formula, statistical analysis, SESOI, Holm procedure, classifier, and the 1%
+output-contract-failure threshold remain unchanged. Other engineering/runtime
+failures remain fatal; ambiguity fails closed.
+
+**Timing and evidence boundary:** The amendment occurred after Attempt 4's
+partial execution but before inspection of any Attempt-4 scientific output. It
+is justified only by S0 open-calibration evidence, tokenizer-only synthetic
+diagnostics, the existing `output_contract_failure` taxonomy, and the existing
+validity threshold. It was not preregistered before Attempt 4.
+
+**Attempt-4 boundary:** Attempt 4 remains
+`PARTIAL_SCIENTIFIC_OUTPUTS_SEALED` and invalid. Its 4,136 calls contribute zero
+observations and must not be resumed, reused, merged, compared, or analyzed.
+Any future authorized confirmatory run must be a fresh 6,400-call panel.
+
+**Required stop:** Complete local tests, S0 replay equivalence, immutable ZIP
+verification, and clean detached-worktree preflight, then stop at
+`U_FFFD_PROTOCOL_AMENDMENT_VALIDATED_PENDING_ATTEMPT5_AUTHORIZATION`.
+
 ## 2026-09-13 — Attempt 4 identity and one-shot rerun authorized
 
 **Human decision:** Authorize the combined Attempt-4 workflow: narrow

@@ -1,4 +1,34 @@
-from labbs2026.stage0.paddle_wayu_locked_panel import build_workload
+import pytest
+
+from labbs2026.stage0.locked_panel_analysis import derive_outcomes
+from labbs2026.stage0.paddle_wayu_locked_panel import (
+    U_FFFD_FAILURE_REASON,
+    build_workload,
+    decode_generated_tokens,
+    engineering_progress_message,
+)
+
+
+class _SyntheticTokenizer:
+    eos_token_id = 2
+
+
+class _SyntheticProcessor:
+    tokenizer = _SyntheticTokenizer()
+
+    def __init__(self) -> None:
+        self.calls: list[list[int]] = []
+
+    def decode(self, token_ids, **kwargs):
+        assert kwargs == {
+            "skip_special_tokens": True,
+            "clean_up_tokenization_spaces": False,
+        }
+        ids = list(token_ids)
+        self.calls.append(ids)
+        if ids == [999]:
+            raise ValueError("synthetic fatal decoder exception")
+        return {94377: "\ufffd", 10: "ก"}[ids[0]]
 
 
 def test_locked_panel_workload_is_exactly_6400_unique_calls() -> None:
@@ -50,3 +80,58 @@ def test_locked_panel_workload_is_exactly_6400_unique_calls() -> None:
     assert len({row["call_id"] for row in workload}) == 6400
     assert sum(row["model_role"] == "BASE" for row in workload) == 3200
     assert sum(row["budget_id"] == "B64" for row in workload) == 1600
+
+
+def test_u_fffd_is_retained_per_call_and_execution_can_continue_without_retry() -> None:
+    processor = _SyntheticProcessor()
+    first = decode_generated_tokens(processor, [94377], max_new_tokens=32)
+    second = decode_generated_tokens(processor, [10, 2], max_new_tokens=32)
+
+    assert first == {
+        "raw_output": "\ufffd",
+        "u_fffd_present": True,
+        "output_contract_failure": True,
+        "output_contract_failure_reason": U_FFFD_FAILURE_REASON,
+        "generated_token_count": 1,
+        "eos_reached": False,
+        "max_new_tokens_reached": False,
+    }
+    assert second["raw_output"] == "ก"
+    assert not second["output_contract_failure"]
+    assert processor.calls == [[94377], [10, 2]]
+
+
+def test_u_fffd_is_exact_zero_retained_in_denominator_and_cer_uses_codepoints() -> None:
+    common = {
+        "pair_id": "p001",
+        "model_role": "BASE",
+        "budget_id": "B256_FULL",
+        "font_id": "font",
+        "font_size": 72,
+        "member": "a",
+        "component_type": "BASE_CHARACTER",
+        "target": "ก",
+        "opposite_member": "ข",
+    }
+    rows = derive_outcomes([
+        {**common, "call_id": "failed", "raw_output": "\ufffd"},
+        {**common, "call_id": "next", "raw_output": "ก"},
+    ])
+    assert len(rows) == 2
+    assert rows[0]["exact_correct"] == 0
+    assert rows[0]["codepoint_cer"] == 1.0
+    assert rows[0]["error_category"] == "output_contract_failure"
+    assert rows[0]["output_contract_failure"]
+    assert rows[0]["output_contract_failure_reason"] == U_FFFD_FAILURE_REASON
+    assert rows[0]["u_fffd_present"]
+    assert rows[1]["exact_correct"] == 1
+
+
+def test_live_progress_is_blinded_and_fatal_decode_exceptions_remain_fatal() -> None:
+    message = engineering_progress_message(100)
+    assert message == "ENGINEERING_PROGRESS completed_calls=100/6400"
+    for forbidden in ("U+FFFD", "94377", "model", "budget", "pair", "decoded"):
+        assert forbidden not in message
+
+    with pytest.raises(ValueError, match="synthetic fatal decoder exception"):
+        decode_generated_tokens(_SyntheticProcessor(), [999], max_new_tokens=32)

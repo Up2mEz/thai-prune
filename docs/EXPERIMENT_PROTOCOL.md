@@ -375,6 +375,40 @@ Do not treat a visually different graph as statistically established evidence by
 
 ---
 
+### 11.1 Post-failure U+FFFD per-call protocol amendment
+
+After Attempt 4 stopped fail-closed on a successfully decoded string containing
+the Unicode replacement character U+FFFD, and before any Attempt-4 scientific
+output was inspected, the protocol was amended under outcome blinding.
+
+The generation and decoding function remains unchanged: exact model and
+processor revisions, prompt, output slicing, `do_sample`, `num_beams`,
+`max_new_tokens=32`, EOS behavior, `skip_special_tokens=True`,
+`clean_up_tokenization_spaces=False`, parser, and Unicode normalization are
+unchanged.
+
+When `processor.decode()` successfully returns a Python string containing one
+or more U+FFFD codepoints, retain the raw string and generated token IDs in the
+sealed scientific record. Mark that observation
+`output_contract_failure_reason=U_FFFD_REPLACEMENT_CHARACTER`, score
+`exact_correct=0`, retain it in the denominator and registered
+output-contract-failure rate, do not retry or repair it, and continue to the
+next registered call. Other runtime or decode exceptions remain fatal and
+ambiguous cases fail closed.
+
+Per-call token count, EOS/cap flags, token IDs, decoded output, U+FFFD flag, and
+failure reason remain inside sealed scientific artifacts. Live telemetry must
+not expose them or any scientific factor identity. The existing FULL
+output-contract-failure maximum of 1% per model remains unchanged and has no
+special exemption for U+FFFD.
+
+Attempt 4 remains an invalid sealed partial run and contributes zero
+observations to any future confirmatory analysis. Any later authorized run
+must start a fresh 6,400-call panel from the beginning under one frozen amended
+executable.
+
+---
+
 ## 12. Stage 2 confound controls
 
 At minimum investigate:
