@@ -2,6 +2,22 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Locked panel attempt 1 stopped before inference
+
+**Observed engineering status:** Kaggle kernel version 1 ended with `ERROR` in
+the `authorization` phase because the staged frozen-design file was not present
+at `/kaggle/working/frozen_design.yaml`. The worker classified the attempt as
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED`.
+
+**Scientific exposure audit:** The downloaded kernel output contains only the
+engineering failure record and the kernel log. It contains no raw-output file,
+no decoded prediction artifact, and no completed model call. No accuracy, CER,
+DID, component outcome, or FULL-validity result was calculated or inspected.
+
+**Decision boundary:** This attempt is technically invalid and supplies no
+scientific evidence. No automatic retry or engineering repair is authorized.
+Stop for human review before another submission.
+
 ## 2026-09-13 — Frozen one-shot locked panel execution authorized
 
 **Human decision:** `FINAL LOCKED PANEL AUTHORIZATION: APPROVED`. Execute the
