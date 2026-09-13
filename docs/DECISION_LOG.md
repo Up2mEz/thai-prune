@@ -2,6 +2,37 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 2 HTTP 400 diagnostic completed; Attempt 3 blocked
+
+**Human authorization:** `ATTEMPT_2_HTTP400_DIAGNOSTIC_ONLY`. Read-only Kaggle
+checks, local request reconstruction, successful-run metadata comparison,
+remote-state verification, and package audit were permitted. Attempt 3 was not
+authorized.
+
+**Observed engineering evidence:** OAuth authentication and authenticated
+read-only API operations succeeded. The remote locked-panel kernel reports
+`current_version_number = 1` and remains the failed Attempt 1 worker. Local
+reconstruction made zero network calls and successfully serialized the Attempt
+2 `ApiSaveKernelRequest`. Its source text is 2,844,948 bytes, versus 6,017 and
+6,849 bytes for successful S0 and smoke submissions; all non-identity request
+fields match. Attempt 2 staging contains no unrelated cache, weights, `runs/`,
+or evidence directory.
+
+**Engineering classification:** `D. PACKAGE_OR_PAYLOAD_LIMIT_ERROR`. This is a
+strongly supported inference from the isolated payload-size difference and
+Kaggle-hosted reports of the same HTTP 400 above the 1 MB kernel-source limit.
+The original full response body was not stored and cannot be recovered without
+a prohibited resubmission; that limitation remains explicit.
+
+**Proposed repair, not authorized or applied:** keep the frozen design embedded
+and transport only the immutable locked-source ZIP through a private,
+version-pinned Kaggle Dataset, with its existing SHA-256 verified before locked
+generation or model loading. No scientific design element changes.
+
+**Decision boundary:** zero scientific calls; no image generation, inference,
+scientific-output access, Dataset creation, repair, retry, or kernel submission.
+Stop at `ATTEMPT_2_HTTP400_ROOT_CAUSE_PENDING_HUMAN_REVIEW`.
+
 ## 2026-09-13 — Locked panel attempt 2 stopped before submission
 
 **Engineering validation:** The repaired embedded payload passed local
