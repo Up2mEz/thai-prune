@@ -2,6 +2,35 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 3 stopped before inference after one authorized submission
+
+**Human authorization:** `EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3`.
+The approved private Kaggle Dataset ID `12006749`, version 1, was used without
+creating a new Dataset version. Exactly one Attempt 3 `SaveKernel` submission
+was made; it created private kernel version 2.
+
+**Verified transport evidence:** Runtime authorization verified the unique
+expanded `locked_source/` directory against the frozen content manifest:
+803 regular files, 3,794,984 uncompressed bytes, exact path set, all byte sizes,
+and all file SHA-256 values passed. The content-manifest SHA-256 remained
+`5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb`.
+
+**Fail-closed result:**
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED`. After the
+bootstrap wrote `engineering/AUTHORIZATION_VALIDATED.json`, the core runner
+attempted to create the already-existing run artifact directory with
+`exist_ok=False` and raised `FileExistsError`. This occurred before CUDA
+preflight, model loading, locked image generation, or model inference.
+Completed scientific calls remain 0/6,400.
+
+**Scientific integrity:** Downloaded output contains only two engineering JSON
+records and the kernel log. It contains no sealed raw outputs, call ledger,
+decoded prediction, metric, or analysis artifact. No scientific outcome was
+displayed, inspected, calculated, or unsealed.
+
+**Decision boundary:** No code repair, retry, or resubmission was performed.
+Any repair requires a new human decision. Stop for human review.
+
 ## 2026-09-13 — Expanded locked-source transport authorized
 
 **Human decision:** Accept the safe Attempt 3 pre-submission stop and authorize

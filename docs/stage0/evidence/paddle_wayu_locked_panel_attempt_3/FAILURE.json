@@ -1,0 +1,8 @@
+{
+  "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
+  "exception_type": "RuntimeError",
+  "message": "locked panel execution returned a nonzero status",
+  "phase": "authorized_locked_panel",
+  "run_id": "kaggle-paddle-wayu-locked-panel-attempt3-5091c573b7c7",
+  "schema_version": 1
+}

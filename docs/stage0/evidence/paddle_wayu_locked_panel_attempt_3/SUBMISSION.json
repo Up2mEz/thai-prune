@@ -1,0 +1,13 @@
+{
+  "attempt": 3,
+  "dataset_numeric_id": 12006749,
+  "dataset_version": 1,
+  "execution_repair_commit": "5091c573b7c7f97ad8696ddf3bd875471a21d08f",
+  "frozen_scientific_design_commit": "871996221a36a56a401fa040c239f55768561210",
+  "kernel_id": 134190206,
+  "kernel_ref": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
+  "kernel_version": 2,
+  "run_id": "kaggle-paddle-wayu-locked-panel-attempt3-5091c573b7c7",
+  "savekernel_call_count": 1,
+  "status": "ERROR"
+}
