@@ -1,0 +1,30 @@
+{
+  "base_execution_commit": "0d4c7fa5b7ca8162d77293510ecbe25945574dcc",
+  "classification": "PASS_EMPTY",
+  "frozen_scientific_design_commit": "871996221a36a56a401fa040c239f55768561210",
+  "protected_files": {
+    "configs/runtime/kaggle_t4_paddle_wayu.yaml": {
+      "changed_from_base_execution_commit": false,
+      "sha256": "626484d85f252852f2b97e2ab18f529c55c56a5e62a06955ca90858adc829e5a"
+    },
+    "configs/runtime/paddle_wayu_locked_content_manifest.json": {
+      "changed_from_base_execution_commit": false,
+      "sha256": "5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb"
+    },
+    "configs/stage0/calibration_design.yaml": {
+      "changed_from_base_execution_commit": false,
+      "sha256": "ec26b0383f3dbfcef90a21b9107745baf9ff71d0073b23306c02a054868dc13c"
+    },
+    "configs/stage0/overall_model_budget_design.yaml": {
+      "changed_from_base_execution_commit": false,
+      "matches_frozen_scientific_design_commit": true,
+      "sha256": "6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1"
+    },
+    "src/labbs2026/stage0/resolution_pipeline.py": {
+      "changed_from_base_execution_commit": false,
+      "matches_frozen_scientific_design_commit": true,
+      "sha256": "8aea843de4ed3785ebfc016fff0ed3226ce9653497c9a46991d0ec4d8fc21ac6"
+    }
+  },
+  "schema_version": 1
+}

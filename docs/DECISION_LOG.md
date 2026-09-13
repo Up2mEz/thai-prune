@@ -2,6 +2,31 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 4 identity and one-shot rerun authorized
+
+**Human decision:** Authorize the combined Attempt-4 workflow: narrow
+execution-identity repair, local validation, exact commit pinning,
+pre-submission verification, exactly one Kaggle submission, fail-closed remote
+execution, and registered analysis only after a complete locally verified
+sealed panel.
+
+**Frozen Attempt-4 identity:** `attempt=4`, authorization label
+`LOCKED_PANEL_RERUN_AUTHORIZED`, and stable run ID
+`kaggle-paddle-wayu-locked-panel-attempt4`. The run ID does not depend on the
+future execution commit SHA. The committed Attempt-4 transport config is the
+single source consumed by lifecycle preparation; bootstrap and core validate
+the identity carried in the signed execution spec.
+
+**Local validation:** Attempt-4 identity and handoff focused tests passed 29/29;
+the full suite passed 181 tests with one pre-existing optional Kaggle-package
+skip. The proposed patch has no change from the accepted pre-patch state for
+the frozen scientific configuration, allocation, content manifest, runtime
+profile, or resolution pipeline.
+
+**Execution boundary:** Submission is permitted exactly once only after the
+new commit is pushed exactly and all read-only and package/authorization gates
+pass. No automatic retry or resubmission is permitted.
+
 ## 2026-09-13 — Artifact handoff repair authorized locally
 
 **Human decision:** Accept root-cause classification

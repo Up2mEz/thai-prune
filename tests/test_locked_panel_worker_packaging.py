@@ -132,8 +132,12 @@ def test_runtime_import_preflight_covers_real_execution_imports() -> None:
         "labbs2026.stage0.paddle_wayu_smoke",
         "labbs2026.stage0.resolution_pipeline",
     }
-    assert all(name in worker.RUNTIME_IMPORT_PREFLIGHT for name in required)
-    assert "wrapt" not in worker.RUNTIME_IMPORT_PREFLIGHT
+    configured = "\n".join(
+        f"{module}: {statement}"
+        for module, statement in worker.RUNTIME_IMPORT_PREFLIGHT
+    )
+    assert all(name in configured for name in required)
+    assert "wrapt" not in configured
 
 
 def test_bootstrap_failure_channel_does_not_require_run_artifact_root(

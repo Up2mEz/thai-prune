@@ -32,7 +32,9 @@ def _worker_module():
 def _spec(tmp_path: Path) -> dict:
     return {
         "output_root": str(tmp_path / "artifacts"),
-        "run_id": "locked-panel-handoff-test",
+        "run_id": "kaggle-paddle-wayu-locked-panel-attempt4",
+        "attempt": 4,
+        "authorization_label": "LOCKED_PANEL_RERUN_AUTHORIZED",
         "git_sha": "e" * 40,
         "SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
         "EXECUTION_REPAIR_COMMIT": "e" * 40,
@@ -51,6 +53,8 @@ def _authorization(spec: dict) -> dict:
     return {
         "schema_version": 1,
         "run_id": spec["run_id"],
+        "attempt": spec["attempt"],
+        "authorization_label": spec["authorization_label"],
         "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
         "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
         "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
@@ -133,6 +137,30 @@ def test_authorization_identity_mismatch_fails_closed(tmp_path: Path) -> None:
     spec, _, authorization = _bootstrap(tmp_path)
     record = json.loads(authorization.read_text("utf-8"))
     record["run_id"] = "wrong-run"
+    authorization.write_text(json.dumps(record), "utf-8")
+    with pytest.raises(RuntimeError, match="authorization identity mismatch"):
+        initialize_artifact_handoff(spec)
+
+
+def test_attempt3_identity_is_rejected(tmp_path: Path) -> None:
+    spec = _spec(tmp_path)
+    spec["attempt"] = 3
+    spec["authorization_label"] = (
+        "HUMAN_APPROVED_EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3"
+    )
+    spec["run_id"] = "kaggle-paddle-wayu-locked-panel-attempt3"
+    artifact = Path(spec["output_root"]) / spec["run_id"]
+    _worker_module()._write_bootstrap_authorization(
+        artifact, _authorization(spec)
+    )
+    with pytest.raises(RuntimeError, match="authorization identity mismatch"):
+        initialize_artifact_handoff(spec)
+
+
+def test_attempt_identity_mismatch_fails_closed(tmp_path: Path) -> None:
+    spec, _, authorization = _bootstrap(tmp_path)
+    record = json.loads(authorization.read_text("utf-8"))
+    record["attempt"] = 3
     authorization.write_text(json.dumps(record), "utf-8")
     with pytest.raises(RuntimeError, match="authorization identity mismatch"):
         initialize_artifact_handoff(spec)

@@ -80,6 +80,10 @@ def _authorization_record(path: Path, spec: dict[str, Any]) -> dict[str, Any]:
         "status": value.get("status") == "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
         "authorization_only": value.get("authorization_only") is False,
         "run_id": value.get("run_id") == spec["run_id"],
+        "attempt": value.get("attempt") == spec.get("attempt") == 4,
+        "authorization_label": value.get("authorization_label")
+        == spec.get("authorization_label")
+        == "LOCKED_PANEL_RERUN_AUTHORIZED",
         "scientific_design_commit": value.get("SCIENTIFIC_DESIGN_COMMIT")
         == spec["SCIENTIFIC_DESIGN_COMMIT"],
         "execution_commit": value.get("EXECUTION_REPAIR_COMMIT")
@@ -169,6 +173,8 @@ def claim_bootstrap_artifact_ownership(
     claim = {
         "schema_version": 1,
         "run_id": spec["run_id"],
+        "attempt": spec["attempt"],
+        "authorization_label": spec["authorization_label"],
         "timestamp_utc": utc_now(),
         "authorization_artifact_sha256": sha256_file(authorization_path),
         "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
@@ -187,6 +193,16 @@ def initialize_artifact_handoff(
     sealed = artifact / "sealed"
     sealed.mkdir(exist_ok=False)
     return artifact, engineering, sealed, authorization
+
+
+def _completed_call_count(ledger_path: Path) -> int:
+    if not ledger_path.is_file():
+        return 0
+    with ledger_path.open("rb") as handle:
+        return sum(
+            chunk.count(b"\n")
+            for chunk in iter(lambda: handle.read(1024 * 1024), b"")
+        )
 
 
 def _jsonl_append(handle: Any, value: dict[str, Any]) -> None:
@@ -447,6 +463,7 @@ def execute_remote_panel(spec_path: Path) -> None:
     spec = json.loads(spec_path.read_text("utf-8"))
     artifact = Path(spec["output_root"]) / spec["run_id"]
     engineering = artifact / "engineering"
+    ledger_path = engineering / "call_ledger.jsonl"
     ownership_claimed = False
     phase = "artifact_ownership_adoption"
     started = time.perf_counter()
@@ -496,7 +513,6 @@ def execute_remote_panel(spec_path: Path) -> None:
         ))
         phase = "model_execution"
         manifests, runtimes, completed = [], [], 0
-        ledger_path = engineering / "call_ledger.jsonl"
         with ledger_path.open("x", encoding="utf-8", newline="\n") as ledger:
             for model_spec in design["models"]:
                 manifest, runtime, completed = _run_model(
@@ -526,6 +542,8 @@ def execute_remote_panel(spec_path: Path) -> None:
         atomic_write_json(engineering / "execution_manifest.json", {
             "schema_version": 1,
             "run_id": spec["run_id"],
+            "attempt": spec["attempt"],
+            "authorization_label": spec["authorization_label"],
             "run_type": "PADDLE_WAYU_FROZEN_ONE_SHOT_LOCKED_MODEL_BUDGET_PANEL",
             "execution_git_sha": spec["git_sha"],
             "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
@@ -567,11 +585,17 @@ def execute_remote_panel(spec_path: Path) -> None:
         failure = {
             "schema_version": 1,
             "run_id": spec.get("run_id"),
+            "attempt": spec.get("attempt"),
+            "authorization_label": spec.get("authorization_label"),
+            "scientific_completed_call_count": _completed_call_count(ledger_path),
+            "SCIENTIFIC_DESIGN_COMMIT": spec.get("SCIENTIFIC_DESIGN_COMMIT"),
+            "EXECUTION_REPAIR_COMMIT": spec.get("EXECUTION_REPAIR_COMMIT"),
             "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
             "phase": phase,
             "exception_type": type(exc).__name__,
             "message": str(exc)[:2000],
             "traceback": traceback.format_exc()[-16000:],
+            "subprocess_stderr": "",
             "timestamp_utc": utc_now(),
         }
         if ownership_claimed:

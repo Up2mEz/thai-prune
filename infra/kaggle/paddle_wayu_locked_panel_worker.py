@@ -12,6 +12,7 @@ import sys
 import traceback
 import unicodedata
 import zlib
+from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
 
@@ -19,12 +20,31 @@ RUN_SPEC_B64 = "__LABBS_RUN_SPEC_B64__"
 FROZEN_DESIGN_B64 = "__LABBS_FROZEN_DESIGN_B64__"
 LOCKED_CONTENT_MANIFEST_ZLIB_B64 = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
 RUNTIME_IMPORT_PREFLIGHT = (
-    "import accelerate, huggingface_hub, numpy, PIL, torch, torchvision, transformers, yaml; "
-    "import qwen_vl_utils; "
-    "from transformers import AutoModelForImageTextToText, AutoProcessor; "
-    "import labbs2026.stage0.paddle_wayu_locked_panel; "
-    "import labbs2026.stage0.paddle_wayu_smoke; "
-    "import labbs2026.stage0.resolution_pipeline"
+    ("accelerate", "import accelerate"),
+    ("huggingface_hub", "import huggingface_hub"),
+    ("numpy", "import numpy"),
+    ("PIL", "import PIL"),
+    ("torch", "import torch"),
+    ("torchvision", "import torchvision"),
+    ("transformers", "import transformers"),
+    ("yaml", "import yaml"),
+    ("qwen_vl_utils", "import qwen_vl_utils"),
+    (
+        "transformers.AutoModelForImageTextToText/AutoProcessor",
+        "from transformers import AutoModelForImageTextToText, AutoProcessor",
+    ),
+    (
+        "labbs2026.stage0.paddle_wayu_locked_panel",
+        "import labbs2026.stage0.paddle_wayu_locked_panel",
+    ),
+    (
+        "labbs2026.stage0.paddle_wayu_smoke",
+        "import labbs2026.stage0.paddle_wayu_smoke",
+    ),
+    (
+        "labbs2026.stage0.resolution_pipeline",
+        "import labbs2026.stage0.resolution_pipeline",
+    ),
 )
 
 
@@ -35,6 +55,16 @@ class CoreSubprocessFailure(RuntimeError):
         self.stderr = stderr
         detail = (stderr or stdout or "no subprocess output")[-16000:]
         super().__init__(f"core subprocess exited {returncode}: {detail}")
+
+
+class RuntimeImportFailure(RuntimeError):
+    def __init__(self, module: str, returncode: int, stdout: str, stderr: str) -> None:
+        self.module = module
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        detail = (stderr or stdout or "no subprocess output")[-16000:]
+        super().__init__(f"required runtime import failed for {module}: {detail}")
 
 
 def _sha(path: Path) -> str:
@@ -86,6 +116,20 @@ def _launch_core(
     if handoff_test_only:
         command.append("--artifact-handoff-test-only")
     return subprocess.run(command, cwd=source, capture_output=True, text=True)
+
+
+def _runtime_import_preflight(python: Path, source: Path) -> None:
+    for module, statement in RUNTIME_IMPORT_PREFLIGHT:
+        result = subprocess.run(
+            [str(python), "-c", statement],
+            cwd=source,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode:
+            raise RuntimeImportFailure(
+                module, result.returncode, result.stdout, result.stderr
+            )
 
 
 def _decode_verified_payload(encoded: str, path: Path, expected_sha256: str) -> dict:
@@ -270,6 +314,8 @@ def main() -> None:
         authorization_record = {
             "schema_version": 1,
             "run_id": spec["run_id"],
+            "attempt": spec["attempt"],
+            "authorization_label": spec["authorization_label"],
             "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
             "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
             "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
@@ -320,7 +366,7 @@ def main() -> None:
             "--require-hashes", "-r", str(source / spec["transformers_override_lock"]),
         ], source)
         phase = "runtime_import_preflight"
-        _run([str(python), "-c", RUNTIME_IMPORT_PREFLIGHT], source)
+        _runtime_import_preflight(python, source)
         phase = "authorized_locked_panel"
         spec_path = Path("/tmp/labbs-paddle-wayu-locked-panel-spec.json")
         _json(spec_path, spec)
@@ -331,23 +377,49 @@ def main() -> None:
         failure = {
             "schema_version": 1,
             "run_id": spec["run_id"],
+            "attempt": spec.get("attempt"),
+            "authorization_label": spec.get("authorization_label"),
+            "scientific_completed_call_count": 0,
+            "SCIENTIFIC_DESIGN_COMMIT": spec.get("SCIENTIFIC_DESIGN_COMMIT"),
+            "EXECUTION_REPAIR_COMMIT": spec.get("EXECUTION_REPAIR_COMMIT"),
             "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
             "phase": phase,
             "exception_type": type(exc).__name__,
             "message": _redact(str(exc))[:4000],
             "traceback": _redact(traceback.format_exc())[-16000:],
+            "timestamp_utc": datetime.now(UTC).isoformat(),
         }
+        specific_failure = artifact / "engineering/FAILURE.json"
+        if isinstance(exc, CoreSubprocessFailure) and specific_failure.is_file():
+            try:
+                specific = json.loads(specific_failure.read_text("utf-8"))
+                if isinstance(specific, dict):
+                    failure = specific
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                pass
         if isinstance(exc, CoreSubprocessFailure):
             failure["core_subprocess_returncode"] = exc.returncode
             failure["core_subprocess_stdout"] = _redact(exc.stdout)[-16000:]
             failure["core_subprocess_stderr"] = _redact(exc.stderr)[-16000:]
+        if isinstance(exc, RuntimeImportFailure):
+            failure["failed_import_module"] = exc.module
+            failure["import_subprocess_returncode"] = exc.returncode
+            failure["import_subprocess_stdout"] = _redact(exc.stdout)[-16000:]
+            failure["import_subprocess_stderr"] = _redact(exc.stderr)[-16000:]
+            failure["dependency_context"] = {
+                "uv_sync_args": spec.get("uv_sync_args"),
+                "transformers_override_lock": spec.get("transformers_override_lock"),
+                "transformers_override_lock_sha256": spec.get("source_hashes", {}).get(
+                    spec.get("transformers_override_lock", "")
+                ),
+            }
         bootstrap_failure = output_root / "_bootstrap_failures" / f"{spec['run_id']}.json"
         _json(bootstrap_failure, failure)
         try:
             artifact.mkdir(parents=True, exist_ok=True)
             engineering = artifact / "engineering"
             engineering.mkdir(parents=True, exist_ok=True)
-            if not (engineering / "FAILURE.json").exists():
+            if not specific_failure.exists():
                 _json(engineering / "FAILURE.json", failure)
         except OSError:
             pass

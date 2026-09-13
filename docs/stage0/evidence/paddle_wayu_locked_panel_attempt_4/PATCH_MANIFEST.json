@@ -1,0 +1,21 @@
+{
+  "attempt": 4,
+  "authorization_label": "LOCKED_PANEL_RERUN_AUTHORIZED",
+  "base_execution_commit": "0d4c7fa5b7ca8162d77293510ecbe25945574dcc",
+  "changed_implementation_files": {
+    "configs/runtime/kaggle_locked_panel_attempt4_transport.yaml": "5af7aa5d3b77fb52a281c9252448a279820913578d731e4c1f50c23802328341",
+    "infra/kaggle/paddle_wayu_locked_panel_worker.py": "eb1499001de9e8156e129b7ae62758cebe97c838af379e3571255512805f8ee9",
+    "scripts/paddle_wayu_locked_panel.py": "6613d843a9a8aad540f004fadcca947efa8a83172d453dbec327e91ba768a9ef",
+    "src/labbs2026/stage0/paddle_wayu_locked_panel.py": "488b1310d2da25b3c3d4b388797d9b8cb27d103f33d4ac15314c532bba9e401b",
+    "tests/test_locked_panel_artifact_handoff.py": "ce79f8a97206245fbd1a5fff0978593096b64157982ca7d1d05d078114eba00d",
+    "tests/test_locked_panel_execution_identity.py": "408c28f4d15e9ec61471d9c446460ccae2db3b52c36c5c9761c0bf345eac2c95",
+    "tests/test_locked_panel_worker_packaging.py": "bd3c40d58a9eb876a242c27b9410e798255d87dfd390e84f0df72b9301f1d020"
+  },
+  "full_test_result": "181 passed, 1 skipped",
+  "integration_test_result": "1 passed",
+  "focused_test_result": "29 passed",
+  "kaggle_savekernel_calls": 0,
+  "run_id": "kaggle-paddle-wayu-locked-panel-attempt4",
+  "schema_version": 1,
+  "scientific_design_diff": "PASS_EMPTY"
+}

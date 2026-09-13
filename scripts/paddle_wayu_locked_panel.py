@@ -35,7 +35,7 @@ from labbs2026.stage0.measurement_diagnostic import query_status
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
-TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt3_transport.yaml"
+TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt4_transport.yaml"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
 CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
@@ -222,8 +222,13 @@ def preflight(dataset_root: Path | None = None) -> dict[str, Any]:
     checks = {
         "tracked_tree_clean": _tracked_clean(),
         "remote_exact_sha": remote_error is None and remote == git_sha,
-        "human_authorization": transport["status"] == "HUMAN_APPROVED_EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3",
-        "attempt_3": transport["attempt"] == 3,
+        "human_authorization": transport["status"] == "LOCKED_PANEL_RERUN_AUTHORIZED",
+        "attempt_4": transport["attempt"] == 4,
+        "attempt_4_run_id": transport["run_id"]
+        == "kaggle-paddle-wayu-locked-panel-attempt4",
+        "attempt_4_run_root_absent": not (
+            ROOT / "runs/kaggle" / transport["run_id"]
+        ).exists(),
         "private_dataset": transport["dataset_private"] is True,
         "dataset_numeric_id": transport["dataset_numeric_id"] == 12006749,
         "dataset_version": transport["dataset_version"] == 1,
@@ -265,7 +270,7 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
     runtime = load_runtime(ROOT / config["runtime_config"])
     git_sha = check["git_sha"]
     frozen_bytes = _git_bytes(config["frozen_design_git_sha"], config["frozen_design_path"])
-    run_id = f"kaggle-paddle-wayu-locked-panel-attempt3-{git_sha[:12]}"
+    run_id = transport["run_id"]
     run_dir = ROOT / "runs/kaggle" / run_id
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
@@ -296,6 +301,8 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "schema_version": 1,
         "run_type": "PADDLE_WAYU_FROZEN_ONE_SHOT_LOCKED_MODEL_BUDGET_PANEL",
         "run_id": run_id,
+        "attempt": transport["attempt"],
+        "authorization_label": transport["status"],
         "git_sha": git_sha,
         "SCIENTIFIC_DESIGN_COMMIT": config["frozen_design_git_sha"],
         "EXECUTION_REPAIR_COMMIT": git_sha,
@@ -408,7 +415,7 @@ def prepare(dataset_root: Path) -> dict[str, Any]:
         "locked_source_archive_in_submission": any(path.name == transport["archive_filename"] for path in staging_files),
     }
     if {path.name for path in staging_files} != set(package_audit["allowlist"]) or package_audit["locked_source_archive_in_submission"]:
-        raise RuntimeError(f"Attempt 3 staging allowlist failed: {package_audit}")
+        raise RuntimeError(f"Attempt 4 staging allowlist failed: {package_audit}")
     atomic_write_json(run_dir / "package_audit.json", package_audit)
     return {
         "run_id": run_id,
@@ -465,6 +472,10 @@ def verify(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
         raw_specialized = artifact / "sealed/raw_outputs_specialized.jsonl"
         checks.update({
             "run_id_match": manifest["run_id"] == spec["run_id"],
+            "attempt_4_identity": manifest["attempt"] == spec["attempt"] == 4
+            and manifest["authorization_label"]
+            == spec["authorization_label"]
+            == "LOCKED_PANEL_RERUN_AUTHORIZED",
             "execution_git_sha_match": manifest["execution_git_sha"] == spec["git_sha"],
             "separate_scientific_identity": manifest["SCIENTIFIC_DESIGN_COMMIT"] == spec["SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
             "separate_execution_identity": manifest["EXECUTION_REPAIR_COMMIT"] == spec["EXECUTION_REPAIR_COMMIT"] == spec["git_sha"],
