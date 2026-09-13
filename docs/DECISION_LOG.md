@@ -2,6 +2,35 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-14 — Registered analysis packaging repair authorized locally
+
+**Human decision:** Accept the registered-analysis environment failure as an
+engineering packaging defect and authorize
+`REGISTERED_ANALYSIS_PACKAGING_REPAIR_AUTHORIZED_LOCAL_ONLY`.
+
+**Amendment classification:** `ANALYSIS_ENVIRONMENT_PACKAGING_AMENDMENT`. The
+originally frozen analysis Docker packaging was found to be incomplete after
+the locked 6,400-call experiment completed but before any Attempt-5 scientific
+output was accessed: required system build dependencies were absent, the frozen
+R entrypoint was not copied into the image, and package-installation failures
+were not propagated to Docker build status.
+
+**Authorized engineering repair:** Add only the required system build
+dependencies, copy the already frozen `run_glmm.R`, and make dependency,
+version, library-load, parseability and entrypoint-hash validation fail closed.
+R version, R package versions, statistical code, estimands, thresholds,
+fallback, bootstrap, Holm procedure, SESOI and decision rules remain unchanged.
+
+**Scientific boundary:** Attempt 5 remains the sole `VERIFIED` 6,400-call
+panel. This task must not mount, read, decode or analyze Attempt-5 raw outputs;
+must not touch Kaggle; and must not run `write_analysis_inputs(...)` or the
+frozen `analyze` command.
+
+**Required stop:** After focused/full tests, research consistency, clean
+detached-worktree preflight, exact-commit image build and no-data validation,
+stop at
+`REGISTERED_ANALYSIS_PACKAGING_REPAIR_VALIDATED_PENDING_DATA_ACCESS_AUTHORIZATION`.
+
 ## 2026-09-13 — Attempt 5 fresh full locked panel authorized
 
 **Human decision:** Accept the validated U+FFFD per-call protocol amendment at
