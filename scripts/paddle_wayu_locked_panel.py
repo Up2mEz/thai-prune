@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
+import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +33,8 @@ from labbs2026.stage0.measurement_diagnostic import query_status
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
+DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
+BUNDLE_PLACEHOLDER = "__LABBS_LOCKED_SOURCE_BUNDLE_B64__"
 KERNEL = {
     "id": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
     "title": "LabBS2026 Paddle Wayu Locked Model Budget Panel",
@@ -89,7 +94,7 @@ def preflight() -> dict[str, Any]:
     checks = {
         "tracked_tree_clean": _tracked_clean(),
         "remote_exact_sha": remote_error is None and remote == git_sha,
-        "human_authorization": config["status"] == "HUMAN_APPROVED_FOR_FROZEN_LOCKED_PANEL_EXECUTION",
+        "human_authorization": config["status"] == "HUMAN_APPROVED_ENGINEERING_REPAIR_AND_EXACT_RERUN",
         "frozen_design_sha": hashlib.sha256(design_bytes).hexdigest() == config["frozen_design_sha256"],
         "frozen_pipeline_sha": _blob_hash(config["frozen_resolution_pipeline_path"], frozen_sha) == config["frozen_resolution_pipeline_sha256"],
         "current_pipeline_unchanged": sha256_file(ROOT / config["frozen_resolution_pipeline_path"]) == config["frozen_resolution_pipeline_sha256"],
@@ -121,16 +126,20 @@ def prepare() -> dict[str, Any]:
     runtime = load_runtime(ROOT / config["runtime_config"])
     git_sha = check["git_sha"]
     frozen_bytes = _git_bytes(config["frozen_design_git_sha"], config["frozen_design_path"])
-    run_id = f"kaggle-paddle-wayu-locked-panel-{git_sha[:12]}"
+    run_id = f"kaggle-paddle-wayu-locked-panel-attempt2-{git_sha[:12]}"
     run_dir = ROOT / "runs/kaggle" / run_id
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
-    atomic_write_text(staging / "frozen_design.yaml", frozen_bytes.decode("utf-8"))
+    packaged_sources = run_dir / "packaged_sources"
+    packaged_sources.mkdir()
+    bundle_path = packaged_sources / "locked_source_bundle.zip"
     bundle = build_locked_source_bundle(
         ROOT / config["source_review_dir"],
         ROOT / "configs/stage0/calibration_design.yaml",
-        staging / "locked_source_bundle.zip",
+        bundle_path,
     )
+    runtime_hash = sha256_file(ROOT / config["runtime_config"])
+    allocation = _yaml(ROOT / "configs/stage0/calibration_design.yaml")["allocation"]
     paths = [
         CONFIG.relative_to(ROOT).as_posix(),
         config["runtime_config"],
@@ -151,16 +160,39 @@ def prepare() -> dict[str, Any]:
         "run_type": "PADDLE_WAYU_FROZEN_ONE_SHOT_LOCKED_MODEL_BUDGET_PANEL",
         "run_id": run_id,
         "git_sha": git_sha,
+        "SCIENTIFIC_DESIGN_COMMIT": config["frozen_design_git_sha"],
+        "EXECUTION_REPAIR_COMMIT": git_sha,
         "frozen_design_git_sha": config["frozen_design_git_sha"],
         "frozen_design_sha256": config["frozen_design_sha256"],
+        "runtime_config_sha256": runtime_hash,
+        "locked_allocation_sha256": allocation["sha256"],
+        "model_revision_hashes": {
+            row["role"]: row["revision"] for row in yaml.safe_load(frozen_bytes)["models"]
+        },
         "locked_panel_authorized": True,
         "scientific_output_unseal_during_execution": False,
         "repository_url": runtime["source"]["repository_url"],
         "remote_ref": runtime["source"]["remote_ref"],
         "source_hashes": hashes,
         "locked_source_bundle_sha256": bundle["bundle_sha256"],
-        "staged_frozen_design_path": "/kaggle/working/frozen_design.yaml",
-        "staged_locked_bundle_path": "/kaggle/working/locked_source_bundle.zip",
+        "staged_frozen_design_path": "/tmp/labbs-paddle-wayu-locked-package/frozen_design.yaml",
+        "staged_locked_bundle_path": "/tmp/labbs-paddle-wayu-locked-package/locked_source_bundle.zip",
+        "packaged_artifacts": {
+            "frozen_design": {
+                "source_path": f"git:{config['frozen_design_git_sha']}:{config['frozen_design_path']}",
+                "packaged_path": "worker.py:FROZEN_DESIGN_B64 -> /tmp/labbs-paddle-wayu-locked-package/frozen_design.yaml",
+                "file_size": len(frozen_bytes),
+                "sha256": hashlib.sha256(frozen_bytes).hexdigest(),
+                "expected_sha256": config["frozen_design_sha256"],
+            },
+            "locked_source_bundle": {
+                "source_path": str(bundle_path.resolve()),
+                "packaged_path": "worker.py:LOCKED_SOURCE_BUNDLE_B64 -> /tmp/labbs-paddle-wayu-locked-package/locked_source_bundle.zip",
+                "file_size": bundle_path.stat().st_size,
+                "sha256": bundle["bundle_sha256"],
+                "expected_sha256": bundle["bundle_sha256"],
+            },
+        },
         "source_dir": runtime["paths"]["source_dir"],
         "output_root": runtime["paths"]["output_root"],
         "requested_accelerator": runtime["accelerator"],
@@ -171,12 +203,40 @@ def prepare() -> dict[str, Any]:
         "kernel_id": KERNEL["id"],
         "created_at_utc": utc_now(),
     }
-    atomic_write_text(staging / "worker.py", render_worker(WORKER.read_text("utf-8"), spec))
+    rendered = render_worker(WORKER.read_text("utf-8"), spec)
+    if rendered.count(DESIGN_PLACEHOLDER) != 1 or rendered.count(BUNDLE_PLACEHOLDER) != 1:
+        raise RuntimeError("worker payload placeholders are not unique")
+    rendered = rendered.replace(DESIGN_PLACEHOLDER, base64.b64encode(frozen_bytes).decode("ascii"))
+    rendered = rendered.replace(
+        BUNDLE_PLACEHOLDER,
+        base64.b64encode(bundle_path.read_bytes()).decode("ascii"),
+    )
+    atomic_write_text(staging / "worker.py", rendered)
     atomic_write_json(staging / "kernel-metadata.json", KERNEL)
     atomic_write_json(run_dir / "submission.json", spec)
     atomic_write_json(run_dir / "preflight.json", check)
     atomic_write_json(run_dir / "locked_source_bundle_manifest.json", bundle)
-    return {"run_id": run_id, "run_dir": str(run_dir), "submit_command": build_submit_command(staging)}
+    validation_root = run_dir / "authorization_validation"
+    environment = dict(os.environ)
+    environment["LABBS_AUTHORIZATION_ONLY"] = "1"
+    environment["LABBS_AUTH_VALIDATION_OUTPUT_ROOT"] = str(validation_root.resolve())
+    validation = subprocess.run(
+        [sys.executable, str(staging / "worker.py")], cwd=ROOT,
+        env=environment, capture_output=True, text=True,
+    )
+    record_path = validation_root / run_id / "engineering/AUTHORIZATION_VALIDATED.json"
+    if validation.returncode or not record_path.is_file():
+        raise RuntimeError(f"authorization-only staging validation failed: {validation.stderr[-4000:]}")
+    record = json.loads(record_path.read_text("utf-8"))
+    if record["status"] != "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION":
+        raise RuntimeError("authorization-only staging validation did not reach the required stop")
+    atomic_write_json(run_dir / "authorization_staging_validation.json", record)
+    return {
+        "run_id": run_id,
+        "run_dir": str(run_dir),
+        "authorization_staging_validation": record["status"],
+        "submit_command": build_submit_command(staging),
+    }
 
 
 def _artifact(run_dir: Path, spec: dict[str, Any]) -> Path:
@@ -226,8 +286,14 @@ def verify(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
         checks.update({
             "run_id_match": manifest["run_id"] == spec["run_id"],
             "execution_git_sha_match": manifest["execution_git_sha"] == spec["git_sha"],
+            "separate_scientific_identity": manifest["SCIENTIFIC_DESIGN_COMMIT"] == spec["SCIENTIFIC_DESIGN_COMMIT"] == "871996221a36a56a401fa040c239f55768561210",
+            "separate_execution_identity": manifest["EXECUTION_REPAIR_COMMIT"] == spec["EXECUTION_REPAIR_COMMIT"] == spec["git_sha"],
             "frozen_design_sha_match": manifest["frozen_design_git_sha"] == spec["frozen_design_git_sha"],
             "frozen_design_hash_match": manifest["frozen_design_sha256"] == spec["frozen_design_sha256"],
+            "runtime_config_hash_match": manifest["runtime_config_sha256"] == spec["runtime_config_sha256"],
+            "locked_allocation_hash_match": manifest["locked_allocation_sha256"] == spec["locked_allocation_sha256"],
+            "source_bundle_hash_match": manifest["locked_source_bundle_sha256"] == spec["locked_source_bundle_sha256"],
+            "model_revision_hashes_match": manifest["model_revision_hashes"] == spec["model_revision_hashes"],
             "exact_models_and_revisions": observed_models == expected_models,
             "exact_6400_calls": manifest["call_count"] == manifest["unique_call_count"] == len(ledger) == 6400,
             "unique_ledger_ids": len({row["call_id"] for row in ledger}) == 6400,

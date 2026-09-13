@@ -348,6 +348,8 @@ def execute_remote_panel(spec_path: Path) -> None:
         source_root = sealed / "source_448"
         pairs, renders = _extract_sources(bundle_path, source_root)
         allocation = _yaml(Path.cwd() / design["dataset"]["allocation_source"])
+        if allocation["allocation"]["sha256"] != spec["locked_allocation_sha256"]:
+            raise RuntimeError("locked allocation hash mismatch")
         workload = build_workload(design, allocation, pairs, renders)
         images, stimuli = materialize_stimuli(workload, source_root, sealed / "stimuli")
         atomic_write_text(sealed / "stimulus_manifest.jsonl", "".join(
@@ -390,9 +392,15 @@ def execute_remote_panel(spec_path: Path) -> None:
             "run_id": spec["run_id"],
             "run_type": "PADDLE_WAYU_FROZEN_ONE_SHOT_LOCKED_MODEL_BUDGET_PANEL",
             "execution_git_sha": spec["git_sha"],
+            "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
+            "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
             "frozen_design_git_sha": FROZEN_DESIGN_SHA,
             "frozen_design_sha256": FROZEN_DESIGN_FILE_SHA256,
             "frozen_pipeline_sha256": FROZEN_PIPELINE_FILE_SHA256,
+            "runtime_config_sha256": spec["runtime_config_sha256"],
+            "locked_source_bundle_sha256": spec["locked_source_bundle_sha256"],
+            "locked_allocation_sha256": spec["locked_allocation_sha256"],
+            "model_revision_hashes": spec["model_revision_hashes"],
             "registered_locked_pair_count": 100,
             "unauthorized_or_out_of_workload_locked_pair_count": 0,
             "source_png_count": bundle_manifest["source_png_count"],

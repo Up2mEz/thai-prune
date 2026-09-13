@@ -2,6 +2,28 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Attempt 1 accepted; engineering repair and exact rerun authorized
+
+**Human decision:** Accept Attempt 1 as
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED` with zero
+scientific calls. Authorize `ENGINEERING_REPAIR_AND_EXACT_RERUN`.
+
+**Permitted repair:** Change only how the byte-identical frozen design artifact
+reaches the Kaggle worker. Package it in a deterministic worker-visible payload,
+record its source/packaged paths, size, observed and expected SHA-256, and verify
+and parse it before any locked image generation or model loading. Perform an
+authorization-only staging validation that exits before scientific execution.
+
+**Identity boundary:** The scientific design remains commit
+`871996221a36a56a401fa040c239f55768561210`. A later execution-repair commit is
+an engineering identity only and must be recorded separately. Attempt 2 must
+use a distinct run ID and must preserve Attempt 1.
+
+**Rerun boundary:** If staging validation passes, the exact one-shot 6,400-call
+panel is authorized with unchanged blinding and no automatic retry. A second
+pre-inference failure stops for review; any failure after scientific calls also
+preserves the partial immutable artifact and stops without restart.
+
 ## 2026-09-13 — Locked panel attempt 1 stopped before inference
 
 **Observed engineering status:** Kaggle kernel version 1 ended with `ERROR` in

@@ -1,5 +1,5 @@
 schema_version: 1
-status: HUMAN_APPROVED_FOR_FROZEN_LOCKED_PANEL_EXECUTION
+status: HUMAN_APPROVED_ENGINEERING_REPAIR_AND_EXACT_RERUN
 frozen_design_git_sha: 871996221a36a56a401fa040c239f55768561210
 frozen_design_path: configs/stage0/overall_model_budget_design.yaml
 frozen_design_sha256: 6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1
