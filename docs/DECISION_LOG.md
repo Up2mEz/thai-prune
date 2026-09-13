@@ -2,6 +2,24 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Locked panel attempt 2 stopped before submission
+
+**Engineering validation:** The repaired embedded payload passed local
+authorization-only validation through
+`AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION`. The byte-identical
+design hash, YAML parse, scientific contract, and source-bundle hash all passed.
+No locked image generation or model loading occurred in that validation.
+
+**Submission result:** Kaggle rejected `SaveKernel` with HTTP 400 before a new
+kernel version was created. The existing kernel remained the failed version 1
+from Attempt 1. Attempt 2 therefore produced zero scientific calls and no
+scientific-output artifact.
+
+**Decision boundary:** Per the authorized failure policy, no package adjustment,
+retry, or resubmission was performed. Preserve Attempt 2 and stop for human
+review. The exact reason for Kaggle's HTTP 400 is not established by the CLI
+response and must not be inferred from worker size alone.
+
 ## 2026-09-13 — Attempt 1 accepted; engineering repair and exact rerun authorized
 
 **Human decision:** Accept Attempt 1 as
