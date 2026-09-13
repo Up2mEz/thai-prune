@@ -1,5 +1,6 @@
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -111,3 +112,47 @@ def test_locked_source_dataset_fails_closed_on_content_change(tmp_path: Path) ->
     }
     with pytest.raises(RuntimeError, match="size mismatch"):
         worker._locate_and_verify_locked_source(tmp_path, content_manifest, spec)
+
+
+def test_runtime_import_preflight_covers_real_execution_imports() -> None:
+    worker = _worker_module()
+    required = {
+        "accelerate",
+        "huggingface_hub",
+        "numpy",
+        "PIL",
+        "torch",
+        "torchvision",
+        "transformers",
+        "yaml",
+        "qwen_vl_utils",
+        "AutoModelForImageTextToText",
+        "AutoProcessor",
+        "labbs2026.stage0.paddle_wayu_locked_panel",
+        "labbs2026.stage0.paddle_wayu_smoke",
+        "labbs2026.stage0.resolution_pipeline",
+    }
+    assert all(name in worker.RUNTIME_IMPORT_PREFLIGHT for name in required)
+    assert "wrapt" not in worker.RUNTIME_IMPORT_PREFLIGHT
+
+
+def test_bootstrap_failure_channel_does_not_require_run_artifact_root(
+    tmp_path: Path,
+) -> None:
+    worker = _worker_module()
+    output_root = tmp_path / "artifacts"
+    run_id = "blocked-artifact"
+    artifact = output_root / run_id
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("not a directory", "utf-8")
+    failure = {
+        "schema_version": 1,
+        "run_id": run_id,
+        "exception_type": "FileExistsError",
+    }
+
+    external = output_root / "_bootstrap_failures" / f"{run_id}.json"
+    worker._json(external, failure)
+
+    assert json.loads(external.read_text("utf-8")) == failure
+    assert artifact.is_file()

@@ -8,6 +8,7 @@ import json
 import os
 import shutil
 import time
+import traceback
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,8 @@ FROZEN_DESIGN_SHA = "871996221a36a56a401fa040c239f55768561210"
 FROZEN_DESIGN_FILE_SHA256 = "6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1"
 FROZEN_PIPELINE_FILE_SHA256 = "8aea843de4ed3785ebfc016fff0ed3226ce9653497c9a46991d0ec4d8fc21ac6"
 EXPECTED_CALLS = 6400
+AUTHORIZATION_FILENAME = "AUTHORIZATION_VALIDATED.json"
+CORE_OWNERSHIP_FILENAME = "CORE_OWNERSHIP_CLAIMED.json"
 
 
 def _recursive_checksums(artifact_dir: Path) -> str:
@@ -52,6 +55,138 @@ def _yaml(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise TypeError(f"expected YAML mapping: {path}")
     return value
+
+
+def _artifact_tree_has_symlink(root: Path) -> bool:
+    pending = [root]
+    while pending:
+        directory = pending.pop()
+        for child in directory.iterdir():
+            if child.is_symlink():
+                return True
+            if child.is_dir():
+                pending.append(child)
+    return False
+
+
+def _authorization_record(path: Path, spec: dict[str, Any]) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("invalid bootstrap authorization JSON") from exc
+    if not isinstance(value, dict) or value.get("schema_version") != 1:
+        raise RuntimeError("bootstrap authorization schema mismatch")
+    exact = {
+        "status": value.get("status") == "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
+        "authorization_only": value.get("authorization_only") is False,
+        "run_id": value.get("run_id") == spec["run_id"],
+        "scientific_design_commit": value.get("SCIENTIFIC_DESIGN_COMMIT")
+        == spec["SCIENTIFIC_DESIGN_COMMIT"],
+        "execution_commit": value.get("EXECUTION_REPAIR_COMMIT")
+        == spec["EXECUTION_REPAIR_COMMIT"]
+        == spec["git_sha"],
+        "dataset_id": value.get("kaggle_dataset_numeric_id")
+        == spec["kaggle_dataset_numeric_id"],
+        "dataset_version": value.get("kaggle_dataset_version")
+        == spec["kaggle_dataset_version"],
+        "scientific_contract": value.get("scientific_contract_valid") is True,
+    }
+    frozen = value.get("frozen_design")
+    exact["frozen_design_sha256"] = (
+        isinstance(frozen, dict)
+        and frozen.get("sha256") == spec["frozen_design_sha256"]
+        and frozen.get("expected_sha256") == spec["frozen_design_sha256"]
+    )
+    manifest = value.get("locked_content_manifest")
+    exact["content_manifest_sha256"] = (
+        isinstance(manifest, dict)
+        and manifest.get("sha256") == spec["locked_content_manifest_sha256"]
+        and manifest.get("expected_sha256") == spec["locked_content_manifest_sha256"]
+    )
+    source = value.get("locked_source_content")
+    exact["source_verification"] = (
+        isinstance(source, dict)
+        and source.get("exact_path_set") is True
+        and source.get("all_sizes_match") is True
+        and source.get("all_sha256_match") is True
+        and source.get("member_count") == spec["locked_content_member_count"]
+        and source.get("total_uncompressed_bytes")
+        == spec["locked_content_total_uncompressed_bytes"]
+        and source.get("content_manifest_sha256")
+        == spec["locked_content_manifest_sha256"]
+        and source.get("original_transport_archive_sha256")
+        == spec["original_transport_archive_sha256"]
+        and source.get("expanded_source_directory") == spec["staged_locked_source_dir"]
+    )
+    if not all(exact.values()):
+        raise RuntimeError(f"bootstrap authorization identity mismatch: {exact}")
+    return value
+
+
+def _create_json_exclusive(path: Path, value: dict[str, Any]) -> None:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8") + b"\n"
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except BaseException:
+        path.unlink(missing_ok=True)
+        raise
+
+
+def claim_bootstrap_artifact_ownership(
+    spec: dict[str, Any],
+) -> tuple[Path, Path, dict[str, Any]]:
+    artifact = Path(spec["output_root"]) / spec["run_id"]
+    if artifact.is_symlink() or not artifact.is_dir():
+        raise RuntimeError("bootstrap artifact root must be a non-symlink directory")
+    if _artifact_tree_has_symlink(artifact):
+        raise RuntimeError("symlink in bootstrap artifact tree")
+    engineering = artifact / "engineering"
+    authorization_path = engineering / AUTHORIZATION_FILENAME
+    disallowed = {
+        "sealed": artifact / "sealed",
+        "SUCCESS.json": artifact / "SUCCESS.json",
+        "call_ledger.jsonl": engineering / "call_ledger.jsonl",
+        CORE_OWNERSHIP_FILENAME: engineering / CORE_OWNERSHIP_FILENAME,
+    }
+    present = [name for name, path in disallowed.items() if path.exists()]
+    if present:
+        raise RuntimeError(f"pre-existing core artifact is forbidden: {present}")
+    if {path.name for path in artifact.iterdir()} != {"engineering"}:
+        raise RuntimeError("unexpected file or directory in bootstrap artifact root")
+    if not engineering.is_dir():
+        raise RuntimeError("bootstrap engineering directory is missing")
+    if {path.name for path in engineering.iterdir()} != {AUTHORIZATION_FILENAME}:
+        raise RuntimeError("unexpected bootstrap engineering inventory")
+    if not authorization_path.is_file():
+        raise RuntimeError("bootstrap authorization file is missing")
+    authorization = _authorization_record(authorization_path, spec)
+    claim = {
+        "schema_version": 1,
+        "run_id": spec["run_id"],
+        "timestamp_utc": utc_now(),
+        "authorization_artifact_sha256": sha256_file(authorization_path),
+        "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
+        "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+        "frozen_design_sha256": spec["frozen_design_sha256"],
+        "locked_content_manifest_sha256": spec["locked_content_manifest_sha256"],
+    }
+    _create_json_exclusive(engineering / CORE_OWNERSHIP_FILENAME, claim)
+    return artifact, engineering, authorization
+
+
+def initialize_artifact_handoff(
+    spec: dict[str, Any],
+) -> tuple[Path, Path, Path, dict[str, Any]]:
+    artifact, engineering, authorization = claim_bootstrap_artifact_ownership(spec)
+    sealed = artifact / "sealed"
+    sealed.mkdir(exist_ok=False)
+    return artifact, engineering, sealed, authorization
 
 
 def _jsonl_append(handle: Any, value: dict[str, Any]) -> None:
@@ -311,14 +446,14 @@ def _run_model(
 def execute_remote_panel(spec_path: Path) -> None:
     spec = json.loads(spec_path.read_text("utf-8"))
     artifact = Path(spec["output_root"]) / spec["run_id"]
-    artifact.mkdir(parents=True, exist_ok=False)
     engineering = artifact / "engineering"
-    sealed = artifact / "sealed"
-    engineering.mkdir()
-    sealed.mkdir()
-    phase = "authorization"
+    ownership_claimed = False
+    phase = "artifact_ownership_adoption"
     started = time.perf_counter()
     try:
+        artifact, engineering, sealed, _ = initialize_artifact_handoff(spec)
+        ownership_claimed = True
+        phase = "authorization"
         if not spec.get("locked_panel_authorized") or spec["frozen_design_git_sha"] != FROZEN_DESIGN_SHA:
             raise RuntimeError("locked-panel authorization mismatch")
         frozen_path = Path(spec["staged_frozen_design_path"])
@@ -436,9 +571,11 @@ def execute_remote_panel(spec_path: Path) -> None:
             "phase": phase,
             "exception_type": type(exc).__name__,
             "message": str(exc)[:2000],
+            "traceback": traceback.format_exc()[-16000:],
             "timestamp_utc": utc_now(),
         }
-        atomic_write_json(engineering / "FAILURE.json", failure)
+        if ownership_claimed:
+            atomic_write_json(engineering / "FAILURE.json", failure)
         raise
 
 
@@ -446,4 +583,9 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--remote-spec", type=Path, required=True)
-    execute_remote_panel(parser.parse_args().remote_spec)
+    parser.add_argument("--artifact-handoff-test-only", action="store_true")
+    arguments = parser.parse_args()
+    if arguments.artifact_handoff_test_only:
+        initialize_artifact_handoff(json.loads(arguments.remote_spec.read_text("utf-8")))
+    else:
+        execute_remote_panel(arguments.remote_spec)

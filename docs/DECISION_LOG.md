@@ -2,6 +2,37 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-13 — Artifact handoff repair authorized locally
+
+**Human decision:** Accept root-cause classification
+`ENGINEERING_ARTIFACT_DIRECTORY_OWNERSHIP_COLLISION` and authorize
+`ENGINEERING_ARTIFACT_HANDOFF_REPAIR_AUTHORIZED_LOCAL_ONLY`. Kaggle
+resubmission remains unauthorized.
+
+**Engineering repair:** Bootstrap is the initial owner and may atomically create
+only `engineering/AUTHORIZATION_VALIDATED.json`. Core validates the exact
+pre-ownership tree, rejects symlinks and any stale/unexpected artifact,
+validates all registered identities, then exclusively creates
+`engineering/CORE_OWNERSHIP_CLAIMED.json`. Only after that claim may it create
+`sealed/`.
+
+**Validation result:** The explicit local bootstrap-to-core integration test
+passed and stopped immediately after empty `sealed/` creation, before CUDA,
+image generation, model loading, or inference. Focused tests passed 24/24 and
+the full suite passed 176 tests with one pre-existing optional Kaggle-package
+skip. Required local model-extra imports passed. `wrapt` is absent from the
+locked project dependency graph and was not added; the earlier Kaggle
+`sitecustomize` warning remains a separate environment observation rather than
+the Attempt 3 cause.
+
+**Scientific immutability:** Frozen design, locked allocation, Dataset content,
+model IDs/revisions, prompt/parser, budgets, resize pipeline, analysis, SESOI,
+Holm procedure, decision classifier, blinding, and sealed-output semantics were
+not changed. No model inference or Kaggle submission occurred.
+
+**Terminal state:**
+`ARTIFACT_HANDOFF_REPAIR_VALIDATED_PENDING_RERUN_AUTHORIZATION`.
+
 ## 2026-09-13 — Attempt 3 stopped before inference after one authorized submission
 
 **Human authorization:** `EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3`.

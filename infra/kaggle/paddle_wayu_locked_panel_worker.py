@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import sys
+import traceback
 import unicodedata
 import zlib
 from pathlib import Path, PurePosixPath
@@ -17,6 +18,23 @@ from pathlib import Path, PurePosixPath
 RUN_SPEC_B64 = "__LABBS_RUN_SPEC_B64__"
 FROZEN_DESIGN_B64 = "__LABBS_FROZEN_DESIGN_B64__"
 LOCKED_CONTENT_MANIFEST_ZLIB_B64 = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
+RUNTIME_IMPORT_PREFLIGHT = (
+    "import accelerate, huggingface_hub, numpy, PIL, torch, torchvision, transformers, yaml; "
+    "import qwen_vl_utils; "
+    "from transformers import AutoModelForImageTextToText, AutoProcessor; "
+    "import labbs2026.stage0.paddle_wayu_locked_panel; "
+    "import labbs2026.stage0.paddle_wayu_smoke; "
+    "import labbs2026.stage0.resolution_pipeline"
+)
+
+
+class CoreSubprocessFailure(RuntimeError):
+    def __init__(self, returncode: int, stdout: str, stderr: str) -> None:
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        detail = (stderr or stdout or "no subprocess output")[-16000:]
+        super().__init__(f"core subprocess exited {returncode}: {detail}")
 
 
 def _sha(path: Path) -> str:
@@ -38,6 +56,36 @@ def _json(path: Path, value: dict) -> None:
     temporary = path.with_name("." + path.name + ".tmp")
     temporary.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n", "utf-8")
     os.replace(temporary, path)
+
+
+def _redact(value: str) -> str:
+    return re.sub(r"(?i)(token|key|password)=\S+", r"\1=<redacted>", value)
+
+
+def _write_bootstrap_authorization(artifact: Path, value: dict) -> Path:
+    if artifact.is_symlink() or artifact.exists():
+        raise FileExistsError(f"bootstrap artifact path already exists: {artifact}")
+    artifact.mkdir(parents=True, exist_ok=False)
+    engineering = artifact / "engineering"
+    engineering.mkdir(exist_ok=False)
+    authorization = engineering / "AUTHORIZATION_VALIDATED.json"
+    _json(authorization, value)
+    return authorization
+
+
+def _launch_core(
+    python: Path, source: Path, spec_path: Path, *, handoff_test_only: bool = False
+) -> subprocess.CompletedProcess[str]:
+    command = [
+        str(python),
+        "-m",
+        "labbs2026.stage0.paddle_wayu_locked_panel",
+        "--remote-spec",
+        str(spec_path),
+    ]
+    if handoff_test_only:
+        command.append("--artifact-handoff-test-only")
+    return subprocess.run(command, cwd=source, capture_output=True, text=True)
 
 
 def _decode_verified_payload(encoded: str, path: Path, expected_sha256: str) -> dict:
@@ -221,16 +269,19 @@ def main() -> None:
         _validate_scientific_contract(design, spec)
         authorization_record = {
             "schema_version": 1,
+            "run_id": spec["run_id"],
             "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION",
             "SCIENTIFIC_DESIGN_COMMIT": spec["SCIENTIFIC_DESIGN_COMMIT"],
             "EXECUTION_REPAIR_COMMIT": spec["EXECUTION_REPAIR_COMMIT"],
+            "kaggle_dataset_numeric_id": spec["kaggle_dataset_numeric_id"],
+            "kaggle_dataset_version": spec["kaggle_dataset_version"],
             "frozen_design": design_record,
             "locked_content_manifest": content_manifest_record,
             "locked_source_content": bundle_record,
             "scientific_contract_valid": True,
             "authorization_only": authorization_only,
         }
-        _json(artifact / "engineering/AUTHORIZATION_VALIDATED.json", authorization_record)
+        _write_bootstrap_authorization(artifact, authorization_record)
         if authorization_only:
             return
         spec["staged_frozen_design_path"] = str(package_root / "frozen_design.yaml")
@@ -268,30 +319,38 @@ def main() -> None:
             sys.executable, "-m", "uv", "pip", "install", "--python", str(python),
             "--require-hashes", "-r", str(source / spec["transformers_override_lock"]),
         ], source)
+        phase = "runtime_import_preflight"
+        _run([str(python), "-c", RUNTIME_IMPORT_PREFLIGHT], source)
         phase = "authorized_locked_panel"
         spec_path = Path("/tmp/labbs-paddle-wayu-locked-panel-spec.json")
         _json(spec_path, spec)
-        result = subprocess.run(
-            [str(python), "-m", "labbs2026.stage0.paddle_wayu_locked_panel",
-             "--remote-spec", str(spec_path)],
-            cwd=source,
-        )
+        result = _launch_core(python, source, spec_path)
         if result.returncode:
-            raise RuntimeError("locked panel execution returned a nonzero status")
+            raise CoreSubprocessFailure(result.returncode, result.stdout, result.stderr)
     except BaseException as exc:
-        artifact.mkdir(parents=True, exist_ok=True)
-        engineering = artifact / "engineering"
-        engineering.mkdir(parents=True, exist_ok=True)
-        message = re.sub(r"(?i)(token|key|password)=\S+", r"\1=<redacted>", str(exc))
-        if not (engineering / "FAILURE.json").exists():
-            _json(engineering / "FAILURE.json", {
-                "schema_version": 1,
-                "run_id": spec["run_id"],
-                "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
-                "phase": phase,
-                "exception_type": type(exc).__name__,
-                "message": message[:4000],
-            })
+        failure = {
+            "schema_version": 1,
+            "run_id": spec["run_id"],
+            "classification": "LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED",
+            "phase": phase,
+            "exception_type": type(exc).__name__,
+            "message": _redact(str(exc))[:4000],
+            "traceback": _redact(traceback.format_exc())[-16000:],
+        }
+        if isinstance(exc, CoreSubprocessFailure):
+            failure["core_subprocess_returncode"] = exc.returncode
+            failure["core_subprocess_stdout"] = _redact(exc.stdout)[-16000:]
+            failure["core_subprocess_stderr"] = _redact(exc.stderr)[-16000:]
+        bootstrap_failure = output_root / "_bootstrap_failures" / f"{spec['run_id']}.json"
+        _json(bootstrap_failure, failure)
+        try:
+            artifact.mkdir(parents=True, exist_ok=True)
+            engineering = artifact / "engineering"
+            engineering.mkdir(parents=True, exist_ok=True)
+            if not (engineering / "FAILURE.json").exists():
+                _json(engineering / "FAILURE.json", failure)
+        except OSError:
+            pass
         raise
 
 

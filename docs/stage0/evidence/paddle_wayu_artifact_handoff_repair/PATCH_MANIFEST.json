@@ -1,0 +1,41 @@
+{
+  "authorization": "ENGINEERING_ARTIFACT_HANDOFF_REPAIR_AUTHORIZED_LOCAL_ONLY",
+  "base_commit": "48582d43c0282e7e423f7550b98e646d0b432c0e",
+  "changed_implementation_files": {
+    "infra/kaggle/paddle_wayu_locked_panel_worker.py": "f882f117f81ca050dea5cfa8ee9f557d9cc63acd27eb4c2f908a0356b049f43b",
+    "src/labbs2026/stage0/paddle_wayu_locked_panel.py": "c778f7f4878bc85e1d4c7d3a5cd0f6f919d6f533ea0a51852b9aa73e02606eb8",
+    "tests/test_locked_panel_artifact_handoff.py": "6cbcebcd57d4d0a98047c59e8eefb3afb7df0db4bbb60d4154e2ba0d83595f6e",
+    "tests/test_locked_panel_worker_packaging.py": "77120fc195c474803e88e266ae83019f139012460fe53e4c27b3f9465b9567ea"
+  },
+  "environment_preflight": {
+    "locked_model_extra_imports": "PASS",
+    "model_downloaded": false,
+    "model_inference_run": false,
+    "wrapt_added": false,
+    "wrapt_in_locked_dependency_graph": false
+  },
+  "kaggle_savekernel_calls": 0,
+  "local_integration_test": {
+    "actual_bootstrap_writer": true,
+    "actual_core_subprocess_boundary": true,
+    "cuda_preflight_reached": false,
+    "image_generation_reached": false,
+    "model_loading_reached": false,
+    "model_inference_reached": false,
+    "result": "PASS"
+  },
+  "schema_version": 1,
+  "scientific_design_commit": "871996221a36a56a401fa040c239f55768561210",
+  "scientific_design_diff_assertion": {
+    "configs/runtime/kaggle_t4_paddle_wayu.yaml": "UNCHANGED",
+    "configs/stage0/calibration_design.yaml": "UNCHANGED",
+    "configs/stage0/overall_model_budget_design.yaml": "UNCHANGED",
+    "src/labbs2026/stage0/resolution_pipeline.py": "UNCHANGED"
+  },
+  "test_evidence": {
+    "focused": "24 passed",
+    "full": "176 passed, 1 skipped",
+    "preflight_after_commit": "PASS_IN_CLEAN_DETACHED_WORKTREE"
+  },
+  "terminal_state": "ARTIFACT_HANDOFF_REPAIR_VALIDATED_PENDING_RERUN_AUTHORIZATION"
+}
