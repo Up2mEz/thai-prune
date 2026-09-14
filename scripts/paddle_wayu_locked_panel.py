@@ -31,6 +31,10 @@ from labbs2026.kaggle import (
 from labbs2026.stage0.locked_panel_bundle import verify_locked_source_bundle
 from labbs2026.stage0.locked_content_manifest import verify_expanded_locked_content
 from labbs2026.stage0.locked_panel_analysis import finalize_analysis, write_analysis_inputs
+from labbs2026.stage0.locked_panel_environment import (
+    EXPECTED_ENTRYPOINT,
+    payload_failures,
+)
 from labbs2026.stage0.measurement_diagnostic import query_status
 
 
@@ -38,6 +42,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/stage0/paddle_wayu_locked_panel_execution.yaml"
 TRANSPORT_CONFIG = ROOT / "configs/runtime/kaggle_locked_panel_attempt5_transport.yaml"
 ACCEPTED_AMENDMENT_COMMIT = "ee9f8c4f85feea935f8c99d05005deea16c30442"
+ACCEPTED_ANALYSIS_IMAGE = (
+    "sha256:7328bb5ac82d574e2d895018981a8cf18b0ae8e73c9b90bf1ce0b350ed7091df"
+)
+ANALYSIS_ENVIRONMENT_VALIDATOR = "/opt/locked-panel/validate_environment.R"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
 CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
@@ -577,24 +585,89 @@ def verify(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def analyze(run_dir: Path, spec: dict[str, Any]) -> dict[str, Any]:
-    artifact = _artifact(run_dir, spec)
-    analysis_dir = run_dir / "analysis"
-    image = "labbs2026-locked-panel-r:4.5.2-lme4-1.1-38"
-    docker_dir = ROOT / "infra/analysis/paddle_wayu_locked_panel"
-    build = subprocess.run(
-        ["docker", "build", "--pull", "-t", image, str(docker_dir)],
+def verify_accepted_analysis_image() -> dict[str, Any]:
+    """Resolve and validate the accepted immutable image without acquiring it."""
+
+    inspect_result = subprocess.run(
+        ["docker", "image", "inspect", ACCEPTED_ANALYSIS_IMAGE],
         cwd=ROOT, capture_output=True, text=True,
     )
-    if build.returncode:
-        raise RuntimeError(f"registered R environment build failed: {build.stderr[-4000:]}")
+    if inspect_result.returncode:
+        raise RuntimeError(
+            "accepted analysis image is unavailable; refusing build or pull: "
+            f"{(inspect_result.stderr or inspect_result.stdout)[-4000:]}"
+        )
+    try:
+        inspected = json.loads(inspect_result.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Docker image inspection returned invalid JSON") from exc
+    if len(inspected) != 1 or inspected[0].get("Id") != ACCEPTED_ANALYSIS_IMAGE:
+        raise RuntimeError("accepted analysis image identity mismatch")
+    image_record = inspected[0]
+    if image_record.get("Config", {}).get("Entrypoint") != EXPECTED_ENTRYPOINT:
+        raise RuntimeError("accepted analysis image entrypoint mismatch")
+
+    validation_result = subprocess.run(
+        [
+            "docker", "run", "--rm", "--entrypoint", "Rscript",
+            ACCEPTED_ANALYSIS_IMAGE, ANALYSIS_ENVIRONMENT_VALIDATOR,
+        ],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if validation_result.returncode:
+        raise RuntimeError(
+            "accepted analysis image environment validation failed: "
+            f"{(validation_result.stderr or validation_result.stdout)[-4000:]}"
+        )
+    try:
+        payload = json.loads(
+            [line for line in validation_result.stdout.splitlines() if line.strip()][-1]
+        )
+    except (IndexError, json.JSONDecodeError) as exc:
+        raise RuntimeError("analysis image validator returned invalid JSON") from exc
+    failures = payload_failures(payload)
+    if failures:
+        raise RuntimeError(f"accepted analysis image contract mismatch: {failures}")
+    return {
+        "status": "ACCEPTED_ANALYSIS_IMAGE_VERIFIED",
+        "accepted_identity": ACCEPTED_ANALYSIS_IMAGE,
+        "resolved_image_id": image_record["Id"],
+        "repo_digests": image_record.get("RepoDigests") or [],
+        "entrypoint": image_record["Config"]["Entrypoint"],
+        "environment": payload,
+        "image_acquisition": "NONE",
+    }
+
+
+def analyze(
+    run_dir: Path,
+    spec: dict[str, Any],
+    *,
+    dry_run_before_data_access: bool = False,
+) -> dict[str, Any]:
+    artifact = _artifact(run_dir, spec)
+    analysis_dir = run_dir / "analysis"
+    image_validation = verify_accepted_analysis_image()
+    mount = f"{analysis_dir.resolve()}:/analysis"
+    registered_r_command = [
+        "docker", "run", "--rm", "-v", mount, ACCEPTED_ANALYSIS_IMAGE,
+        "/analysis/analysis_rows.csv", "/analysis/glmm_result.json",
+    ]
+    if dry_run_before_data_access:
+        return {
+            "status": "PINNED_ANALYSIS_RUNNER_VALIDATED",
+            "image_validation": image_validation,
+            "artifact_path": str(artifact.resolve()),
+            "analysis_path": str(analysis_dir.resolve()),
+            "registered_r_command": registered_r_command,
+            "scientific_data_accessed": False,
+            "write_analysis_inputs_called": False,
+        }
     state = write_analysis_inputs(artifact, analysis_dir)
     if not state["primary_analysis_interpretable"]:
         return finalize_analysis(analysis_dir, None)
-    mount = f"{analysis_dir.resolve()}:/analysis"
     execution = subprocess.run(
-        ["docker", "run", "--rm", "-v", mount, image,
-         "/analysis/analysis_rows.csv", "/analysis/glmm_result.json"],
+        registered_r_command,
         cwd=ROOT, capture_output=True, text=True,
     )
     if execution.returncode:
@@ -612,9 +685,12 @@ def main() -> int:
     prepare_dataset_command.add_argument("--output-dir", type=Path, required=True)
     prepare_command = commands.add_parser("prepare")
     prepare_command.add_argument("--dataset-root", type=Path, required=True)
-    for name in ("status", "fetch", "verify", "analyze"):
+    for name in ("status", "fetch", "verify"):
         command = commands.add_parser(name)
         command.add_argument("--run-dir", type=Path, required=True)
+    analyze_command = commands.add_parser("analyze")
+    analyze_command.add_argument("--run-dir", type=Path, required=True)
+    analyze_command.add_argument("--dry-run-before-data-access", action="store_true")
     args = parser.parse_args()
     if args.command == "preflight":
         result = preflight(args.dataset_root.resolve())
@@ -662,7 +738,11 @@ def main() -> int:
                     path.chmod(0o444)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["verification_status"] == "VERIFIED" else 1
-    result = analyze(run_dir, spec)
+    result = analyze(
+        run_dir,
+        spec,
+        dry_run_before_data_access=args.dry_run_before_data_access,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
