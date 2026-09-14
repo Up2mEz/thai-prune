@@ -106,7 +106,11 @@ def test_dry_run_reaches_pre_data_boundary_without_reading_outputs(monkeypatch, 
     assert result["scientific_data_accessed"] is False
     assert result["write_analysis_inputs_called"] is False
     assert result["registered_r_command"][0:4] == ["docker", "run", "--rm", "-v"]
-    assert result["registered_r_command"][5] == module.ACCEPTED_ANALYSIS_IMAGE
+    assert result["registered_r_command"][9] == module.ACCEPTED_ANALYSIS_IMAGE
+    assert result["registered_r_command"][6].endswith(":/opt/locked-panel/run_glmm.R:ro")
+    assert result["registered_r_command"][8].endswith(
+        ":/opt/locked-panel/glmm_failure_contract.R:ro"
+    )
     write_inputs.assert_not_called()
 
 

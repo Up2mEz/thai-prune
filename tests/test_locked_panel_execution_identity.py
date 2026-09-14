@@ -60,14 +60,17 @@ def test_attempt5_transport_changes_only_execution_identity_and_provenance() -> 
     assert attempt5 == attempt4
 
 
-def test_attempt5_has_no_additional_scientific_diff_after_amendment() -> None:
+def test_attempt5_has_only_authorized_exception_eligibility_diff() -> None:
     lifecycle = _lifecycle_module()
     identity = _yaml(ATTEMPT5)
     audit = lifecycle.effective_protocol_diff_audit("HEAD", identity)
     assert audit["valid"] is True
     assert audit["classification"] == (
-        "ADDITIONAL_SCIENTIFIC_DIFF_AFTER_ACCEPTED_AMENDMENT_EMPTY"
+        "ONLY_APPROVED_NUMERICAL_GLMM_EXCEPTION_ELIGIBILITY_DIFF"
     )
+    assert audit["checks"]["fallback_and_estimand_functions_unchanged"] is True
+    assert audit["checks"]["decision_classifier_unchanged"] is True
+    assert audit["checks"]["glmm_formula_and_optimizer_unchanged"] is True
 
 
 def test_frozen_scientific_files_remain_exact() -> None:

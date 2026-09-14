@@ -2,6 +2,44 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-14 — Numerical GLMM fit-exception fallback eligibility amended
+
+**Human decision:** Accept the failure-path audit classification
+`FROZEN_CONTRACT_AMBIGUOUS` and authorize
+`NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED` as an explicit
+`POST_DATA_ACCESS_STATISTICAL_PROTOCOL_AMENDMENT`.
+
+**Timing:** Attempt 5 was complete and verified, scientific access had begun,
+FULL validity had passed, and the registered GLMM had raised
+`Downdated VtV is not positive definite`. No reduced-budget global interaction,
+DID, CER, or component result had been computed or inspected. The amendment is
+not preregistered and does not eliminate all post-data-access bias risk.
+
+**Eligibility change only:** The unchanged preregistered fallback may now be
+used when either a returned fit fails the frozen diagnostics or the registered
+`lme4::glmer` numerical fitting path raises a numerical model-fit exception
+before diagnostics are available, after all non-statistical validation passes.
+Eligibility is execution-location/failure-class based, not tied to an error
+string or scientific outcome. Package, environment, input, formula/config,
+model-matrix, I/O, provenance, container, memory, code, entrypoint, ambiguous,
+and other non-fit failures remain fatal.
+
+**Structured state:** Eligible exceptions record
+`FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE`, actual condition class/message,
+fit stage, and `diagnostics_available=false`; they must not fabricate
+`diagnostics_pass=false`.
+
+**Frozen method:** GLMM formulas/random effects/optimizer/diagnostics, fallback
+estimator and global Wald test, DIDs, bootstrap/covariance, Holm procedure,
+SESOI, CER, component summaries, and four-case classifier remain unchanged.
+Exact amendment details are in
+`docs/stage0/PADDLE_WAYU_GLMM_EXCEPTION_ELIGIBILITY_AMENDMENT.md`.
+
+**Conditional rerun:** After synthetic routing tests, full tests, research
+consistency, clean detached-worktree preflight, exact diff audits, and renewed
+Attempt-5 verification pass, exactly one registered analysis rerun is
+authorized. No optimizer or formula search is permitted.
+
 ## 2026-09-14 — Registered analysis packaging repair authorized locally
 
 **Human decision:** Accept the registered-analysis environment failure as an

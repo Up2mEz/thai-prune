@@ -8,9 +8,19 @@ suppressPackageStartupMessages(library(jsonlite))
 if (as.character(packageVersion("lme4")) != "1.1.38") stop("lme4 version mismatch")
 if (as.character(packageVersion("detectseparation")) != "0.3") stop("detectseparation version mismatch")
 if (getRversion() != "4.5.2") stop("R version mismatch")
+source("/opt/locked-panel/glmm_failure_contract.R", local = TRUE)
 
 dat <- read.csv(args[[1]], stringsAsFactors = FALSE, check.names = FALSE)
 if (nrow(dat) != 6400 || length(unique(dat$call_id)) != 6400) stop("analysis row mismatch")
+required_columns <- c(
+  "call_id", "pair_id", "MODEL", "BUDGET", "FONT", "FONT_SIZE",
+  "MEMBER", "member", "COMPONENT", "exact_correct"
+)
+if (!all(required_columns %in% names(dat))) stop("analysis columns mismatch")
+if (anyNA(dat[, required_columns])) stop("analysis input contains missing values")
+if (!all(dat$exact_correct %in% c(0, 1))) stop("exact_correct must be binary")
+if (!setequal(unique(dat$MODEL), c("BASE", "SPECIALIZED"))) stop("MODEL coding mismatch")
+if (!setequal(unique(dat$BUDGET), c("B256_FULL", "B196", "B121", "B64"))) stop("BUDGET coding mismatch")
 dat$MODEL <- factor(dat$MODEL, levels = c("BASE", "SPECIALIZED"))
 dat$BUDGET <- factor(dat$BUDGET, levels = c("B256_FULL", "B196", "B121", "B64"))
 dat$FONT <- factor(dat$FONT)
@@ -26,6 +36,12 @@ null_formula <- exact_correct ~ MODEL + BUDGET + FONT + FONT_SIZE + MEMBER + COM
   (1 | pair_id) + (1 | pair_id:member)
 control <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 200000), calc.derivs = TRUE)
 
+full_fixed_matrix <- model.matrix(lme4::nobars(full_formula), data = dat)
+null_fixed_matrix <- model.matrix(lme4::nobars(null_formula), data = dat)
+if (!all(is.finite(full_fixed_matrix)) || !all(is.finite(null_fixed_matrix))) {
+  stop("registered model matrix contains non-finite values")
+}
+
 fit_with_warnings <- function(formula) {
   seen <- character()
   fit <- withCallingHandlers(
@@ -38,8 +54,25 @@ fit_with_warnings <- function(formula) {
   list(fit = fit, warnings = seen)
 }
 
-full_result <- fit_with_warnings(full_formula)
-null_result <- fit_with_warnings(null_formula)
+full_attempt <- run_registered_fit_stage(
+  "FULL_MODEL_FIT",
+  function() fit_with_warnings(full_formula)
+)
+if (full_attempt$fit_status != "FIT_SUCCESS") {
+  write_fit_exception(full_attempt, args[[2]])
+  quit(save = "no", status = 0)
+}
+full_result <- full_attempt$fit_result
+
+null_attempt <- run_registered_fit_stage(
+  "NULL_MODEL_FIT",
+  function() fit_with_warnings(null_formula)
+)
+if (null_attempt$fit_status != "FIT_SUCCESS") {
+  write_fit_exception(null_attempt, args[[2]])
+  quit(save = "no", status = 0)
+}
+null_result <- null_attempt$fit_result
 full <- full_result$fit
 null <- null_result$fit
 comparison <- anova(null, full, test = "Chisq")
@@ -91,7 +124,9 @@ names(checks) <- c(paste0("full_", names(full_diag$checks)),
                    paste0("null_", names(null_diag$checks)), "separation_false")
 
 out <- list(
-  schema_version = 1,
+  schema_version = 2,
+  fit_status = if (all(unlist(checks))) "FIT_SUCCESS_DIAGNOSTICS_PASS" else "FIT_SUCCESS_DIAGNOSTICS_FAIL",
+  diagnostics_available = TRUE,
   environment = list(
     R = as.character(getRversion()),
     lme4 = as.character(packageVersion("lme4")),

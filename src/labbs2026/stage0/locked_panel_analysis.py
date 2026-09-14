@@ -238,6 +238,31 @@ def component_descriptives(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return output
 
 
+def registered_glmm_uses_fallback(glmm: dict[str, Any]) -> bool:
+    """Validate the structured GLMM state and return the frozen routing choice."""
+
+    fit_status = glmm.get("fit_status")
+    if fit_status == "FIT_SUCCESS_DIAGNOSTICS_PASS":
+        if glmm.get("diagnostics_available") is not True or glmm.get("diagnostics_pass") is not True:
+            raise RuntimeError("successful GLMM fit status contradicts diagnostics payload")
+        return False
+    if fit_status == "FIT_SUCCESS_DIAGNOSTICS_FAIL":
+        if glmm.get("diagnostics_available") is not True or glmm.get("diagnostics_pass") is not False:
+            raise RuntimeError("failed GLMM diagnostics status contradicts diagnostics payload")
+        return True
+    if fit_status == "FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE":
+        if glmm.get("diagnostics_available") is not False or "diagnostics_pass" in glmm:
+            raise RuntimeError("numerical fit exception must not fabricate diagnostics")
+        if glmm.get("fallback_eligibility") != (
+            "NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED"
+        ):
+            raise RuntimeError("numerical fit exception lacks approved fallback eligibility")
+        if glmm.get("fit_stage") not in {"FULL_MODEL_FIT", "NULL_MODEL_FIT"}:
+            raise RuntimeError("numerical fit exception has invalid fit stage")
+        return True
+    raise RuntimeError(f"unrecognized or noneligible GLMM fit status: {fit_status!r}")
+
+
 def write_analysis_inputs(artifact: Path, output_dir: Path) -> dict[str, Any]:
     verification = json.loads((artifact.parents[2] / "verification/verification.json").read_text("utf-8"))
     if verification["verification_status"] != "VERIFIED" or verification["scientific_outputs_opened"]:
@@ -293,7 +318,9 @@ def finalize_analysis(analysis_dir: Path, glmm_path: Path | None) -> dict[str, A
     if glmm_path is None or not glmm_path.is_file():
         raise RuntimeError("registered GLMM result is required after FULL validity PASS")
     glmm = json.loads(glmm_path.read_text("utf-8"))
-    if glmm["diagnostics_pass"]:
+    use_fallback = registered_glmm_uses_fallback(glmm)
+
+    if not use_fallback:
         omnibus = glmm["omnibus"]
         estimator = "REGISTERED_BINOMIAL_LOGIT_GLMM_LRT"
     else:
@@ -309,7 +336,7 @@ def finalize_analysis(analysis_dir: Path, glmm_path: Path | None) -> dict[str, A
                 {name: exact["contrasts"][name]["holm_adjusted_p_value"] for name in DID_NAMES},
             )
         estimator = "PRE_REGISTERED_PAIR_CLUSTERED_FALLBACK_AFTER_GLMM_FAILURE"
-    if glmm["diagnostics_pass"]:
+    if not use_fallback:
         decision = classify_interaction(
             omnibus["p_value"],
             {name: exact["contrasts"][name]["estimate"] for name in DID_NAMES},

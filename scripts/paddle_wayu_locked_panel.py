@@ -46,6 +46,10 @@ ACCEPTED_ANALYSIS_IMAGE = (
     "sha256:7328bb5ac82d574e2d895018981a8cf18b0ae8e73c9b90bf1ce0b350ed7091df"
 )
 ANALYSIS_ENVIRONMENT_VALIDATOR = "/opt/locked-panel/validate_environment.R"
+AMENDED_RUN_GLMM = ROOT / "infra/analysis/paddle_wayu_locked_panel/run_glmm.R"
+GLMM_FAILURE_CONTRACT = ROOT / "infra/analysis/paddle_wayu_locked_panel/glmm_failure_contract.R"
+AMENDED_RUN_GLMM_SHA256 = "c03e97127da934a338146de0487bdb774f085289444fdd0e99a9195d4b9be3a1"
+GLMM_FAILURE_CONTRACT_SHA256 = "82d0e2461f2f5be04e7cd1da3d5838cfd0fb690c1d947ec1fbffb3f900c99365"
 WORKER = ROOT / "infra/kaggle/paddle_wayu_locked_panel_worker.py"
 DESIGN_PLACEHOLDER = "__LABBS_FROZEN_DESIGN_B64__"
 CONTENT_MANIFEST_PLACEHOLDER = "__LABBS_LOCKED_CONTENT_MANIFEST_ZLIB_B64__"
@@ -103,6 +107,10 @@ def _function_ast(source: bytes, function_name: str) -> str:
 def effective_protocol_diff_audit(git_sha: str, transport: dict[str, Any]) -> dict[str, Any]:
     runner_path = "src/labbs2026/stage0/paddle_wayu_locked_panel.py"
     analysis_path = "src/labbs2026/stage0/locked_panel_analysis.py"
+    decision_path = "src/labbs2026/stage0/interaction_decision.py"
+    r_path = "infra/analysis/paddle_wayu_locked_panel/run_glmm.R"
+    failure_contract_path = "infra/analysis/paddle_wayu_locked_panel/glmm_failure_contract.R"
+    execution_commit = "1fa4cdda6ebe37faf215e574a6a5db467beda1cb"
     amendment = transport["protocol_amendment_commit"]
     current_runner = _git_bytes(git_sha, runner_path)
     accepted_runner = _git_bytes(amendment, runner_path)
@@ -117,6 +125,32 @@ def effective_protocol_diff_audit(git_sha: str, transport: dict[str, Any]) -> di
         name: _function_ast(current_runner, name) == _function_ast(accepted_runner, name)
         for name in protected_functions
     }
+    current_analysis = _git_bytes(git_sha, analysis_path)
+    accepted_analysis = _git_bytes(amendment, analysis_path)
+    protected_analysis_functions = (
+        "derive_outcomes",
+        "_pair_bootstrap",
+        "_summary",
+        "full_validity",
+        "_pair_cells",
+        "_holm",
+        "did_analysis",
+        "component_descriptives",
+        "write_analysis_inputs",
+    )
+    analysis_function_checks = {
+        name: _function_ast(current_analysis, name) == _function_ast(accepted_analysis, name)
+        for name in protected_analysis_functions
+    }
+    current_r = _git_bytes(git_sha, r_path).decode("utf-8")
+    accepted_r = _git_bytes(execution_commit, r_path).decode("utf-8")
+    frozen_r_fragments = (
+        "exact_correct ~ MODEL * BUDGET + FONT + FONT_SIZE + MEMBER + COMPONENT +\n"
+        "  (1 | pair_id) + (1 | pair_id:member)",
+        "exact_correct ~ MODEL + BUDGET + FONT + FONT_SIZE + MEMBER + COMPONENT +\n"
+        "  (1 | pair_id) + (1 | pair_id:member)",
+        'glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 200000), calc.derivs = TRUE)',
+    )
     ancestor = subprocess.run(
         ["git", "merge-base", "--is-ancestor", amendment, git_sha],
         cwd=ROOT,
@@ -125,20 +159,29 @@ def effective_protocol_diff_audit(git_sha: str, transport: dict[str, Any]) -> di
         "accepted_amendment_exact": amendment == ACCEPTED_AMENDMENT_COMMIT,
         "accepted_amendment_is_ancestor": ancestor,
         "scientific_execution_functions_unchanged": all(function_checks.values()),
-        "registered_analysis_unchanged": _blob_hash(analysis_path, git_sha)
-        == _blob_hash(analysis_path, amendment),
+        "fallback_and_estimand_functions_unchanged": all(analysis_function_checks.values()),
+        "decision_classifier_unchanged": _blob_hash(decision_path, git_sha)
+        == _blob_hash(decision_path, amendment),
+        "glmm_formula_and_optimizer_unchanged": all(
+            fragment in current_r and fragment in accepted_r for fragment in frozen_r_fragments
+        ),
+        "approved_exception_eligibility_state_present": (
+            b"FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE"
+            in _git_bytes(git_sha, failure_contract_path)
+        ),
         "frozen_design_identity": transport["original_scientific_design_commit"]
         == "871996221a36a56a401fa040c239f55768561210",
     }
     return {
         "classification": (
-            "ADDITIONAL_SCIENTIFIC_DIFF_AFTER_ACCEPTED_AMENDMENT_EMPTY"
+            "ONLY_APPROVED_NUMERICAL_GLMM_EXCEPTION_ELIGIBILITY_DIFF"
             if all(checks.values())
             else "UNAUTHORIZED_ADDITIONAL_SCIENTIFIC_DIFF_DETECTED"
         ),
         "valid": all(checks.values()),
         "checks": checks,
         "protected_function_equivalence": function_checks,
+        "protected_analysis_function_equivalence": analysis_function_checks,
     }
 
 
@@ -649,8 +692,18 @@ def analyze(
     analysis_dir = run_dir / "analysis"
     image_validation = verify_accepted_analysis_image()
     mount = f"{analysis_dir.resolve()}:/analysis"
+    if sha256_file(AMENDED_RUN_GLMM) != AMENDED_RUN_GLMM_SHA256:
+        raise RuntimeError("amended run_glmm.R identity mismatch")
+    if sha256_file(GLMM_FAILURE_CONTRACT) != GLMM_FAILURE_CONTRACT_SHA256:
+        raise RuntimeError("GLMM failure-contract identity mismatch")
+    run_glmm_mount = f"{AMENDED_RUN_GLMM.resolve()}:/opt/locked-panel/run_glmm.R:ro"
+    failure_contract_mount = (
+        f"{GLMM_FAILURE_CONTRACT.resolve()}:/opt/locked-panel/glmm_failure_contract.R:ro"
+    )
     registered_r_command = [
-        "docker", "run", "--rm", "-v", mount, ACCEPTED_ANALYSIS_IMAGE,
+        "docker", "run", "--rm", "-v", mount,
+        "-v", run_glmm_mount, "-v", failure_contract_mount,
+        ACCEPTED_ANALYSIS_IMAGE,
         "/analysis/analysis_rows.csv", "/analysis/glmm_result.json",
     ]
     if dry_run_before_data_access:

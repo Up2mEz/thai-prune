@@ -1,4 +1,10 @@
-from labbs2026.stage0.locked_panel_analysis import did_analysis, full_validity
+import pytest
+
+from labbs2026.stage0.locked_panel_analysis import (
+    did_analysis,
+    full_validity,
+    registered_glmm_uses_fallback,
+)
 
 
 def _rows() -> list[dict]:
@@ -48,3 +54,60 @@ def test_full_validity_uses_full_only_and_overall_gate() -> None:
     assert validity["status"] == "PASS"
     assert validity["primary_analysis_interpretable"]
     assert validity["component_capacity_is_not_implied"]
+
+
+def test_successful_glmm_diagnostics_pass_uses_normal_path() -> None:
+    assert registered_glmm_uses_fallback({
+        "fit_status": "FIT_SUCCESS_DIAGNOSTICS_PASS",
+        "diagnostics_available": True,
+        "diagnostics_pass": True,
+    }) is False
+
+
+def test_successful_glmm_diagnostics_fail_uses_registered_fallback() -> None:
+    assert registered_glmm_uses_fallback({
+        "fit_status": "FIT_SUCCESS_DIAGNOSTICS_FAIL",
+        "diagnostics_available": True,
+        "diagnostics_pass": False,
+    }) is True
+
+
+@pytest.mark.parametrize("stage", ["FULL_MODEL_FIT", "NULL_MODEL_FIT"])
+def test_eligible_numerical_fit_exception_uses_registered_fallback(stage) -> None:
+    assert registered_glmm_uses_fallback({
+        "fit_status": "FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE",
+        "diagnostics_available": False,
+        "fit_exception_class": ["simpleError", "error", "condition"],
+        "fit_exception_message": "synthetic numerical fit failure",
+        "fit_stage": stage,
+        "fallback_eligibility": (
+            "NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED"
+        ),
+    }) is True
+
+
+def test_fit_exception_cannot_fabricate_failed_diagnostics() -> None:
+    with pytest.raises(RuntimeError, match="must not fabricate diagnostics"):
+        registered_glmm_uses_fallback({
+            "fit_status": "FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE",
+            "diagnostics_available": False,
+            "diagnostics_pass": False,
+            "fit_stage": "FULL_MODEL_FIT",
+            "fallback_eligibility": (
+                "NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED"
+            ),
+        })
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"fit_status": "FIT_EXCEPTION_NONELIGIBLE", "diagnostics_available": False},
+        {"fit_status": "TECHNICAL_ANALYSIS_FAILURE", "diagnostics_available": False},
+        {"fit_status": "FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE", "diagnostics_available": False,
+         "fit_stage": "UNKNOWN", "fallback_eligibility": "NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED"},
+    ],
+)
+def test_noneligible_ambiguous_or_invalid_fit_state_fails_closed(payload) -> None:
+    with pytest.raises(RuntimeError):
+        registered_glmm_uses_fallback(payload)

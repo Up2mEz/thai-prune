@@ -371,6 +371,21 @@ diagnostics and direction-independent fallback are in
 `stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`. Component interactions are
 descriptive/diagnostic.
 
+### Post-data-access numerical GLMM fit-exception eligibility amendment
+
+After Attempt 5 was verified and FULL validity passed, but before any
+reduced-budget result was computed or inspected, the registered `glmer` path
+raised a numerical fitting exception before diagnostics were materialized. The
+frozen fallback trigger had specified diagnostic failure but was ambiguous for
+this pre-diagnostic state. Human review therefore approved an explicit
+post-data-access eligibility amendment: a numerical exception arising inside
+the validated registered `glmer` fitting/optimization path may enter the
+already frozen fallback. Non-fit, input, environment, configuration, I/O,
+provenance, code, container, and ambiguous failures remain fatal. The GLMM
+formula and all fallback estimands/tests/thresholds/classifier remain
+unchanged. See
+`stage0/PADDLE_WAYU_GLMM_EXCEPTION_ELIGIBILITY_AMENDMENT.md`.
+
 Do not treat a visually different graph as statistically established evidence by itself.
 
 ---
