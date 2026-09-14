@@ -78,6 +78,15 @@ def _yaml(path: Path) -> dict[str, Any]:
     return value
 
 
+def _sha256_registered_crlf_text(path: Path) -> str:
+    """Hash registered R text identically across LF and Windows CRLF checkouts."""
+    raw = path.read_bytes()
+    if b"\r" in raw.replace(b"\r\n", b""):
+        raise RuntimeError(f"unsupported bare CR line ending: {path}")
+    canonical = raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    return hashlib.sha256(canonical).hexdigest()
+
+
 def _tracked_clean() -> bool:
     return (
         subprocess.run(["git", "diff", "--quiet"], cwd=ROOT).returncode == 0
@@ -692,9 +701,9 @@ def analyze(
     analysis_dir = run_dir / "analysis"
     image_validation = verify_accepted_analysis_image()
     mount = f"{analysis_dir.resolve()}:/analysis"
-    if sha256_file(AMENDED_RUN_GLMM) != AMENDED_RUN_GLMM_SHA256:
+    if _sha256_registered_crlf_text(AMENDED_RUN_GLMM) != AMENDED_RUN_GLMM_SHA256:
         raise RuntimeError("amended run_glmm.R identity mismatch")
-    if sha256_file(GLMM_FAILURE_CONTRACT) != GLMM_FAILURE_CONTRACT_SHA256:
+    if _sha256_registered_crlf_text(GLMM_FAILURE_CONTRACT) != GLMM_FAILURE_CONTRACT_SHA256:
         raise RuntimeError("GLMM failure-contract identity mismatch")
     run_glmm_mount = f"{AMENDED_RUN_GLMM.resolve()}:/opt/locked-panel/run_glmm.R:ro"
     failure_contract_mount = (

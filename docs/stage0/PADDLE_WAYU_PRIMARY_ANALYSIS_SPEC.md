@@ -1,11 +1,14 @@
 # Paddle/Wayu Frozen Primary Analysis Specification
 
-> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+> Frozen pre-analysis status (historical): `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
 >
-> Execution: `NOT_RUN`
+> Current execution: `COMPLETE`; registered GLMM unavailable, unchanged
+> pair-clustered fallback used; result
+> `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`
 >
 > This specification was chosen from design information and existing S0
-> full-information artifacts only. It contains no locked outcome.
+> full-information artifacts only. It originally contained no locked outcome;
+> results are recorded separately in `PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
 
 ## Primary GLMM and global omnibus test
 

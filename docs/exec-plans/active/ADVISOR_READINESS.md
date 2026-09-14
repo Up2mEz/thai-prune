@@ -1,64 +1,64 @@
 # Advisor Readiness Execution Plan
 
-**Status:** CONDITION C AMENDED; FINAL VISUAL/PROTOCOL APPROVAL PENDING
+**Status:** `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`
 
 ## Objective
 
-Produce sufficient, traceable evidence for a human advisor to recommend
-`GO`, `GO WITH PIVOT`, `INCONCLUSIVE`, or `STOP` without assuming that a
-new compression method is required.
+ส่งมอบหลักฐานที่ trace ได้จาก frozen Paddle/Wayu `MODEL x BUDGET` experiment
+เพื่อให้ human reviewer ตัดสินผลและขั้นตอนถัดไป โดยไม่สมมติว่ามี interaction,
+mechanism หรือความจำเป็นต้องสร้าง compression method ใหม่
 
-## Current authorization boundary
+## Current evidence state
 
-1. Complete the evidence foundation.
-2. Complete literature and novelty triage.
-3. Reconcile the research Source of Truth.
-4. Step 3 is complete after human approval of the A/B smoke controls.
-5. The amended A/B/C pilot may receive deterministic rendering, contact-sheet,
-   and pixel-identity validation only.
-6. Do not run pilot inference before final visual/protocol human approval.
-7. Do not run locked validation before calibration-derived Gate 0 criteria and
-   Checkpoint B human freeze.
-8. Backbone screening, Stage 1A, and every compression intervention remain
-   unauthorized.
+- Attempt 5: `VERIFIED`, 6,400/6,400 calls
+- FULL validity: `PASS`
+- registered GLMM: `FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE`,
+  `diagnostics_available=false`
+- primary estimator: unchanged registered pair-clustered fallback
+- global interaction: Wald `5.011636`, df 3, `p=0.170947`
+- decision: `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`
+- report: `docs/stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`
 
 ## Implementation status
 
-| Step | Status | Evidence / blocker |
+| Work item | Status | Evidence / boundary |
 |---|---|---|
-| Step 0 — Evidence foundation | `COMPLETE` | Git history, normalized `docs/` tree, dependency lock, preflight and tests |
-| Step 1 — Literature / Novelty Triage | `COMPLETE_PROVISIONAL` | Human-approved evaluation/diagnostic framing; refresh on new evidence |
-| Step 2 — Research-spec reconciliation | `COMPLETE` | H1 frozen as non-directional; consistency review valid |
-| Step 3 — Sequential backbone feasibility | `COMPLETE` | Human-approved A/B smoke review; pinned Qwen2.5-VL-3B retained as primary; no secondary trigger |
-| Kaggle T4 backend | `KAGGLE_T4_APPROVED_FOR_STAGE0_CALIBRATION` | Proof run verified; exact frozen config and artifact verification remain mandatory |
-| Steps 4–6 — Stage 0 | `PILOT_COMPLETE_HUMAN_REVIEW_REQUIRED` | The verified 25-pair Qwen3.5 pilot produced A=49.5%, B=0%, C=0%; Condition C crossed the frozen output-failure flag, so the decision is `MIXED_TARGETED_INSTRUMENT_REVIEW` and execution is stopped; backbone screening, Gate 0, locked validation, and compression remain unauthorized |
-| Step 7 — Stage 1A | `BLOCKED` | Requires human-approved `Gate 0 = PASS` |
-| Step 8 — Advisor Readiness report | `NOT_STARTED` | Accumulates evidence from eligible prior steps |
+| Evidence foundation and historical pilots | `COMPLETE` | Preserved in Git and stage-specific reports |
+| Step 3 — Sequential backbone feasibility | `COMPLETE` | Historical Qwen2.5 engineering gate remains complete |
+| Paddle/Wayu engineering smoke | `COMPLETE_ACCEPTED` | Engineering feasibility only |
+| S0 open calibration | `COMPLETE_ACCEPTED` | Full-information baseline evidence only |
+| Frozen locked panel | `COMPLETE_VERIFIED` | Attempt 5, exact 6,400-call workload |
+| FULL measurement validity | `PASS` | Overall primary analysis interpretable; component capacity not implied |
+| Registered primary analysis | `COMPLETE_WITH_REGISTERED_FALLBACK` | GLMM unavailable; fallback unchanged |
+| Repository synchronization | `COMPLETE_PENDING_HUMAN_REVIEW` | Final report, claims, protocol, decision log and audit synchronized |
+| Any later experiment or intervention | `BLOCKED` | Requires a new explicit human decision |
 
-## Dependency order
+## Current authorization boundary
 
-```text
-Evidence foundation
-   ↓
-Literature/novelty triage + research-spec reconciliation
-   ↓
-Sequential primary-backbone feasibility
-   ↓
-Stage 0 calibration and locked validation
-   ↓ human Gate 0 decision
-Stage 1A Resolution Sensitivity Pilot
-   ↓
-Advisor Readiness report
-```
+งานที่ได้รับอนุญาตสิ้นสุดที่การเก็บรักษา artifacts, registered analysis,
+repository synchronization และรายงานผล ไม่มี authorization สำหรับ analysis
+ซ้ำ, post-hoc rescue, threshold/prompt/budget change, dataset modification,
+locked rerun, additional calibration, `Token Pruning`, `Token Merging`,
+fine-tuning หรือ new-method work
+
+## Evidence interpretation
+
+1. **ตรวจพบจาก experiment:** FULL validity ผ่าน และ registered fallback global
+   test ไม่ significant
+2. **ตีความได้:** ไม่พบ confirmatory evidence ของ different degradation curves
+   ภายใต้ model pair และ Input Resolution Reduction design นี้
+3. **ยังพิสูจน์ไม่ได้:** equivalence, equal robustness, causal training effect,
+   component mechanism, real-world/cross-model generalization และผลของ
+   post-encoder compression
+4. **ผลต่อขั้นถัดไป:** หยุดที่ human review; Codex ไม่อนุมัติ scientific gate
 
 ## Non-negotiable boundaries
 
-- Resolution Reduction is not post-encoder Token Pruning.
-- Stage 1A is preliminary and cannot approve Gate 1.
-- The independent sampling/analysis unit is the linguistic `pair_id`;
-  render variants are repeated observations.
-- Gate 0 criteria are derived from calibration precision, measurement
-  ceiling/headroom, and the intended later-stage effect, then frozen by a
-  human before locked validation.
-- Backbone selection must not use the observed degradation effect.
-- Codex may propose but cannot approve scientific gates.
+- Input Resolution Reduction ไม่ใช่ post-encoder `Token Pruning`
+- `pair_id` เป็น cluster/resampling unit; render variants ไม่ใช่ independent pairs
+- component results เป็น `DESCRIPTIVE_DIAGNOSTIC_ONLY`
+- non-significant interaction ไม่ใช่ equivalence
+- amendment timing และ GLMM failure ต้องเปิดเผยอย่างโปร่งใส
+- Codex เสนอได้ แต่ human researcher เป็นผู้ตัดสิน scientific gate
+
+`HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`

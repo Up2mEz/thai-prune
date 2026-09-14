@@ -1,17 +1,23 @@
 # Research Specification
 
-> Status: pre-registration draft. Scientific gates remain human-owned
-> decisions; H1 directionality was frozen on 2026-09-04.
+> Current status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
+> Scientific gates remain human-owned decisions.
 
-## 2026-09-12 Thai-specific OCR adaptation study — S0 authorized
+## 2026-09-14 Thai-specific OCR adaptation study — registered panel complete
 
-Status: `LOCKED_PANEL_EXECUTION_AUTHORIZED`.
-The non-directional overall `MODEL x BUDGET` design, FULL-validity criteria,
-one-shot 6,400-call panel, target-aware random effects, primary/fallback
-analysis, and Input Resolution Reduction pipeline are frozen. No locked image
-generation, locked inference, or reduced-resolution inference occurred in the
-pre-inference amendment. The human issued the explicit frozen one-shot run
-order on 2026-09-13; no downstream intervention is thereby authorized.
+Attempt 5 completed all 6,400 registered calls and passed local artifact
+verification. FULL validity passed. The registered primary GLMM raised an
+eligible numerical fit exception before diagnostics were available, so the
+unchanged registered pair-clustered fallback supplied the primary analysis.
+Its global 3-df test was not significant (`p=0.170947`), yielding
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. This is not equivalence
+or proof of equal robustness. Exact results and limits are in
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+The eligibility clarification was an explicit post-data-access amendment made
+after FULL validity was known but before any reduced-budget result was computed
+or inspected. No formula, fallback estimator, test, threshold, or classifier
+changed. No downstream intervention is authorized.
 
 The revised research question is:
 
@@ -34,11 +40,11 @@ workload are in `FALLBACK_PAIR_CLEARANCE.md`. The historical Typhoon proposal
 remains in `SPECIALIZATION_PIVOT_REVIEW.md`.
 
 S0 remains open-calibration full-information baseline measurement only. It did
-not test `MODEL x BUDGET` or compression robustness. The historical staged
-`Gate 0` execution remains `NOT_RUN` and has been replaced prospectively by a
-FULL-validity condition evaluated only after the whole locked panel is
-immutable. Prior Qwen2.5 and Qwen3.5 evidence retains only its original
-diagnostic scope.
+not test `MODEL x BUDGET`. The later locked panel tested the active overall
+interaction under Input Resolution Reduction after FULL validity passed. The
+historical staged `Gate 0` execution remains `NOT_RUN` and was replaced by the
+registered FULL-validity condition. Prior Qwen2.5 and Qwen3.5 evidence retains
+only its original diagnostic scope.
 
 ## 1. Research objective
 
@@ -136,21 +142,23 @@ full-information settings.
 1. `Stage 0 calibration` estimates measurement quality on open data.
 2. The human researcher freezes justified FULL-validity criteria and the whole
    confirmatory panel before any locked outcome.
-3. One authorized one-shot locked panel executes all four budgets without
+3. The authorized one-shot locked panel executed all four budgets without
    intermediate scientific outcome access.
-4. After the panel is immutable, the FULL condition is evaluated. Failure
+4. After the panel became immutable, the FULL condition was evaluated. Failure
    makes the overall `MODEL x BUDGET` analysis `NOT_INTERPRETABLE`; PASS permits
    the already-frozen primary analysis.
+
+Attempt 5 attained FULL `PASS`; this is an observed measurement-validity result,
+not evidence that every component has adequate capacity.
 
 No compression outcome may be used to select Gate 0 thresholds.
 
 ### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen first experiment
 
 The earlier Stage 1A concept was a conditional non-gate pilot. The amended
-2026-09-13 freeze supersedes it with one registered Paddle/Wayu
-`MODEL x BUDGET` Input Resolution Reduction panel. It remains blocked until
-final human authorization; there is no conditional continuation after a
-FULL-only run.
+2026-09-13 freeze superseded it with the now-complete registered Paddle/Wayu
+`MODEL x BUDGET` Input Resolution Reduction panel. There was no conditional
+continuation after a FULL-only run.
 
 Stage 1A evidence is `Preliminary/Pilot`. It cannot approve Gate 1, reject a
 post-encoder Token Pruning hypothesis, or test H3. Post-encoder compression
@@ -158,9 +166,11 @@ remains `Not Tested` until directly manipulated.
 
 ### Gate 1 — Overall differential degradation
 
-Gate 1 requires the frozen Input Resolution Reduction experiment, predefined
-uncertainty/effect criteria, and confirmatory `MODEL x BUDGET` analysis.
-Per-component curves are descriptive/diagnostic under the current dataset.
+Gate 1 evidence has now been produced by the frozen Input Resolution Reduction
+experiment with predefined uncertainty/effect criteria. The registered
+classifier returned `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`.
+Per-component curves remain descriptive/diagnostic. A human gate decision and
+any later-stage authorization remain pending.
 
 - `PASS`: evidence supports a meaningful interaction within the registered
   intervention scope.

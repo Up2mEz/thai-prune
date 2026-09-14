@@ -29,11 +29,35 @@ Must not be presented as a project finding.
 
 ## SUPPORTED
 
-None yet. No main experiment has been completed.
+No unqualified cross-dataset, cross-model, or cross-intervention claim is
+supported. The completed main-panel claim is registered below with explicit
+scope and limitations.
 
 ---
 
 ## SUPPORTED_WITH_LIMITS
+
+### Completed Paddle/Wayu MODEL x BUDGET panel
+
+Within the exact pinned PaddleOCR-VL-1.6 / Wayu-Paxa model pair, controlled
+synthetic Thai minimal-pair dataset, OCR prompt/parser, four registered budgets,
+and BICUBIC Input Resolution Reduction intervention, FULL validity passed and
+the registered primary analysis returned
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`.
+
+The primary GLMM was unavailable because the registered full `glmer` fit raised
+a numerical exception before diagnostics. The already specified pair-clustered
+fallback supplied the result after a transparently documented post-data-access
+eligibility amendment. Its global p-value was `0.170947`; all three exact DIDs
+were Holm-nonsignificant and had observed magnitudes below the 10 pp SESOI.
+
+This supports only the scoped statement that the experiment did not find
+confirmatory evidence of different degradation curves under this design. It
+does not support equivalence, equal robustness, a causal Wayu-training effect,
+component-specific confirmatory effects, general compression robustness,
+post-encoder Token Pruning, Token Merging, mechanism, or real-world/cross-model
+generalization. See
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
 
 ### Proposed specialization-pair architecture audit
 
@@ -165,12 +189,10 @@ The frozen primary test is a non-directional `MODEL x BUDGET` interaction.
 A `MODEL x BUDGET x COMPONENT` interaction is descriptive/diagnostic under the
 current dataset and cannot be promoted without a separately powered approval.
 
-**Status:** `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`;
-the one-shot 6,400-call panel, categorical omnibus interaction, three DID
-contrasts, target-aware random effects, exact downsampling pipeline, and
-estimator fallback are frozen, but the interaction remains untested. The S0
-repeated-target covariance review supports the analysis structure only; it is
-not compression evidence.
+**Status:** `NOT_SUPPORTED` as a confirmatory interaction under this exact
+design. The one-shot 6,400-call panel completed, FULL validity passed, and the
+registered fallback global test was not significant (`p=0.170947`). This does
+not disprove the hypothesis and is not evidence of equivalence.
 
 The Typhoon candidate was subsequently set to
 `NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
@@ -179,12 +201,10 @@ engineering smoke and S0 full-information open-calibration baseline. Those
 results remain baseline association evidence, not `MODEL x BUDGET` or
 compression evidence.
 
-The future FULL-validity PASS, if authorized and attained, would mean only that
-the overall primary `MODEL x BUDGET` analysis is measurement-interpretable
-under the registered planning criterion. It would not establish measurement
-capacity for every component. If FULL validity fails after the complete panel
-is immutable, reduced-budget results are `NOT_INTERPRETABLE` and cannot be
-promoted to scientific claims.
+The observed FULL-validity PASS means only that the overall primary
+`MODEL x BUDGET` analysis is measurement-interpretable under the registered
+planning criterion. It does not establish measurement capacity for every
+component.
 
 The absolute SESOI is 10 percentage points. A non-significant omnibus test is
 classified only as `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`; it is
@@ -253,6 +273,8 @@ The following claims are currently forbidden:
 - "A statistically significant effect is automatically practically important."
 - "Typhoon OCR is more robust than Qwen3-VL under visual-information reduction."
 - "OCR specialization improves compression robustness."
+- "The BASE and SPECIALIZED models have equivalent or equal robustness."
+- "Every true DID is smaller than the 10 pp SESOI."
 - "Fine-tuning is the only difference between the proposed checkpoints."
 - "OCR specialization causes an attention or representation change."
 - "Representation quality explains transcription performance."

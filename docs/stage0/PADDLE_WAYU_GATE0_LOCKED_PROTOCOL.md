@@ -1,8 +1,8 @@
 # Paddle/Wayu One-Shot Locked Confirmatory Panel Protocol
 
-> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+> Frozen pre-execution status (historical): `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
 >
-> Execution: `NOT_RUN`
+> Current execution: `COMPLETE`; FULL validity `PASS`; terminal review pending
 >
 > The historical filename is retained for stable references. Gate-0 is no
 > longer a staged execution. It is the FULL-validity condition evaluated only
@@ -118,4 +118,8 @@ No post-outcome exclusion, replacement, parser repair, per-example retry, or
 silent estimator switch is allowed. A partial or corrupt run is preserved with
 a failure manifest and is not a valid panel.
 
-Terminal state: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+Historical pre-execution terminal state:
+`FINAL_LOCKED_PANEL_AUTHORIZATION_READY`. Current result and terminal state are
+recorded in `PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md` as
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE` and
+`HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.

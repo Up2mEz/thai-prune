@@ -2,6 +2,55 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-14 — Attempt 5 registered MODEL x BUDGET analysis complete
+
+**Execution status:**
+`LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
+
+**Evidence:** Attempt 5 completed 6,400/6,400 calls and remained `VERIFIED`.
+The FULL measurement-validity condition passed: BASE exact accuracy 31.750%
+(pair-clustered 95% CI 24.750%–38.875%; output-contract failure 0%) and
+SPECIALIZED exact accuracy 45.625% (38.875%–52.500%; output-contract failure
+0.125%). This PASS means only that the overall registered analysis is
+measurement-interpretable; component capacity is not implied.
+
+**Primary fitting path:** The one authorized analysis rerun attempted the
+unchanged registered GLMM. The full fit raised
+`Downdated VtV is not positive definite` at `pwrssUpdate` before diagnostics,
+and recorded `FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE`,
+`fit_stage=FULL_MODEL_FIT`, `diagnostics_available=false`. No diagnostics were
+fabricated and no optimizer/formula search occurred.
+
+**Primary analysis:** `PRIMARY_GLMM_UNAVAILABLE` and
+`REGISTERED_NONPARAMETRIC_FALLBACK_USED`. The unchanged pair-clustered
+fallback's 3-df global Wald test gave `W=5.011636`, `p=0.170947`. Registered
+exact DIDs were `DID_196=+0.250 pp` (95% CI −2.375 to +2.875; raw
+`p=0.887411`; Holm `p=1.0`), `DID_121=+1.625 pp` (−1.500 to +4.875;
+raw `p=0.339966`; Holm `p=1.0`), and `DID_64=−1.750 pp` (−5.250 to
++1.875; raw `p=0.357464`; Holm `p=1.0`). These are separate bootstrap CIs,
+not Holm-adjusted CIs.
+
+**Frozen decision:**
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. The result is not
+equivalence or proof of equal robustness. CER was only partially directionally
+consistent and did not alter the primary conclusion. Component summaries
+remain `DESCRIPTIVE_DIAGNOSTIC_ONLY`.
+
+**Claim boundary:** The result applies only to the exact pinned model pair,
+controlled synthetic testbed, prompt/parser, registered budgets, and
+controlled BICUBIC Input Resolution Reduction. It is not evidence about
+post-encoder Token Pruning, Token Merging, compression generally, causal
+training-data effects, mechanisms, or real-world/cross-model generalization.
+
+**Next-stage consequence:** Stop for human review. No additional experiment,
+post-hoc rescue analysis, threshold or budget change, prompt tuning,
+pruning/merging, or fine-tuning is authorized.
+
+**Report:**
+`docs/stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
 ## 2026-09-14 — Numerical GLMM fit-exception fallback eligibility amended
 
 **Human decision:** Accept the failure-path audit classification

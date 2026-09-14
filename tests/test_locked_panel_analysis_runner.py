@@ -114,6 +114,25 @@ def test_dry_run_reaches_pre_data_boundary_without_reading_outputs(monkeypatch, 
     write_inputs.assert_not_called()
 
 
+def test_r_source_identity_is_checkout_line_ending_invariant(tmp_path) -> None:
+    module = _lifecycle_module()
+    lf = tmp_path / "lf.R"
+    crlf = tmp_path / "crlf.R"
+    lf.write_bytes(b"x <- 1\ny <- 2\n")
+    crlf.write_bytes(b"x <- 1\r\ny <- 2\r\n")
+
+    assert module._sha256_registered_crlf_text(lf) == module._sha256_registered_crlf_text(crlf)
+
+
+def test_r_source_identity_rejects_bare_carriage_return(tmp_path) -> None:
+    module = _lifecycle_module()
+    path = tmp_path / "bare-cr.R"
+    path.write_bytes(b"x <- 1\ry <- 2\r")
+
+    with pytest.raises(RuntimeError, match="unsupported bare CR"):
+        module._sha256_registered_crlf_text(path)
+
+
 def test_missing_image_fails_without_acquisition(monkeypatch) -> None:
     module = _lifecycle_module()
     run = Mock(return_value=_completed(returncode=1, stderr="No such image"))

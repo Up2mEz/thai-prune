@@ -1,6 +1,8 @@
 # Overall MODEL x BUDGET Design Freeze
 
-> Status: `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+> Frozen pre-inference status (historical): `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`
+>
+> Current execution status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`
 >
 > Freeze date: 2026-09-13
 >
@@ -211,7 +213,8 @@ does not establish compression robustness, specialization-induced robustness,
 an observed `MODEL x BUDGET` interaction, component degradation, causal effects
 of Thai training, or a need for a new method.
 
-This pre-inference design is ready for a separate human execution
-authorization. No locked image generation, locked inference, or Resolution
-Reduction inference ran during this amendment. Terminal state:
-`FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+This paragraph records the historical pre-inference freeze: no locked image
+generation, locked inference, or Resolution Reduction inference ran during
+that amendment. The design was subsequently authorized and completed as
+Attempt 5. Current result: `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`;
+see `stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
