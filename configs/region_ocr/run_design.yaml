@@ -1,0 +1,71 @@
+schema_version: 1
+status: AUTHORIZED_PRELIMINARY_PILOT
+protocol: docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md
+authorization: docs/DECISION_LOG.md  # entries 2026-09-20
+
+research_question: >
+  Within one experiment, on the same regions, the same model, the same prompt,
+  and matched actual visual-token counts, does post-encoder Token Pruning
+  produce a different Thai text-region recognition degradation pattern than
+  Input Resolution Reduction?
+
+evidence_status: Preliminary/Pilot
+
+model:
+  role: BASE
+  model_id: PaddlePaddle/PaddleOCR-VL-1.6
+  revision: c5630abae1d940eafe0697512a0325494b02ab42
+
+dataset:
+  name: TEMS
+  doi: 10.17632/ntdmgksh9w.5
+  license: CC BY 4.0
+  attribution_required: true
+  metadata_csv_sha256: 163059c62d28086f5455db5cdbbcd99d9a4b9435084668dcd2fdd254936ca9e6
+  archive_sha256: 7002f6441bbc78c1cbb82bbeff9f738c920bd516cb98f23c59be1816f3152da9
+  ground_truth_field: label            # never the filename; 1.6% disagree
+  eligibility: label contains U+0E00-U+0E7F
+  split_used: train
+  evaluation_split_opened: false
+
+selection:
+  seed: 20260920
+  regions: 400
+  cluster_field: source_photo_id
+
+intervention:
+  families: [FULL, INPUT_RESOLUTION_REDUCTION, POST_ENCODER_TOKEN_PRUNING]
+  ratios: [0.75, 0.5, 0.25]
+  ratio_semantics: nominal            # achieved is recorded per region
+  resolution_reduction:
+    mechanism: force_equal_min_max_pixels
+  pruning:
+    policies: [GRID, RANDOM]
+    grid_selection: uniform over the 2D token grid
+    random_seeds: [20260920, 20260921]
+    budget_source: count achieved by the matching Resolution Reduction condition
+  conditions_per_region: 13
+
+output_contract:
+  prompt: "OCR:"
+  decoding: {do_sample: false, num_beams: 1, max_new_tokens: 64}
+  parser: strip leading and trailing whitespace only
+  unicode_normalization: none         # NFC reported as sensitivity only
+  u_fffd_repair: forbidden
+
+analysis:
+  primary_population: every eligible region
+  secondary_population: regions where CER(FULL) = 0
+  primary_metric: mean per-region delta-CER against FULL, paired within region
+  sensitivity_metric: corpus CER
+  cluster_unit: source_photo_id
+  bootstrap_resamples: 10000
+  registered_estimand: DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)
+  multiplicity: Holm across the three budgets, primary population only
+  failed_calls_scored_as_cer_one: false
+
+prohibited:
+  - opening the evaluation split
+  - post-outcome changes to prompt, parser, budgets, dataset, split, or model
+  - swapping the primary and secondary populations after seeing results
+  - treating this run as Gate 0 or Gate 1 evidence
