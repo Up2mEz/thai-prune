@@ -29,7 +29,7 @@ This filter alone eliminates both candidates named in the original plan.
 | **TEMS** (Thai–English Multiscript Text Image) | Real smartphone photos, 9 Thai provinces, 2023-11..2024-11 | **Yes, shape (a)** — cropped JPEGs + metadata CSV | 5,000 crops, 148 distinct chars in released labels | **1,237** (verified) | **CC BY 4.0** | **PRIMARY CANDIDATE, conditional on §3.2** |
 | ThaiOCRBench fine-grained subset | Mostly real; some ID samples synthetic | **Unconfirmed** — bbox-looking strings seen, but not verified to be a structured field | subset of 2,808 across 13 tasks | not published per task | **CC-BY-SA-4.0** (card) | CONDITIONAL SECONDARY |
 | `iapp/thai_handwriting_dataset` | Real handwriting, 2,026 writers | Yes, line crops | 13,550 | 4,920 sentences | Apache-2.0 *asserted by republisher* over NECTEC BEST-2019 + a commercial set | MARGINAL — handwriting arm only |
-| `mekpro/ocr_th` | Synthetic | **No** — page-level text only | 4,000 | n/a | Apache-2.0 | **REJECTED** |
+| `mekpro/ocr_th` | Synthetic | **No** — page-level text only | 4,000 | n/a | Apache-2.0 | **REJECTED as a region corpus; re-opened 2026-09-21 as a whole-image candidate — see `MEKPRO_DATASET_FEASIBILITY.md`** |
 | `openthaigpt/thai-ocr-evaluation` | Real | **No** — page-level only | 104 rows | ~104 | CC-BY-SA-4.0 | REJECTED — no boxes, too few clusters |
 | `SEACrowd/kvis_th_ocr` | Real scans | Single characters only | 1,079 | 27 writers | — | REJECTED — no diacritic context |
 | ICDAR MLT 2017 / 2019 | Real | Yes | — | — | — | **REJECTED — contains no Thai.** MLT17 covers 9 languages / 6 scripts; MLT19 adds Hindi. Thai is in neither. |
@@ -336,3 +336,22 @@ renderer. The text corpus would itself require separate licence clearance.
 - availability and terms of the Suwanwiwat et al. dataset;
 - all commercial vendor licences;
 - upstream NECTEC BEST-2019 terms behind the `iapp` republication.
+
+---
+
+## Addendum, 2026-09-21 — `mekpro/ocr_th` re-opened for a different unit
+
+The rejection above was recorded when the unit of analysis was a text region and
+region annotations were required. That ground does not apply to a design whose
+unit is the whole image, so the dataset was re-measured rather than left
+rejected on a reason that had become inapplicable. Its other ground, that it is
+synthetic, stands and is carried forward as a limitation.
+
+The reason to re-open it is that round 3 established TEMS cannot test H3 in the
+compression regime: every region sits below the processor's pixel floor, so
+resolution reduction there changes magnification without discarding source
+information. See `REGION_OCR_ROUND3_RESULTS.md` §8.
+
+Measurements, verdict and the limitations that survive are in
+`docs/stage0/MEKPRO_DATASET_FEASIBILITY.md`. Nothing is authorized by that
+document.
