@@ -13,8 +13,9 @@ uv:
   bootstrap_version: "0.11.25"
   sync_args: [--frozen, --extra, model]
   # Reused unchanged from the Paddle/Wayu locked panel, which completed 6,400
-  # calls against these same checkpoints. It pins transformers 5.12.0, which the
-  # native PaddleOCR-VL implementation requires and pyproject's <5 bound forbids.
+  # calls against these same checkpoints. It pins transformers 5.12.0, which is
+  # what pyproject now pins exactly as well, so the remote environment and a
+  # fresh local checkout resolve to the same version.
   transformers_override_lock: infra/kaggle/qwen35-requirements.lock
 
 model_runtime:

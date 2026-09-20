@@ -1,7 +1,8 @@
 schema_version: 1
 status: AUTHORIZED_PRELIMINARY_PILOT
 protocol: docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md
-authorization: docs/DECISION_LOG.md  # entries 2026-09-20
+authorization: docs/DECISION_LOG.md  # entries 2026-09-20, 2026-09-21
+round2_registration: docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md
 
 research_question: >
   Within one experiment, on the same regions, the same model, the same prompt,
@@ -37,17 +38,29 @@ selection:
   rule: recomputed remotely from this seed, never shipped as a list
 
 intervention:
-  families: [FULL, INPUT_RESOLUTION_REDUCTION, POST_ENCODER_TOKEN_PRUNING]
+  families:
+    - FULL
+    - INPUT_RESOLUTION_REDUCTION
+    - POST_ENCODER_TOKEN_PRUNING
+    - POST_ENCODER_SPATIAL_MERGE     # round 2; not ToMe, acts after the projector
   ratios: [0.75, 0.5, 0.25]
   ratio_semantics: nominal            # achieved is recorded per region
   resolution_reduction:
     mechanism: force_equal_min_max_pixels
   pruning:
-    policies: [GRID, RANDOM]
+    policies: [GRID, RANDOM, COVERAGE]
     grid_selection: uniform over the 2D token grid
+    coverage_selection: >
+      same cell partition as GRID; within each cell keep the token with the
+      highest raw-patch contrast, scored from the image and never from decoder
+      attention
     random_seeds: [20260920, 20260921]
     budget_source: count achieved by the matching Resolution Reduction condition
-  conditions_per_region: 13
+  merge:
+    policies: [MERGE_GRID]
+    survivors: identical to GRID, including M-RoPE positions
+    operation: each survivor carries the mean of its cell
+  conditions_per_region: 19
 
 output_contract:
   prompt: "OCR:"
@@ -64,11 +77,28 @@ analysis:
   cluster_unit: source_photo_id
   bootstrap_resamples: 10000
   registered_estimand: DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)
-  multiplicity: Holm across the three budgets, primary population only
+  contrast_families:                  # round 2; each corrected within itself only
+    A: deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)
+    B: deltaCER(MERGE_GRID,b) - deltaCER(PRUNE_GRID,b)
+    C: deltaCER(PRUNE_COVERAGE,b) - deltaCER(PRUNE_GRID,b)
+  multiplicity: Holm across the three budgets within each family; families not pooled
   failed_calls_scored_as_cer_one: false
+
+cost_measurement:
+  status: DESCRIPTIVE_COST_ACCOUNTING
+  execution_path: identical for every family; all reach generate() via inputs_embeds
+  path_equivalence_check: required; the run fails unless FULL reproduces the
+    legacy pixel_values route character-for-character
+  stages: [processor, vision, select, embed, prefill, generate]
+  analytic_counters: [vision_patches, vision_tokens_after_merge, llm_prefill_positions, llm_visual_positions]
+  claims_rest_on: analytic counters; wall clock is illustrative only
+  registered_exchange_rate_between_cer_and_seconds: none
 
 prohibited:
   - opening the evaluation split
   - post-outcome changes to prompt, parser, budgets, dataset, split, or model
   - swapping the primary and secondary populations after seeing results
   - treating this run as Gate 0 or Gate 1 evidence
+  - quoting a whole-pipeline speed-up from a language-model-only saving
+  - introducing any accuracy-per-second trade-off rule after seeing results
+  - describing MERGE_GRID as ToMe, or any deferred method as tested
