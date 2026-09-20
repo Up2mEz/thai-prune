@@ -96,6 +96,37 @@ def build_spec(root: Path, design: dict, runtime: dict, git_sha: str,
     }
 
 
+def conditions_per_region(root: Path, spec: dict) -> int:
+    """The registered count, cross-checked against what the builder produces."""
+    import yaml
+
+    from labbs2026.region_ocr.workload import build_region_observations
+
+    design = yaml.safe_load(
+        (root / "configs/region_ocr/run_design.yaml").read_text(encoding="utf-8")
+    )
+    registered = int(design["intervention"]["conditions_per_region"])
+    built = len(build_region_observations(
+        {"image_id": "probe", "source_photo_id": "probe", "label": "probe"},
+        {
+            "full_placeholders": 160,
+            "budgets": [
+                {"ratio": r, "target_placeholders": 1, "pruning_placeholders": 1,
+                 "resolution_reduction": {"forced_pixels": 1}}
+                for r in spec["ratios"]
+            ],
+        },
+        random_seeds=[int(s) for s in spec["random_seeds"]],
+    ))
+    if built != registered:
+        raise SystemExit(
+            f"run_design.yaml registers {registered} conditions per region but the "
+            f"workload builder produces {built}; refusing to submit a run whose "
+            f"design record disagrees with its code"
+        )
+    return registered
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
@@ -137,7 +168,10 @@ def main() -> None:
         "staging_dir": str(staging),
         "submit_command": command,
         "regions": spec["selection_photos"] * spec["selection_crops_per_photo"],
-        "conditions_per_region": 1 + 3 * (2 + len(spec["random_seeds"])),
+        # Derived from the registered design rather than from a formula written
+        # beside it: an arm added to the grid must not leave this summary quietly
+        # reporting the old count back to whoever submitted the run.
+        "conditions_per_region": conditions_per_region(root, spec),
     }, indent=1))
 
     if args.submit:
