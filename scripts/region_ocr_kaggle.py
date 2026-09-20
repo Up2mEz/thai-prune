@@ -90,6 +90,8 @@ def build_spec(root: Path, design: dict, runtime: dict, git_sha: str,
         "selection_crops_per_photo": design["selection"]["crops_per_photo"],
         "selection_splits": [design["dataset"]["split_used"]],
         "ratios": design["intervention"]["ratios"],
+        "sweep_factors": design["intervention"].get("magnification_sweep", {})
+        .get("factors", []),
         "random_seeds": design["intervention"]["pruning"]["random_seeds"],
         "max_new_tokens": design["output_contract"]["decoding"]["max_new_tokens"],
         "created_at_utc": utc_now(),
@@ -112,8 +114,15 @@ def conditions_per_region(root: Path, spec: dict) -> int:
             "full_placeholders": 160,
             "budgets": [
                 {"ratio": r, "target_placeholders": 1, "pruning_placeholders": 1,
-                 "resolution_reduction": {"forced_pixels": 1}}
+                 "resolution_reduction": {"forced_pixels": 1},
+                 "restored": {"down_height": 1, "down_width": 1, "up_height": 1,
+                              "up_width": 1, "forced_pixels": 1, "placeholders": 160}}
                 for r in spec["ratios"]
+            ],
+            "sweep": [
+                {"factor": f, "target_placeholders": 1, "placeholders": 1,
+                 "resolution": {"forced_pixels": 1}}
+                for f in spec["sweep_factors"]
             ],
         },
         random_seeds=[int(s) for s in spec["random_seeds"]],

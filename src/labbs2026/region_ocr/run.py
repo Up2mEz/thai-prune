@@ -15,6 +15,7 @@ from labbs2026.region_ocr.budget import (
     degenerate_budgets,
     find_pixel_budget_for_target,
     placeholders_for,
+    plan_magnification_sweep,
     plan_region_budgets,
 )
 from labbs2026.region_ocr.execute import (
@@ -139,15 +140,23 @@ def preflight_processor_contract(processor, geometry: dict[str, Any]) -> dict[st
 
 
 def plan_all_budgets(regions: Sequence[dict[str, Any]], geometry: dict[str, Any],
-                     ratios: Sequence[float]) -> tuple[dict[str, Any], list[str]]:
+                     ratios: Sequence[float],
+                     sweep_factors: Sequence[float] = ()) -> tuple[dict[str, Any], list[str]]:
     plans: dict[str, Any] = {}
     degenerate: list[str] = []
+    sweep_geometry = {k: v for k, v in geometry.items() if k not in ("min_pixels", "max_pixels")}
     for region in regions:
         plan = plan_region_budgets(
             region["image_height"], region["image_width"], ratios, **geometry
         )
         if degenerate_budgets(plan):
             degenerate.append(region["image_id"])
+        # The sweep deliberately leaves the processor's own floor and ceiling
+        # behind: its whole purpose is to reach magnifications FULL cannot.
+        plan["sweep"] = plan_magnification_sweep(
+            region["image_height"], region["image_width"],
+            plan["full_placeholders"], sweep_factors, **sweep_geometry,
+        )
         plans[region["image_id"]] = plan
     return plans, degenerate
 
@@ -163,13 +172,14 @@ def run(
     max_new_tokens: int,
     device: str,
     artifact_dir: Path,
+    sweep_factors: Sequence[float] = (),
 ) -> dict[str, Any]:
     from PIL import Image
 
     artifact_dir.mkdir(parents=True, exist_ok=True)
     geometry = load_processor_geometry(processor)
     contract = preflight_processor_contract(processor, geometry)
-    plans, degenerate = plan_all_budgets(regions, geometry, ratios)
+    plans, degenerate = plan_all_budgets(regions, geometry, ratios, sweep_factors)
     if degenerate:
         raise RuntimeError(f"degenerate budget plan for {len(degenerate)} regions: {degenerate[:5]}")
 
@@ -227,6 +237,7 @@ def run(
         "prompt": PROMPT,
         "path_equivalence": equivalence,
         "ratios": list(ratios),
+        "sweep_factors": list(sweep_factors),
         "random_seeds": list(random_seeds),
         "max_new_tokens": max_new_tokens,
         "device": device,

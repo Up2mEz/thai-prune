@@ -15,6 +15,9 @@ def main() -> None:
     parser.add_argument("--revision", required=True)
     parser.add_argument("--artifacts", type=Path, required=True)
     parser.add_argument("--ratios", default="0.75,0.5,0.25")
+    parser.add_argument("--sweep-factors", default="2.0,1.5,0.125",
+                        help="multiples of FULL's token count for the "
+                             "magnification sweep; empty disables it")
     parser.add_argument("--random-seeds", default="20260920,20260921")
     parser.add_argument("--max-new-tokens", type=int, default=64)
     parser.add_argument("--device", default="cpu")
@@ -48,6 +51,7 @@ def main() -> None:
         model=model,
         processor=processor,
         ratios=[float(r) for r in args.ratios.split(",")],
+        sweep_factors=[float(f) for f in args.sweep_factors.split(",") if f.strip()],
         random_seeds=[int(s) for s in args.random_seeds.split(",")],
         max_new_tokens=args.max_new_tokens,
         device=args.device,

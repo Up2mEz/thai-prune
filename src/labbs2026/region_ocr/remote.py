@@ -65,6 +65,7 @@ def main() -> None:
         model=model,
         processor=processor,
         ratios=[float(r) for r in spec["ratios"]],
+        sweep_factors=[float(f) for f in spec.get("sweep_factors", ())],
         random_seeds=[int(s) for s in spec["random_seeds"]],
         max_new_tokens=int(spec["max_new_tokens"]),
         device=spec["device"],

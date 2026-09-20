@@ -2,6 +2,92 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-21b — Region OCR round 3 authorized: break the magnification confound
+
+**Stage/Gate:** Region-OCR branch, round 3. Gate 0 remains `NOT_RUN`; Gates 1-6
+remain `BLOCKED`. Claim level remains `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Instructed in session on 2026-09-21: run the experiment that
+removes the upsampling confound before anything else, and defer the decoder
+insertion point as too slow. This authorizes the run registered in
+`docs/stage0/REGION_OCR_ROUND3_REGISTRATION.md`. The approval covers:
+
+1. two new arms per budget, `RR_RESTORED` and `PRUNE_GRID_RESTORED`, which carry
+   a reduced-detail rendering at FULL's token count and magnification;
+2. a three-point magnification sweep at 2.0x, 1.5x and 0.125x FULL's token
+   count, deliberately ignoring the processor's own pixel floor and ceiling;
+3. contrast families D and E, each Holm-corrected within itself;
+4. re-running round 2's nineteen conditions unchanged in the same run, so every
+   contrast comes from one set of images;
+5. one Kaggle T4 submission on `PaddleOCR-VL-1.6` alone.
+
+Explicitly **not** authorized and explicitly deferred by the same instruction:
+the decoder insertion point (FastV / SparseVLM territory), on grounds of time.
+`wayu` also remains deferred.
+
+### Evidence
+
+- `docs/stage0/REGION_OCR_ROUND2_RESULTS.md`, which recorded the defect this
+  round repairs: a median area scale of 9.67x at every post-encoder condition
+  against 2.44x at `RR_25`.
+- Direct probe on region `img_000002` (41 x 176 px): the processor's floor is
+  112,896 px, so the source is fifteen times smaller than the smallest grid the
+  processor will produce. The restored round trip yields grid `[1, 12, 50]` and
+  150 placeholders, identical to `FULL`, with different pixel values.
+- Round 2 macro CER is monotone in magnification: `RR_25` 0.1962, `RR_50`
+  0.2230, `RR_75` 0.2520, `FULL` 0.2714.
+
+### Reasoning
+
+Because every region sits below the processor's pixel floor, no round-2
+condition lost source information; Resolution Reduction on this corpus changes
+magnification, not information. Magnification and token count are one knob, so
+they cannot be separated by varying budgets alone. Pre-rendering at a coarse
+grid and restoring to FULL's grid separates them: detail falls while token count
+and magnification stay fixed.
+
+The registration states in advance what each of the three candidate
+explanations - magnification, detail, insertion point - predicts for families D
+and E and for the sweep. The three predictions differ on all three rows, so the
+round can discriminate rather than merely accumulate.
+
+### Alternatives considered
+
+- Moving the cut into the decoder after layer k. Deferred by the human
+  instruction on time grounds, and in any case it would add an insertion point
+  to a contrast that is still confounded.
+- Forcing `RR` to upsample as much as `FULL`. Impossible: for a whole image the
+  pixel budget sets magnification and token count together.
+- Leaving family A as the headline. Rejected: it is not an insertion-point
+  result until family D is beside it, and the prohibition list now says so.
+
+### Known limitations
+
+Five families of three, each corrected separately, leaves the round-wide error
+rate uncontrolled; nothing here is confirmatory. The result will not generalise
+beyond regions that sit below the processor's pixel floor, and every region in
+this corpus does. If families D and E both come back near zero, the finding is
+that this corpus is the wrong instrument for H3, and the next step becomes
+obtaining larger regions rather than implementing another method.
+
+### Consequence for next stage
+
+Submit one Kaggle T4 run, 400 regions x 28 conditions. Fetch, verify, report.
+The outcome decides whether the next step is a new corpus or a new insertion
+point.
+
+### Files/configs affected
+
+- `docs/stage0/REGION_OCR_ROUND3_REGISTRATION.md`
+- `configs/region_ocr/run_design.yaml`
+- `src/labbs2026/region_ocr/{budget,workload,execute,run,analysis,report}.py`
+- `scripts/{region_ocr_run,region_ocr_kaggle}.py`
+- `docs/DECISION_LOG.md`
+
+---
+
 ## 2026-09-21 — Region OCR round 2 authorized: two new post-encoder arms and stage-resolved cost measurement
 
 **Stage/Gate:** Region-OCR branch, round 2. Gate 0 remains `NOT_RUN`; Gates 1-6

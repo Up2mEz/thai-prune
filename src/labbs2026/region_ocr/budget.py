@@ -129,6 +129,19 @@ def plan_region_budgets(
                 "resolution_reduction": resize,
                 "pruning_placeholders": resize["achieved"],
                 "matched": True,
+                # Round 3. Render the region at this budget's grid and then
+                # restore it to FULL's grid, so an arm can carry this budget's
+                # pixel detail while presenting FULL's token count and
+                # magnification. Without it, Resolution Reduction and pruning
+                # differ in detail *and* in token count at once.
+                "restored": {
+                    "down_height": resize["processed_height"],
+                    "down_width": resize["processed_width"],
+                    "up_height": processed[0],
+                    "up_width": processed[1],
+                    "forced_pixels": processed[0] * processed[1],
+                    "placeholders": full,
+                },
             }
         )
     return {
@@ -148,3 +161,46 @@ def degenerate_budgets(plan: dict[str, Any]) -> list[float]:
         if budget["pruning_placeholders"] in others:
             collisions.append(budget["ratio"])
     return collisions
+
+
+def plan_magnification_sweep(
+    height: int,
+    width: int,
+    full_placeholders: int,
+    factors: Sequence[float],
+    *,
+    smart_resize: SmartResize,
+    patch: int,
+    merge: int,
+) -> list[dict[str, Any]]:
+    """Forced budgets at multiples of FULL's token count, above and below it.
+
+    Round 1 found a reduced budget outscoring FULL, and round 2 showed why that
+    is hard to interpret: these crops are far smaller than the processor's pixel
+    floor, so *every* condition is an upsample of the source and none of them
+    loses source information. What differs between FULL and a reduced budget is
+    magnification, and magnification cannot be separated from token count for a
+    whole image - one knob sets both.
+
+    What can be done is to trace the curve. If accuracy keeps improving as
+    magnification falls toward native and degrades as it is pushed past FULL,
+    then FULL simply sits on the wrong side of a scale preference, and the
+    round 1 inversion needs no appeal to compression helping. A factor above 1
+    magnifies more than FULL does; that direction is the informative one,
+    because nothing in the compression story predicts it should hurt.
+    """
+    planned: list[dict[str, Any]] = []
+    for factor in factors:
+        if factor <= 0:
+            raise ValueError(f"factor must be positive, got {factor}")
+        target = max(1, round(full_placeholders * factor))
+        resize = find_pixel_budget_for_target(
+            height, width, target, smart_resize=smart_resize, patch=patch, merge=merge,
+        )
+        planned.append({
+            "factor": factor,
+            "target_placeholders": target,
+            "resolution": resize,
+            "placeholders": resize["achieved"],
+        })
+    return planned

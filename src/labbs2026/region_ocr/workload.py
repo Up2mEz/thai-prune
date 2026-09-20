@@ -18,6 +18,12 @@ FAMILY_FULL = "FULL"
 FAMILY_RR = "INPUT_RESOLUTION_REDUCTION"
 FAMILY_PRUNE = "POST_ENCODER_TOKEN_PRUNING"
 FAMILY_MERGE = "POST_ENCODER_SPATIAL_MERGE"
+# Round 3. Both exist to break the confound round 2 exposed: these crops sit far
+# below the processor's pixel floor, so every condition is an upsample of the
+# source and Resolution Reduction differs from pruning in magnification as well
+# as in where the token reduction happens.
+FAMILY_RESTORED = "RESOLUTION_REDUCTION_RESTORED"
+FAMILY_SWEEP = "MAGNIFICATION_SWEEP"
 
 POLICY_GRID = "GRID"
 POLICY_RANDOM = "RANDOM"
@@ -27,6 +33,11 @@ POLICY_MERGE_GRID = "MERGE_GRID"
 # Both post-encoder families are matched against the same Resolution Reduction
 # partner, so anything that checks matching must treat them together.
 POST_ENCODER_FAMILIES = (FAMILY_PRUNE, FAMILY_MERGE)
+
+# Families whose visual tokens reach the language model untouched. Everything
+# they change, they change before the encoder, so the count the processor
+# produced is the count the model must receive.
+IDENTITY_FAMILIES = (FAMILY_FULL, FAMILY_RR, FAMILY_RESTORED, FAMILY_SWEEP)
 
 
 def build_region_observations(
@@ -58,6 +69,8 @@ def build_region_observations(
             "target_placeholders": plan["full_placeholders"],
             "expected_placeholders": plan["full_placeholders"],
             "forced_pixels": None,
+            "pre_resize": None,
+            "budget_matched": False,
         }
     ]
 
@@ -76,6 +89,8 @@ def build_region_observations(
                 "target_placeholders": budget["target_placeholders"],
                 "expected_placeholders": achieved,
                 "forced_pixels": budget["resolution_reduction"]["forced_pixels"],
+                "pre_resize": None,
+                "budget_matched": True,
             }
         )
         observations.append(
@@ -89,6 +104,8 @@ def build_region_observations(
                 "target_placeholders": budget["target_placeholders"],
                 "expected_placeholders": achieved,
                 "forced_pixels": None,
+                "pre_resize": None,
+                "budget_matched": True,
             }
         )
         # Same survivors and same M-RoPE positions as PRUNE_GRID; the only
@@ -106,6 +123,8 @@ def build_region_observations(
                 "target_placeholders": budget["target_placeholders"],
                 "expected_placeholders": achieved,
                 "forced_pixels": None,
+                "pre_resize": None,
+                "budget_matched": True,
             }
         )
         # Same spatial coverage guarantee as PRUNE_GRID, but each cell spends
@@ -122,8 +141,54 @@ def build_region_observations(
                 "target_placeholders": budget["target_placeholders"],
                 "expected_placeholders": achieved,
                 "forced_pixels": None,
+                "pre_resize": None,
+                "budget_matched": True,
             }
         )
+        restored = budget.get("restored")
+        if restored is not None:
+            pre_resize = {
+                "down": [restored["down_height"], restored["down_width"]],
+                "up": [restored["up_height"], restored["up_width"]],
+            }
+            # FULL's token count and FULL's magnification, but carrying only the
+            # pixel detail this budget's grid can hold. Against FULL it isolates
+            # the detail reduction with the token count held fixed.
+            observations.append(
+                {
+                    **base,
+                    "condition_id": f"RR_RESTORED_{label}",
+                    "family": FAMILY_RESTORED,
+                    "policy": None,
+                    "seed": None,
+                    "nominal_ratio": ratio,
+                    "target_placeholders": restored["placeholders"],
+                    "expected_placeholders": restored["placeholders"],
+                    "forced_pixels": restored["forced_pixels"],
+                    "pre_resize": pre_resize,
+                    "budget_matched": False,
+                }
+            )
+            # The same detail-reduced image, then pruned to this budget. Against
+            # RR it is the H3 contrast with pixel detail matched: both arms carry
+            # the same information and end at the same token count, differing
+            # only in whether the reduction happened before or after the encoder.
+            observations.append(
+                {
+                    **base,
+                    "condition_id": f"PRUNE_GRID_RESTORED_{label}",
+                    "family": FAMILY_PRUNE,
+                    "policy": POLICY_GRID,
+                    "seed": None,
+                    "nominal_ratio": ratio,
+                    "target_placeholders": budget["target_placeholders"],
+                    "expected_placeholders": achieved,
+                    "forced_pixels": restored["forced_pixels"],
+                    "pre_resize": pre_resize,
+                    "budget_matched": True,
+                }
+            )
+
         for seed in random_seeds:
             observations.append(
                 {
@@ -136,8 +201,28 @@ def build_region_observations(
                     "target_placeholders": budget["target_placeholders"],
                     "expected_placeholders": achieved,
                     "forced_pixels": None,
+                    "pre_resize": None,
+                    "budget_matched": True,
                 }
             )
+
+    for entry in plan.get("sweep", ()):
+        factor = entry["factor"]
+        observations.append(
+            {
+                **base,
+                "condition_id": f"SWEEP_{int(round(factor * 100)):03d}",
+                "family": FAMILY_SWEEP,
+                "policy": None,
+                "seed": None,
+                "nominal_ratio": factor,
+                "target_placeholders": entry["target_placeholders"],
+                "expected_placeholders": entry["placeholders"],
+                "forced_pixels": entry["resolution"]["forced_pixels"],
+                "pre_resize": None,
+                "budget_matched": False,
+            }
+        )
     return observations
 
 
@@ -149,7 +234,10 @@ def assert_matched(observations: Sequence[dict[str, Any]]) -> None:
     """
     by_region: dict[str, dict[tuple[str, float], list[dict[str, Any]]]] = {}
     for obs in observations:
-        if obs["family"] == FAMILY_FULL:
+        # Only conditions that claim a matched budget are held to one. The
+        # restored and sweep arms exist precisely to vary token count against
+        # a different control, so enforcing the match on them would be wrong.
+        if obs["family"] == FAMILY_FULL or not obs.get("budget_matched", True):
             continue
         key = (obs["image_id"], obs["nominal_ratio"])
         by_region.setdefault(obs["image_id"], {}).setdefault(key, []).append(obs)

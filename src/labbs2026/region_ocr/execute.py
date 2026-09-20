@@ -14,6 +14,9 @@ visual features and positions in between.
   RR     - processor forced to a lower pixel budget, identity selection.
   PRUNE  - processor defaults, then post-encoder token removal.
   MERGE  - processor defaults, cells averaged onto the pruned survivors.
+  RESTORED - region re-rendered at a coarser grid and back to FULL's, so a
+           condition can carry reduced detail at FULL's token count.
+  SWEEP  - processor forced above or below FULL's budget, identity selection.
 
 Because that rerouting could in principle change what the model emits, it is not
 assumed safe: `assert_path_equivalence` runs both routes on one image and
@@ -43,13 +46,47 @@ from labbs2026.region_ocr.pruning import (
     surviving_sequence_mask,
 )
 from labbs2026.region_ocr.workload import (
-    FAMILY_FULL,
     FAMILY_MERGE,
     FAMILY_PRUNE,
-    FAMILY_RR,
+    IDENTITY_FAMILIES,
 )
 
 PROMPT = "OCR:"
+
+
+def _resample_filter(processor) -> int:
+    """The processor's own resampling filter, so a pre-resize matches its resize.
+
+    Emulating the processor's downscale with a different filter would make the
+    restored arm carry a different bottleneck from the Resolution Reduction arm
+    it is supposed to match, which is the one thing that arm exists to control.
+    """
+    return int(getattr(getattr(processor, "image_processor", processor), "resample", 3))
+
+
+def _apply_pre_resize(image, pre_resize: dict | None, resample: int):
+    """Render the region at a coarser grid, then restore it to FULL's grid.
+
+    The crops here sit far below the processor's pixel floor, so every condition
+    is an upsample of the source and none of them loses source information. That
+    makes Resolution Reduction and post-encoder pruning differ in magnification
+    as well as in where tokens are removed, and the two cannot be told apart.
+
+    This round trip breaks that tie: the image comes back at FULL's dimensions,
+    and therefore FULL's token count and magnification, while carrying only the
+    detail the coarser grid could hold.
+    """
+    if pre_resize is None:
+        return image, None
+    down_h, down_w = pre_resize["down"]
+    up_h, up_w = pre_resize["up"]
+    coarse = image.resize((int(down_w), int(down_h)), resample)
+    restored = coarse.resize((int(up_w), int(up_h)), resample)
+    return restored, {
+        "pre_resize_down": [int(down_h), int(down_w)],
+        "pre_resize_up": [int(up_h), int(up_w)],
+        "pre_resize_resample": resample,
+    }
 
 
 def _processor_inputs(processor, image, forced_pixels: int | None):
@@ -61,7 +98,9 @@ def _processor_inputs(processor, image, forced_pixels: int | None):
         add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
     )
     if forced_pixels is not None:
-        # Resolution Reduction pins the processor to one exact pixel budget. The
+        # Any condition that names a pixel budget pins the processor to it: the
+        # reduction arms, the restored arms that pin it back to FULL's grid, and
+        # the magnification sweep that pushes past FULL. The
         # native class takes that as a SizeDict; older remote-code processors took
         # min_pixels/max_pixels. Both are sent so either implementation honours it,
         # and the placeholder count is asserted afterwards regardless.
@@ -92,7 +131,7 @@ def _assert_same_device(model, tensors: dict[str, Any]) -> None:
         raise RuntimeError(f"tensors not on {target}: {wrong}")
 
 
-def _accounting(inputs, model, image) -> dict[str, Any]:
+def _accounting(inputs, model, source_size) -> dict[str, Any]:
     grid = [int(v) for v in inputs["image_grid_thw"][0].tolist()]
     merge = int(model.config.vision_config.spatial_merge_size)
     patch = int(model.config.vision_config.patch_size)
@@ -106,7 +145,11 @@ def _accounting(inputs, model, image) -> dict[str, Any]:
     # upsampled a small crop before the encoder ever saw it: an intervention that
     # removes an interpolation artefact is not an intervention that shows
     # compression helps.
-    source_width, source_height = image.size
+    # Deliberately the *original* region, not whatever was handed to the
+    # processor: a restored arm arrives pre-enlarged, and measuring its scale
+    # against that enlargement would report 1.0 and hide the very magnification
+    # this record exists to expose.
+    source_width, source_height = source_size
     processed_height, processed_width = grid[1] * patch, grid[2] * patch
     source_pixels = max(1, int(source_height) * int(source_width))
     processed_pixels = processed_height * processed_width
@@ -147,7 +190,7 @@ def _visual_features_for(model, inputs, accounting, observation, meter):
     if int(features.shape[0]) != native:
         raise RuntimeError(f"projector emitted {int(features.shape[0])} != {native} features")
 
-    if family in (FAMILY_FULL, FAMILY_RR):
+    if family in IDENTITY_FAMILIES:
         with meter.stage("select"):
             keep = tuple(range(native))
         return features, keep
@@ -185,15 +228,17 @@ def execute_observation(model, processor, image, observation: dict[str, Any],
     expected = int(observation["expected_placeholders"])
     meter = CostMeter(device)
 
+    source_size = image.size
     with meter.stage("processor"):
-        inputs = _processor_inputs(
-            processor, image, observation["forced_pixels"] if family == FAMILY_RR else None
+        image, resize_record = _apply_pre_resize(
+            image, observation.get("pre_resize"), _resample_filter(processor)
         )
-    accounting = _accounting(inputs, model, image)
+        inputs = _processor_inputs(processor, image, observation["forced_pixels"])
+    accounting = _accounting(inputs, model, source_size)
     prompt_len = int(inputs["input_ids"].shape[-1])
     native = accounting["placeholders"]
 
-    if family in (FAMILY_FULL, FAMILY_RR) and native != expected:
+    if family in IDENTITY_FAMILIES and native != expected:
         raise RuntimeError(
             f"{observation['condition_id']}: placeholders {native} != registered {expected}"
         )
@@ -270,6 +315,8 @@ def execute_observation(model, processor, image, observation: dict[str, Any],
         "llm_visual_positions": kept_visual,
         "prompt_length": prompt_len,
         "staged_sequence_length": expected_len,
+        "pre_resized": resize_record is not None,
+        **(resize_record or {}),
         **costs,
         **analytic_compute(
             grid=accounting["image_grid_thw"], merge=accounting["spatial_merge_size"],
@@ -293,7 +340,7 @@ def assert_path_equivalence(model, processor, image, *, max_new_tokens: int,
     import torch
 
     inputs = _processor_inputs(processor, image, None)
-    accounting = _accounting(inputs, model, image)
+    accounting = _accounting(inputs, model, image.size)
     inputs = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
     prompt_len = int(inputs["input_ids"].shape[-1])
 
@@ -303,11 +350,12 @@ def assert_path_equivalence(model, processor, image, *, max_new_tokens: int,
     legacy_text = processor.decode(legacy[0][prompt_len:], skip_special_tokens=True)
 
     observation = {
-        "family": FAMILY_FULL, "policy": None, "seed": None,
+        "family": "FULL", "policy": None, "seed": None,
         "condition_id": "FULL", "expected_placeholders": accounting["placeholders"],
         "forced_pixels": None, "image_id": "path-equivalence",
         "source_photo_id": "path-equivalence", "reference": "",
         "nominal_ratio": 1.0, "target_placeholders": accounting["placeholders"],
+        "pre_resize": None, "budget_matched": False,
     }
     staged = execute_observation(model, processor, image, observation,
                                  max_new_tokens=max_new_tokens, device=device)

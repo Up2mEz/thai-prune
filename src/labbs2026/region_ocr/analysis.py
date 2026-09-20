@@ -249,3 +249,66 @@ def analyse_contrast(
         "contrasts": contrasts,
         "multiplicity": "Holm within this family only; families are not pooled",
     }
+
+
+def analyse_marginal(
+    table: dict[tuple[str, str], float],
+    clusters: dict[str, str],
+    budgets: Sequence[str],
+    *,
+    condition: str,
+    resamples: int,
+    seed: int,
+) -> dict[str, Any]:
+    """One arm's own delta against FULL, per budget, with Holm across budgets.
+
+    Some registered questions are about a single arm rather than a difference of
+    two. `RR_RESTORED` is the case this exists for: it already carries FULL's
+    token count and FULL's magnification, so its delta against FULL *is* the
+    effect of reduced pixel detail with everything else held fixed, and
+    subtracting a second arm from it would only add noise.
+    """
+    conditions = [f"{condition}_{b}" for b in budgets]
+    present = {name for _, name in table}
+    missing = [c for c in conditions if c not in present]
+    if missing:
+        return {
+            "status": "CONDITIONS_NOT_PRESENT",
+            "estimand": f"deltaCER({condition},b) against FULL",
+            "missing": missing,
+        }
+
+    regions = eligible_regions(table, conditions, full_correct_only=False)
+    if not regions:
+        return {
+            "status": "NO_COMPLETE_ROWS",
+            "estimand": f"deltaCER({condition},b) against FULL",
+        }
+    plan = bootstrap_matrix(regions, clusters, resamples=resamples, seed=seed)
+
+    arms: dict[str, Any] = {}
+    raw_p: list[float] = []
+    for budget in budgets:
+        values = delta_cer(table, regions, f"{condition}_{budget}")
+        draws = np.array([values[idx].mean() for idx in plan], dtype=float)
+        low, high = _interval(draws, 0.95)
+        p = bootstrap_p_value(draws)
+        raw_p.append(p)
+        arms[budget] = {
+            "estimate": float(values.mean()),
+            "ci_low": low,
+            "ci_high": high,
+            "p_value": p,
+        }
+    for budget, adjusted in zip(budgets, holm(raw_p)):
+        arms[budget]["p_holm"] = adjusted
+
+    return {
+        "status": "ANALYSED",
+        "estimand": f"deltaCER({condition},b) against FULL",
+        "regions": len(regions),
+        "clusters": len({clusters[r] for r in regions}),
+        "bootstrap_resamples": resamples,
+        "contrasts": arms,
+        "multiplicity": "Holm within this family only; families are not pooled",
+    }

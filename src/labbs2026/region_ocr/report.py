@@ -9,6 +9,7 @@ from typing import Any, Iterable, Sequence
 from labbs2026.region_ocr.analysis import (
     FULL,
     analyse_contrast,
+    analyse_marginal,
     analyse_population,
     per_region_cer,
 )
@@ -221,6 +222,20 @@ def build_report(
             "C_coverage_vs_prune": analyse_contrast(
                 table, clusters, budgets, treatment="PRUNE_COVERAGE",
                 reference="PRUNE_GRID", resamples=resamples, seed=seed,
+            ),
+            # D is family A with pixel detail matched: both arms carry the same
+            # information and end at the same token count, so what remains is
+            # where the reduction happened. A is not interpretable as an
+            # insertion-point result without it.
+            "D_restored_prune_vs_rr": analyse_contrast(
+                table, clusters, budgets, treatment="PRUNE_GRID_RESTORED",
+                reference="RR", resamples=resamples, seed=seed,
+            ),
+            # E isolates the detail reduction on its own, at FULL's token count
+            # and FULL's magnification.
+            "E_restored_vs_full": analyse_marginal(
+                table, clusters, budgets, condition="RR_RESTORED",
+                resamples=resamples, seed=seed,
             ),
         },
         "efficiency_profile": efficiency_profile(records),
