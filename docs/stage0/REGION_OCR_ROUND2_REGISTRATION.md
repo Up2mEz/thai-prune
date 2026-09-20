@@ -188,3 +188,44 @@ Unchanged: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Scope is text-region
 recognition on Thai document images, one model family, no sealed confirmatory
 split. This round does not approve Gate 0 or Gate 1 and does not confirm H1 or
 H3.
+
+---
+
+## Appendix — engineering smoke, 2026-09-21
+
+Two regions, nineteen conditions each, CPU float32, `PaddleOCR-VL-1.6` at
+`c5630ab`. This verifies mechanics only. **No number below is evidence about any
+hypothesis**: two regions from one photo cannot support an estimate, and the
+contrast values computed from them are noise recorded to prove the code runs,
+not findings.
+
+Mechanics verified:
+
+- `path_equivalence: IDENTICAL` — the rerouted `FULL` reproduced the legacy
+  `pixel_values` route character-for-character.
+- 38/38 observations completed, 0 execution failures.
+- `llm_visual_positions == expected_placeholders` for every observation.
+- `post_encoder_vision_cost_invariant: true` — one distinct `vision_patches`
+  value per region across all post-encoder conditions.
+- `MERGE_GRID`, `PRUNE_COVERAGE` and `PRUNE_GRID` produced different outputs at
+  the same budget, so the policies are not silently collapsing onto each other.
+
+One defect found and fixed: the contrast score for `PRUNE_COVERAGE` reshaped
+`pixel_values` as a flat `(patches, values)` matrix, but this checkpoint returns
+`(patches, channels, height, width)`. All six coverage observations failed
+closed rather than scoring the wrong patches, which is the intended behaviour of
+the assertion.
+
+Two observations that bear on interpretation, both from the new instrument and
+both to be re-examined at full scale:
+
+1. **Resolution Reduction reduces encoder work; post-encoder pruning does not.**
+   At the 25% budget, `RR` processed 156 vision patches against 600 for every
+   post-encoder condition, and its measured `vision` stage fell accordingly while
+   theirs did not. End-to-end, `RR` was the cheaper intervention. A single total
+   latency would not have shown this.
+
+2. **The processor upsamples these crops heavily, and most at `FULL`.** Median
+   area scale was 15.7x at `FULL`, falling to 3.9x at `RR_25`; every observation
+   was upsampled. This is the alternative explanation for round 1's `RR_25`
+   beating `FULL`, and it is now measurable rather than speculative.
