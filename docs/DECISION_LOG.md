@@ -2,6 +2,87 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-20 — Region OCR token-pruning branch authorized
+
+**Stage/Gate:** New intervention-family branch. Gate 0 remains `NOT_RUN`;
+Gates 1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Authorize a separately-registered branch testing post-encoder
+Token Pruning against Input Resolution Reduction within a single experiment on
+Thai text regions, using `PaddlePaddle/PaddleOCR-VL-1.6`
+@`c5630abae1d940eafe0697512a0325494b02ab42` and `wayu-ai/wayu-paxa-ocr-zero`
+@`af0204b4f334a6d5068b6bac2b3738932d6e289b`. The frozen design is
+`docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md`, committed in `806dfed`
+before any inference.
+
+The researcher additionally approved, in the same decision:
+
+- **Dataset:** TEMS (Mendeley DOI `10.17632/ntdmgksh9w.5`, v5, CC BY 4.0),
+  selected over `mekpro/ocr_th` (no region annotations, synthetic) and
+  `typhoon-ai/ThaiOCRBench` (ShareAlike plus unenumerated commercial upstream
+  terms, unconfirmed bbox structure). Audit:
+  `docs/stage0/REGION_OCR_DATASET_CANDIDATE_AUDIT.md`.
+- **Domain-mismatch risk accepted.** TEMS is scene text while both models are
+  document OCR models. The researcher accepted this risk explicitly, on the
+  condition that the Phase-1 smoke measures `FULL` capability before any
+  system-building or pruning outcome is examined.
+- **Evidence ceiling:** `Preliminary/Pilot`. This branch cannot approve or
+  reject any gate, confirm or reject H1-H4, or justify a new method.
+
+### Evidence
+- prior run: `kaggle-paddle-wayu-locked-panel-attempt5` (Resolution Reduction
+  only; Wald 5.011636, df 3, p 0.170947;
+  `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`)
+- terms basis: `docs/FALLBACK_PAIR_CLEARANCE.md` (`TERMS_CLEAR`); re-snapshot
+  into `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md` is a precondition of execution
+- geometry basis: `docs/stage0/PADDLE_WAYU_PROCESSOR_GEOMETRY.json`
+
+### Reasoning
+Post-encoder Token Pruning has never been tested, and the Claims Registry
+forbids inferring anything about it from the Resolution Reduction null.
+Estimating whether the two families differ requires the contrast inside one
+design on shared stimuli at matched actual token counts, so Resolution
+Reduction is re-run here rather than imported from the completed panel.
+
+### Alternatives considered
+- Comparing a new pruning run against the completed panel — rejected: a
+  difference between a significant and a non-significant result across separate
+  experiments is not evidence of a difference.
+- Full-page OCR through a layout detector — rejected: the layout stage is not
+  subject to the intervention and would dilute the estimand; the selected
+  models are region recognizers and would be off-distribution.
+- A newer or different backbone — rejected: no additional model is cleared, and
+  Typhoon remains `NOT_PURSUED_DUE_TO_USAGE_TERMS`.
+
+### Known limitations
+New dataset, no sealed confirmatory split, two models from one architecture
+family, scene-text domain against document-trained models. Claim scope is
+text-region recognition, not end-to-end document OCR.
+
+### Consequence for next stage
+Complete the remaining Phase-0 preconditions: re-snapshot and hash the model
+cards, licences, and Wayu Terms into `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md`,
+and record dataset provenance. Then run the Phase-1 feasibility smoke and
+**stop for human review** if `FULL` capability, token accounting, or the frozen
+scale policy fail.
+
+### Still prohibited
+Locked inference, opening any evaluation split during development, quantization,
+fine-tuning, method development, Token Merging, post-outcome changes to prompt,
+parser, budgets, dataset, split, or model presented as the same registered run,
+and any use of this branch as Gate 0 or Gate 1 evidence.
+
+### Files/configs affected
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md` (frozen, `806dfed`)
+- `docs/stage0/REGION_OCR_DATASET_CANDIDATE_AUDIT.md` (`806dfed`)
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_AUTHORIZATION_REQUEST.md` (`806dfed`)
+- `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md` (pending, pre-execution)
+
+No existing research document is amended to execute this branch,
+`src/labbs2026/consistency.py` is not modified, and Stage 1A text is untouched.
+
 ## 2026-09-14 — Attempt 5 registered MODEL x BUDGET analysis complete
 
 **Execution status:**
