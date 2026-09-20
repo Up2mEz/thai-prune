@@ -180,6 +180,47 @@ An unfiltered sample would have been dominated by English signage: the first
 selection attempted here returned "THE ORIGINAL THAI BEER", "NET CONTENTS
 320 ml." and similar, which carry no Thai orthography whatsoever.
 
+### 3.2.3 Distribution limit: only 1,000 of 5,000 files are enumerable, and the reachable subset is biased
+
+The parent photographs are not distributed, so crops must be fetched
+individually by the per-file URLs in the Mendeley listing. That listing caps at
+**1,000 entries**. `limit`, `page`, `offset`, `marker`, and `skip` are all
+ignored; `/api` caps lower still at 100; no `Link` header is returned; and no
+server-side archive exists — the web interface builds its "download all" zip in
+the browser with JSZip, which is why no bulk endpoint could be found.
+
+The reachable 1,000 are the alphabetically first filenames, and that subset is
+**not representative**:
+
+| Category | All Thai-bearing | Reachable | Share |
+|---|---:|---:|---:|
+| packaging | 936 | 230 | 24.6% |
+| publication covers | 915 | 97 | **10.6%** |
+| road signs | 319 | 79 | 24.8% |
+| storefronts | 190 | 61 | 32.1% |
+| menus | 170 | 72 | **42.4%** |
+| billboards | 131 | 49 | 37.4% |
+
+Sampling share varies four-fold across categories, and the reachable regions are
+systematically smaller and shorter: median `text_length` 17 → **11**, median
+width 266 px → **210**.
+
+**That bias runs in the direction that matters.** Smaller crops are upsampled
+further to reach the processor's floor, so they carry proportionally more
+interpolated redundancy — exactly the property that biases the experiment
+towards finding pruning harmless (§3.2). Restricting the study to the reachable
+subset would therefore weaken an already-conservative design.
+
+Reachable totals, for reference: 588 Thai-bearing regions across 379 clusters
+(train 461 / 299), which is 22% of the Thai corpus and 41% of its clusters —
+enough for cluster bootstrap, but at the cost of the bias above.
+
+**Resolution:** this limit is an artifact of the machine-readable API, not of the
+licence or the dataset. A human can obtain the complete release in one action
+through the Mendeley web interface, which removes the restriction entirely. The
+scientific run should use the complete release; the reachable subset is a
+fallback whose bias must be reported if it is ever used.
+
 ### 3.3 Component coverage — adequate, with one gap
 
 Counted over all released labels:
