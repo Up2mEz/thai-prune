@@ -83,7 +83,45 @@ project's no-normalization primary policy.
 The authors' own splits (train 3,989 / valid 497 / test 514) are already
 photo-level leakage-safe, so they can be reused instead of re-splitting.
 
-### 3.2 The blocking issue: crops are far too small for the budget grid
+### 3.2 Crop size and the budget grid — resolved by the processor defaults
+
+**Resolution (2026-09-20).** The concern below was real at native resolution but
+is answered by the processor's own configuration. `preprocessor_config.json` at
+the pinned PaddleOCR-VL-1.6 revision declares `min_pixels: 112896`,
+`max_pixels: 1003520`, `patch_size: 14`, `merge_size: 2`. Since one post-merge
+token covers 28×28 = 784 px², the processor's own floor is
+112896 / 784 = **144 visual tokens**, and it upsamples anything smaller to reach
+it. Projected over the released crop dimensions:
+
+| Property | Value |
+|---|---|
+| Crops below `min_pixels` (upsampled to the floor) | **4,984 / 5,000 (99.7%)** |
+| Crops above `max_pixels` | 0 |
+| Effective tokens, p5 through p95 | **144 at every quantile** |
+| Distinct effective token values across the corpus | 17 |
+| Regions whose `FULL/75/50/25` grid degenerates | **0** |
+
+So no arbitrary scale policy has to be invented: `FULL` is simply the
+processor's default operating point, which is also the deployment behaviour.
+`N = 144` for virtually every region, giving a clean grid of
+**144 → 108 → 72 → 36**. The per-region matching rule in the protocol still
+applies, but it now only does real work for the 16 outlier crops.
+
+**This projection is analytic**, computed from the declared `min_pixels` and the
+released width/height columns. It must be confirmed by a processor-only run that
+reports the actual `image_grid_thw` and placeholder counts, following the
+precedent of `PADDLE_WAYU_PROCESSOR_GEOMETRY.json`
+(`PROCESSOR_ONLY_NO_MODEL_INFERENCE`), before the grid is frozen.
+
+**Residual scientific caveat.** A median crop carries roughly 11 tokens' worth
+of native detail but is presented to the model as 144 tokens, so most tokens are
+interpolated redundancy. This is the model's genuine operating point rather than
+something the design imposes, but it biases the experiment towards finding
+pruning harmless. A *positive* result under this redundancy is therefore strong;
+a *null* is correspondingly weak and must be reported with this caveat attached
+rather than as evidence that pruning is safe.
+
+### 3.2.1 The original concern, at native resolution
 
 Computed crop dimensions over all 5,000 images:
 
@@ -92,23 +130,21 @@ Computed crop dimensions over all 5,000 images:
 | Width | 47–1,438 px | 262 | 285 |
 | Height | 18–275 px | 49 | 55 |
 
-Median area ≈ 12,950 px². At `patch 14 → merge 2`, one post-merge visual token
-covers a 28×28 px region, so a median crop at native resolution yields on the
-order of **~17 visual tokens**. The budget grid would then be roughly
-17 → 13 → 8 → 4, where grid quantization dominates and Resolution Reduction
-cannot land near its targets. That is a degenerate design.
+Computed directly over the released metadata, native-resolution token counts are
+p5 = 4, p25 = 7, **median = 11**, p75 = 20, p95 = 44. 4,382 of 5,000 regions
+(88%) fall below 32 tokens and 3,330 (67%) below 16. At the median the grid
+would be 11 → 8 → 5 → 2, which destroys the input rather than compressing it,
+and 214 regions cannot produce four distinct budget levels at all.
 
-This is not fatal, but it forces a **scale policy** that must be frozen before
-execution. The processor exposes `min_pixels`/`max_pixels`, and the existing
-frozen design already uses `force_equal_min_max_pixels: true`, so each crop can
-be resampled to a fixed pixel budget that produces a workable `N` while
-preserving aspect ratio. Two consequences must be stated wherever results are
-reported:
+Filtering to naturally large regions does not rescue this: only 618 regions
+(441 clusters) reach 32 native tokens, 87 regions (77 clusters) reach 64, and
+17 reach 128. Region size tracks capture resolution rather than text length —
+median `text_length` stays at 12-14 characters across every size band — so
+discarding small crops would cost almost the whole corpus without buying longer
+text.
 
-- Upscaling adds tokens, not information. `FULL` is therefore "the model's
-  preferred operating resolution for this crop", not "all available detail".
-- Because aspect ratios vary, `N` still varies per crop, so the per-region
-  budget-matching rule in the protocol remains necessary.
+Native resolution is therefore unusable, which is what makes the processor's
+own upsampling floor in §3.2 the operative answer.
 
 ### 3.3 Component coverage — adequate, with one gap
 

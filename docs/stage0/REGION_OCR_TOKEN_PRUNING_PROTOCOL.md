@@ -284,11 +284,21 @@ Binding rules for whichever corpus is used:
    photo stays on one side of any split.
 3. The evaluation split is not opened during development and never used to
    choose a model, prompt, budget, scale policy, or metric.
-4. The **scale policy is frozen before execution** (audit §3.2). Native TEMS
-   crops are small enough — median 262×49 px, on the order of 17 visual tokens
-   — that the budget grid would degenerate without resampling to a fixed pixel
-   budget. `FULL` therefore means the model's preferred operating resolution
-   for that crop, not all available detail, and must be described that way.
+4. **`FULL` is the processor's default operating point, not a policy we
+   invent** (audit §3.2). `preprocessor_config.json` declares
+   `min_pixels: 112896` with `patch_size 14` / `merge_size 2`, so the processor
+   upsamples anything smaller to a floor of **144 visual tokens**. 99.7% of TEMS
+   crops sit below that floor, so `N = 144` for virtually the whole corpus and
+   the registered grid is **144 → 108 → 72 → 36**, with no degenerate regions.
+   This must be confirmed by a processor-only run reporting actual
+   `image_grid_thw` and placeholder counts before the grid is frozen.
+
+   Two consequences are stated wherever results are reported: `FULL` means the
+   model's standard operating resolution for that crop rather than all available
+   detail; and because a median crop carries roughly 11 tokens of native detail
+   presented as 144, most tokens are interpolated redundancy. That biases the
+   design towards finding pruning harmless, so a positive result is strong while
+   a null is weak and carries this caveat.
 5. Report realized counts including shortfalls. Quotas are never filled with
    material that failed quality control.
 
