@@ -149,6 +149,37 @@ text.
 Native resolution is therefore unusable, which is what makes the processor's
 own upsampling floor in §3.2 the operative answer.
 
+### 3.2.2 Almost half the corpus carries no Thai at all
+
+TEMS is a Thai–**English** multiscript corpus, and the released `script_type`
+column shows that a large part of it is irrelevant to this study:
+
+| `script_type` | Regions | Photos | Regions containing Thai |
+|---|---:|---:|---:|
+| English | **2,297** | 772 | **0** |
+| Numeric and Special Characters | 42 | 40 | **0** |
+| Thai | 2,174 | 818 | 2,174 |
+| Mixed Thai-English | 487 | 311 | 487 |
+
+Eligibility is therefore decided on the label itself — at least one codepoint in
+U+0E00–U+0E7F — rather than by trusting the metadata column. The **effective**
+corpus is:
+
+| Split | Thai-bearing regions | Clusters |
+|---|---:|---:|
+| train | 2,070 | 747 |
+| valid | 270 | 87 |
+| test | 321 | 93 |
+| **total** | **2,661** | **927** |
+
+So the usable corpus is 2,661 regions across 927 source photographs, not the
+headline 5,000 / 1,237. That is still far above the clustering threshold, and
+median `text_length` among Thai-bearing regions is 17 characters rather than 14.
+
+An unfiltered sample would have been dominated by English signage: the first
+selection attempted here returned "THE ORIGINAL THAI BEER", "NET CONTENTS
+320 ml." and similar, which carry no Thai orthography whatsoever.
+
 ### 3.3 Component coverage — adequate, with one gap
 
 Counted over all released labels:
