@@ -1,0 +1,42 @@
+{
+ "completed_observations": 5200,
+ "device": "cuda",
+ "execution_failures": 0,
+ "max_new_tokens": 64,
+ "observations_sha256": "a0e1aebd9ec247f7f36d052321274893b8d1126b8b0ecd4352fc9bb930c394d4",
+ "processor_contract": {
+  "forced_pixels": 44264,
+  "full_placeholders": 144,
+  "geometry_prediction_matches": true,
+  "probe_shape": [
+   64,
+   256
+  ],
+  "reduced_placeholders": 64,
+  "resolution_reduction_effective": true
+ },
+ "prompt": "OCR:",
+ "python": "3.12.13",
+ "random_seeds": [
+  20260920,
+  20260921
+ ],
+ "ratios": [
+  0.75,
+  0.5,
+  0.25
+ ],
+ "status": "REGION_OCR_RUN_COMPLETE",
+ "wall_seconds": 2666.185378749,
+ "workload": {
+  "by_family": {
+   "FULL": 400,
+   "INPUT_RESOLUTION_REDUCTION": 1200,
+   "POST_ENCODER_TOKEN_PRUNING": 3600
+  },
+  "clusters": 200,
+  "conditions_per_region": 13,
+  "observations": 5200,
+  "regions": 400
+ }
+}
