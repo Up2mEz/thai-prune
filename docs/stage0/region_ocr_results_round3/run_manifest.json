@@ -1,0 +1,61 @@
+{
+ "completed_observations": 11200,
+ "cuda_device": "Tesla T4",
+ "device": "cuda",
+ "execution_failures": 0,
+ "git_sha": "db8b5b1bf59b11215ea18b090a5167c22eff750f",
+ "max_new_tokens": 64,
+ "observations_sha256": "4220990ae1da92278013ab9e5fc85c0e884265a56aa87a32a6c1f66e4d0661cd",
+ "path_equivalence": {
+  "output": "สถานบัลไฟฟ้า",
+  "path_equivalence": "IDENTICAL",
+  "placeholders": 150
+ },
+ "peak_cuda_allocated_bytes": 1833147904,
+ "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+ "processor_contract": {
+  "forced_pixels": 44264,
+  "full_placeholders": 144,
+  "geometry_prediction_matches": true,
+  "probe_shape": [
+   64,
+   256
+  ],
+  "reduced_placeholders": 64,
+  "resolution_reduction_effective": true
+ },
+ "prompt": "OCR:",
+ "python": "3.12.13",
+ "random_seeds": [
+  20260920,
+  20260921
+ ],
+ "ratios": [
+  0.75,
+  0.5,
+  0.25
+ ],
+ "run_id": "kaggle-region-ocr-db8b5b1bf59b",
+ "status": "REGION_OCR_RUN_COMPLETE",
+ "sweep_factors": [
+  2.0,
+  1.5,
+  0.125
+ ],
+ "torch": "2.14.0+cu130",
+ "wall_seconds": 3876.913519035,
+ "workload": {
+  "by_family": {
+   "FULL": 400,
+   "INPUT_RESOLUTION_REDUCTION": 1200,
+   "MAGNIFICATION_SWEEP": 1200,
+   "POST_ENCODER_SPATIAL_MERGE": 1200,
+   "POST_ENCODER_TOKEN_PRUNING": 6000,
+   "RESOLUTION_REDUCTION_RESTORED": 1200
+  },
+  "clusters": 200,
+  "conditions_per_region": 28,
+  "observations": 11200,
+  "regions": 400
+ }
+}

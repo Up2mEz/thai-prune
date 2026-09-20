@@ -1,0 +1,3610 @@
+{
+ "seed": 20260920,
+ "splits": [
+  "train"
+ ],
+ "region_count": 400,
+ "photo_count": 200,
+ "regions": [
+  {
+   "source_photo_id": "billboards_18",
+   "image_id": "img_000002",
+   "filename": "1001_รถสามล้อไฟฟ้า.jpg",
+   "label": "รถสามล้อไฟฟ้า",
+   "image_width": 176,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_18",
+   "image_id": "img_000003",
+   "filename": "1002_รถจักรยานไฟฟ้า.jpg",
+   "label": "รถจักรยานไฟฟ้า",
+   "image_width": 199,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_23",
+   "image_id": "img_001305",
+   "filename": "2175_วิทยาการคอมพิวเตอร์.jpg",
+   "label": "วิทยาการคอมพิวเตอร์",
+   "image_width": 176,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_23",
+   "image_id": "img_004717",
+   "filename": "745_เศรษฐศาสตร์แห่งชีวิต The Logic of Life.jpg",
+   "label": "เศรษฐศาสตร์แห่งชีวิต The Logic of Life",
+   "image_width": 460,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_25",
+   "image_id": "img_000774",
+   "filename": "1698_แพ็กสุดคุ้ม สุขไม่อั้น ที่ SF.jpg",
+   "label": "แพ็กสุดคุ้ม สุขไม่อั้น ที่ SF",
+   "image_width": 194,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_25",
+   "image_id": "img_001137",
+   "filename": "2023_คณะสาธารณสุขศาสตร์.jpg",
+   "label": "คณะสาธารณสุขศาสตร์",
+   "image_width": 372,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_28",
+   "image_id": "img_000018",
+   "filename": "1016_ชั้น 1-3.jpg",
+   "label": "ชั้น 1-3",
+   "image_width": 110,
+   "image_height": 61,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_28",
+   "image_id": "img_000128",
+   "filename": "1115_ด้วยเกล้าด้วยกระหม่อม.jpg",
+   "label": "ด้วยเกล้าด้วยกระหม่อม",
+   "image_width": 217,
+   "image_height": 36,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_31",
+   "image_id": "img_001111",
+   "filename": "1_ต้องซื้อของแพง.jpg",
+   "label": "ต้องซื้อของแพง",
+   "image_width": 278,
+   "image_height": 70,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_31",
+   "image_id": "img_004533",
+   "filename": "57_อยากได้สินค้าดี ราคาถูก ดูแลหลังการขาย เรามีให้คุณ.jpg",
+   "label": "อยากได้สินค้าดี ราคาถูก ดูแลหลังการขาย เรามีให้คุณ",
+   "image_width": 488,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000173",
+   "filename": "1156_ประจำปี 2565.jpg",
+   "label": "ประจำปี 2565",
+   "image_width": 196,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000174",
+   "filename": "1157_แบบชำระภาษี.jpg",
+   "label": "แบบชำระภาษี",
+   "image_width": 194,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_37",
+   "image_id": "img_000243",
+   "filename": "1219_ติดต่อ 0817087966.jpg",
+   "label": "ติดต่อ 0817087966",
+   "image_width": 412,
+   "image_height": 75,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_37",
+   "image_id": "img_000276",
+   "filename": "1249_สนใจพื้นที่โฆษณา.jpg",
+   "label": "สนใจพื้นที่โฆษณา",
+   "image_width": 365,
+   "image_height": 87,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_51",
+   "image_id": "img_000432",
+   "filename": "138_๓ มิถุนายน.jpg",
+   "label": "๓-มิ.ย.",
+   "image_width": 164,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_51",
+   "image_id": "img_001877",
+   "filename": "2690_แบบ Dynamic.jpg",
+   "label": "แบบ Dynamic",
+   "image_width": 262,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_69",
+   "image_id": "img_000291",
+   "filename": "1262_มูลค่ากว่า.jpg",
+   "label": "มูลค่ากว่า",
+   "image_width": 129,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_69",
+   "image_id": "img_000366",
+   "filename": "132_กรวินคลินิก.jpg",
+   "label": "กรวินคลินิก",
+   "image_width": 462,
+   "image_height": 109,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_71",
+   "image_id": "img_000261",
+   "filename": "1235_พนักงานราชการ.jpg",
+   "label": "พนักงานราชการ",
+   "image_width": 203,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_71",
+   "image_id": "img_000285",
+   "filename": "1257_และลูกจ้าง.jpg",
+   "label": "และลูกจ้าง",
+   "image_width": 133,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_72",
+   "image_id": "img_000181",
+   "filename": "1163_สะพานลอย.jpg",
+   "label": "สะพานลอย",
+   "image_width": 146,
+   "image_height": 61,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "billboards_72",
+   "image_id": "img_000842",
+   "filename": "1759_ร่วมปลูกฝังจิตสำนึก.jpg",
+   "label": "ร่วมปลูกฝังจิตสำนึก",
+   "image_width": 348,
+   "image_height": 82,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_07",
+   "image_id": "img_000051",
+   "filename": "1046_ละมุนไม่หยุด.jpg",
+   "label": "ละมุนไม่หยุด",
+   "image_width": 131,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_07",
+   "image_id": "img_000904",
+   "filename": "1814_โปสเตอร์.jpg",
+   "label": "โปสเตอร์",
+   "image_width": 107,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_15",
+   "image_id": "img_001152",
+   "filename": "2037_สถานที่ตรวจวัด.jpg",
+   "label": "สถานที่ตรวจวัด",
+   "image_width": 214,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_15",
+   "image_id": "img_002820",
+   "filename": "3539_คู่มือ ไมเกรน.jpg",
+   "label": "คู่มือ ไมเกรน",
+   "image_width": 270,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_17",
+   "image_id": "img_000724",
+   "filename": "1652_ระบบการรายงานผลระบบควบคุมไฟแสงสว่างห้องน้ำ.jpg",
+   "label": "ระบบการรายงานผลระบบควบคุมไฟแสงสว่างห้องน้ำ",
+   "image_width": 472,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_17",
+   "image_id": "img_001237",
+   "filename": "2113_คุณสมบัติของผู้มีสิทธิ์สมัครเข้าศึกษา.jpg",
+   "label": "คุณสมบัติของผู้มีสิทธิ์สมัครเข้าศึกษา",
+   "image_width": 420,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_21",
+   "image_id": "img_000733",
+   "filename": "1660_อลิซคาเฟ่ ชา & กาแฟ.jpg",
+   "label": "อลิซคาเฟ่ ชา & กาแฟ",
+   "image_width": 407,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_21",
+   "image_id": "img_003475",
+   "filename": "4128_เนื้อหาละเอียดลึก.jpg",
+   "label": "เนื้อหาละเอียดลึก",
+   "image_width": 209,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_23",
+   "image_id": "img_000306",
+   "filename": "1276_เมนูชาบาบู.jpg",
+   "label": "เมนูชาบาบู",
+   "image_width": 418,
+   "image_height": 100,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_23",
+   "image_id": "img_000348",
+   "filename": "1313_โอวัลตินภูเขาไฟ.jpg",
+   "label": "โอวัลตินภูเขาไฟ",
+   "image_width": 251,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_24",
+   "image_id": "img_000702",
+   "filename": "1632_Tel.064-3893404 แซ่บถึงทรวง!.jpg",
+   "label": "Tel.064-3893404 แซ่บถึงทรวง!",
+   "image_width": 400,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_24",
+   "image_id": "img_002065",
+   "filename": "285_ยำไส้ตัน (มีบางวัน).jpg",
+   "label": "ยำไส้ตัน (มีบางวัน)",
+   "image_width": 271,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_25",
+   "image_id": "img_000554",
+   "filename": "149_บะหมี่หมูแดงหมูกรอบ.jpg",
+   "label": "บะหมี่หมูแดงหมูกรอบ",
+   "image_width": 263,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_25",
+   "image_id": "img_001109",
+   "filename": "199_ขาหมูภักดี.jpg",
+   "label": "ขาหมูภักดี",
+   "image_width": 317,
+   "image_height": 92,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_31",
+   "image_id": "img_001144",
+   "filename": "202_ขอบคุณที่มาอุดหนุน.jpg",
+   "label": "ขอบคุณที่มาอุดหนุน",
+   "image_width": 160,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_31",
+   "image_id": "img_004511",
+   "filename": "55_ผัดผักบุ้งราดข้าว.jpg",
+   "label": "ผัดผักบุ้งราดข้าว",
+   "image_width": 182,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_41",
+   "image_id": "img_003489",
+   "filename": "4140_อัดแน่นสุดๆ ด้วยเนื้อหา.jpg",
+   "label": "อัดแน่นสุดๆ ด้วยเนื้อหา",
+   "image_width": 262,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_41",
+   "image_id": "img_004820",
+   "filename": "838_Fc ไก่ยำแซบเวอร์.jpg",
+   "label": "Fc ไก่ยำแซบเวอร์",
+   "image_width": 512,
+   "image_height": 117,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_49",
+   "image_id": "img_000357",
+   "filename": "1321_ทานคู่อาหารใต้.jpg",
+   "label": "ทานคู่อาหารใต้",
+   "image_width": 139,
+   "image_height": 30,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_49",
+   "image_id": "img_002813",
+   "filename": "3532_วิทยาศาสตร์กับสังคม.jpg",
+   "label": "วิทยาศาสตร์กับสังคม",
+   "image_width": 400,
+   "image_height": 69,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_50",
+   "image_id": "img_001068",
+   "filename": "1962_สบู่สมุนไพรกลั่น.jpg",
+   "label": "สบู่สมุนไพรกลั่น",
+   "image_width": 295,
+   "image_height": 82,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_50",
+   "image_id": "img_001666",
+   "filename": "24_ส้มกระชายขาว.jpg",
+   "label": "ส้มกระชายขาว",
+   "image_width": 215,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_57",
+   "image_id": "img_000363",
+   "filename": "1327_เมนูแนะนำ.jpg",
+   "label": "เมนูแนะนำ",
+   "image_width": 235,
+   "image_height": 60,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_57",
+   "image_id": "img_001388",
+   "filename": "224_อะโวคาโดปั่นนมสด.jpg",
+   "label": "อะโวคาโดปั่นนมสด",
+   "image_width": 341,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_59",
+   "image_id": "img_000880",
+   "filename": "1793_แนะนำคู่อร่อย!.jpg",
+   "label": "แนะนำคู่อร่อย!",
+   "image_width": 413,
+   "image_height": 130,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_59",
+   "image_id": "img_003424",
+   "filename": "4082_พจนานุกรม.jpg",
+   "label": "พจนานุกรม",
+   "image_width": 262,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_63",
+   "image_id": "img_000097",
+   "filename": "1088_ไวท์มอลต์คาราเมล.jpg",
+   "label": "ไวท์มอลต์คาราเมล",
+   "image_width": 233,
+   "image_height": 61,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_63",
+   "image_id": "img_000122",
+   "filename": "110_ไวท์มอลต์คาราเมล เย็น ปั่น.jpg",
+   "label": "ไวท์มอลต์คาราเมล เย็น ปั่น",
+   "image_width": 376,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_75",
+   "image_id": "img_000312",
+   "filename": "1281_นมหมี.jpg",
+   "label": "นมหมี",
+   "image_width": 83,
+   "image_height": 34,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_75",
+   "image_id": "img_001910",
+   "filename": "271_โกโก้ภูเขาไฟ.jpg",
+   "label": "โกโก้ภูเขาไฟ",
+   "image_width": 105,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_80",
+   "image_id": "img_004676",
+   "filename": "708_IMPERFECTION สุขได้แม้ไม่สมบูรณ์แบบ.jpg",
+   "label": "IMPERFECTION สุขได้แม้ไม่สมบูรณ์แบบ",
+   "image_width": 372,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_80",
+   "image_id": "img_004929",
+   "filename": "936_ระบบ Safety Locks.jpg",
+   "label": "ระบบ Safety Locks",
+   "image_width": 170,
+   "image_height": 26,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_85",
+   "image_id": "img_000139",
+   "filename": "1125_น้ำผลไม้ปั่น.jpg",
+   "label": "น้ำผลไม้ปั่น",
+   "image_width": 177,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "menus_85",
+   "image_id": "img_001122",
+   "filename": "200_ชุดเปิดร้านสมูทตี้ น้ำผลไม้้ปั่น.jpg",
+   "label": "ชุดเปิดร้านสมูทตี้ น้ำผลไม้้ปั่น",
+   "image_width": 445,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_002",
+   "image_id": "img_000153",
+   "filename": "1138_อเมซอน.jpg",
+   "label": "อเมซอน",
+   "image_width": 110,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_002",
+   "image_id": "img_000356",
+   "filename": "1320_เพรทเซล.jpg",
+   "label": "เพรทเซล",
+   "image_width": 199,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_005",
+   "image_id": "img_000547",
+   "filename": "1493_แต่งเพลง.jpg",
+   "label": "แต่งเพลง",
+   "image_width": 150,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_005",
+   "image_id": "img_003152",
+   "filename": "3838_สถาปัตยกรรม.jpg",
+   "label": "สถาปัตยกรรม",
+   "image_width": 254,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_025",
+   "image_id": "img_003142",
+   "filename": "3829_ควบคุม.jpg",
+   "label": "ควบคุม",
+   "image_width": 135,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_025",
+   "image_id": "img_004827",
+   "filename": "844_Hobbies งานอดิเรก.jpg",
+   "label": "Hobbies งานอดิเรก",
+   "image_width": 209,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_040",
+   "image_id": "img_000984",
+   "filename": "1887_พลาสเตอร์ใส กันน้ำ.jpg",
+   "label": "พลาสเตอร์ใส กันน้ำ",
+   "image_width": 248,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_040",
+   "image_id": "img_003642",
+   "filename": "4279_เทคนิคการวิเคราะห์เชิงเครื่องมือ.jpg",
+   "label": "เทคนิคการวิเคราะห์เชิงเครื่องมือ",
+   "image_width": 461,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_045",
+   "image_id": "img_001534",
+   "filename": "2381_หลักสูตรปริญญาตรี หลักสูตร 4 ปี.jpg",
+   "label": "หลักสูตรปริญญาตรี หลักสูตร 4 ปี",
+   "image_width": 392,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_045",
+   "image_id": "img_003046",
+   "filename": "3742_สำหรับบุคลากรสาธารณสุข.jpg",
+   "label": "สำหรับบุคลากรสาธารณสุข",
+   "image_width": 333,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_054",
+   "image_id": "img_000723",
+   "filename": "1651_โมเดลการแจ้งเตือนอัคคีภัยผ่านโครงข่ายโทรศัพท์.jpg",
+   "label": "โมเดลการแจ้งเตือนอัคคีภัยผ่านโครงข่ายโทรศัพท์",
+   "image_width": 454,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_054",
+   "image_id": "img_001642",
+   "filename": "2479_เส้นทางแห่งการแบ่งปันสู่สังคม.jpg",
+   "label": "เส้นทางแห่งการแบ่งปันสู่สังคม",
+   "image_width": 340,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_071",
+   "image_id": "img_000555",
+   "filename": "14_เปิดแล้ว.jpg",
+   "label": "เปิดแล้ว",
+   "image_width": 142,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_071",
+   "image_id": "img_003390",
+   "filename": "4051_มัลติมีเดีย.jpg",
+   "label": "มัลติมีเดีย",
+   "image_width": 136,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_139",
+   "image_id": "img_000455",
+   "filename": "140_หงส์เคเทอริ่ง.jpg",
+   "label": "หงส์เคเทอริ่ง",
+   "image_width": 343,
+   "image_height": 74,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_139",
+   "image_id": "img_003226",
+   "filename": "3904_ลำไส้ และทวารหนัก.jpg",
+   "label": "ลำไส้ และทวารหนัก",
+   "image_width": 295,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_168",
+   "image_id": "img_000303",
+   "filename": "1273_เครื่องหมายการค้าจดทะเบียน.jpg",
+   "label": "เครื่องหมายการค้าจดทะเบียน",
+   "image_width": 290,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_168",
+   "image_id": "img_001448",
+   "filename": "2303_อย่างพอเพียง.jpg",
+   "label": "อย่างพอเพียง",
+   "image_width": 139,
+   "image_height": 30,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_171",
+   "image_id": "img_003277",
+   "filename": "3950_โรคพาร์กินสัน.jpg",
+   "label": "โรคพาร์กินสัน",
+   "image_width": 226,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_171",
+   "image_id": "img_004780",
+   "filename": "801_แบล็ค แคนยอน Black Canyon.jpg",
+   "label": "แบล็ค แคนยอน Black Canyon",
+   "image_width": 232,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_191",
+   "image_id": "img_003205",
+   "filename": "3886_ชาสมุนไพร.jpg",
+   "label": "ชาสมุนไพร",
+   "image_width": 319,
+   "image_height": 88,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_191",
+   "image_id": "img_003409",
+   "filename": "4069_การทำงานแบบวนซ้ำ.jpg",
+   "label": "การทำงานแบบวนซ้ำ",
+   "image_width": 271,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_217",
+   "image_id": "img_001211",
+   "filename": "2090_ช่องทางการติดตาม.jpg",
+   "label": "ช่องทางการติดตาม",
+   "image_width": 458,
+   "image_height": 102,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_217",
+   "image_id": "img_004708",
+   "filename": "737_VOLUME PROFILE ศาสตร์แห่งนักเทรดวงใน.jpg",
+   "label": "VOLUME PROFILE ศาสตร์แห่งนักเทรดวงใน",
+   "image_width": 539,
+   "image_height": 70,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_295",
+   "image_id": "img_002937",
+   "filename": "3644_การสกัดแยก.jpg",
+   "label": "การสกัดแยก",
+   "image_width": 163,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_295",
+   "image_id": "img_003253",
+   "filename": "3929_โรคนิ่วในท่อน้ำดีรวม.jpg",
+   "label": "โรคนิ่วในท่อน้ำดีรวม",
+   "image_width": 230,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_319",
+   "image_id": "img_000615",
+   "filename": "1554_ผัดกาดดองหวาน.jpg",
+   "label": "ผัดกาดดองหวาน",
+   "image_width": 216,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_319",
+   "image_id": "img_003236",
+   "filename": "3913_โรคฝีบิดตับ.jpg",
+   "label": "โรคฝีบิดตับ",
+   "image_width": 135,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_321",
+   "image_id": "img_001701",
+   "filename": "2531_นักเรียนเลวในระบบ.jpg",
+   "label": "นักเรียนเลวในระบบ",
+   "image_width": 394,
+   "image_height": 74,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_321",
+   "image_id": "img_002804",
+   "filename": "3524_วิทยาศาสตร์.jpg",
+   "label": "วิทยาศาสตร์",
+   "image_width": 390,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_331",
+   "image_id": "img_001503",
+   "filename": "2353_รับราชการ.jpg",
+   "label": "รับราชการ",
+   "image_width": 95,
+   "image_height": 33,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_331",
+   "image_id": "img_004881",
+   "filename": "893_สอบ BMAT.jpg",
+   "label": "สอบ BMAT",
+   "image_width": 208,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_349",
+   "image_id": "img_000510",
+   "filename": "145_ภายใน กุมภาพันธ์ 2565.jpg",
+   "label": "ภายใน กุมภาพันธ์ 2565",
+   "image_width": 181,
+   "image_height": 24,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_349",
+   "image_id": "img_002712",
+   "filename": "3441_วิทยาการแห่งอารยะ.jpg",
+   "label": "วิทยาการแห่งอารยะ",
+   "image_width": 252,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_356",
+   "image_id": "img_000213",
+   "filename": "1192_คณิตศาสตร์.jpg",
+   "label": "คณิตศาสตร์",
+   "image_width": 120,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_356",
+   "image_id": "img_003149",
+   "filename": "3835_การให้การปฐมพยาบาล.jpg",
+   "label": "การให้การปฐมพยาบาล",
+   "image_width": 340,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_379",
+   "image_id": "img_001525",
+   "filename": "2373_วิทยาศาสตรบัณฑิต (วิทยาการคอมพิวเตอร์).jpg",
+   "label": "วิทยาศาสตรบัณฑิต (วิทยาการคอมพิวเตอร์)",
+   "image_width": 384,
+   "image_height": 32,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_379",
+   "image_id": "img_001527",
+   "filename": "2375_วท.บ.(วิทยาการคอมพิวเตอร์).jpg",
+   "label": "วท.บ.(วิทยาการคอมพิวเตอร์)",
+   "image_width": 257,
+   "image_height": 28,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_383",
+   "image_id": "img_000818",
+   "filename": "1737_การพัฒนาพิพิธภัณฑ์เมืองสกลนครบนโลกเสมือนจริงด้วย Spatial.jpg",
+   "label": "การพัฒนาพิพิธภัณฑ์เมืองสกลนครบนโลกเสมือนจริงด้วย Spatial",
+   "image_width": 660,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_383",
+   "image_id": "img_003684",
+   "filename": "4316_ชูติมา ศรีวิบูลย์ (เลิศชวนะกุล).jpg",
+   "label": "ชูติมา ศรีวิบูลย์ (เลิศชวนะกุล)",
+   "image_width": 257,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_389",
+   "image_id": "img_001344",
+   "filename": "220_แบล็คคอฟฟี่น้ำผึ้ง.jpg",
+   "label": "แบล็คคอฟฟี่น้ำผึ้ง",
+   "image_width": 249,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_389",
+   "image_id": "img_004672",
+   "filename": "704_ห้อง Gifted.jpg",
+   "label": "ห้อง Gifted",
+   "image_width": 469,
+   "image_height": 95,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_390",
+   "image_id": "img_001143",
+   "filename": "2029_และพรบ. ส่งเสริมและรักษะคุณภาพ.jpg",
+   "label": "และพรบ. ส่งเสริมและรักษะคุณภาพ",
+   "image_width": 471,
+   "image_height": 52,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_390",
+   "image_id": "img_001150",
+   "filename": "2035_เสนอแนะ แก้ปัญหา.jpg",
+   "label": "เสนอแนะ แก้ปัญหา",
+   "image_width": 320,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_410",
+   "image_id": "img_000942",
+   "filename": "1849_ข้าวหอมญี่ปุ่นอบกรอบ.jpg",
+   "label": "ข้าวหอมญี่ปุ่นอบกรอบ",
+   "image_width": 216,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_410",
+   "image_id": "img_000944",
+   "filename": "1850_รสคอร์นชีส.jpg",
+   "label": "รสคอร์นชีส",
+   "image_width": 216,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_412",
+   "image_id": "img_000952",
+   "filename": "1858_อาหารพร้อมทาน.jpg",
+   "label": "อาหารพร้อมทาน",
+   "image_width": 231,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_412",
+   "image_id": "img_000953",
+   "filename": "1859_สฟิงโกไมอีลิน.jpg",
+   "label": "สฟิงโกไมอีลิน",
+   "image_width": 141,
+   "image_height": 32,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_415",
+   "image_id": "img_000959",
+   "filename": "1864_อร่อยกับกาแฟง่ายๆ.jpg",
+   "label": "อร่อยกับกาแฟง่ายๆ",
+   "image_width": 343,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_415",
+   "image_id": "img_000960",
+   "filename": "1865_เพียง 10 บาท.jpg",
+   "label": "เพียง 10 บาท",
+   "image_width": 274,
+   "image_height": 81,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_416",
+   "image_id": "img_000131",
+   "filename": "1118_วันพุธ.jpg",
+   "label": "วันพุธ",
+   "image_width": 104,
+   "image_height": 61,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_416",
+   "image_id": "img_001051",
+   "filename": "1947_หอม.jpg",
+   "label": "หอม",
+   "image_width": 123,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_427",
+   "image_id": "img_000454",
+   "filename": "1409_ฟิลเลอร์.jpg",
+   "label": "ฟิลเลอร์",
+   "image_width": 113,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_427",
+   "image_id": "img_000509",
+   "filename": "1459_บริษัทระดับโลก.jpg",
+   "label": "บริษัทระดับโลก",
+   "image_width": 168,
+   "image_height": 27,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_438",
+   "image_id": "img_000347",
+   "filename": "1312_ก๋วยเตี๋ยวน้ำใส.jpg",
+   "label": "ก๋วยเตี๋ยวน้ำใส",
+   "image_width": 193,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_438",
+   "image_id": "img_000844",
+   "filename": "1760_เพื่อนแท้  ไว้ใจได้.jpg",
+   "label": "เพื่อนแท้  ไว้ใจได้",
+   "image_width": 278,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_450",
+   "image_id": "img_000160",
+   "filename": "1144_สุขภาพดี.jpg",
+   "label": "สุขภาพดี",
+   "image_width": 87,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_450",
+   "image_id": "img_003668",
+   "filename": "4301_การลดมลพิษ.jpg",
+   "label": "การลดมลพิษ",
+   "image_width": 249,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_452",
+   "image_id": "img_001362",
+   "filename": "2226_กิจกรรมกาวน์ขาวก้าวใหม่.jpg",
+   "label": "กิจกรรมกาวน์ขาวก้าวใหม่",
+   "image_width": 344,
+   "image_height": 66,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_452",
+   "image_id": "img_001572",
+   "filename": "2415_ความสุขในชีวิต.jpg",
+   "label": "ความสุขในชีวิต",
+   "image_width": 144,
+   "image_height": 34,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_471",
+   "image_id": "img_000259",
+   "filename": "1233_ทิพรส.jpg",
+   "label": "ทิพรส",
+   "image_width": 400,
+   "image_height": 186,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_471",
+   "image_id": "img_003129",
+   "filename": "3817_สตรีมีครรภ์ควรดื่มนมหรือไม่.jpg",
+   "label": "สตรีมีครรภ์ควรดื่มนมหรือไม่",
+   "image_width": 281,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_476",
+   "image_id": "img_001486",
+   "filename": "2338_หลักสูตรวิทยาการคอมพิวเตอร์.jpg",
+   "label": "หลักสูตรวิทยาการคอมพิวเตอร์",
+   "image_width": 404,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_476",
+   "image_id": "img_003052",
+   "filename": "3748_เทคโนโลยีของธัญญาหาร.jpg",
+   "label": "เทคโนโลยีของธัญญาหาร",
+   "image_width": 450,
+   "image_height": 65,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_480",
+   "image_id": "img_000725",
+   "filename": "1653_เกมสำนวนไทยพาสนุก.jpg",
+   "label": "เกมสำนวนไทยพาสนุก",
+   "image_width": 208,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_480",
+   "image_id": "img_001337",
+   "filename": "2203_นางสาวนรากร นิแพง.jpg",
+   "label": "นางสาวนรากร นิแพง",
+   "image_width": 248,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_484",
+   "image_id": "img_002592",
+   "filename": "3333_บาน.jpg",
+   "label": "บาน",
+   "image_width": 279,
+   "image_height": 113,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_484",
+   "image_id": "img_003030",
+   "filename": "3728_เคหพยาบาล.jpg",
+   "label": "เคหพยาบาล",
+   "image_width": 254,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_487",
+   "image_id": "img_002657",
+   "filename": "3392_พระพุทธองค์แสน.jpg",
+   "label": "พระพุทธองค์แสน",
+   "image_width": 202,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_487",
+   "image_id": "img_004814",
+   "filename": "832_Deutsch  ภาษาเยอรมัน.jpg",
+   "label": "Deutsch  ภาษาเยอรมัน",
+   "image_width": 438,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_489",
+   "image_id": "img_001242",
+   "filename": "2118_วิศวกรรมไฟฟ้า.jpg",
+   "label": "วิศวกรรมไฟฟ้า",
+   "image_width": 156,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_489",
+   "image_id": "img_002840",
+   "filename": "3557_ความลับของ.jpg",
+   "label": "ความลับของ",
+   "image_width": 205,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_513",
+   "image_id": "img_001195",
+   "filename": "2076_ระดับบัณฑิตศึกษา.jpg",
+   "label": "ระดับบัณฑิตศึกษา",
+   "image_width": 408,
+   "image_height": 86,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_513",
+   "image_id": "img_002647",
+   "filename": "3383_วิธีวิทยาการประเมิน.jpg",
+   "label": "วิธีวิทยาการประเมิน",
+   "image_width": 182,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_521",
+   "image_id": "img_000087",
+   "filename": "1079_(โอเลี้ยง) เย็น ปั่น.jpg",
+   "label": "(โอเลี้ยง) เย็น ปั่น",
+   "image_width": 264,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_521",
+   "image_id": "img_001136",
+   "filename": "2022_ออกแบบการตรวจวัด.jpg",
+   "label": "ออกแบบการตรวจวัด",
+   "image_width": 267,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_525",
+   "image_id": "img_000421",
+   "filename": "137_เงินสด.jpg",
+   "label": "เงินสด",
+   "image_width": 171,
+   "image_height": 66,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_525",
+   "image_id": "img_001425",
+   "filename": "2283_สาธารณสุขสกลนคร.jpg",
+   "label": "สาธารณสุขสกลนคร",
+   "image_width": 177,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_528",
+   "image_id": "img_004695",
+   "filename": "725_สำหรับโรงเรียน Top 10 ประจำจังหวัด.jpg",
+   "label": "สำหรับโรงเรียน Top 10 ประจำจังหวัด",
+   "image_width": 483,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_528",
+   "image_id": "img_004951",
+   "filename": "956_เพื่อพัฒนา LINE OA ที่เหนือกว่า.jpg",
+   "label": "เพื่อพัฒนา LINE OA ที่เหนือกว่า",
+   "image_width": 220,
+   "image_height": 30,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_531",
+   "image_id": "img_001252",
+   "filename": "2127_ที่ตั้งคณะสาธารณสุขศาสตร์.jpg",
+   "label": "ที่ตั้งคณะสาธารณสุขศาสตร์",
+   "image_width": 475,
+   "image_height": 76,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_531",
+   "image_id": "img_001672",
+   "filename": "2505_8.5 กิโลแคลอรี่ Kcal.jpg",
+   "label": "8.5 กิโลแคลอรี่ Kcal",
+   "image_width": 182,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_537",
+   "image_id": "img_000228",
+   "filename": "1205_ใช้ได้จริง.jpg",
+   "label": "ใช้ได้จริง",
+   "image_width": 78,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_537",
+   "image_id": "img_001064",
+   "filename": "1959_คริสตัล.jpg",
+   "label": "คริสตัล",
+   "image_width": 201,
+   "image_height": 72,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_541",
+   "image_id": "img_000296",
+   "filename": "1267_ข้าวคะน้าน้ำมันหอย.jpg",
+   "label": "ข้าวคะน้าน้ำมันหอย",
+   "image_width": 226,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_541",
+   "image_id": "img_001690",
+   "filename": "2521_ปิดหน้าจอคอมพิวเตอร์เมื่อเลิกใช้งาน.jpg",
+   "label": "ปิดหน้าจอคอมพิวเตอร์เมื่อเลิกใช้งาน",
+   "image_width": 274,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_544",
+   "image_id": "img_002443",
+   "filename": "319_เมนูก๋วยเตี่ยวหมูน้ำตก.jpg",
+   "label": "เมนูก๋วยเตี่ยวหมูน้ำตก",
+   "image_width": 419,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_544",
+   "image_id": "img_003279",
+   "filename": "3952_โรคข้อกระดูกเสื่อม.jpg",
+   "label": "โรคข้อกระดูกเสื่อม",
+   "image_width": 291,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_564",
+   "image_id": "img_002661",
+   "filename": "3396_คู่มือสมณศักดิ์ พัดยศ ฉบับสมบูรณ์.jpg",
+   "label": "คู่มือสมณศักดิ์ พัดยศ ฉบับสมบูรณ์",
+   "image_width": 402,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_564",
+   "image_id": "img_002683",
+   "filename": "3415_เหมาะสำหรับทุกครอบครัว.jpg",
+   "label": "เหมาะสำหรับทุกครอบครัว",
+   "image_width": 294,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_572",
+   "image_id": "img_002646",
+   "filename": "3382_เคมีโคออร์ดิเนชันของคอปเปอร์.jpg",
+   "label": "เคมีโคออร์ดิเนชันของคอปเปอร์",
+   "image_width": 399,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_572",
+   "image_id": "img_004693",
+   "filename": "723_GENETICS 101 พันธุศาสตร์ 101.jpg",
+   "label": "GENETICS 101 พันธุศาสตร์ 101",
+   "image_width": 554,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_575",
+   "image_id": "img_001499",
+   "filename": "234_ยำหอยนางรม.jpg",
+   "label": "ยำหอยนางรม",
+   "image_width": 220,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_575",
+   "image_id": "img_003069",
+   "filename": "3763_ยอดนิยมที่มีการปรับปรุงและพัฒนากว่า 10 ปี.jpg",
+   "label": "ยอดนิยมที่มีการปรับปรุงและพัฒนากว่า 10 ปี",
+   "image_width": 467,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_576",
+   "image_id": "img_000134",
+   "filename": "1120_ข้าวโพด.jpg",
+   "label": "ข้าวโพด",
+   "image_width": 130,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_576",
+   "image_id": "img_000546",
+   "filename": "1492_AI วาด.jpg",
+   "label": "AI วาด",
+   "image_width": 127,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_598",
+   "image_id": "img_000107",
+   "filename": "1097_รถแท็กซี่.jpg",
+   "label": "รถแท็กซี่",
+   "image_width": 351,
+   "image_height": 129,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_598",
+   "image_id": "img_002626",
+   "filename": "3364_ระบบสารสนเทศ.jpg",
+   "label": "ระบบสารสนเทศ",
+   "image_width": 210,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_601",
+   "image_id": "img_001139",
+   "filename": "2025_วิทยาเขตเฉลิมพระเกียรติ.jpg",
+   "label": "วิทยาเขตเฉลิมพระเกียรติ",
+   "image_width": 402,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_601",
+   "image_id": "img_001446",
+   "filename": "2301_แก้ไขระเบียบเลือก.jpg",
+   "label": "แก้ไขระเบียบเลือก",
+   "image_width": 194,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_618",
+   "image_id": "img_000949",
+   "filename": "1855_แพ็คใหญ่คุ้มกว่า.jpg",
+   "label": "แพ็คใหญ่คุ้มกว่า",
+   "image_width": 333,
+   "image_height": 70,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_618",
+   "image_id": "img_002786",
+   "filename": "3508_เคลื่อนที่ระบบ CDMA.jpg",
+   "label": "เคลื่อนที่ระบบ CDMA",
+   "image_width": 248,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_622",
+   "image_id": "img_001414",
+   "filename": "2273_ประวัติการศึกษา.jpg",
+   "label": "ประวัติการศึกษา",
+   "image_width": 150,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_622",
+   "image_id": "img_003471",
+   "filename": "4124_ไซเบอร์สเปซ.jpg",
+   "label": "ไซเบอร์สเปซ",
+   "image_width": 160,
+   "image_height": 36,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_633",
+   "image_id": "img_004685",
+   "filename": "716_GO WENT GONE องค์กรบริหารส่วนจังหวะ.jpg",
+   "label": "GO WENT GONE องค์กรบริหารส่วนจังหวะ",
+   "image_width": 506,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_633",
+   "image_id": "img_004692",
+   "filename": "722_แนะนำสำหรับคุณ YUKIKO MOTOYA.jpg",
+   "label": "แนะนำสำหรับคุณ YUKIKO MOTOYA",
+   "image_width": 532,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_643",
+   "image_id": "img_002862",
+   "filename": "3577_น.พ. บุญชัย.jpg",
+   "label": "น.พ. บุญชัย",
+   "image_width": 203,
+   "image_height": 58,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_643",
+   "image_id": "img_002978",
+   "filename": "3681_ไม่คิดเล็ก.jpg",
+   "label": "ไม่คิดเล็ก",
+   "image_width": 467,
+   "image_height": 105,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_646",
+   "image_id": "img_000988",
+   "filename": "1890_ไทลินอล.jpg",
+   "label": "ไทลินอล",
+   "image_width": 378,
+   "image_height": 123,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_646",
+   "image_id": "img_001132",
+   "filename": "2019_ตรวจวัด วิเคราะห์.jpg",
+   "label": "ตรวจวัด วิเคราะห์",
+   "image_width": 497,
+   "image_height": 91,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_687",
+   "image_id": "img_002671",
+   "filename": "3404_บทสัมภาษณ์พิเศษ.jpg",
+   "label": "บทสัมภาษณ์พิเศษ",
+   "image_width": 265,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_687",
+   "image_id": "img_002856",
+   "filename": "3571_ศาสตร์แห่งคุณค่า.jpg",
+   "label": "ศาสตร์แห่งคุณค่า",
+   "image_width": 383,
+   "image_height": 70,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_722",
+   "image_id": "img_004097",
+   "filename": "4689_ไมโครคอนโทรลเลอร์ AVR.jpg",
+   "label": "ไมโครคอนโทรลเลอร์ AVR",
+   "image_width": 290,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_722",
+   "image_id": "img_004992",
+   "filename": "993_หมวด Text Completion.jpg",
+   "label": "หมวด Text Completion",
+   "image_width": 223,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_727",
+   "image_id": "img_000250",
+   "filename": "1225_รสวัวในน้ำเกรวี่.jpg",
+   "label": "รสวัวในน้ำเกรวี่",
+   "image_width": 206,
+   "image_height": 52,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_727",
+   "image_id": "img_004634",
+   "filename": "670_ADULT สุนัขโต.jpg",
+   "label": "ADULT สุนัขโต",
+   "image_width": 304,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_737",
+   "image_id": "img_000146",
+   "filename": "1131_แมลงสาบ.jpg",
+   "label": "แมลงสาบ",
+   "image_width": 207,
+   "image_height": 67,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_737",
+   "image_id": "img_000256",
+   "filename": "1230_ชิลด์ท้อกซ์.jpg",
+   "label": "ชิลด์ท้อกซ์",
+   "image_width": 200,
+   "image_height": 69,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_756",
+   "image_id": "img_000098",
+   "filename": "1089_ชาบูก้อนกึ่งสำเร็จรูป.jpg",
+   "label": "ชาบูก้อนกึ่งสำเร็จรูป",
+   "image_width": 205,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_756",
+   "image_id": "img_000244",
+   "filename": "121_ซุปสุกี้-ชาบูก้อนกึ่งสำเร็จรูป.jpg",
+   "label": "ซุปสุกี้-ชาบูก้อนกึ่งสำเร็จรูป",
+   "image_width": 286,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_757",
+   "image_id": "img_000066",
+   "filename": "105_ซุปรสหมูก้อนกึ่งสำเร็จรูป.jpg",
+   "label": "ซุปรสหมูก้อนกึ่งสำเร็จรูป",
+   "image_width": 360,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_757",
+   "image_id": "img_000099",
+   "filename": "108_นมหมีคาราเมล.jpg",
+   "label": "นมหมีคาราเมล",
+   "image_width": 192,
+   "image_height": 34,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_791",
+   "image_id": "img_000966",
+   "filename": "1870_สกัดพล้ส.jpg",
+   "label": "สกัดพล้ส",
+   "image_width": 290,
+   "image_height": 83,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_791",
+   "image_id": "img_001231",
+   "filename": "2108_แผน 2.1.jpg",
+   "label": "แผน 2.1",
+   "image_width": 93,
+   "image_height": 28,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_803",
+   "image_id": "img_000272",
+   "filename": "1245_สารเติมแต่งพอลิเมอร์ เล่ม 1.jpg",
+   "label": "สารเติมแต่งพอลิเมอร์ เล่ม 1",
+   "image_width": 482,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_803",
+   "image_id": "img_000784",
+   "filename": "1706_JAN มกราคม 67.jpg",
+   "label": "JAN มกราคม 67",
+   "image_width": 136,
+   "image_height": 26,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_814",
+   "image_id": "img_000048",
+   "filename": "1043_กะทิ.jpg",
+   "label": "กะทิ",
+   "image_width": 187,
+   "image_height": 108,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_814",
+   "image_id": "img_000905",
+   "filename": "1815_เชฟเลือก....jpg",
+   "label": "เชฟเลือก...",
+   "image_width": 227,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_828",
+   "image_id": "img_001142",
+   "filename": "2028_ด้วยเครื่องมือมาตรฐาน ตาม U.S.EPA.jpg",
+   "label": "ด้วยเครื่องมือมาตรฐาน ตาม U.S.EPA",
+   "image_width": 496,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_828",
+   "image_id": "img_001151",
+   "filename": "2036_เพื่อลดผลกระทบที่จะเกิดขึ้นอย่างยั่งยืน.jpg",
+   "label": "เพื่อลดผลกระทบที่จะเกิดขึ้นอย่างยั่งยืน",
+   "image_width": 516,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_832",
+   "image_id": "img_000026",
+   "filename": "1023_อนุบาล.jpg",
+   "label": "อนุบาล",
+   "image_width": 91,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_832",
+   "image_id": "img_000883",
+   "filename": "1796_ลิ้นจี่ในน้ำเชื่อม.jpg",
+   "label": "ลิ้นจี่ในน้ำเชื่อม",
+   "image_width": 417,
+   "image_height": 100,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_856",
+   "image_id": "img_000341",
+   "filename": "1307_เนส.jpg",
+   "label": "เนส",
+   "image_width": 75,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "packaging_856",
+   "image_id": "img_004860",
+   "filename": "874_กำลังถูกไล่ล่าจาก AI.jpg",
+   "label": "กำลังถูกไล่ล่าจาก AI",
+   "image_width": 333,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_004",
+   "image_id": "img_004893",
+   "filename": "903_ช่่วยยกระดับ Personalized & Content Marketing.jpg",
+   "label": "ช่่วยยกระดับ Personalized & Content Marketing",
+   "image_width": 484,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_004",
+   "image_id": "img_004901",
+   "filename": "910_ด้วยพลังของ ChatGPT และ Generative AI.jpg",
+   "label": "ด้วยพลังของ ChatGPT และ Generative AI",
+   "image_width": 428,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_005",
+   "image_id": "img_000203",
+   "filename": "1183_โรงเรียน.jpg",
+   "label": "โรงเรียน",
+   "image_width": 120,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_005",
+   "image_id": "img_001307",
+   "filename": "2177_วิศวกรรมโยธา.jpg",
+   "label": "วิศวกรรมโยธา",
+   "image_width": 128,
+   "image_height": 33,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_006",
+   "image_id": "img_004221",
+   "filename": "47_(ซอสถั่วเหลือง).jpg",
+   "label": "(ซอสถั่วเหลือง)",
+   "image_width": 412,
+   "image_height": 95,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_006",
+   "image_id": "img_004907",
+   "filename": "916_ตรงตามระบบการสอบ TCAS ใหม่ล่าสุด!.jpg",
+   "label": "ตรงตามระบบการสอบ TCAS ใหม่ล่าสุด!",
+   "image_width": 264,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_010",
+   "image_id": "img_002938",
+   "filename": "3645_การทำให้บริสุทธิ์.jpg",
+   "label": "การทำให้บริสุทธิ์",
+   "image_width": 200,
+   "image_height": 52,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_010",
+   "image_id": "img_004910",
+   "filename": "919_เตรียมสอบ TOPIK II เพื่อให้ได้กึบ 5-6 !.jpg",
+   "label": "เตรียมสอบ TOPIK II เพื่อให้ได้กึบ 5-6 !",
+   "image_width": 379,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_015",
+   "image_id": "img_000410",
+   "filename": "136_โซ่อุปทาน.jpg",
+   "label": "โซ่อุปทาน",
+   "image_width": 384,
+   "image_height": 119,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_015",
+   "image_id": "img_003416",
+   "filename": "4075_ด้วยภาษา.jpg",
+   "label": "ด้วยภาษา",
+   "image_width": 185,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_017",
+   "image_id": "img_001441",
+   "filename": "2298_แก้ไขระเบียบเลือก.jpg",
+   "label": "แก้ไขระเบียบเลือก",
+   "image_width": 168,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_017",
+   "image_id": "img_003436",
+   "filename": "4093_เขียนเว็บแบบ Dynamic.jpg",
+   "label": "เขียนเว็บแบบ Dynamic",
+   "image_width": 399,
+   "image_height": 58,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_018",
+   "image_id": "img_000557",
+   "filename": "1501_ห้องโครงการ.jpg",
+   "label": "ห้องโครงการ",
+   "image_width": 146,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_018",
+   "image_id": "img_000558",
+   "filename": "1502_เรียนพิเศษ.jpg",
+   "label": "เรียนพิเศษ",
+   "image_width": 113,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_020",
+   "image_id": "img_003130",
+   "filename": "3818_รังนกมีประโยชน์จริงหรือ.jpg",
+   "label": "รังนกมีประโยชน์จริงหรือ",
+   "image_width": 249,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_020",
+   "image_id": "img_004851",
+   "filename": "866_กขค ABC 123.jpg",
+   "label": "กขค ABC 123",
+   "image_width": 331,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_022",
+   "image_id": "img_003184",
+   "filename": "3867_แต่พื้นที่ใช้สอย.jpg",
+   "label": "แต่พื้นที่ใช้สอย",
+   "image_width": 159,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_022",
+   "image_id": "img_003185",
+   "filename": "3868_ไม่มากเท่ากับการปลูกลงดิน.jpg",
+   "label": "ไม่มากเท่ากับการปลูกลงดิน",
+   "image_width": 289,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_024",
+   "image_id": "img_000217",
+   "filename": "1196_ปลูกผัก.jpg",
+   "label": "ปลูกผัก",
+   "image_width": 106,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_024",
+   "image_id": "img_000227",
+   "filename": "1204_แอปพลิเคชัน.jpg",
+   "label": "แอปพลิเคชัน",
+   "image_width": 190,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_025",
+   "image_id": "img_001373",
+   "filename": "2236_และการดำเนินงานที่คำนึงถึงสิ่งแวดล้อม.jpg",
+   "label": "และการดำเนินงานที่คำนึงถึงสิ่งแวดล้อม",
+   "image_width": 571,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_025",
+   "image_id": "img_001378",
+   "filename": "2240_ปล่อยก๊าซ CO2.jpg",
+   "label": "ปล่อยก๊าซ CO2",
+   "image_width": 164,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_027",
+   "image_id": "img_004843",
+   "filename": "859_TU-GET สอบตรงและวิชาสามัญ.jpg",
+   "label": "TU-GET สอบตรงและวิชาสามัญ",
+   "image_width": 247,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_027",
+   "image_id": "img_004845",
+   "filename": "860_TU-GET ให้สูงที่สุด.jpg",
+   "label": "TU-GET ให้สูงที่สุด",
+   "image_width": 166,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_030",
+   "image_id": "img_000092",
+   "filename": "1083_สกลนคร.jpg",
+   "label": "สกลนคร",
+   "image_width": 120,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_030",
+   "image_id": "img_002691",
+   "filename": "3422_แบบฝึกหัด.jpg",
+   "label": "แบบฝึกหัด",
+   "image_width": 168,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_032",
+   "image_id": "img_000643",
+   "filename": "157_คู่มือเขียนแอพ Android ด้วย.jpg",
+   "label": "คู่มือเขียนแอพ Android ด้วย",
+   "image_width": 305,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_032",
+   "image_id": "img_002936",
+   "filename": "3643_การติดตามธาตุไอโซโทปที่ฉีดเข้าไป.jpg",
+   "label": "การติดตามธาตุไอโซโทปที่ฉีดเข้าไป",
+   "image_width": 395,
+   "image_height": 52,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_033",
+   "image_id": "img_002044",
+   "filename": "2840_วิถีของ HR และองค์กรยุคใหม่.jpg",
+   "label": "วิถีของ HR และองค์กรยุคใหม่",
+   "image_width": 478,
+   "image_height": 77,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_033",
+   "image_id": "img_003219",
+   "filename": "3899_โรคของทวารหนัก.jpg",
+   "label": "โรคของทวารหนัก",
+   "image_width": 183,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_037",
+   "image_id": "img_002618",
+   "filename": "3357_พจนานุกรม.jpg",
+   "label": "พจนานุกรม",
+   "image_width": 118,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_037",
+   "image_id": "img_004638",
+   "filename": "674_Biology Ranger ชีวะ ม.ปลาย.jpg",
+   "label": "Biology Ranger ชีวะ ม.ปลาย",
+   "image_width": 486,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_048",
+   "image_id": "img_003090",
+   "filename": "3782_Learning Map เรียนรู้ครบวงจร.jpg",
+   "label": "Learning Map เรียนรู้ครบวงจร",
+   "image_width": 433,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_048",
+   "image_id": "img_004896",
+   "filename": "906_ใช้ได้ทั้งแบบ Paper & Pencil.jpg",
+   "label": "ใช้ได้ทั้งแบบ Paper & Pencil",
+   "image_width": 430,
+   "image_height": 75,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_049",
+   "image_id": "img_002780",
+   "filename": "3502_ทางชีวภาพขั้นสูง.jpg",
+   "label": "ทางชีวภาพขั้นสูง",
+   "image_width": 342,
+   "image_height": 78,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_049",
+   "image_id": "img_004671",
+   "filename": "703_MATHS เตรียมสอบ.jpg",
+   "label": "MATHS เตรียมสอบ",
+   "image_width": 248,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_074",
+   "image_id": "img_003664",
+   "filename": "4299_บนพื้นฐานของ.jpg",
+   "label": "บนพื้นฐานของ",
+   "image_width": 230,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_074",
+   "image_id": "img_004829",
+   "filename": "846_Im Cafe_ ที่ร้านกาแฟ.jpg",
+   "label": "Im Cafe ที่ร้านกาแฟ",
+   "image_width": 206,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_075",
+   "image_id": "img_003648",
+   "filename": "4284_ข้อมูล.jpg",
+   "label": "ข้อมูล",
+   "image_width": 180,
+   "image_height": 79,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_075",
+   "image_id": "img_004659",
+   "filename": "693_ฟันเฟสต้า Funfesta.jpg",
+   "label": "ฟันเฟสต้า Funfesta",
+   "image_width": 222,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_091",
+   "image_id": "img_004705",
+   "filename": "734_EGO IS ENEMY + ตัวคุณคือศัตรู.jpg",
+   "label": "EGO IS ENEMY  ตัวคุณคือศัตรู",
+   "image_width": 476,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_091",
+   "image_id": "img_004799",
+   "filename": "819_วิทอิท With  It.jpg",
+   "label": "วิทอิท With  It",
+   "image_width": 139,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_099",
+   "image_id": "img_003289",
+   "filename": "3961_โดนใจ.jpg",
+   "label": "โดนใจ",
+   "image_width": 238,
+   "image_height": 117,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_099",
+   "image_id": "img_004652",
+   "filename": "687_ยูโอบี UOB Xpress.jpg",
+   "label": "ยูโอบี UOB Xpress",
+   "image_width": 204,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_101",
+   "image_id": "img_001480",
+   "filename": "2332_ไข่พยาธิ (น้ำทิ้ง).jpg",
+   "label": "ไข่พยาธิ (น้ำทิ้ง)",
+   "image_width": 213,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_101",
+   "image_id": "img_002605",
+   "filename": "3345_พิชิตศัพท์ ชวนสับสน.jpg",
+   "label": "พิชิตศัพท์ ชวนสับสน",
+   "image_width": 356,
+   "image_height": 64,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_104",
+   "image_id": "img_001069",
+   "filename": "1963_เมอรี่เบลส์.jpg",
+   "label": "เมอรี่เบลส์",
+   "image_width": 209,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_104",
+   "image_id": "img_001285",
+   "filename": "2157_วิทยาการข้อมูล.jpg",
+   "label": "วิทยาการข้อมูล",
+   "image_width": 299,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_123",
+   "image_id": "img_003676",
+   "filename": "4309_ปฏิบัติการ.jpg",
+   "label": "ปฏิบัติการ",
+   "image_width": 190,
+   "image_height": 58,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_123",
+   "image_id": "img_004865",
+   "filename": "879_เก่งที่ 5 สังคมศึกษา Social Studies.jpg",
+   "label": "เก่งที่ 5 สังคมศึกษา Social Studies",
+   "image_width": 291,
+   "image_height": 32,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_132",
+   "image_id": "img_002581",
+   "filename": "3323_แนวคิด ทฤษฎี และการประยุกต์ใช้.jpg",
+   "label": "แนวคิด ทฤษฎี และการประยุกต์ใช้",
+   "image_width": 520,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_132",
+   "image_id": "img_002582",
+   "filename": "3324_เพือการพัฒนาพฤติกรรมสุขภาพ.jpg",
+   "label": "เพือการพัฒนาพฤติกรรมสุขภาพ",
+   "image_width": 462,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_149",
+   "image_id": "img_004746",
+   "filename": "771_MATH แนวข้อสอบ คณิตศาสตร์ ป.6.jpg",
+   "label": "MATH แนวข้อสอบ คณิตศาสตร์ ป.6",
+   "image_width": 425,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_149",
+   "image_id": "img_004821",
+   "filename": "839_Free! ไฟล์เสียง MP3 จำลองอุปสรรคจริง.jpg",
+   "label": "Free! ไฟล์เสียง MP3 จำลองอุปสรรคจริง",
+   "image_width": 443,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_150",
+   "image_id": "img_002026",
+   "filename": "2824_ภาษาอังกฤษ.jpg",
+   "label": "ภาษาอังกฤษ",
+   "image_width": 172,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_150",
+   "image_id": "img_002027",
+   "filename": "2825_วิศวกร.jpg",
+   "label": "วิศวกร",
+   "image_width": 147,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_151",
+   "image_id": "img_001557",
+   "filename": "2401_นักพัฒนาฐานข้อมูล.jpg",
+   "label": "นักพัฒนาฐานข้อมูล",
+   "image_width": 212,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_151",
+   "image_id": "img_002020",
+   "filename": "2819_พิมพ์ครั้งที่ 3.jpg",
+   "label": "พิมพ์ครั้งที่ 3",
+   "image_width": 168,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_153",
+   "image_id": "img_003323",
+   "filename": "3992_ระบบฐานข้อมูล.jpg",
+   "label": "ระบบฐานข้อมูล",
+   "image_width": 166,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_153",
+   "image_id": "img_003513",
+   "filename": "4162_เครือข่ายคอมพิวเตอร์.jpg",
+   "label": "เครือข่ายคอมพิวเตอร์",
+   "image_width": 323,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_154",
+   "image_id": "img_000080",
+   "filename": "1072_ยูเอฟซี.jpg",
+   "label": "ยูเอฟซี",
+   "image_width": 74,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_154",
+   "image_id": "img_002015",
+   "filename": "2814_ของสถาบันภาษา.jpg",
+   "label": "ของสถาบันภาษา",
+   "image_width": 226,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_166",
+   "image_id": "img_001961",
+   "filename": "2766_เรียนอังกฤษ.jpg",
+   "label": "เรียนอังกฤษ",
+   "image_width": 466,
+   "image_height": 97,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_166",
+   "image_id": "img_001963",
+   "filename": "2768_ยากร.jpg",
+   "label": "ยากร",
+   "image_width": 231,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_174",
+   "image_id": "img_001904",
+   "filename": "2714_บัวชุม (ติวเตอร์กุ้ง) และทีมงานวิชาการ The Best Center.jpg",
+   "label": "บัวชุม (ติวเตอร์กุ้ง) และทีมงานวิชาการ The Best Center",
+   "image_width": 562,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_174",
+   "image_id": "img_001905",
+   "filename": "2715_ม.นิด้า.jpg",
+   "label": "ม.นิด้า",
+   "image_width": 120,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_176",
+   "image_id": "img_000053",
+   "filename": "1048_หน่อไม้ดอง.jpg",
+   "label": "หน่อไม้ดอง",
+   "image_width": 96,
+   "image_height": 26,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_176",
+   "image_id": "img_001895",
+   "filename": "2706_ฉบับสมบูรณ์.jpg",
+   "label": "ฉบับสมบูรณ์",
+   "image_width": 229,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_177",
+   "image_id": "img_001886",
+   "filename": "2699_รวมหลักไวยากรณ์อังกฤษฉบับสมบูรณ์.jpg",
+   "label": "รวมหลักไวยากรณ์อังกฤษฉบับสมบูรณ์",
+   "image_width": 511,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_177",
+   "image_id": "img_003082",
+   "filename": "3775_วิธีแบ็กอัพฐานข้อมูล และการกู้ข้อมูล.jpg",
+   "label": "วิธีแบ็กอัพฐานข้อมูล และการกู้ข้อมูล",
+   "image_width": 342,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_178",
+   "image_id": "img_001885",
+   "filename": "2698_พจนานุกรมรูปภาพศัพท์ 1,000 คำ.jpg",
+   "label": "พจนานุกรมรูปภาพศัพท์ 1,000 คำ",
+   "image_width": 487,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_178",
+   "image_id": "img_002727",
+   "filename": "3455_อัลเฟรด โนเบล.jpg",
+   "label": "อัลเฟรด โนเบล",
+   "image_width": 204,
+   "image_height": 52,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_180",
+   "image_id": "img_000106",
+   "filename": "1096_รถตู้.jpg",
+   "label": "รถตู้",
+   "image_width": 203,
+   "image_height": 147,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_180",
+   "image_id": "img_000205",
+   "filename": "1185_ชีวิตมีคุณภาพ.jpg",
+   "label": "ชีวิตมีคุณภาพ",
+   "image_width": 128,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_183",
+   "image_id": "img_001850",
+   "filename": "2666_โครงการจัดทำตำราและงานวิจัยเฉลิมพระเกียรติ ๘๔ พรรษา.jpg",
+   "label": "โครงการจัดทำตำราและงานวิจัยเฉลิมพระเกียรติ ๘๔ พรรษา",
+   "image_width": 577,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_183",
+   "image_id": "img_001851",
+   "filename": "2667_พระบาทสมเด็จพระเจ้าอยู่หัว.jpg",
+   "label": "พระบาทสมเด็จพระเจ้าอยู่หัว",
+   "image_width": 292,
+   "image_height": 60,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_193",
+   "image_id": "img_001791",
+   "filename": "2612_รายงานการวิจัย.jpg",
+   "label": "รายงานการวิจัย",
+   "image_width": 288,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_193",
+   "image_id": "img_001792",
+   "filename": "2613_การติดตามและประเมินผล.jpg",
+   "label": "การติดตามและประเมินผล",
+   "image_width": 355,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_194",
+   "image_id": "img_000999",
+   "filename": "18_คำสั่ง HTML.jpg",
+   "label": "คำสั่ง HTML",
+   "image_width": 195,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_194",
+   "image_id": "img_001685",
+   "filename": "2517_พื้นที่การเรียนรู้.jpg",
+   "label": "พื้นที่การเรียนรู้",
+   "image_width": 185,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_197",
+   "image_id": "img_001778",
+   "filename": "2600_จากหลักการ...สู่แนวปฏิบัติ.jpg",
+   "label": "จากหลักการ...สู่แนวปฏิบัติ",
+   "image_width": 326,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_197",
+   "image_id": "img_001779",
+   "filename": "2601_การประเมิน.jpg",
+   "label": "การประเมิน",
+   "image_width": 321,
+   "image_height": 78,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_200",
+   "image_id": "img_001769",
+   "filename": "2593_หลักการจัดการศึกษายุคใหม่.jpg",
+   "label": "หลักการจัดการศึกษายุคใหม่",
+   "image_width": 564,
+   "image_height": 77,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_200",
+   "image_id": "img_001802",
+   "filename": "2622_นักบริหารการศึกษา.jpg",
+   "label": "นักบริหารการศึกษา",
+   "image_width": 267,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_201",
+   "image_id": "img_001206",
+   "filename": "2086_เข้าศึกษาระดับบัณฑิตศึกษา.jpg",
+   "label": "เข้าศึกษาระดับบัณฑิตศึกษา",
+   "image_width": 270,
+   "image_height": 50,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_201",
+   "image_id": "img_001763",
+   "filename": "2588_การสังเคราะห์งานวิจัยและพัฒนา.jpg",
+   "label": "การสังเคราะห์งานวิจัยและพัฒนา",
+   "image_width": 354,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_202",
+   "image_id": "img_001760",
+   "filename": "2585_ครูกับการวิจัย.jpg",
+   "label": "ครูกับการวิจัย",
+   "image_width": 356,
+   "image_height": 72,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_202",
+   "image_id": "img_001761",
+   "filename": "2586_เพื่อ.jpg",
+   "label": "เพื่อ",
+   "image_width": 72,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_205",
+   "image_id": "img_001747",
+   "filename": "2573_การสอนภาษาอังกฤษเพื่อเป็นภาษาที่สอง.jpg",
+   "label": "การสอนภาษาอังกฤษเพื่อเป็นภาษาที่สอง",
+   "image_width": 515,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_205",
+   "image_id": "img_001748",
+   "filename": "2574_คู่มือวิทยากร  แนวทางการฝึกอบรม.jpg",
+   "label": "คู่มือวิทยากร  แนวทางการฝึกอบรม",
+   "image_width": 297,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_207",
+   "image_id": "img_001510",
+   "filename": "235_กล้วยหอมช็อคโกแล็ต.jpg",
+   "label": "กล้วยหอมช็อคโกแล็ต",
+   "image_width": 218,
+   "image_height": 30,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_207",
+   "image_id": "img_001703",
+   "filename": "2533_การบริหารวิชาการและการส่งเสริมคุณภาพการศึกษา.jpg",
+   "label": "การบริหารวิชาการและการส่งเสริมคุณภาพการศึกษา",
+   "image_width": 520,
+   "image_height": 36,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_210",
+   "image_id": "img_001728",
+   "filename": "2556_โรงเรียน.jpg",
+   "label": "โรงเรียน",
+   "image_width": 334,
+   "image_height": 122,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_210",
+   "image_id": "img_001729",
+   "filename": "2557_องค์การแห่งการเรียนรู้.jpg",
+   "label": "องค์การแห่งการเรียนรู้",
+   "image_width": 443,
+   "image_height": 81,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_213",
+   "image_id": "img_000823",
+   "filename": "1741_การฝึกซ้อมการขับรถยนต์ภาคปฏิบัติด้วยเทคโนโลยีวีอาร์.jpg",
+   "label": "การฝึกซ้อมการขับรถยนต์ภาคปฏิบัติด้วยเทคโนโลยีวีอาร์",
+   "image_width": 512,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_213",
+   "image_id": "img_001714",
+   "filename": "2543_แนวทางการบริหารโรงเรียนปฏิรูปการเรียนรู้.jpg",
+   "label": "แนวทางการบริหารโรงเรียนปฏิรูปการเรียนรู้",
+   "image_width": 526,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_214",
+   "image_id": "img_001712",
+   "filename": "2541_แนวทางการนิเทศช่วยเหลือโรงเรียน.jpg",
+   "label": "แนวทางการนิเทศช่วยเหลือโรงเรียน",
+   "image_width": 539,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_214",
+   "image_id": "img_001713",
+   "filename": "2542_ปฏิรูปการเรียนรู้อย่างต่อเนื่อง.jpg",
+   "label": "ปฏิรูปการเรียนรู้อย่างต่อเนื่อง",
+   "image_width": 449,
+   "image_height": 66,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_218",
+   "image_id": "img_000069",
+   "filename": "1062_มหาวิทยาลัย.jpg",
+   "label": "มหาวิทยาลัย",
+   "image_width": 266,
+   "image_height": 74,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_218",
+   "image_id": "img_000754",
+   "filename": "167_การออกแบบเว็บไซต์.jpg",
+   "label": "การออกแบบเว็บไซต์",
+   "image_width": 475,
+   "image_height": 60,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_230",
+   "image_id": "img_000281",
+   "filename": "1253_สารสนเทศ.jpg",
+   "label": "สารสนเทศ",
+   "image_width": 319,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_230",
+   "image_id": "img_000486",
+   "filename": "1438_เทคโนโลยี.jpg",
+   "label": "เทคโนโลยี",
+   "image_width": 314,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_233",
+   "image_id": "img_000365",
+   "filename": "1329_วรลักษณ์ วงศ์โดยหวัง ศิริเจริญ.jpg",
+   "label": "วรลักษณ์ วงศ์โดยหวัง ศิริเจริญ",
+   "image_width": 320,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_233",
+   "image_id": "img_000405",
+   "filename": "1365_วรลักษณ์ วงศ์โดยหวั.jpg",
+   "label": "วรลักษณ์ วงศ์โดยหวั",
+   "image_width": 320,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_235",
+   "image_id": "img_000310",
+   "filename": "127_ด้วยภาษา Java.jpg",
+   "label": "ด้วยภาษา Java",
+   "image_width": 203,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_235",
+   "image_id": "img_000654",
+   "filename": "158_คอมพิวเตอร์เบื้องต้น.jpg",
+   "label": "คอมพิวเตอร์เบื้องต้น",
+   "image_width": 251,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_237",
+   "image_id": "img_000252",
+   "filename": "1227_สร้างข้อมูล.jpg",
+   "label": "สร้างข้อมูล",
+   "image_width": 257,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_237",
+   "image_id": "img_000340",
+   "filename": "1306_อัลกอริทึม.jpg",
+   "label": "อัลกอริทึม",
+   "image_width": 253,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_243",
+   "image_id": "img_002557",
+   "filename": "3301_เภสัชวิทยา.jpg",
+   "label": "เภสัชวิทยา",
+   "image_width": 457,
+   "image_height": 130,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_243",
+   "image_id": "img_002558",
+   "filename": "3302_เนื้อหาสำคัญและแบบฝึกหัด.jpg",
+   "label": "เนื้อหาสำคัญและแบบฝึกหัด",
+   "image_width": 444,
+   "image_height": 74,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_246",
+   "image_id": "img_001420",
+   "filename": "2279_14 ธันวาคม 2567.jpg",
+   "label": "14-ธ.ค.-67",
+   "image_width": 198,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_246",
+   "image_id": "img_001670",
+   "filename": "2503_7.5 กิโลแคลอรี่ Kcal.jpg",
+   "label": "7.5 กิโลแคลอรี่ Kcal",
+   "image_width": 218,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_247",
+   "image_id": "img_000207",
+   "filename": "1187_ภาษาอังกฤษ.jpg",
+   "label": "ภาษาอังกฤษ",
+   "image_width": 120,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_247",
+   "image_id": "img_000225",
+   "filename": "1202_วิชาภาษาไทย.jpg",
+   "label": "วิชาภาษาไทย",
+   "image_width": 166,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_248",
+   "image_id": "img_002537",
+   "filename": "3284_ฟันได้รับอุบัติเหตุ.jpg",
+   "label": "ฟันได้รับอุบัติเหตุ",
+   "image_width": 516,
+   "image_height": 115,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_248",
+   "image_id": "img_002538",
+   "filename": "3285_การตรวจ วินิจฉัย และรักษา.jpg",
+   "label": "การตรวจ วินิจฉัย และรักษา",
+   "image_width": 516,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_258",
+   "image_id": "img_001284",
+   "filename": "2156_ตัวอย่างอาชีพ.jpg",
+   "label": "ตัวอย่างอาชีพ",
+   "image_width": 92,
+   "image_height": 27,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_258",
+   "image_id": "img_003596",
+   "filename": "4237_เพิ่มคำสั่ง HTML 4.0.jpg",
+   "label": "เพิ่มคำสั่ง HTML 4.0",
+   "image_width": 311,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_320",
+   "image_id": "img_001652",
+   "filename": "2488_บริการชั้น 2.jpg",
+   "label": "บริการชั้น 2",
+   "image_width": 159,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_320",
+   "image_id": "img_002610",
+   "filename": "334_คณะแพทยศาสตร์.jpg",
+   "label": "คณะแพทยศาสตร์",
+   "image_width": 137,
+   "image_height": 26,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_322",
+   "image_id": "img_001055",
+   "filename": "1950_ข้าวต้ม.jpg",
+   "label": "ข้าวต้ม",
+   "image_width": 206,
+   "image_height": 76,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_322",
+   "image_id": "img_001208",
+   "filename": "2088_งานวิจัย.jpg",
+   "label": "งานวิจัย",
+   "image_width": 89,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_324",
+   "image_id": "img_002941",
+   "filename": "3648_กรดไขมันและพอลิคีไทด์.jpg",
+   "label": "กรดไขมันและพอลิคีไทด์",
+   "image_width": 276,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_324",
+   "image_id": "img_002988",
+   "filename": "3690_การทำวิจัยจาก มรสน..jpg",
+   "label": "การทำวิจัยจาก มรสน.",
+   "image_width": 277,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_326",
+   "image_id": "img_004053",
+   "filename": "4649_การแพทย์.jpg",
+   "label": "การแพทย์",
+   "image_width": 272,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_326",
+   "image_id": "img_004055",
+   "filename": "4650_สถานการณ์โควิด-19.jpg",
+   "label": "สถานการณ์โควิด-19",
+   "image_width": 195,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_352",
+   "image_id": "img_000186",
+   "filename": "1168_สกลนคร.jpg",
+   "label": "สกลนคร",
+   "image_width": 129,
+   "image_height": 31,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_352",
+   "image_id": "img_000856",
+   "filename": "1771_ข้าวซอยหมูตุ๋น.jpg",
+   "label": "ข้าวซอยหมูตุ๋น",
+   "image_width": 269,
+   "image_height": 68,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_367",
+   "image_id": "img_001772",
+   "filename": "2596_โรงเรียนคุณภาพชั้นนำ.jpg",
+   "label": "โรงเรียนคุณภาพชั้นนำ",
+   "image_width": 385,
+   "image_height": 63,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_367",
+   "image_id": "img_003597",
+   "filename": "4238_ในภาคผนวก ซ..jpg",
+   "label": "ในภาคผนวก ซ.",
+   "image_width": 235,
+   "image_height": 43,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_369",
+   "image_id": "img_000030",
+   "filename": "1027_บางนา.jpg",
+   "label": "บางนา",
+   "image_width": 144,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "publication covers_369",
+   "image_id": "img_002857",
+   "filename": "3572_ขจัด.jpg",
+   "label": "ขจัด",
+   "image_width": 154,
+   "image_height": 89,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_016",
+   "image_id": "img_001185",
+   "filename": "2067_บีโอดี (BOD).jpg",
+   "label": "บีโอดี (BOD)",
+   "image_width": 149,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_016",
+   "image_id": "img_001541",
+   "filename": "2388_นักวิเคราะห์ระบบ (System Analyst).jpg",
+   "label": "นักวิเคราะห์ระบบ (System Analyst)",
+   "image_width": 380,
+   "image_height": 32,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_020",
+   "image_id": "img_000077",
+   "filename": "106_ศูนย์วิทยาศาสตร์.jpg",
+   "label": "ศูนย์วิทยาศาสตร์",
+   "image_width": 210,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_020",
+   "image_id": "img_000094",
+   "filename": "1085_วิทยาศาสตร์.jpg",
+   "label": "วิทยาศาสตร์",
+   "image_width": 154,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_023",
+   "image_id": "img_000353",
+   "filename": "1318_นครพนม.jpg",
+   "label": "นครพนม",
+   "image_width": 142,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_023",
+   "image_id": "img_001203",
+   "filename": "2083_หลักสูตรวิทยาศาสตรมหาบัณฑิต.jpg",
+   "label": "หลักสูตรวิทยาศาสตรมหาบัณฑิต",
+   "image_width": 439,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_026",
+   "image_id": "img_000083",
+   "filename": "1075_ถึงทางแยก.jpg",
+   "label": "ถึงทางแยก",
+   "image_width": 114,
+   "image_height": 36,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_026",
+   "image_id": "img_000144",
+   "filename": "112_ทางออก 1 กม..jpg",
+   "label": "ทางออก 1 กม.",
+   "image_width": 192,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_028",
+   "image_id": "img_004798",
+   "filename": "818_เบอร์เกอร์ สตอรี่ Baker_s Story.jpg",
+   "label": "เบอร์เกอร์ สตอรี่ Bakers Story",
+   "image_width": 247,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_028",
+   "image_id": "img_004879",
+   "filename": "891_คำศัพท์ที่พบบ่อยในข้อสอบ Reading.jpg",
+   "label": "คำศัพท์ที่พบบ่อยในข้อสอบ Reading",
+   "image_width": 251,
+   "image_height": 23,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_030",
+   "image_id": "img_001113",
+   "filename": "2001_ห้องปฏิบัติการตรวจวิเคราะห์.jpg",
+   "label": "ห้องปฏิบัติการตรวจวิเคราะห์",
+   "image_width": 546,
+   "image_height": 70,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_030",
+   "image_id": "img_004682",
+   "filename": "713_FEMINISMS เฟมินิสต์.jpg",
+   "label": "FEMINISMS เฟมินิสต์",
+   "image_width": 546,
+   "image_height": 58,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_042",
+   "image_id": "img_001605",
+   "filename": "2445_คนไหน.jpg",
+   "label": "คนไหน",
+   "image_width": 216,
+   "image_height": 112,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_042",
+   "image_id": "img_003667",
+   "filename": "4300_ความปลอดภัย.jpg",
+   "label": "ความปลอดภัย",
+   "image_width": 272,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_047",
+   "image_id": "img_000231",
+   "filename": "1208_การเงิน.jpg",
+   "label": "การเงิน",
+   "image_width": 83,
+   "image_height": 33,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_047",
+   "image_id": "img_000825",
+   "filename": "1743_การพัฒนาเกมสามมิติการเล่าเรื่อง Suzuki House.jpg",
+   "label": "การพัฒนาเกมสามมิติการเล่าเรื่อง Suzuki House",
+   "image_width": 465,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_051",
+   "image_id": "img_001156",
+   "filename": "2040_ร้านอาหาร โรงภาพยนต์.jpg",
+   "label": "ร้านอาหาร โรงภาพยนต์",
+   "image_width": 328,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_051",
+   "image_id": "img_001502",
+   "filename": "2352_ผู้ประกอบการหรือนักลงทุนด้านคอมพิวเตอร์.jpg",
+   "label": "ผู้ประกอบการหรือนักลงทุนด้านคอมพิวเตอร์",
+   "image_width": 373,
+   "image_height": 41,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_057",
+   "image_id": "img_002715",
+   "filename": "3444_เดินทางค้นหา.jpg",
+   "label": "เดินทางค้นหา",
+   "image_width": 328,
+   "image_height": 62,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_057",
+   "image_id": "img_002983",
+   "filename": "3686_เคมีอนินทรีย์.jpg",
+   "label": "เคมีอนินทรีย์",
+   "image_width": 357,
+   "image_height": 75,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_061",
+   "image_id": "img_001665",
+   "filename": "249_ข้าวทอดกระเทียม.jpg",
+   "label": "ข้าวทอดกระเทียม",
+   "image_width": 182,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_061",
+   "image_id": "img_002690",
+   "filename": "3421_เคมีทั่วไป.jpg",
+   "label": "เคมีทั่วไป",
+   "image_width": 371,
+   "image_height": 123,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_069",
+   "image_id": "img_002812",
+   "filename": "3531_หลังการเก็บเกี่ยวผักและผลไม้.jpg",
+   "label": "หลังการเก็บเกี่ยวผักและผลไม้",
+   "image_width": 437,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_069",
+   "image_id": "img_002991",
+   "filename": "3693_โครงการผลิตตำรา.jpg",
+   "label": "โครงการผลิตตำรา",
+   "image_width": 171,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_075",
+   "image_id": "img_001443",
+   "filename": "229_วัดป่าแสนพัน.jpg",
+   "label": "วัดป่าแสนพัน",
+   "image_width": 649,
+   "image_height": 181,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_075",
+   "image_id": "img_003140",
+   "filename": "3827_สถานการณ์ได้.jpg",
+   "label": "สถานการณ์ได้",
+   "image_width": 225,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_081",
+   "image_id": "img_002730",
+   "filename": "3458_กาลิเลโอ.jpg",
+   "label": "กาลิเลโอ",
+   "image_width": 120,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_081",
+   "image_id": "img_003282",
+   "filename": "3955_โรคความดันโลหิตสูง.jpg",
+   "label": "โรคความดันโลหิตสูง",
+   "image_width": 314,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_084",
+   "image_id": "img_001451",
+   "filename": "2306_หนึ่งเสียงของคุณ.jpg",
+   "label": "หนึ่งเสียงของคุณ",
+   "image_width": 261,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_084",
+   "image_id": "img_002772",
+   "filename": "3496_ผศ. เลิศณรงค์ ศรีพนม.jpg",
+   "label": "ผศ. เลิศณรงค์ ศรีพนม",
+   "image_width": 333,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_093",
+   "image_id": "img_000024",
+   "filename": "1021_และนักเรียน.jpg",
+   "label": "และนักเรียน",
+   "image_width": 128,
+   "image_height": 45,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_093",
+   "image_id": "img_002711",
+   "filename": "3440_ผลงานของผู้เขียนหนังสือเล่ม.jpg",
+   "label": "ผลงานของผู้เขียนหนังสือเล่ม",
+   "image_width": 271,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_094",
+   "image_id": "img_000814",
+   "filename": "1733_การพัฒนาเกม 3 มิติ เรื่อง Zombie Apocalypse.jpg",
+   "label": "การพัฒนาเกม 3 มิติ เรื่อง Zombie Apocalypse",
+   "image_width": 471,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_094",
+   "image_id": "img_002672",
+   "filename": "3405_ส่องสังคม.jpg",
+   "label": "ส่องสังคม",
+   "image_width": 361,
+   "image_height": 75,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_096",
+   "image_id": "img_000196",
+   "filename": "1177_มัธยมปลาย.jpg",
+   "label": "มัธยมปลาย",
+   "image_width": 95,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_096",
+   "image_id": "img_000242",
+   "filename": "1218_โรงพยาบาลค่ายฯ.jpg",
+   "label": "โรงพยาบาลค่ายฯ",
+   "image_width": 416,
+   "image_height": 149,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_097",
+   "image_id": "img_001114",
+   "filename": "2002_คุณภาพน้ำและน้ำเสีย.jpg",
+   "label": "คุณภาพน้ำและน้ำเสีย",
+   "image_width": 405,
+   "image_height": 79,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_097",
+   "image_id": "img_001239",
+   "filename": "2115_สามารถเลือกเรียนและทำวิจัยในหัวข้อดังต่อไปนี้.jpg",
+   "label": "สามารถเลือกเรียนและทำวิจัยในหัวข้อดังต่อไปนี้",
+   "image_width": 421,
+   "image_height": 39,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_102",
+   "image_id": "img_000882",
+   "filename": "1795_23. แก้ว 200 ใบ.jpg",
+   "label": "23. แก้ว 200 ใบ",
+   "image_width": 188,
+   "image_height": 32,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_102",
+   "image_id": "img_000980",
+   "filename": "1883_ปิดแผลแบบพร้อมใช้.jpg",
+   "label": "ปิดแผลแบบพร้อมใช้",
+   "image_width": 258,
+   "image_height": 53,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_107",
+   "image_id": "img_001539",
+   "filename": "2386_นักออกแบบและพัฒนาเว็บไซต์.jpg",
+   "label": "นักออกแบบและพัฒนาเว็บไซต์",
+   "image_width": 320,
+   "image_height": 29,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_107",
+   "image_id": "img_003064",
+   "filename": "3759_เอกสารการสอนชุดวิชา.jpg",
+   "label": "เอกสารการสอนชุดวิชา",
+   "image_width": 207,
+   "image_height": 51,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_108",
+   "image_id": "img_000070",
+   "filename": "1063_ราชภัฏ.jpg",
+   "label": "ราชภัฏ",
+   "image_width": 153,
+   "image_height": 78,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_108",
+   "image_id": "img_002935",
+   "filename": "3642_การศึกษาเพื่อพิสูจน์ว่าสิ่งมีชีวิตสร้างสารผลิต.jpg",
+   "label": "การศึกษาเพื่อพิสูจน์ว่าสิ่งมีชีวิตสร้างสารผลิต",
+   "image_width": 550,
+   "image_height": 57,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_113",
+   "image_id": "img_000235",
+   "filename": "1211_การศึกษา.jpg",
+   "label": "การศึกษา",
+   "image_width": 115,
+   "image_height": 37,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_113",
+   "image_id": "img_000987",
+   "filename": "188_ข้าวผัดพระราม.jpg",
+   "label": "ข้าวผัดพระราม",
+   "image_width": 111,
+   "image_height": 30,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_118",
+   "image_id": "img_000314",
+   "filename": "1283_เทศบาลนครสกลนคร.jpg",
+   "label": "เทศบาลนครสกลนคร",
+   "image_width": 193,
+   "image_height": 35,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_118",
+   "image_id": "img_000867",
+   "filename": "1781_สภ.เมืองสกลนคร.jpg",
+   "label": "สภ.เมืองสกลนคร",
+   "image_width": 190,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_167",
+   "image_id": "img_001254",
+   "filename": "2129_ต.เชียงเครือ อ.เมือง จ.สกลนคร 47000.jpg",
+   "label": "ต.เชียงเครือ อ.เมือง จ.สกลนคร 47000",
+   "image_width": 526,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_167",
+   "image_id": "img_002266",
+   "filename": "303_สุทธิสาร.jpg",
+   "label": "สุทธิสาร",
+   "image_width": 190,
+   "image_height": 73,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_168",
+   "image_id": "img_000004",
+   "filename": "1003_ดาวคะนอง.jpg",
+   "label": "ดาวคะนอง",
+   "image_width": 182,
+   "image_height": 48,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_168",
+   "image_id": "img_002888",
+   "filename": "35_ดาวคะนอง - แจ้งวัฒนะ.jpg",
+   "label": "ดาวคะนอง - แจ้งวัฒนะ",
+   "image_width": 375,
+   "image_height": 44,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_170",
+   "image_id": "img_000870",
+   "filename": "1784_หนองหาร.jpg",
+   "label": "หนองหาร",
+   "image_width": 337,
+   "image_height": 72,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_170",
+   "image_id": "img_002198",
+   "filename": "297_ทหารบก.jpg",
+   "label": "ทหารบก",
+   "image_width": 183,
+   "image_height": 40,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_218",
+   "image_id": "img_000009",
+   "filename": "1008_จำนวน 3 รูป.jpg",
+   "label": "จำนวน 3 รูป",
+   "image_width": 204,
+   "image_height": 54,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "road signs_218",
+   "image_id": "img_001342",
+   "filename": "2208_59 7 ม.1 ต.เชียงเครือ.jpg",
+   "label": "59 7 ม.1 ต.เชียงเครือ",
+   "image_width": 259,
+   "image_height": 49,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_010",
+   "image_id": "img_001266",
+   "filename": "213_เย็นตาโฟทะเล 50-60.jpg",
+   "label": "เย็นตาโฟทะเล 50-60",
+   "image_width": 359,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_010",
+   "image_id": "img_004854",
+   "filename": "869_ก๋วยเตี๋ยว VIP.jpg",
+   "label": "ก๋วยเตี๋ยว VIP",
+   "image_width": 324,
+   "image_height": 76,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_013",
+   "image_id": "img_000050",
+   "filename": "1045_19 พฤศจิกายน 2565.jpg",
+   "label": "19-พ.ย.-65",
+   "image_width": 139,
+   "image_height": 19,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_013",
+   "image_id": "img_000127",
+   "filename": "1114_ประจำปี พ.ศ. 2566.jpg",
+   "label": "ประจำปี พ.ศ. 2566",
+   "image_width": 292,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_019",
+   "image_id": "img_000059",
+   "filename": "1053_เรามีให้คุณ.jpg",
+   "label": "เรามีให้คุณ",
+   "image_width": 107,
+   "image_height": 42,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_019",
+   "image_id": "img_001394",
+   "filename": "2255_นนทรีอีสาน.jpg",
+   "label": "นนทรีอีสาน",
+   "image_width": 275,
+   "image_height": 65,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_053",
+   "image_id": "img_000865",
+   "filename": "177_เลขที่ใบอนุญาตสถานพยาบาล 47103000159.jpg",
+   "label": "เลขที่ใบอนุญาตสถานพยาบาล 47103000159",
+   "image_width": 239,
+   "image_height": 27,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_053",
+   "image_id": "img_002277",
+   "filename": "304_คลินิกทันตกรรมเดนตาเฟ่.jpg",
+   "label": "คลินิกทันตกรรมเดนตาเฟ่",
+   "image_width": 241,
+   "image_height": 38,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_054",
+   "image_id": "img_000866",
+   "filename": "1780_ไม้ละ.jpg",
+   "label": "ไม้ละ",
+   "image_width": 132,
+   "image_height": 72,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_054",
+   "image_id": "img_001549",
+   "filename": "2395_ผู้ดูแลระบบเครือข่าย.jpg",
+   "label": "ผู้ดูแลระบบเครือข่าย",
+   "image_width": 217,
+   "image_height": 34,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_057",
+   "image_id": "img_001508",
+   "filename": "2358_หมวดวิชาชีพเฉพาะ.jpg",
+   "label": "หมวดวิชาชีพเฉพาะ",
+   "image_width": 267,
+   "image_height": 46,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_057",
+   "image_id": "img_002852",
+   "filename": "3568_บทความวิจัยระดับนานาชาติ.jpg",
+   "label": "บทความวิจัยระดับนานาชาติ",
+   "image_width": 467,
+   "image_height": 59,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_058",
+   "image_id": "img_000255",
+   "filename": "122_กะเพราถังมังกร.jpg",
+   "label": "กะเพราถังมังกร",
+   "image_width": 549,
+   "image_height": 106,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_058",
+   "image_id": "img_001631",
+   "filename": "2469_สร้างความสุข.jpg",
+   "label": "สร้างความสุข",
+   "image_width": 204,
+   "image_height": 71,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_064",
+   "image_id": "img_000313",
+   "filename": "1282_ก๋วยเตี๋ยวปลา.jpg",
+   "label": "ก๋วยเตี๋ยวปลา",
+   "image_width": 164,
+   "image_height": 47,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_064",
+   "image_id": "img_004655",
+   "filename": "68_ครั้งที่ ๙ ๒๕๖๖.jpg",
+   "label": "ครั้งที่ ๙ ๒๕๖๖",
+   "image_width": 269,
+   "image_height": 78,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_069",
+   "image_id": "img_000246",
+   "filename": "1221_โดนัท.jpg",
+   "label": "โดนัท",
+   "image_width": 245,
+   "image_height": 127,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_069",
+   "image_id": "img_000360",
+   "filename": "1324_ใหม่สดทุกวัน.jpg",
+   "label": "ใหม่สดทุกวัน",
+   "image_width": 251,
+   "image_height": 75,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_113",
+   "image_id": "img_000157",
+   "filename": "1141_เป็นต้นไป.jpg",
+   "label": "เป็นต้นไป",
+   "image_width": 160,
+   "image_height": 55,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_113",
+   "image_id": "img_000845",
+   "filename": "1761_หลากหลาย.jpg",
+   "label": "หลากหลาย",
+   "image_width": 196,
+   "image_height": 34,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_116",
+   "image_id": "img_000031",
+   "filename": "1028_จำหน่าย.jpg",
+   "label": "จำหน่าย",
+   "image_width": 155,
+   "image_height": 56,
+   "split": "train"
+  },
+  {
+   "source_photo_id": "storefronts_116",
+   "image_id": "img_000032",
+   "filename": "1029_โทรศัพท์มือถือ.jpg",
+   "label": "โทรศัพท์มือถือ",
+   "image_width": 296,
+   "image_height": 52,
+   "split": "train"
+  }
+ ]
+}
