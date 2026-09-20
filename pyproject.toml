@@ -20,7 +20,11 @@ model = [
   "qwen-vl-utils>=0.0.14,<0.1",
   "torch>=2.7,<3",
   "torchvision>=0.22,<1",
-  "transformers>=4.57,<5",
+  # Pinned exactly, not as a range. Every recorded experiment ran on 5.12.0, and
+  # the checkpoint's code path is version-sensitive: 4.57 rejects it outright and
+  # later 5.x releases changed ROPE_INIT_FUNCTIONS under it. A range would let a
+  # fresh checkout resolve to a version the evidence was never produced on.
+  "transformers==5.12.0",
 ]
 dev = [
   "pytest>=8.3,<10",

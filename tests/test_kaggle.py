@@ -185,7 +185,7 @@ def test_run_spec_contains_remote_ref_full_sha_and_hashes() -> None:
     assert spec["output_root"] == "/kaggle/working/artifacts"
     assert spec["locked_package_versions"] == {
         "torch": "2.14.0",
-        "transformers": "4.57.6",
+        "transformers": "5.12.0",
     }
     assert spec["fixture_hashes"] == EXPECTED_FIXTURE_HASHES
     assert spec["model_revision"] == spec["processor_revision"]
