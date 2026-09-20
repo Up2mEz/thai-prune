@@ -55,6 +55,24 @@ def _processor_inputs(processor, image, forced_pixels: int | None):
     return processor.apply_chat_template(messages, **kwargs)
 
 
+def _assert_same_device(model, tensors: dict[str, Any]) -> None:
+    """Every tensor handed to the model must sit on the model's device.
+
+    A mismatch raises deep inside a convolution with an opaque message, and only
+    under GPU, so it is checked explicitly here instead.
+    """
+    import torch
+
+    target = next(model.parameters()).device
+    wrong = {
+        name: str(value.device)
+        for name, value in tensors.items()
+        if isinstance(value, torch.Tensor) and value.device != target
+    }
+    if wrong:
+        raise RuntimeError(f"tensors not on {target}: {wrong}")
+
+
 def _accounting(inputs, model) -> dict[str, Any]:
     grid = [int(v) for v in inputs["image_grid_thw"][0].tolist()]
     merge = int(model.config.vision_config.spatial_merge_size)
@@ -84,6 +102,13 @@ def execute_observation(model, processor, image, observation: dict[str, Any],
     accounting = _accounting(inputs, model)
     prompt_len = int(inputs["input_ids"].shape[-1])
 
+    # Move every processor tensor to the model's device before any of them touch
+    # the model. The pruning path runs the vision tower itself rather than letting
+    # generate() do it, so leaving these on CPU fails only under GPU - which a
+    # CPU-only smoke cannot surface.
+    inputs = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
+    _assert_same_device(model, inputs)
+
     started = time.perf_counter()
     if family in (FAMILY_FULL, FAMILY_RR):
         if accounting["placeholders"] != expected:
@@ -91,9 +116,8 @@ def execute_observation(model, processor, image, observation: dict[str, Any],
                 f"{observation['condition_id']}: placeholders {accounting['placeholders']} "
                 f"!= registered {expected}"
             )
-        moved = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in inputs.items()}
         with torch.inference_mode():
-            produced = model.generate(**moved, do_sample=False, num_beams=1,
+            produced = model.generate(**inputs, do_sample=False, num_beams=1,
                                       max_new_tokens=max_new_tokens)
         new_tokens = produced[0][prompt_len:]
         llm_positions = accounting["placeholders"]
@@ -131,9 +155,9 @@ def execute_observation(model, processor, image, observation: dict[str, Any],
             )
         assert_accounting(pre_prune=native, post_prune=expected,
                           llm_positions=expected, expected_kept=expected)
-        moved = {k: (v.to(device) if hasattr(v, "to") else v) for k, v in pruned.items()}
+        _assert_same_device(model, pruned)
         with torch.inference_mode():
-            produced = model.generate(**moved, do_sample=False, num_beams=1,
+            produced = model.generate(**pruned, do_sample=False, num_beams=1,
                                       max_new_tokens=max_new_tokens)
         # With inputs_embeds the prompt is not echoed: everything returned is new.
         new_tokens = produced[0]
