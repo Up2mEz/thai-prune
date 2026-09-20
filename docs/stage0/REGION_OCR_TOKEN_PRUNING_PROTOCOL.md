@@ -109,6 +109,26 @@ for each region:
 Pruning is matched to the actual counts RR achieved, so both families deliver
 an identical number of visual positions to the language model for that region.
 
+Resolution Reduction is applied by forcing `min_pixels = max_pixels = target`,
+the mechanism the frozen design registered as `force_equal_min_max_pixels`.
+Pre-resizing the source instead does not work: `min_pixels` upsamples anything
+smaller back to the floor, collapsing every reduced budget onto the same count.
+
+**Achieved budgets are nominal, not exact.** Measured over all 2,661
+Thai-bearing regions (2,493 distinct crop shapes), no region produces a
+degenerate budget set, and the achieved fractions are:
+
+| Nominal | Achieved median | p5–p95 | min–max |
+|---|---:|---:|---:|
+| 0.75 | 0.741 | 0.671–0.800 | 0.640–0.854 |
+| 0.50 | 0.500 | 0.453–0.565 | 0.424–0.596 |
+| 0.25 | 0.250 | 0.214–0.291 | 0.132–0.309 |
+
+Medians sit on target and the spread is roughly ±0.07. Because the design is
+paired within region and pruning always matches what RR achieved for that same
+region, the contrast is unaffected; the labels are nominal and this distribution
+is reported alongside results rather than implied to be exact.
+
 | Condition | Budget | Notes |
 |---|---|---|
 | `FULL` | N | baseline |
