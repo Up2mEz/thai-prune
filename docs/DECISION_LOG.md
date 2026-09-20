@@ -2,6 +2,55 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-20 — Region OCR analysis-population decision
+
+**Stage/Gate:** Region-OCR branch analysis specification. Gate 0 remains
+`NOT_RUN`; Gates 1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Option 3 of
+`docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md` — approve the
+amendment with the roles reversed. The registered **primary** population is
+every eligible region; the `CER(FULL) = 0` subset is a **pre-registered
+secondary**, reported alongside with its own intervals but outside the primary
+multiplicity family.
+
+This supersedes protocol §8.2.1 as committed in `463912f`, which had proposed
+the subset as primary and was held `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT`.
+
+### Reasoning
+The headline estimate must describe the corpus rather than a subpopulation,
+otherwise the strongest available statement is limited to "among regions this
+model already reads correctly". Registering the subset as a secondary keeps the
+more sensitive analysis available without it appearing to have been chosen after
+the fact: both populations are fixed before any pruning inference exists, so
+reporting the subset later is a registered secondary rather than a post-hoc cut.
+
+### Alternatives considered
+- Option 1, subset as primary — rejected: more sensitive, because regions
+  already misread at FULL have little headroom and dilute the contrast, but it
+  trades external validity and invites the objection that the analysis was
+  selected on the control arm's outcome.
+- Option 2, reject outright — rejected: the subset analysis would then be
+  unregistered, so reporting it after a null primary would be post-hoc.
+
+### Known limitations
+The two populations are nested, not independent, and must not be counted as two
+independent tests. Within the secondary population `CER(FULL) = 0` holds by
+construction, so each arm's marginal delta-CER is non-negative by construction;
+no absolute degradation rate and no generalisation to Thai region OCR as a whole
+may be claimed from it.
+
+### Consequence for next stage
+Both populations are frozen before any pruning inference. One run produces both;
+no additional workload is required. Kaggle submission is authorized separately
+in the same session.
+
+### Files/configs affected
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md` §8.2.1
+- `docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md`
+
 ## 2026-09-20 — Region OCR token-pruning branch authorized
 
 **Stage/Gate:** New intervention-family branch. Gate 0 remains `NOT_RUN`;

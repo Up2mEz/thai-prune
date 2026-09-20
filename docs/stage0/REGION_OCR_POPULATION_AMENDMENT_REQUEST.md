@@ -1,10 +1,14 @@
 # Authorization Request — Analysis-Population Amendment
 
-> Status: `AWAITING_HUMAN_DECISION`
+> Status: `DECIDED_2026-09-20_OPTION_3`
 >
 > Subject: protocol §8.2.1, committed in `463912f`
 >
-> Effect today: **NONE**. The amendment does not govern any analysis.
+> Outcome: the human researcher chose **option 3** — approve with the roles
+> reversed. The primary population is every eligible region; the
+> `CER(FULL) = 0` subset is a pre-registered secondary. The proposal in
+> `463912f`, which made the subset primary, was **not** adopted. See
+> `docs/DECISION_LOG.md`, entry 2026-09-20.
 
 ## 1. Why this request exists
 

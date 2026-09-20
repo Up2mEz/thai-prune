@@ -192,28 +192,28 @@ DiD_b      = ΔCER(PRUNE_GRID, b) − ΔCER(RR, b)
 A **positive** `DiD_b` means post-encoder pruning degraded recognition more than
 resolution reduction at the same actual token count.
 
-### 8.2.1 Analysis population — PROPOSED, NOT IN EFFECT
+### 8.2.1 Analysis population — APPROVED
 
->  Status: `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT`
+> Status: `APPROVED_2026-09-20_OPTION_3_ROLES_REVERSED`
 >
-> This subsection changes the registered scientific estimand; it is not
-> engineering plumbing. It was drafted and committed in `463912f` without a
-> corresponding `docs/DECISION_LOG.md` entry, which the project's governance
-> requires for a scientific decision. It therefore does **not** govern any
-> analysis until the human researcher approves it. The authorization request
-> is `docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md`. Until then the
-> registered estimand remains §8.2 over all eligible regions.
-
+> Decided by the human researcher in `docs/DECISION_LOG.md`. The subset was
+> proposed as primary in `463912f`; that proposal was **not** adopted. The
+> approved arrangement reverses the roles, as recorded below.
 
 Two populations are registered, both analysed and both reported:
 
 | Role | Population |
 |---|---|
-| **Primary** | regions where `CER(FULL) = 0` |
-| **Sensitivity** | every eligible region |
+| **Primary** | every eligible region |
+| **Pre-registered secondary** | regions where `CER(FULL) = 0` |
 
-Restricting the primary analysis to regions the model already reads correctly
-is deliberate. A region the model cannot read at `FULL` has no measurement
+Both are frozen before any pruning inference and both are produced by the same
+run; the secondary requires no additional workload. They are **nested, not
+independent**, and must never be counted as two independent tests: the primary
+multiplicity family remains the three budgets of §8.3, and the secondary is
+reported with its own intervals outside that family.
+
+Registering the `CER(FULL) = 0` subset as a secondary is deliberate. A region the model cannot read at `FULL` has no measurement
 headroom: compression cannot make it informatively worse, so it contributes
 noise to the contrast without contributing signal. This is the same headroom
 logic the project applied to component baselines in Stage 0.
@@ -243,15 +243,16 @@ contrast.
 the primary population `CER(FULL) = 0` by construction, so each arm's marginal
 `ΔCER` is non-negative by construction: an improvement can never be observed,
 and the magnitude is not comparable to an unconditioned rate. Consequently the
-primary population supports only statements of the form *"among regions this
-model already reads correctly, intervention family X degrades recognition more
-than Y"*. It supports **no** claim about absolute degradation rates and **no**
-generalisation to Thai region OCR as a whole. Those require the sensitivity
-population, which is why both are reported rather than one.
+**secondary** population supports only statements of the form *"among regions
+this model already reads correctly, intervention family X degrades recognition
+more than Y"*. It supports **no** claim about absolute degradation rates and
+**no** generalisation to Thai region OCR as a whole. Those come from the
+primary population, which is why the primary is the all-regions estimate and
+the subset is reported beside it rather than instead of it.
 
-This section is frozen while no pruning result exists. The primary population is
-not switched to the sensitivity population, or vice versa, after any outcome is
-observed.
+This section is frozen while no pruning result exists. The primary and secondary
+populations are not swapped after any outcome is observed — that swap is
+precisely what pre-registration exists to prevent.
 
 ### 8.3 Uncertainty and multiplicity
 
