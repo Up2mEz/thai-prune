@@ -192,6 +192,56 @@ DiD_b      = ΔCER(PRUNE_GRID, b) − ΔCER(RR, b)
 A **positive** `DiD_b` means post-encoder pruning degraded recognition more than
 resolution reduction at the same actual token count.
 
+### 8.2.1 Analysis population — frozen before any pruning outcome exists
+
+Two populations are registered, both analysed and both reported:
+
+| Role | Population |
+|---|---|
+| **Primary** | regions where `CER(FULL) = 0` |
+| **Sensitivity** | every eligible region |
+
+Restricting the primary analysis to regions the model already reads correctly
+is deliberate. A region the model cannot read at `FULL` has no measurement
+headroom: compression cannot make it informatively worse, so it contributes
+noise to the contrast without contributing signal. This is the same headroom
+logic the project applied to component baselines in Stage 0.
+
+**Why conditioning on the control arm does not bias the registered estimand.**
+Selecting items by baseline performance is normally unsafe because it selects
+favourable measurement noise, and re-measurement then regresses toward the mean.
+Neither mechanism operates here:
+
+1. Decoding is greedy and deterministic, so a region's `FULL` output is a fixed
+   value rather than a draw. There is no noise to select on. The engineering
+   smoke verifies this directly by generating twice and requiring identical
+   token ids.
+2. The registered estimand is a difference of differences, in which the `FULL`
+   term cancels:
+
+```
+DiD_b = [CER(PRUNE,b) − CER(FULL)] − [CER(RR,b) − CER(FULL)]
+      = CER(PRUNE,b) − CER(RR,b)
+```
+
+Both arms are measured on the same regions against the same baseline, so any
+floor the selection imposes applies identically to both and drops out of the
+contrast.
+
+**What the restriction does break, and may therefore not be claimed.** Within
+the primary population `CER(FULL) = 0` by construction, so each arm's marginal
+`ΔCER` is non-negative by construction: an improvement can never be observed,
+and the magnitude is not comparable to an unconditioned rate. Consequently the
+primary population supports only statements of the form *"among regions this
+model already reads correctly, intervention family X degrades recognition more
+than Y"*. It supports **no** claim about absolute degradation rates and **no**
+generalisation to Thai region OCR as a whole. Those require the sensitivity
+population, which is why both are reported rather than one.
+
+This section is frozen while no pruning result exists. The primary population is
+not switched to the sensitivity population, or vice versa, after any outcome is
+observed.
+
 ### 8.3 Uncertainty and multiplicity
 
 - Cluster bootstrap resampling the source-image cluster with replacement; a
