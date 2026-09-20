@@ -74,8 +74,17 @@ def check(image_path: Path, model_id: str, revision: str, ratios: list[float]) -
             mm_token_type_ids=inputs.get("mm_token_type_ids"),
         )
 
+    # Identity control: the standard path, for the no-op comparison below.
+    with torch.inference_mode():
+        standard = model.generate(
+            **{k: v for k, v in inputs.items()},
+            do_sample=False, num_beams=1, max_new_tokens=32,
+        )
+    standard_text = _decode_new(processor, standard[0], int(input_ids.shape[-1]))
+
     report: dict[str, Any] = {
         "status": "ENGINEERING_CHECK_ONLY_NOT_A_SCIENTIFIC_RUN",
+        "standard_path_output": standard_text,
         "image": image_path.name,
         "image_grid_thw": grid,
         "token_rows_cols": [rows, cols],
@@ -120,6 +129,17 @@ def check(image_path: Path, model_id: str, revision: str, ratios: list[float]) -
             trial["generation_ok"] = True
             trial["returned_tokens"] = int(produced.shape[-1])
             trial["output"] = processor.decode(produced, skip_special_tokens=True)
+            if kept == placeholders:
+                # Pruning nothing must reproduce the standard path exactly. If it
+                # does not, the feature/position splice is silently wrong.
+                trial["identity_with_standard_path"] = (
+                    trial["output"].strip() == standard_text.strip()
+                )
+                if not trial["identity_with_standard_path"]:
+                    raise RuntimeError(
+                        "pruning at full budget changed the output: "
+                        f"standard={standard_text.strip()!r} pruned={trial['output'].strip()!r}"
+                    )
         except Exception as exc:  # engineering probe: record, do not mask
             trial["generation_ok"] = False
             trial["error"] = f"{type(exc).__name__}: {exc}"[:400]
