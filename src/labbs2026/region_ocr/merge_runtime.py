@@ -49,9 +49,12 @@ def token_ink_scores(pixel_values: Any, *, tokens: int, merge: int) -> list[floa
     The processor emits patches already grouped so that each run of `merge**2`
     consecutive rows forms one post-merge token; that grouping is asserted here
     rather than assumed, because a layout change would silently score the wrong
-    patches. Standard deviation is used because text regions are high-contrast
-    against a flat background, whereas mean brightness would rank a dark
-    background above pale text.
+    patches. Only the leading axis is relied on: this checkpoint hands back a 4-D
+    `(patches, channels, height, width)` tensor rather than the flat
+    `(patches, values)` one, and anything downstream of the first axis is
+    flattened instead of being given an assumed shape. Standard deviation is used
+    because text regions are high-contrast against a flat background, whereas
+    mean brightness would rank a dark background above pale text.
 
     This reads the image, not the model's attention, so it adds no forward pass
     and cannot leak information from the decoder into the selection.
@@ -63,5 +66,5 @@ def token_ink_scores(pixel_values: Any, *, tokens: int, merge: int) -> list[floa
         raise RuntimeError(
             f"pixel_values rows {pixel_values.shape[0]} != tokens*merge^2 {expected}"
         )
-    grouped = pixel_values.reshape(tokens, merge * merge * pixel_values.shape[1])
+    grouped = pixel_values.reshape(tokens, -1)
     return [float(v) for v in grouped.float().std(dim=1).tolist()]

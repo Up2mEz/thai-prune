@@ -136,6 +136,15 @@ def test_ink_score_is_higher_for_the_high_contrast_token() -> None:
     assert scores[1] > scores[0]
 
 
+def test_ink_score_handles_the_four_dimensional_patch_layout() -> None:
+    """The checkpoint returns (patches, channels, h, w), not a flat matrix."""
+    merge = 2
+    flat = torch.zeros(2 * merge * merge, 3, 14, 14)
+    flat[merge * merge:] = torch.randn(merge * merge, 3, 14, 14)
+    scores = token_ink_scores(flat, tokens=2, merge=merge)
+    assert len(scores) == 2 and scores[1] > scores[0]
+
+
 def test_ink_score_asserts_the_patch_grouping() -> None:
     with pytest.raises(RuntimeError, match="tokens\\*merge"):
         token_ink_scores(torch.zeros(7, 3), tokens=2, merge=2)
