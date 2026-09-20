@@ -19,6 +19,25 @@ built to make cheap.
 
 ---
 
+## 0. A correction to how path equivalence was reported
+
+`assert_path_equivalence` checks one region and requires character-identical
+output; it passed in every run. It was reported as though it established that
+the rerouted path is an identity. **It does not, and it is not.**
+
+Comparing all 5,200 observations round 1 and round 3 share — round 1 on the
+legacy `pixel_values` path, round 3 on `inputs_embeds` — **15 differ (0.29%)**:
+3 of 400 at `FULL`, 6 of 400 at `RR_75`, 0 at `PRUNE_GRID_25`. The aggregate
+effect is negligible (`FULL` macro CER 0.2721 against 0.2714) and the
+differences look like fp16 non-determinism at tokens where the top two logits
+are nearly tied, which then cascades through the rest of the string.
+
+The guard is still worth having: it would catch a gross divergence before a run
+starts. But a single-region equality check cannot establish identity across a
+corpus, and every comparison here that crosses the round 1 / round 2 boundary
+carries this 0.3% instability. Contrasts computed *within* round 3 - every
+family in this document - are unaffected.
+
 ## 1. The magnification curve
 
 Full detail throughout; only the budget the processor is forced to varies.
