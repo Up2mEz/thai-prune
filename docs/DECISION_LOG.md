@@ -2,6 +2,103 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-21 — Region OCR round 2 authorized: two new post-encoder arms and stage-resolved cost measurement
+
+**Stage/Gate:** Region-OCR branch, round 2. Gate 0 remains `NOT_RUN`; Gates 1-6
+remain `BLOCKED`. Claim level remains `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Approved in session on 2026-09-21 ("อนุมัติ kaggle"). This
+authorizes the run registered in
+`docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md`, whose status changes from
+`PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT` to `APPROVED`. The approval covers:
+
+1. the addition of `MERGE_GRID` (post-encoder spatial merge) and
+   `PRUNE_COVERAGE` (coverage-preserving, content-aware selection) as arms,
+   bringing the grid to 19 conditions per region;
+2. contrast families B and C, each Holm-corrected within itself and not pooled
+   with family A or with each other;
+3. stage-resolved timing and per-condition peak-memory accounting;
+4. the change of execution path described below;
+5. submission of one Kaggle T4 run on `PaddleOCR-VL-1.6` alone.
+
+**Path change requiring explicit notice.** Every condition now reaches
+`generate()` through `inputs_embeds`, where previously `FULL` and `RR` passed
+`pixel_values` and let `generate()` drive the vision tower. Round 1 timings
+compared two different call graphs and are therefore **withdrawn from any
+comparative use**; round 1 accuracy findings are unaffected.
+`assert_path_equivalence` runs both routes under greedy decoding and fails the
+run unless the output is character-identical, so the `FULL` baseline is the same
+quantity across rounds rather than assumed to be.
+
+### Evidence
+
+- engineering smoke 2026-09-21, 2 regions x 19 conditions, CPU float32:
+  38/38 completed, 0 failures, `path_equivalence: IDENTICAL`,
+  `post_encoder_vision_cost_invariant: true`, token accounting exact for every
+  observation. Recorded in the appendix of the registration document.
+- commits `e68c8a8`, `2fdbaa8`, `9ce8159` on
+  `codex/pinned-analysis-runner-amendment`.
+- 360 tests pass; `scripts/check_research_consistency.py` reports `valid: true`.
+
+### Reasoning
+
+Round 1 could not support an efficiency claim, and the reason was the
+instrument rather than the sample: the families did not run the same code, and
+peak memory was recorded once for the whole job. Both are fixed before more
+evidence is collected rather than after.
+
+The two new arms answer questions no existing contrast can. `MERGE_GRID` keeps
+`PRUNE_GRID`'s survivors, count and M-RoPE positions and changes only what the
+surviving vectors contain, which separates damage caused by discarded content
+from damage caused by the reduced token count. `PRUNE_COVERAGE` keeps the same
+one-survivor-per-cell coverage guarantee and changes only where within a cell
+the survivor sits.
+
+### Alternatives considered
+
+- Running `wayu-paxa-ocr-zero` in the same submission. Rejected: a new method
+  and a new model introduced together cannot be told apart when something looks
+  wrong. wayu runs after this round's mechanics are confirmed, under the same
+  contract.
+- Naming the merge arm after Token Merging (ToMe). Rejected: ToMe merges
+  between vision-transformer layers; this acts on projector output, a different
+  operation at a different insertion point, and the name would claim a
+  reproduction that has not been performed.
+- Adding `VisionZip`, `ET-Prune`, `SparseVLM`, `FastV`, `S2Prune`, `RTPrune`, or
+  pre-encoder patch dropping. Deferred with reasons recorded in the
+  registration document; none may be described as tested on this round.
+
+### Known limitations
+
+No sealed confirmatory split exists, so nothing here is confirmatory. Three
+families of three are corrected separately, so the round-wide error rate is not
+controlled. Efficiency is descriptive: no exchange rate between characters and
+seconds is registered, and none may be introduced after seeing the numbers.
+Wall clock comes from a shared accelerator and is not reproducible; the exact
+token and patch counters recorded beside it are.
+
+The smoke surfaced a confound that this round must be able to rule out: the
+processor upsamples these crops roughly 16x in area at `FULL` against 4x at
+`RR_25`. Round 1's finding that `RR_25` beat `FULL` may be an interpolation
+artefact rather than evidence that compression helps, and the geometry now
+recorded per observation is what decides it.
+
+### Consequence for next stage
+
+Submit one Kaggle T4 run, 400 regions x 19 conditions on `PaddleOCR-VL-1.6`.
+Fetch, verify and report. Only then propose the wayu arm as a separate
+registration.
+
+### Files/configs affected
+
+- `docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md`
+- `src/labbs2026/region_ocr/{execute,cost,merge_runtime,pruning,workload,analysis,report,run}.py`
+- `docs/DECISION_LOG.md`
+
+---
+
 ## 2026-09-20 — Region OCR analysis-population decision
 
 **Stage/Gate:** Region-OCR branch analysis specification. Gate 0 remains

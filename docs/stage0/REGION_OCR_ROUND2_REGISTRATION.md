@@ -1,10 +1,11 @@
 # Region-OCR round 2 — registration of two new post-encoder arms and of cost measurement
 
-**Status: `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT`.**
-Nothing in this document is authorised. It is written before the run, not after,
-so that what was decided in advance can be distinguished from what was decided
-once the numbers were visible. No inference run may use it until a human records
-approval in `docs/DECISION_LOG.md`.
+**Status: `APPROVED` — human approval recorded in `docs/DECISION_LOG.md`,
+entry 2026-09-21.**
+This document was written before the run, not after, so that what was decided in
+advance can be distinguished from what was decided once the numbers were
+visible. It was held `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT` until that entry was
+made.
 
 Round 1 (`kaggle-region-ocr-44109c662d84`, 400 regions × 13 conditions) compared
 one family of interventions against another: Input Resolution Reduction against
