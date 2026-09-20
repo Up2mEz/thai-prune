@@ -30,8 +30,11 @@ dataset:
 
 selection:
   seed: 20260920
-  regions: 400
+  photos: 200                         # clusters; the bootstrap resamples these
+  crops_per_photo: 2
+  regions: 400                        # photos x crops_per_photo, for reference
   cluster_field: source_photo_id
+  rule: recomputed remotely from this seed, never shipped as a list
 
 intervention:
   families: [FULL, INPUT_RESOLUTION_REDUCTION, POST_ENCODER_TOKEN_PRUNING]
