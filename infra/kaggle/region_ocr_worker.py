@@ -44,24 +44,47 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _locate_dataset(root: Path, metadata_sha256: str) -> tuple[Path, Path]:
-    """Find the mounted TEMS release by content, not by folder name.
-
-    Kaggle derives the mount path from the dataset title, which is easy to
-    change by accident. Matching the metadata CSV by hash instead means a
-    renamed or substituted dataset fails loudly rather than running on the
-    wrong corpus.
-    """
+def _scan_for_metadata(root: Path, metadata_sha256: str) -> tuple[Path, Path] | None:
     for candidate in sorted(root.rglob("*.csv")):
         try:
             if _sha256(candidate) == metadata_sha256:
                 images = candidate.parent
-                if not any(images.glob("*.jpg")):
-                    raise RuntimeError(f"metadata found at {candidate} but no images beside it")
-                return candidate, images
+                if any(images.glob("*.jpg")):
+                    return candidate, images
+                for nested in sorted(images.rglob("*.jpg")):
+                    return candidate, nested.parent
+                raise RuntimeError(f"metadata found at {candidate} but no images beside it")
         except OSError:
             continue
-    raise RuntimeError(f"TEMS metadata with sha256 {metadata_sha256} not found under {root}")
+    return None
+
+
+def _locate_dataset(root: Path, metadata_sha256: str, extract_to: Path) -> tuple[Path, Path]:
+    """Find the corpus by content, not by folder name.
+
+    Kaggle derives the mount path from the dataset title, which is easy to change
+    by accident, so the metadata CSV is matched by hash instead: a renamed or
+    substituted dataset fails loudly rather than running on the wrong corpus.
+
+    The dataset is uploaded as a single archive because uploading five thousand
+    individual files is slow and fails part-way, so any archive present is
+    extracted first and the same content check is then applied to the result.
+    """
+    found = _scan_for_metadata(root, metadata_sha256)
+    if found:
+        return found
+
+    import zipfile
+
+    for archive in sorted(root.rglob("*.zip")):
+        extract_to.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(archive) as bundle:
+            bundle.extractall(extract_to)
+        found = _scan_for_metadata(extract_to, metadata_sha256)
+        if found:
+            return found
+
+    raise RuntimeError(f"corpus metadata with sha256 {metadata_sha256} not found under {root}")
 
 
 def main() -> None:
@@ -96,7 +119,9 @@ def main() -> None:
 
         phase = "dataset_discovery"
         metadata_csv, images_dir = _locate_dataset(
-            Path(spec["dataset_root"]), spec["dataset_metadata_sha256"]
+            Path(spec["dataset_root"]),
+            spec["dataset_metadata_sha256"],
+            Path("/tmp/labbs2026-corpus"),
         )
 
         phase = "environment_sync"
