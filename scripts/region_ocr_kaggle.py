@@ -43,8 +43,11 @@ def _git(root: Path, *args: str) -> str:
 
 
 def preflight(root: Path, runtime: dict) -> str:
-    if _git(root, "status", "--porcelain"):
-        raise RuntimeError("working tree is not clean; commit before staging")
+    # Only tracked changes matter: the worker clones from the remote by SHA, so
+    # untracked local files cannot reach the run. Including them here would block
+    # staging on unrelated scratch files.
+    if _git(root, "status", "--porcelain", "--untracked-files=no"):
+        raise RuntimeError("tracked files have uncommitted changes; commit before staging")
     head = _git(root, "rev-parse", "HEAD")
     ref = runtime["source"]["remote_ref"]
     remote = _git(root, "ls-remote", runtime["source"]["repository_url"], ref)
