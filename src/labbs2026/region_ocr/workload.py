@@ -17,9 +17,16 @@ from typing import Any, Sequence
 FAMILY_FULL = "FULL"
 FAMILY_RR = "INPUT_RESOLUTION_REDUCTION"
 FAMILY_PRUNE = "POST_ENCODER_TOKEN_PRUNING"
+FAMILY_MERGE = "POST_ENCODER_SPATIAL_MERGE"
 
 POLICY_GRID = "GRID"
 POLICY_RANDOM = "RANDOM"
+POLICY_COVERAGE = "COVERAGE"
+POLICY_MERGE_GRID = "MERGE_GRID"
+
+# Both post-encoder families are matched against the same Resolution Reduction
+# partner, so anything that checks matching must treat them together.
+POST_ENCODER_FAMILIES = (FAMILY_PRUNE, FAMILY_MERGE)
 
 
 def build_region_observations(
@@ -84,6 +91,39 @@ def build_region_observations(
                 "forced_pixels": None,
             }
         )
+        # Same survivors and same M-RoPE positions as PRUNE_GRID; the only
+        # difference is that each survivor carries the mean of its cell instead
+        # of its own vector. Any gap between the two is therefore attributable
+        # to the discarded content, not to the token count.
+        observations.append(
+            {
+                **base,
+                "condition_id": f"MERGE_GRID_{label}",
+                "family": FAMILY_MERGE,
+                "policy": POLICY_MERGE_GRID,
+                "seed": None,
+                "nominal_ratio": ratio,
+                "target_placeholders": budget["target_placeholders"],
+                "expected_placeholders": achieved,
+                "forced_pixels": None,
+            }
+        )
+        # Same spatial coverage guarantee as PRUNE_GRID, but each cell spends
+        # its one survivor on the token carrying the most contrast, which is
+        # where a small glyph would be.
+        observations.append(
+            {
+                **base,
+                "condition_id": f"PRUNE_COVERAGE_{label}",
+                "family": FAMILY_PRUNE,
+                "policy": POLICY_COVERAGE,
+                "seed": None,
+                "nominal_ratio": ratio,
+                "target_placeholders": budget["target_placeholders"],
+                "expected_placeholders": achieved,
+                "forced_pixels": None,
+            }
+        )
         for seed in random_seeds:
             observations.append(
                 {
@@ -117,7 +157,7 @@ def assert_matched(observations: Sequence[dict[str, Any]]) -> None:
     for region_map in by_region.values():
         for (image_id, ratio), group in region_map.items():
             rr = [o for o in group if o["family"] == FAMILY_RR]
-            pruned = [o for o in group if o["family"] == FAMILY_PRUNE]
+            pruned = [o for o in group if o["family"] in POST_ENCODER_FAMILIES]
             if len(rr) != 1:
                 raise RuntimeError(f"{image_id} ratio {ratio}: expected one RR observation")
             if not pruned:

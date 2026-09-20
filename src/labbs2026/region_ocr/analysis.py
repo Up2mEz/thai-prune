@@ -175,3 +175,77 @@ def analyse_population(
         "estimand": "DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)",
         "multiplicity": "Holm across budgets" if not full_correct_only else "none (secondary)",
     }
+
+
+def analyse_contrast(
+    table: dict[tuple[str, str], float],
+    clusters: dict[str, str],
+    budgets: Sequence[str],
+    *,
+    treatment: str,
+    reference: str,
+    resamples: int,
+    seed: int,
+) -> dict[str, Any]:
+    """One registered contrast family: treatment minus reference, per budget.
+
+    Generalises the primary estimand so the arms added in round 2 are analysed
+    by the same machinery rather than by a second, subtly different one. Each
+    family is Holm-corrected across its own budgets and **not** pooled with the
+    others: with several families of three the round-wide error rate is not
+    controlled, and saying so is part of the result.
+
+    Returns a status rather than raising when the conditions are absent, so a
+    report built from an earlier run stays readable instead of failing on arms
+    that did not exist yet.
+    """
+    conditions = [f"{treatment}_{b}" for b in budgets] + [f"{reference}_{b}" for b in budgets]
+    present = {condition for _, condition in table}
+    missing = [c for c in conditions if c not in present]
+    if missing:
+        return {
+            "status": "CONDITIONS_NOT_PRESENT",
+            "estimand": f"deltaCER({treatment},b) - deltaCER({reference},b)",
+            "missing": missing,
+        }
+
+    regions = eligible_regions(table, conditions, full_correct_only=False)
+    if not regions:
+        return {
+            "status": "NO_COMPLETE_ROWS",
+            "estimand": f"deltaCER({treatment},b) - deltaCER({reference},b)",
+        }
+    plan = bootstrap_matrix(regions, clusters, resamples=resamples, seed=seed)
+
+    arms: dict[str, Any] = {}
+    contrasts: dict[str, Any] = {}
+    raw_p: list[float] = []
+    for budget in budgets:
+        treated = delta_cer(table, regions, f"{treatment}_{budget}")
+        control = delta_cer(table, regions, f"{reference}_{budget}")
+        arms[f"{treatment}_{budget}"] = summarise(treated, plan)
+        arms[f"{reference}_{budget}"] = summarise(control, plan)
+        difference = treated - control
+        draws = np.array([difference[idx].mean() for idx in plan], dtype=float)
+        low, high = _interval(draws, 0.95)
+        p = bootstrap_p_value(draws)
+        raw_p.append(p)
+        contrasts[budget] = {
+            "estimate": float(difference.mean()),
+            "ci_low": low,
+            "ci_high": high,
+            "p_value": p,
+        }
+    for budget, adjusted in zip(budgets, holm(raw_p)):
+        contrasts[budget]["p_holm"] = adjusted
+
+    return {
+        "status": "ANALYSED",
+        "estimand": f"deltaCER({treatment},b) - deltaCER({reference},b)",
+        "regions": len(regions),
+        "clusters": len({clusters[r] for r in regions}),
+        "bootstrap_resamples": resamples,
+        "arms": arms,
+        "contrasts": contrasts,
+        "multiplicity": "Holm within this family only; families are not pooled",
+    }

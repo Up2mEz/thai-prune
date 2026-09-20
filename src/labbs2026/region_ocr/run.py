@@ -17,7 +17,11 @@ from labbs2026.region_ocr.budget import (
     placeholders_for,
     plan_region_budgets,
 )
-from labbs2026.region_ocr.execute import PROMPT, execute_observation
+from labbs2026.region_ocr.execute import (
+    PROMPT,
+    assert_path_equivalence,
+    execute_observation,
+)
 from labbs2026.region_ocr.workload import build_workload, workload_summary
 
 
@@ -172,6 +176,19 @@ def run(
     workload = build_workload(regions, plans, random_seeds=random_seeds)
     summary = workload_summary(workload)
 
+    # Every family now reaches generate() through inputs_embeds. That reroute
+    # must be an identity for the unintervened condition, or the FULL baseline
+    # recorded here is not the same quantity as the one recorded before it, and
+    # every delta measured against it is meaningless. Checked once, on a real
+    # region, before any observation is written.
+    first = regions[0]
+    with Image.open(images_dir / f"{first['image_id']}.jpg") as opened:
+        opened.load()
+        equivalence = assert_path_equivalence(
+            model, processor, opened.convert("RGB").copy(),
+            max_new_tokens=max_new_tokens, device=device,
+        )
+
     raw_path = artifact_dir / "observations.jsonl"
     failures: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
@@ -208,6 +225,7 @@ def run(
     manifest = {
         "status": "REGION_OCR_RUN_COMPLETE" if not failures else "REGION_OCR_RUN_WITH_FAILURES",
         "prompt": PROMPT,
+        "path_equivalence": equivalence,
         "ratios": list(ratios),
         "random_seeds": list(random_seeds),
         "max_new_tokens": max_new_tokens,

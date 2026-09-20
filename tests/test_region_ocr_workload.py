@@ -6,6 +6,7 @@ import pytest
 
 from labbs2026.region_ocr.workload import (
     FAMILY_FULL,
+    FAMILY_MERGE,
     FAMILY_PRUNE,
     FAMILY_RR,
     assert_matched,
@@ -36,10 +37,12 @@ def _plan(full=160, achieved=(120, 80, 40)):
     }
 
 
-def test_one_region_yields_thirteen_observations() -> None:
+def test_one_region_yields_nineteen_observations() -> None:
+    # FULL, then per ratio: RR, PRUNE_GRID, MERGE_GRID, PRUNE_COVERAGE and one
+    # PRUNE_RANDOM per seed.
     obs = build_region_observations(_region(), _plan(), random_seeds=SEEDS)
-    assert len(obs) == 1 + 3 * (1 + 1 + len(SEEDS))
-    assert len(obs) == 13
+    assert len(obs) == 1 + 3 * (4 + len(SEEDS))
+    assert len(obs) == 19
 
 
 def test_family_counts_are_as_designed() -> None:
@@ -47,7 +50,8 @@ def test_family_counts_are_as_designed() -> None:
     families = [o["family"] for o in obs]
     assert families.count(FAMILY_FULL) == 1
     assert families.count(FAMILY_RR) == 3
-    assert families.count(FAMILY_PRUNE) == 9
+    assert families.count(FAMILY_PRUNE) == 12
+    assert families.count(FAMILY_MERGE) == 3
 
 
 def test_pruning_uses_the_achieved_count_not_the_nominal_target() -> None:
@@ -96,7 +100,7 @@ def test_full_condition_carries_no_intervention_parameters() -> None:
 def test_rr_carries_forced_pixels_and_pruning_does_not() -> None:
     obs = build_region_observations(_region(), _plan(), random_seeds=SEEDS)
     assert all(o["forced_pixels"] for o in obs if o["family"] == FAMILY_RR)
-    assert all(o["forced_pixels"] is None for o in obs if o["family"] == FAMILY_PRUNE)
+    assert all(o["forced_pixels"] is None for o in obs if o["family"] != FAMILY_RR)
 
 
 def test_seeds_must_be_distinct_and_present() -> None:
@@ -119,9 +123,22 @@ def test_workload_summary_counts() -> None:
     work = build_workload(regions, plans, random_seeds=SEEDS)
     summary = workload_summary(work)
     assert summary == {
-        "observations": 39,
+        "observations": 57,
         "regions": 3,
         "clusters": 2,
-        "conditions_per_region": 13,
-        "by_family": {FAMILY_FULL: 3, FAMILY_RR: 9, FAMILY_PRUNE: 27},
+        "conditions_per_region": 19,
+        "by_family": {
+            FAMILY_FULL: 3, FAMILY_RR: 9, FAMILY_PRUNE: 36, FAMILY_MERGE: 9,
+        },
     }
+
+
+def test_merge_and_grid_share_a_budget_and_differ_only_in_family() -> None:
+    """The merge arm is only interpretable if it matches PRUNE_GRID exactly."""
+    obs = build_region_observations(_region(), _plan(), random_seeds=SEEDS)
+    for label in ("75", "50", "25"):
+        grid = [o for o in obs if o["condition_id"] == f"PRUNE_GRID_{label}"][0]
+        merge = [o for o in obs if o["condition_id"] == f"MERGE_GRID_{label}"][0]
+        assert merge["expected_placeholders"] == grid["expected_placeholders"]
+        assert merge["nominal_ratio"] == grid["nominal_ratio"]
+        assert merge["family"] == FAMILY_MERGE and grid["family"] == FAMILY_PRUNE
