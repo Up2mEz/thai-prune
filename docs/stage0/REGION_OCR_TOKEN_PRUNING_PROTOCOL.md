@@ -285,13 +285,15 @@ Binding rules for whichever corpus is used:
 3. The evaluation split is not opened during development and never used to
    choose a model, prompt, budget, scale policy, or metric.
 4. **`FULL` is the processor's default operating point, not a policy we
-   invent** (audit §3.2). `preprocessor_config.json` declares
-   `min_pixels: 112896` with `patch_size 14` / `merge_size 2`, so the processor
-   upsamples anything smaller to a floor of **144 visual tokens**. 99.7% of TEMS
-   crops sit below that floor, so `N = 144` for virtually the whole corpus and
-   the registered grid is **144 → 108 → 72 → 36**, with no degenerate regions.
-   This must be confirmed by a processor-only run reporting actual
-   `image_grid_thw` and placeholder counts before the grid is frozen.
+   invent** (audit §3.2, measured in
+   `docs/stage0/REGION_OCR_PROCESSOR_GEOMETRY.json`). The processor declares
+   `min_pixels: 112896` with `patch_size 14` / `merge_size 2` and upsamples
+   anything below that floor. Running it over all 5,000 released crop
+   dimensions gives placeholders of p1 145 / median **160** / p99 180, min 144,
+   max 405, and **no region with a degenerate four-level grid**. The count is
+   not monotonic in crop area, because `smart_resize` chooses the grid shape,
+   so `N` genuinely varies and the per-region matching rule in §5 is required
+   rather than decorative.
 
    Two consequences are stated wherever results are reported: `FULL` means the
    model's standard operating resolution for that crop rather than all available

@@ -85,33 +85,36 @@ photo-level leakage-safe, so they can be reused instead of re-splitting.
 
 ### 3.2 Crop size and the budget grid — resolved by the processor defaults
 
-**Resolution (2026-09-20).** The concern below was real at native resolution but
-is answered by the processor's own configuration. `preprocessor_config.json` at
-the pinned PaddleOCR-VL-1.6 revision declares `min_pixels: 112896`,
-`max_pixels: 1003520`, `patch_size: 14`, `merge_size: 2`. Since one post-merge
-token covers 28×28 = 784 px², the processor's own floor is
-112896 / 784 = **144 visual tokens**, and it upsamples anything smaller to reach
-it. Projected over the released crop dimensions:
+**Resolution (2026-09-20), measured.** The concern below was real at native
+resolution but is answered by the processor's own configuration. The pinned
+PaddleOCR-VL-1.6 processor declares `min_pixels: 112896`, `max_pixels: 1003520`,
+`patch_size: 14`, `merge_size: 2`, and upsamples anything below the floor.
 
-| Property | Value |
-|---|---|
-| Crops below `min_pixels` (upsampled to the floor) | **4,984 / 5,000 (99.7%)** |
-| Crops above `max_pixels` | 0 |
-| Effective tokens, p5 through p95 | **144 at every quantile** |
-| Distinct effective token values across the corpus | 17 |
-| Regions whose `FULL/75/50/25` grid degenerates | **0** |
+An earlier draft of this section projected a constant **144** placeholders by
+dividing `min_pixels` by 784. **That was wrong in detail.** The processor's
+`smart_resize` rounds each side up to a multiple of 28 px, so it overshoots the
+floor by a shape-dependent amount. Running the actual processor over all 5,000
+released crop dimensions gives:
 
-So no arbitrary scale policy has to be invented: `FULL` is simply the
-processor's default operating point, which is also the deployment behaviour.
-`N = 144` for virtually every region, giving a clean grid of
-**144 → 108 → 72 → 36**. The per-region matching rule in the protocol still
-applies, but it now only does real work for the 16 outlier crops.
+| Quantile | p1 | p5 | p25 | median | p75 | p95 | p99 |
+|---|---|---|---|---|---|---|---|
+| Placeholders | 145 | 148 | 154 | **160** | 168 | 175 | 180 |
 
-**This projection is analytic**, computed from the declared `min_pixels` and the
-released width/height columns. It must be confirmed by a processor-only run that
-reports the actual `image_grid_thw` and placeholder counts, following the
-precedent of `PADDLE_WAYU_PROCESSOR_GEOMETRY.json`
-(`PROCESSOR_ONLY_NO_MODEL_INFERENCE`), before the grid is frozen.
+with min 144, max 405, 33 distinct values, and **0 regions whose
+`FULL/75/50/25` grid degenerates**. The count is not monotonic in crop area —
+a 360×60 crop yields 150 placeholders while a smaller 262×49 crop yields 168 —
+because `smart_resize` chooses the grid shape, not just its size.
+
+So no arbitrary scale policy has to be invented: `FULL` is the processor's
+default operating point, which is also the deployment behaviour. `N` sits in a
+narrow 144–180 band for 99% of regions, and the per-region budget-matching rule
+in the protocol does real work because `N` genuinely varies.
+
+Method validated against the existing frozen record: feeding a 448×448 control
+through the same path reproduces `grid [1,32,32]`, 1,024 pre-merge, **256**
+placeholders, matching `PADDLE_WAYU_PROCESSOR_GEOMETRY.json`. Full measurement
+is recorded in `docs/stage0/REGION_OCR_PROCESSOR_GEOMETRY.json`
+(`PROCESSOR_ONLY_NO_MODEL_INFERENCE`).
 
 **Residual scientific caveat.** A median crop carries roughly 11 tokens' worth
 of native detail but is presented to the model as 144 tokens, so most tokens are
