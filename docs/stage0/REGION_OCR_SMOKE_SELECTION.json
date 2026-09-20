@@ -1,0 +1,365 @@
+{
+ "seed": 20260920,
+ "splits": [
+  "train"
+ ],
+ "region_count": 20,
+ "photo_count": 5,
+ "regions": [
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000173",
+   "filename": "1156_ประจำปี 2565.jpg",
+   "label": "ประจำปี 2565",
+   "image_width": 196,
+   "image_height": 57,
+   "split": "train",
+   "mendeley_sha256": "e481bd65c9453d292aa2c10fec1438be32ccf12f661a50596af86cb71b5bc0bd",
+   "bytes": 4617,
+   "image_grid_thw": [
+    1,
+    14,
+    46
+   ],
+   "placeholders": 161
+  },
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000174",
+   "filename": "1157_แบบชำระภาษี.jpg",
+   "label": "แบบชำระภาษี",
+   "image_width": 194,
+   "image_height": 50,
+   "split": "train",
+   "mendeley_sha256": "0327d7d551766638b06786cdb0f98fbc45604913d2d05a26955fa84e892eef13",
+   "bytes": 4374,
+   "image_grid_thw": [
+    1,
+    14,
+    48
+   ],
+   "placeholders": 168
+  },
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000182",
+   "filename": "1164_ท้องถิ่นสวย.jpg",
+   "label": "ท้องถิ่นสวย",
+   "image_width": 221,
+   "image_height": 60,
+   "split": "train",
+   "mendeley_sha256": "b16b29c8b9649aee3e727a6fb091e074eb5fae2a1490ea610881d6c9fbaf3c21",
+   "bytes": 5469,
+   "image_grid_thw": [
+    1,
+    14,
+    48
+   ],
+   "placeholders": 168
+  },
+  {
+   "source_photo_id": "billboards_35",
+   "image_id": "img_000477",
+   "filename": "142_ภาษีที่ดินและสิ่งปลูกสร้าง.jpg",
+   "label": "ภาษีที่ดินและสิ่งปลูกสร้าง",
+   "image_width": 298,
+   "image_height": 57,
+   "split": "train",
+   "mendeley_sha256": "18881a504004c2512cc64a50b27ba65f2ea3dc15637788a3bb8c8e2efcc71c73",
+   "bytes": 6226,
+   "image_grid_thw": [
+    1,
+    12,
+    56
+   ],
+   "placeholders": 168
+  },
+  {
+   "source_photo_id": "menus_22",
+   "image_id": "img_000022",
+   "filename": "101_สปาเกตตี้ไก่สับซอสแดง.jpg",
+   "label": "สปาเกตตี้ไก่สับซอสแดง",
+   "image_width": 417,
+   "image_height": 67,
+   "split": "train",
+   "mendeley_sha256": "165bb98bf9a3bc40a3f5d0583ecbcbe3d922c22902d09dbfceeba7afbb3b1d97",
+   "bytes": 9046,
+   "image_grid_thw": [
+    1,
+    10,
+    60
+   ],
+   "placeholders": 150
+  },
+  {
+   "source_photo_id": "menus_22",
+   "image_id": "img_000093",
+   "filename": "1084_สปาเกตตี้ไก่สับ.jpg",
+   "label": "สปาเกตตี้ไก่สับ",
+   "image_width": 265,
+   "image_height": 74,
+   "split": "train",
+   "mendeley_sha256": "637e6686933be7301ca23d7e4918b7ddb7cab9334e98d9e9c4cf33b14675699b",
+   "bytes": 6531,
+   "image_grid_thw": [
+    1,
+    14,
+    46
+   ],
+   "placeholders": 161
+  },
+  {
+   "source_photo_id": "menus_22",
+   "image_id": "img_000268",
+   "filename": "1241_เฟรนฟรายชีสเยิ้ม.jpg",
+   "label": "เฟรนฟรายชีสเยิ้ม",
+   "image_width": 285,
+   "image_height": 64,
+   "split": "train",
+   "mendeley_sha256": "9d0985eeb06e2720ba53624286b545f7f83e33aae10be9b9f3dcc0f6dc8bbb3c",
+   "bytes": 6196,
+   "image_grid_thw": [
+    1,
+    12,
+    52
+   ],
+   "placeholders": 156
+  },
+  {
+   "source_photo_id": "menus_22",
+   "image_id": "img_000705",
+   "filename": "1635_เมนูข้าว.jpg",
+   "label": "เมนูข้าว",
+   "image_width": 143,
+   "image_height": 63,
+   "split": "train",
+   "mendeley_sha256": "7bd2b0cd84c5bc46df1951000fd4cb6204832db9f9bf721dad1494ab8b90bfa1",
+   "bytes": 4648,
+   "image_grid_thw": [
+    1,
+    16,
+    38
+   ],
+   "placeholders": 152
+  },
+  {
+   "source_photo_id": "packaging_501",
+   "image_id": "img_000008",
+   "filename": "1007_รูปถ่าย 1 นิ้ว.jpg",
+   "label": "รูปถ่าย 1 นิ้ว",
+   "image_width": 215,
+   "image_height": 66,
+   "split": "train",
+   "mendeley_sha256": "2bdc701317cbe9a32cebaa3443a70e24d8f232ec8906249a8a91a62a624c3577",
+   "bytes": 4848,
+   "image_grid_thw": [
+    1,
+    14,
+    44
+   ],
+   "placeholders": 154
+  },
+  {
+   "source_photo_id": "packaging_501",
+   "image_id": "img_000645",
+   "filename": "1581_เซอร์เทนตี้ ซุปเปอร์แพ้นส์.jpg",
+   "label": "เซอร์เทนตี้ ซุปเปอร์แพ้นส์",
+   "image_width": 239,
+   "image_height": 55,
+   "split": "train",
+   "mendeley_sha256": "8a4710df613da76c5bf68de91d6a9f18070d15b430ecd177ae8e8a4819acdaca",
+   "bytes": 5960,
+   "image_grid_thw": [
+    1,
+    12,
+    52
+   ],
+   "placeholders": 156
+  },
+  {
+   "source_photo_id": "packaging_501",
+   "image_id": "img_000711",
+   "filename": "1640_สปาเกตตี้ขี้เมาทะเล 89฿.jpg",
+   "label": "สปาเกตตี้ขี้เมาทะเล 89฿",
+   "image_width": 302,
+   "image_height": 35,
+   "split": "train",
+   "mendeley_sha256": "d6d69a4e58833eea9cf163d58e7c874f2aeb5eb4021c4a9a8de87e96f32e191a",
+   "bytes": 5085,
+   "image_grid_thw": [
+    1,
+    10,
+    72
+   ],
+   "placeholders": 180
+  },
+  {
+   "source_photo_id": "packaging_501",
+   "image_id": "img_000897",
+   "filename": "1808_ยำปูม้า.jpg",
+   "label": "ยำปูม้า",
+   "image_width": 118,
+   "image_height": 59,
+   "split": "train",
+   "mendeley_sha256": "f49f88de541b9bcef61dcf841d1b69635563fcb99af6d6d58d653d9b9c8b8f8c",
+   "bytes": 3348,
+   "image_grid_thw": [
+    1,
+    18,
+    34
+   ],
+   "placeholders": 153
+  },
+  {
+   "source_photo_id": "publication covers_238",
+   "image_id": "img_000304",
+   "filename": "1274_หลักการเลือกเทคนิคทางสถิติ.jpg",
+   "label": "หลักการเลือกเทคนิคทางสถิติ",
+   "image_width": 287,
+   "image_height": 35,
+   "split": "train",
+   "mendeley_sha256": "9f89b00fee2193c4b7ff27320fa539328167885432065d1556f28a4acd671ecf",
+   "bytes": 6720,
+   "image_grid_thw": [
+    1,
+    10,
+    70
+   ],
+   "placeholders": 175
+  },
+  {
+   "source_photo_id": "publication covers_238",
+   "image_id": "img_000319",
+   "filename": "1288_อธิบายหลักการทางสถิติ.jpg",
+   "label": "อธิบายหลักการทางสถิติ",
+   "image_width": 244,
+   "image_height": 39,
+   "split": "train",
+   "mendeley_sha256": "d57d43bc2e9485f7635ec5fc5fc9e8a97808cdfb914dd41cd6ed88bfac526841",
+   "bytes": 6138,
+   "image_grid_thw": [
+    1,
+    10,
+    62
+   ],
+   "placeholders": 155
+  },
+  {
+   "source_photo_id": "publication covers_238",
+   "image_id": "img_000344",
+   "filename": "130_ดร.กัลยา วานิชย์บัญชา.jpg",
+   "label": "ดร.กัลยา วานิชย์บัญชา",
+   "image_width": 232,
+   "image_height": 35,
+   "split": "train",
+   "mendeley_sha256": "7adae05291a3a3d890656c1fe11f45271c2685017fbb8c01b5a8bd90f8919f0b",
+   "bytes": 5134,
+   "image_grid_thw": [
+    1,
+    10,
+    62
+   ],
+   "placeholders": 155
+  },
+  {
+   "source_photo_id": "publication covers_238",
+   "image_id": "img_000399",
+   "filename": "135_ฐิตา วานิชย์บัญชา.jpg",
+   "label": "ฐิตา วานิชย์บัญชา",
+   "image_width": 191,
+   "image_height": 40,
+   "split": "train",
+   "mendeley_sha256": "0f708cc7882548c587a07a89ed19470b848455049c81cca20a36cfacbeb5a004",
+   "bytes": 4562,
+   "image_grid_thw": [
+    1,
+    12,
+    54
+   ],
+   "placeholders": 162
+  },
+  {
+   "source_photo_id": "road signs_156",
+   "image_id": "img_000027",
+   "filename": "1024_ตรวจคนเข้าเมือง.jpg",
+   "label": "ตรวจคนเข้าเมือง",
+   "image_width": 200,
+   "image_height": 72,
+   "split": "train",
+   "mendeley_sha256": "3e77043108da378a1272db2838d14a116d41f41885249e937703c1d1b4d2f7eb",
+   "bytes": 6212,
+   "image_grid_thw": [
+    1,
+    16,
+    40
+   ],
+   "placeholders": 160
+  },
+  {
+   "source_photo_id": "road signs_156",
+   "image_id": "img_000028",
+   "filename": "1025_มหาสารคาม.jpg",
+   "label": "มหาสารคาม",
+   "image_width": 163,
+   "image_height": 71,
+   "split": "train",
+   "mendeley_sha256": "adab167afb12e23bd654c8051655f119fce34999147f7ee073e355f4511a4810",
+   "bytes": 5392,
+   "image_grid_thw": [
+    1,
+    16,
+    38
+   ],
+   "placeholders": 152
+  },
+  {
+   "source_photo_id": "road signs_156",
+   "image_id": "img_000089",
+   "filename": "1080_ปปช..jpg",
+   "label": "ปปช.",
+   "image_width": 107,
+   "image_height": 63,
+   "split": "train",
+   "mendeley_sha256": "46b39110f4782dc11c81865253af19f302dd89d9ebeb9b753221c51c99a8fbd6",
+   "bytes": 4053,
+   "image_grid_thw": [
+    1,
+    20,
+    32
+   ],
+   "placeholders": 160
+  },
+  {
+   "source_photo_id": "road signs_156",
+   "image_id": "img_000090",
+   "filename": "1081_สำนักงาน.jpg",
+   "label": "สำนักงาน",
+   "image_width": 193,
+   "image_height": 64,
+   "split": "train",
+   "mendeley_sha256": "c034e28cc34ab70ce0b0b993964ca5115a19818d16f4f64093677806ac66a39c",
+   "bytes": 5639,
+   "image_grid_thw": [
+    1,
+    14,
+    42
+   ],
+   "placeholders": 147
+  }
+ ],
+ "status": "FROZEN_BEFORE_ANY_MODEL_OUTPUT",
+ "dataset": {
+  "name": "TEMS",
+  "doi": "10.17632/ntdmgksh9w.5",
+  "license": "CC BY 4.0",
+  "metadata_csv_sha256": "163059c62d28086f5455db5cdbbcd99d9a4b9435084668dcd2fdd254936ca9e6"
+ },
+ "selection_rule": {
+  "require_thai": true,
+  "thai_block": "U+0E00-U+0E7F",
+  "photos": 5,
+  "crops_per_photo": 4,
+  "availability_filter": "first 1000 files enumerable via Mendeley public-api (distribution limit, not a sampling frame)"
+ },
+ "purpose": "ENGINEERING_SMOKE_ONLY_EXCLUDED_FROM_SCIENTIFIC_SUMMARIES"
+}
