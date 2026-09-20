@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "classification": "PARTIAL_SCIENTIFIC_RUN_FAILURE_PENDING_HUMAN_REVIEW",
+  "executive_summary": {
+    "failed": true,
+    "phase": "model_execution",
+    "kernel_version_existed": true,
+    "kernel_numeric_version": null,
+    "kernel_numeric_version_note": "Current authenticated Kaggle API exposed the updated run timestamp, ERROR state, output session, and artifacts but did not expose the numeric version. Version 3 is an inference, not a confirmed fact.",
+    "model_loading_occurred": true,
+    "scientific_completed_call_count": 4136,
+    "expected_scientific_call_count": 6400,
+    "scientific_outputs_exist": true,
+    "scientific_outputs_inspected": false,
+    "scientific_analysis_run": false,
+    "resubmission_or_retry_performed": false
+  },
+  "identities": {
+    "run_id": "kaggle-paddle-wayu-locked-panel-attempt4",
+    "attempt": 4,
+    "authorization_label": "LOCKED_PANEL_RERUN_AUTHORIZED",
+    "scientific_design_commit": "871996221a36a56a401fa040c239f55768561210",
+    "execution_commit": "1f028e243ad3890377159f04efc35c01a3bac6a7",
+    "local_commit": "1f028e243ad3890377159f04efc35c01a3bac6a7",
+    "remote_commit": "1f028e243ad3890377159f04efc35c01a3bac6a7",
+    "dataset_slug": "thanakritsamoena/labbs2026-paddle-wayu-locked-source",
+    "dataset_id": 12006749,
+    "dataset_version": 1,
+    "frozen_design_sha256": "6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1",
+    "content_manifest_sha256": "5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb",
+    "source_bundle_sha256": "9edff88382c51ed4d48a073813b4309535fb34ba5318ea85ca8ea6da75bc229e",
+    "runtime_config_sha256": "626484d85f252852f2b97e2ab18f529c55c56a5e62a06955ca90858adc829e5a",
+    "kernel_slug": "thanakritsamoena/labbs2026-paddle-wayu-locked-model-budget-panel",
+    "kernel_session_id": 349542013
+  },
+  "exception": {
+    "class": "RuntimeError",
+    "message": "Unicode decoding corruption",
+    "traceback": "Traceback (most recent call last):\n  File \"/tmp/labbs2026-source/src/labbs2026/stage0/paddle_wayu_locked_panel.py\", line 518, in execute_remote_panel\n    manifest, runtime, completed = _run_model(\n                                   ^^^^^^^^^^^\n  File \"/tmp/labbs2026-source/src/labbs2026/stage0/paddle_wayu_locked_panel.py\", line 419, in _run_model\n    raise RuntimeError(\"Unicode decoding corruption\")\nRuntimeError: Unicode decoding corruption\n",
+    "subprocess_stderr_artifact": "runs/kaggle/kaggle-paddle-wayu-locked-panel-attempt4/failure_fetch/artifacts/_bootstrap_failures/kaggle-paddle-wayu-locked-panel-attempt4.json",
+    "subprocess_stderr_artifact_sha256": "a0f6749e22ef39d639352dd374f14242586f03293f6d1458d84f6dd946112734",
+    "relevant_kernel_log_section": "Both 608-shard weight-loading sequences completed. Core then raised RuntimeError: Unicode decoding corruption at _run_model line 419. The preceding wrapt sitecustomize warning did not stop execution. Engineering progress reached 4100 and the ledger finalized at 4136 lines.",
+    "full_original_error_preserved": true
+  },
+  "last_successful_phase": "CALL_4136",
+  "first_failing_phase": "model_execution: decoded Unicode validation before appending CALL_4137",
+  "artifact_inventory": {
+    "remote_output_file_count": 4013,
+    "immutable_zip_entry_count": 4014,
+    "immutable_zip_extra_entry": "__huggingface_repos__.json",
+    "present": [
+      "engineering/AUTHORIZATION_VALIDATED.json",
+      "engineering/CORE_OWNERSHIP_CLAIMED.json",
+      "engineering/environment_manifest.json",
+      "engineering/call_ledger.jsonl",
+      "engineering/FAILURE.json",
+      "sealed/raw_outputs_base.jsonl",
+      "sealed/raw_outputs_specialized.jsonl",
+      "sealed/source_448/",
+      "sealed/stimuli/"
+    ],
+    "missing_due_to_fail_closed_termination": [
+      "engineering/model_revision_manifest.json",
+      "engineering/runtime_report.json",
+      "engineering/execution_manifest.json",
+      "checksums.sha256",
+      "SUCCESS.json"
+    ],
+    "critical_hashes": {
+      "engineering/AUTHORIZATION_VALIDATED.json": "8c22c9cdb5f0bc63b8db911efda10148f958680117bf99432539e0aa88423fb2",
+      "engineering/CORE_OWNERSHIP_CLAIMED.json": "7afd6f56afedab3822648846804ff8bb101b154a2bff9f35019a2dc27b8dc0f1",
+      "engineering/environment_manifest.json": "2e0ef4581f8f96e44e6414bd8d19c8c5cc5377fb4bc04bc52ae63710103e3edd",
+      "engineering/call_ledger.jsonl": "ab69f91be3c4543c5376fbd9e23e2e57445ea5f787625beb9c69e10a4e2e24e2",
+      "engineering/FAILURE.json": "868886c98a392337cd958cfeb3f65146da85cf6f0476427a8b5c9d29d649c85b",
+      "sealed/raw_outputs_base.jsonl": "d50360c46a19bdfe425b89dbdb081e489cfe0af123dd5aee00975f4483cd1782",
+      "sealed/raw_outputs_specialized.jsonl": "757502614cec647704335af04955ff665799856617adefb1a461a6aae3284ec0"
+    },
+    "immutable_snapshot": {
+      "path": "runs/kaggle/kaggle-paddle-wayu-locked-panel-attempt4/attempt4_remote_failure_artifacts_v2.zip",
+      "bytes": 13052397,
+      "sha256": "e6db8c69b530464bbebdcfa0c8640c1b3c1f771d4b5f89fcb71ef2af8cca8127",
+      "read_only": true
+    },
+    "noncanonical_incomplete_local_downloads": [
+      "runs/kaggle/kaggle-paddle-wayu-locked-panel-attempt4/failure_fetch/",
+      "runs/kaggle/kaggle-paddle-wayu-locked-panel-attempt4/failure_fetch_complete/",
+      "runs/kaggle/kaggle-paddle-wayu-locked-panel-attempt4/attempt4_remote_failure_artifacts.zip (zero bytes)"
+    ]
+  },
+  "remote_kaggle_state": {
+    "status": "ERROR",
+    "last_run_time_utc": "2026-09-13T14:30:22.317000Z",
+    "failure_timestamp_utc": "2026-09-13T14:42:04.170281Z",
+    "remote_log_available": true,
+    "local_cli_log_render_issue": "cp874 charmap could not encode Thai log text; the worker-preserved stderr is available in the bootstrap failure artifact"
+  },
+  "scientific_integrity": {
+    "classification": "PARTIAL_SCIENTIFIC_OUTPUTS_SEALED",
+    "reason": "The engineering ledger contains 4136 completed calls. Both raw output files exist and were hashed without parsing or displaying their contents. The 6400-call panel, checksum finalization, SUCCESS marker, local VERIFIED gate, and registered analysis were not reached."
+  },
+  "root_cause_analysis": {
+    "facts": [
+      "processor.decode returned a Python string for which the compound guard at lines 418-419 failed",
+      "the guard fails when U+FFFD is present even though U+FFFD itself has a valid strict UTF-8 round trip",
+      "both model weight-loading sequences completed and T4/CUDA preflight passed",
+      "the failure occurred after 4136 ledgered calls and before the next scientific record was appended",
+      "no NaN, token-accounting, provenance, authorization, ownership, or CUDA failure was recorded"
+    ],
+    "inferences": [
+      "The immediate trigger was presence of the Unicode replacement character U+FFFD, rather than a failed Python UTF-8 round trip",
+      "A truncated byte-level token sequence at max_new_tokens is one plausible mechanism"
+    ],
+    "unknowns": [
+      "Whether the replacement character originated from a max_new_tokens boundary, tokenizer byte fallback, or another decode path",
+      "The failing generated-token tail and whether generation reached max_new_tokens; these were not captured before the fail-closed exception",
+      "The numeric Kaggle kernel version; the authenticated API did not expose it"
+    ]
+  },
+  "root_cause_classification": "UNICODE_DECODE_VALIDATION_FAILURE",
+  "minimal_reproduction": "uv run python -c \"s='\\ufffd'; print(s.encode('utf-8').decode('utf-8') == s, '\\ufffd' in s)\"",
+  "minimal_reproduction_result": "True True",
+  "narrowest_proposed_repair": {
+    "implemented": false,
+    "reason_not_implemented": "The failure occurred after scientific calls. The absolute rule requires sealed preservation and human review before any execution repair.",
+    "diagnostic_only_patch": [
+      "In src/labbs2026/stage0/paddle_wayu_locked_panel.py::_run_model, split strict UTF-8 round-trip failure from U+FFFD presence",
+      "Before raising, preserve engineering-only fields: generated_token_count, hit_max_new_tokens, generated_token_tail_ids, utf8_roundtrip_ok, replacement_character_present, and failing call_index/call_id without decoded text",
+      "Add unit tests in tests/test_paddle_wayu_locked_panel.py for valid U+FFFD round trip and the new diagnostic evidence"
+    ],
+    "completion_repair_boundary": "Any change that permits U+FFFD to enter scientific raw output, changes max_new_tokens, alters processor.decode, changes parser behavior, or changes Unicode scoring touches the frozen scientific contract and requires explicit human scientific-design review."
+  },
+  "forbidden_repairs": [
+    "silently allow or replace U+FFFD",
+    "change max_new_tokens or decoding behavior",
+    "change prompt, parser, Unicode scoring, model revisions, budgets, or inputs",
+    "drop or replace the failing observation",
+    "analyze the 4136 partial outputs",
+    "retry or submit another Kaggle version"
+  ],
+  "scientific_design_changed": false,
+  "local_debug_patch_created": false,
+  "recommended_next_action": "SCIENTIFIC_PARTIAL_RUN_REVIEW_REQUIRED"
+}

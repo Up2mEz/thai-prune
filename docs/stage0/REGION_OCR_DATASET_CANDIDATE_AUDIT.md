@@ -1,10 +1,11 @@
 # Region OCR — Dataset Candidate Audit
 
-> Status: `SURVEY_COMPLETE_PENDING_HUMAN_SELECTION`
+> Status: `SURVEY_COMPLETE_CORPUS_OBTAINED`
 >
-> Authorization: **NONE**. No dataset was downloaded, opened, or used.
->
-> Audited: 2026-09-20 from dataset cards, publisher pages, and papers.
+> Audited 2026-09-20 from dataset cards, publisher pages, and the paper. The
+> complete TEMS release was subsequently obtained by the human researcher and
+> verified (§3.2.3). That was data preparation only: no model inference has
+> been run against this corpus and no protocol was changed by obtaining it.
 
 ## 1. The binding filter
 
@@ -117,7 +118,7 @@ is recorded in `docs/stage0/REGION_OCR_PROCESSOR_GEOMETRY.json`
 (`PROCESSOR_ONLY_NO_MODEL_INFERENCE`).
 
 **Residual scientific caveat.** A median crop carries roughly 11 tokens' worth
-of native detail but is presented to the model as 144 tokens, so most tokens are
+of native detail but is presented to the model as roughly 160 tokens, so most are
 interpolated redundancy. This is the model's genuine operating point rather than
 something the design imposes, but it biases the experiment towards finding
 pruning harmless. A *positive* result under this redundancy is therefore strong;
@@ -215,11 +216,22 @@ Reachable totals, for reference: 588 Thai-bearing regions across 379 clusters
 (train 461 / 299), which is 22% of the Thai corpus and 41% of its clusters —
 enough for cluster bootstrap, but at the cost of the bias above.
 
-**Resolution:** this limit is an artifact of the machine-readable API, not of the
-licence or the dataset. A human can obtain the complete release in one action
-through the Mendeley web interface, which removes the restriction entirely. The
-scientific run should use the complete release; the reachable subset is a
-fallback whose bias must be reported if it is ever used.
+**Resolved 2026-09-20.** The limit was an artifact of the machine-readable API,
+not of the licence or the dataset. The human researcher obtained the complete
+release through the Mendeley web interface, and it verifies clean:
+
+| Check | Result |
+|---|---|
+| Archive sha256 | `7002f6441bbc78c1cbb82bbeff9f738c920bd516cb98f23c59be1816f3152da9` |
+| Size | 28,428,313 bytes |
+| Entries | 5,003 = 5,000 JPEG + README + LICENSE + metadata CSV |
+| Filenames in CSV but absent from the archive | 0 |
+| Files in the archive but absent from the CSV | 0 |
+| Thai-bearing regions now available | **2,661 across 927 clusters** |
+
+The biased 588-region / 379-cluster frame described above is therefore
+superseded and must not be used. Obtaining the archive was data preparation
+only: no inference was run and no protocol was changed.
 
 ### 3.3 Component coverage — adequate, with one gap
 

@@ -192,7 +192,18 @@ DiD_b      = ΔCER(PRUNE_GRID, b) − ΔCER(RR, b)
 A **positive** `DiD_b` means post-encoder pruning degraded recognition more than
 resolution reduction at the same actual token count.
 
-### 8.2.1 Analysis population — frozen before any pruning outcome exists
+### 8.2.1 Analysis population — PROPOSED, NOT IN EFFECT
+
+>  Status: `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT`
+>
+> This subsection changes the registered scientific estimand; it is not
+> engineering plumbing. It was drafted and committed in `463912f` without a
+> corresponding `docs/DECISION_LOG.md` entry, which the project's governance
+> requires for a scientific decision. It therefore does **not** govern any
+> analysis until the human researcher approves it. The authorization request
+> is `docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md`. Until then the
+> registered estimand remains §8.2 over all eligible regions.
+
 
 Two populations are registered, both analysed and both reported:
 
@@ -348,7 +359,7 @@ Binding rules for whichever corpus is used:
    Two consequences are stated wherever results are reported: `FULL` means the
    model's standard operating resolution for that crop rather than all available
    detail; and because a median crop carries roughly 11 tokens of native detail
-   presented as 144, most tokens are interpolated redundancy. That biases the
+   presented as roughly 160, most tokens are interpolated redundancy. That biases the
    design towards finding pruning harmless, so a positive result is strong while
    a null is weak and carries this caveat.
 5. Report realized counts including shortfalls. Quotas are never filled with
