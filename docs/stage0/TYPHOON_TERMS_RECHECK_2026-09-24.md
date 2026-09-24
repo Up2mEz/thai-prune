@@ -1,7 +1,9 @@
 # OpenTyphoon Terms — re-check, 2026-09-24
 
-**Status: `LEGAL_TERMS_CLEARANCE_REQUIRED` — unchanged.** This records evidence
-only. It is not a legal determination and authorizes nothing.
+**Status: `CLEARED_BY_HUMAN_DECISION` at revision `9c8a8fa149` only** — see
+`docs/DECISION_LOG.md`, entry 2026-09-25. The body below records the evidence
+as it stood before that decision and is left unchanged. It is not a legal
+determination, and it authorizes no inference.
 
 ## Why this was re-checked
 

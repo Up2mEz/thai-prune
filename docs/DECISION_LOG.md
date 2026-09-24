@@ -2,6 +2,77 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-25 — Typhoon OCR 1.5 cleared at an Apache-2.0-only revision
+
+**Stage/Gate:** Model licence clearance only. Gate 0 remains `NOT_RUN`; Gates
+1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-25: a revision published under
+Apache-2.0 is to be treated as usable. This reverses, for one pinned revision
+only, the 2026-09-12 entry that closed the Typhoon branch as
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`.
+
+Cleared, and only at these exact revisions:
+
+| role | repository | revision |
+|---|---|---|
+| Thai-specialized descendant | `typhoon-ai/typhoon-ocr1.5-2b` | `9c8a8fa14905041d793f1e4e922312147956dcc0` |
+| declared base | `Qwen/Qwen3-VL-2B-Instruct` | `89644892e4d85e24eaac8bacfd4f463576704203` |
+
+**The pin is the basis of the decision, not a detail of it.** The clearance
+rests on revision `9c8a8fa149` having been distributed with a model card whose
+only licence statement was `license: apache-2.0`. The current `main`
+(`15b381a2d6`, 2026-06-11) adds a sentence binding users to the OpenTyphoon
+Terms. Loading `main`, or any revision from 2026-06-11 on, would fall outside
+this decision. The weights are byte-identical across the two revisions
+(`model.safetensors` has the same LFS oid), so pinning costs nothing.
+
+### Evidence
+
+- `docs/stage0/TYPHOON_TERMS_RECHECK_2026-09-24.md`, including its addendum:
+  the terms sentence was added in a README-only commit; no Typhoon OCR
+  repository carries a `LICENSE` file or is gated; the base is `apache-2.0`
+  with no additional terms.
+
+### Reasoning
+
+Apache-2.0 §2 grants a perpetual and irrevocable copyright licence. The
+researcher's position is that a release distributed under it alone remains
+usable on those terms, and that a sentence added to a later README does not
+attach to an earlier release.
+
+### Risk accepted
+
+Recorded so that it was accepted knowingly rather than overlooked:
+
+- The OpenTyphoon Terms §3 assert that they govern use through every channel
+  and prevail over third-party terms. Whether that binds a user of a pinned
+  earlier revision is a question of contract law that no project document has
+  answered; this entry is not a legal opinion.
+- The vendor's current stated position is that competitive benchmarking needs
+  prior written consent. Publishing on the basis of the earlier revision may
+  create friction with the Typhoon team, who are central to Thai NLP and may be
+  among the reviewers. Requesting written confirmation remains available and
+  would remove this risk.
+
+### What this does not authorize
+
+Licence clearance only. No Typhoon or Qwen3-VL inference is authorized by this
+entry: any run still needs its own registration, as every Paddle/Wayu run did.
+Before one is registered, the existing pruning code must be re-implemented for
+Qwen3-VL, whose DeepStack injects visual features into several decoder layers,
+so removing tokens from the input sequence alone would not remove them from the
+model.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+- `docs/stage0/TYPHOON_TERMS_RECHECK_2026-09-24.md`
+
+---
+
 ## 2026-09-21b — Region OCR round 3 authorized: break the magnification confound
 
 **Stage/Gate:** Region-OCR branch, round 3. Gate 0 remains `NOT_RUN`; Gates 1-6
