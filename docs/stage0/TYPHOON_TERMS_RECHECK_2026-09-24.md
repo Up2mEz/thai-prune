@@ -78,3 +78,61 @@ Recorded now so the cost is visible before the decision, not after.
   need re-implementing and re-verifying for that architecture before any result
   meant anything.
 - The Qwen3-VL-2B base's own licence must be re-read at the pinned revision.
+
+---
+
+## Addendum — independent re-check against primary sources, same day
+
+The researcher asked for a re-check that ignored this repository's earlier
+conclusions. Reading the Hugging Face revision history directly, rather than the
+current model card alone, changes the picture in one respect the 2026-09-12
+record never examined.
+
+### What the revision history shows
+
+| checkpoint | released | terms sentence added to card | weights changed then? |
+|---|---|---|---|
+| `typhoon-ai/typhoon-ocr1.5-2b` | 2025-11-10 | **2026-06-11**, commit `15b381a2d6` | **no** — that commit touches `README.md` only; `model.safetensors` has the same LFS oid |
+| `typhoon-ai/typhoon-ocr-7b` | 2025-05-14 | **2026-06-11**, commit `a8d3f50458` | README-only commit |
+
+- For seven months, `typhoon-ocr1.5-2b` was distributed with a card whose only
+  licence statement was `license: apache-2.0`. Revision `9c8a8fa149`
+  (2026-01-22) is the last such revision; its README contains no terms, consent,
+  benchmarking or use-restriction language at all.
+- No revision of any Typhoon OCR repository contains a `LICENSE` file. None is
+  gated; no click-through acceptance is required to download.
+- The base, `Qwen/Qwen3-VL-2B-Instruct`, is `apache-2.0` with no additional
+  terms in its card.
+
+So byte-identical weights exist at a pinned revision that was published under
+Apache-2.0 alone.
+
+### What that does and does not establish
+
+**Established from source:** the facts in the table above.
+
+**An argument, not a conclusion:** Apache-2.0 §2 grants a perpetual and
+irrevocable copyright licence. On that reading, a revision distributed under
+Apache-2.0 alone remains usable under Apache-2.0 terms, and a sentence added to
+a later README does not retroactively attach a contract to an earlier release.
+
+**Against that argument:** the OpenTyphoon terms §3 assert that they govern use
+regardless of access channel and prevail over third-party terms; a copyright
+licence and a contract of use are different instruments that can coexist; and
+whether either binds a user who pins an earlier revision is a question of
+contract law this document cannot answer.
+
+**Not a legal matter but real:** the vendor's current stated position is
+unambiguous. Publishing a comparison that relies on a pinned pre-terms revision
+while the current terms forbid it could create friction with a group that is
+central to Thai NLP and may be among the reviewers.
+
+### Revised status
+
+`APACHE_ONLY_REVISION_EXISTS_LEGAL_INTERPRETATION_REQUIRED` for
+`typhoon-ai/typhoon-ocr1.5-2b@9c8a8fa149`. Still not authorized for inference.
+
+Asking for written consent remains the lowest-risk route, and this finding
+makes the request easier to put: the model was released under Apache-2.0, and
+the request is only to confirm that academic evaluation of that release —
+including modifying its inference path and publishing results — is acceptable.
