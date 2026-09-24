@@ -82,3 +82,39 @@ The hypotheses contain no more illegal placements than the ground truth does.
 improvement is therefore optimistic by selection. It needs confirming on data it
 was not chosen on — the TEMS evaluation split is unopened, and opening it is a
 protocol decision, not an analysis step.
+
+## 6. Is deletion caused by the tokenizer? (tested 2026-09-25, not supported)
+
+**Hypothesis.** Both tokenizers split most tone marks away from their base
+consonant. `PaddleOCR-VL-1.6` encodes `ไฟฟ้า` as `ไ | ฟ | ฟ | ้า`: the tone mark
+rides on the *following* vowel's token. Writing the word correctly then means
+choosing `้า` over the near-identical `า`, and a "deleted" tone mark could be that
+choice going the wrong way — a decoding event rather than a perceptual one.
+
+**Tokenization, 400 TEMS references:**
+
+| tokenizer | tokens per character (median) | tone mark with its base | fused to the next character | a token on its own |
+|---|---|---|---|---|
+| `PaddleOCR-VL-1.6` | 0.69 | 46% | 43% | 12% |
+| `Qwen3-VL-2B-Instruct` | 0.57 | 23% | 41% | 36% |
+
+**Test.** Round-3 fate of each reference tone mark, by where the reference
+tokenizer put it (`PaddleOCR-VL-1.6`; 43 regions skipped because their tokens do
+not round-trip character by character):
+
+| condition | category | n | correct | deleted |
+|---|---|---|---|---|
+| `FULL` | with base | 126 | 61.9% | 21.4% |
+| `FULL` | fused forward | 127 | 68.5% | 13.4% |
+| `FULL` | alone | 38 | 50.0% | 18.4% |
+| `RR_50` | with base | 126 | 67.5% | 18.3% |
+| `RR_50` | fused forward | 127 | 78.7% | 7.9% |
+| `PRUNE_GRID_25` | alone | 38 | 34.2% | 23.7% |
+
+**Result: the simple hypothesis is refuted.** Marks fused into the next
+character's token are deleted *less* often than marks kept with their base, in
+every condition, not more. Token position is associated with accuracy — marks
+tokenized on their own do worst — but that association is confounded with which
+words those patterns occur in (`้า`, `้อ` are frequent), and n is small with no
+intervals. Nothing here establishes the tokenizer as a cause, and changing a
+tokenizer would require retraining in any case.
