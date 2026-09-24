@@ -70,11 +70,9 @@ The hypotheses contain no more illegal placements than the ground truth does.
 - **Deletion is the target.** It is the largest reliable bucket, and it is where
   scale moved the numbers: `RR_50` deleted 42 marks against `FULL`'s 57, a 26%
   reduction with fewer visual tokens and a cheaper encoder.
-- **Much of the remaining loss is word-level.** A tone mark counted wrong because
-  its whole syllable was misread is not a mark-specific failure. Whether the
-  tone-mark gap survives once word-level misreads are separated out is an open
-  question and should be asked before any claim that tone marks are
-  intrinsically more fragile — as `AGENTS.md` already requires.
+- ~~**Much of the remaining loss is word-level.**~~ *Superseded by §7:* for
+  tone marks it is not. Most tone-mark errors occur on syllables whose base
+  consonant was read correctly. The word-level reading holds for vowels only.
 
 ## 5. Caveat on the scale result
 
@@ -118,3 +116,67 @@ tokenized on their own do worst — but that association is confounded with whic
 words those patterns occur in (`้า`, `้อ` are frequent), and n is small with no
 intervals. Nothing here establishes the tokenizer as a cause, and changing a
 tokenizer would require retraining in any case.
+
+## 7. Tone marks fail on their own, not as collateral (2026-09-25)
+
+The question §4 left open: is the tone-mark gap real, or do tone marks merely
+fail when their whole syllable is misread? Each reference mark is split by
+whether its base consonant — the nearest preceding consonant, skipping other
+marks — was read correctly. A mark wrong on a correctly-read base is a
+*mark-specific* error.
+
+| condition | mark | n | mark-specific error (base correct) | error when base wrong | share of errors riding on a wrong base |
+|---|---|---|---|---|---|
+| `FULL` | **tone** | 337 | **25.7%** (of 288) | 95.9% | **39%** |
+| `FULL` | upper vowel | 638 | 7.9% (of 542) | 75.0% | 63% |
+| `FULL` | lower vowel | 154 | 5.7% (of 123) | 77.4% | 77% |
+| `RR_50` | **tone** | 337 | **21.4%** | 78.9% | 32% |
+| `RR_50` | upper vowel | 638 | 7.1% | 73.0% | 57% |
+| `PRUNE_GRID_25` | **tone** | 337 | **24.7%** | 83.6% | 62% |
+| `PRUNE_GRID_25` | upper vowel | 638 | 11.8% | 80.6% | 76% |
+
+**Findings.**
+
+1. **On a correctly-read consonant, a tone mark is still wrong about a quarter
+   of the time** — 3.3× the upper-vowel rate and 4.5× the lower-vowel rate at
+   `FULL`. Most tone-mark errors (61%) are mark-specific. For vowels the reverse
+   holds: most of their errors ride on a misread base.
+2. **The mark-specific tone error barely moves with compression**: 25.7% at
+   `FULL`, 21.4% at `RR_50`, 24.7% at `PRUNE_GRID_25`. What pruning adds is
+   syllable-level damage — the share of tone errors riding on a wrong base
+   rises from 39% to 62%.
+
+**What this is and is not.** It is evidence of a higher *baseline*
+mark-specific error for tone marks in this model on this corpus. It is **not**
+evidence that tone marks *degrade faster* under compression — on this measure
+they do not — and `AGENTS.md` forbids assuming that they do. §2 already showed
+the mark-specific failure is overwhelmingly deletion rather than confusion
+between tone marks.
+
+**Limits.** No intervals. Alignment-dependent. "Base consonant" is a heuristic,
+and conditioning on a correct base selects easier syllables, which if anything
+should *lower* the tone rate. One model, one corpus, scene text.
+
+## 8. Why quantization would not make this model faster (2026-09-25)
+
+Measured at `FULL` on a T4, fp16, batch 1, Hugging Face `generate()`:
+
+| | value |
+|---|---|
+| generated tokens per region, median | 12 |
+| seconds per generated token, median | **0.0202** (p10 0.0194, p90 0.0213) |
+| decoder weights read per token (18 layers, hidden 1024, vocab 103,424, incl. `lm_head`) | ~318 M params, **0.64 GB** fp16 |
+| T4 bandwidth floor per token | **1.99 ms** fp16 · 0.99 ms int8 · 0.50 ms int4 |
+
+**Decode runs at about ten times its memory-bandwidth floor.** Weight reads
+account for roughly 2 ms of each 20 ms token; the remaining ~18 ms is per-kernel
+launch and Python overhead in the generation loop, which quantization does not
+touch. Even an ideal int4 conversion could remove at most ~1.5 ms per token,
+under 8% of decode, and real dequantization kernels would give some of that
+back. Peak memory is 1.87 GB, so there is no memory pressure to relieve either.
+
+**For a model this small at batch 1, quantization has almost nothing to act on.**
+The levers that address the ~18 ms overhead — CUDA graphs or `torch.compile`,
+a serving engine such as vLLM, batching several regions per call — are
+engineering rather than research. The bandwidth figure is approximate (KV-cache
+and activation reads are ignored), but the order-of-magnitude gap is not.
