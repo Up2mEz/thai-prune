@@ -2,12 +2,11 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-09-28 — SPEC_DECODE_S1 (Track A) authorized — `DRAFT, AWAITING BOTH RESEARCHERS`
+## 2026-09-28 — SPEC_DECODE_S1 (Track A) authorized
 
-> Drafted by PELY334's Claude Code session. **Not in force** until both human
-> researchers approve the pull request that adds it; the approving humans then
-> replace this note and the heading's status with the date and manner of
-> approval.
+> Drafted by PELY334's Claude Code session. **Approved by both researchers on
+> 2026-09-28:** Up2mEz by PR #10 review (2026-09-27T17:59Z); PELY334 stated in
+> session.
 
 **Stage/Gate:** RQ-B, latency half. A speed-only test: its outputs are
 identical to plain greedy by design, so it evaluates no accuracy remedy and
@@ -16,7 +15,7 @@ opens or passes no gate. Gate 0 remains `NOT_RUN`; Gates 1-6 remain `BLOCKED`.
 **Decision owner:** Both human researchers (PELY334, Up2mEz), per
 `docs/COLLABORATION.md` §3.
 
-**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+**Decision:** authorize the code for, and the Kaggle inference of,
 exactly the test registered in `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md`
 with parameters `configs/spec_decode/s1.yaml`: prompt-lookup speculative
 decoding (`PLD5`, `PLD10`) against plain greedy (`REF`), `TYPHOON_CARD` prompt,
