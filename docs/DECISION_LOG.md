@@ -2,6 +2,60 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-28 — SPEC_DECODE_S1 (Track A) authorized — `DRAFT, AWAITING BOTH RESEARCHERS`
+
+> Drafted by PELY334's Claude Code session. **Not in force** until both human
+> researchers approve the pull request that adds it; the approving humans then
+> replace this note and the heading's status with the date and manner of
+> approval.
+
+**Stage/Gate:** RQ-B, latency half. A speed-only test: its outputs are
+identical to plain greedy by design, so it evaluates no accuracy remedy and
+opens or passes no gate. Gate 0 remains `NOT_RUN`; Gates 1-6 remain `BLOCKED`.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md`
+with parameters `configs/spec_decode/s1.yaml`: prompt-lookup speculative
+decoding (`PLD5`, `PLD10`) against plain greedy (`REF`), `TYPHOON_CARD` prompt,
+both pinned models, Full-page OCR and Text recognition, **calibration split
+only**. The locked split stays closed. Run on PELY334's own Kaggle account and
+quota. The budget rule in registration §7 (cap 12 T4-hours; only permitted
+change is dropping `PLD10`) is part of this authorization.
+
+### Reasoning
+
+- Decode dominates cost at batch 1 on T4, and post-encoder pruning shortened
+  only prefill (`docs/stage0/THAI_MARK_FAILURE_MODES.md` §8,
+  `docs/stage0/REGION_OCR_ROUND3_RESULTS.md`). A lossless speed lever composes
+  with whatever accuracy remedy T1/T2 route to.
+- Track agreed in
+  `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`;
+  registration reviewed and the `TYPHOON_CARD` choice accepted in
+  `collab/messages/20260927T1712Z_Up2mEz_to_PELY334_approve-s1-registration.md`.
+- Feasibility on the locked `transformers==5.12.0` was checked on a
+  random-weight model only (`tests/test_spec_decode_identity.py`); identity in
+  fp16 on T4 is the primary measured outcome, not an assumption.
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- No accuracy or CER claim may be drawn from S1.
+- `BENCHMARK_QUESTION`, other drafters (HSD-style), other GPUs or batch sizes
+  each need their own registration.
+- Tracks B (evaluation), C and D are not authorized by this entry.
+
+### Files/configs affected
+
+- `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md`
+- `configs/spec_decode/s1.yaml`
+- `src/labbs2026/spec_decode/`, `scripts/spec_decode_*.py`,
+  `infra/kaggle/spec_decode_worker.py` (to be written after approval)
+
+---
+
 ## 2026-09-27c — Objective amended; T1 and T2 authorized
 
 **Stage/Gate:** New objective, Stage 0 on the new backbone. Prior gates are not
