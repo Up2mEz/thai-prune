@@ -99,7 +99,10 @@ def main() -> None:
         source.mkdir(parents=True, exist_ok=False)
         _run(["git", "init"], source)
         _run(["git", "remote", "add", "origin", spec["repository_url"]], source)
-        _run(["git", "fetch", "--depth", "1", "origin", spec["remote_ref"]], source)
+        # Fetch the registered commit itself, not the branch tip: a submission can
+        # wait in Kaggle's queue while the branch moves on, and a depth-1 fetch of
+        # the branch then no longer contains the registered SHA.
+        _run(["git", "fetch", "--depth", "1", "origin", spec["git_sha"]], source)
         _run(["git", "checkout", "--detach", spec["git_sha"]], source)
         head = subprocess.run(
             ["git", "rev-parse", "HEAD"], cwd=source, check=True, capture_output=True, text=True

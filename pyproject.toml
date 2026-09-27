@@ -32,6 +32,7 @@ dev = [
 ]
 bench = [
     "datasets>=3.0,<5",
+    "pythainlp>=5,<6",
 ]
 
 [build-system]

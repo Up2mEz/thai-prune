@@ -250,3 +250,32 @@ def test_t2_summary_counts_sites_and_greedy() -> None:
     assert summary["TONE"]["sites"] == 1
     assert summary["TONE"]["oracle"]["estimate"] == 1.0
     assert summary["TONE"]["greedy"]["estimate"] == 0.0
+
+
+# --- lexical classification --------------------------------------------------
+
+pytest.importorskip("pythainlp")
+
+from labbs2026.thai_marks.lexicon import classify_mark_errors, word_spans  # noqa: E402
+
+
+def test_word_spans_cover_words_and_skip_spaces() -> None:
+    text = "ไฟฟ้า ดับ"
+    spans = word_spans(text)
+    assert [text[a:b] for a, b in spans] == ["ไฟฟ้า", "ดับ"]
+
+
+def test_a_dropped_tone_mark_that_leaves_a_non_word() -> None:
+    out = classify_mark_errors("ไฟฟ้า", "ไฟฟา")
+    assert out["TONE"] == {"non_word": 1}
+
+
+def test_a_dropped_tone_mark_that_leaves_another_real_word() -> None:
+    out = classify_mark_errors("ข้าว", "ขาว")
+    assert out["TONE"] == {"real_word": 1}
+
+
+def test_names_outside_the_lexicon_are_not_classified() -> None:
+    lexicon = frozenset({"ข้าว"})
+    out = classify_mark_errors("ข้าว ปู่", "ขาว ปู", words=lexicon)
+    assert out["TONE"].get("reference_not_in_lexicon") == 1

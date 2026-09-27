@@ -19,6 +19,7 @@ from labbs2026.thai_marks.decompose import (
     mark_decomposition,
     reference_fates,
 )
+from labbs2026.thai_marks.lexicon import classify_mark_errors
 from labbs2026.thai_marks.normalize import normalize_text
 from labbs2026.thai_marks.orthography import TONE_MARKS
 
@@ -75,6 +76,7 @@ def score_t1_record(record: dict) -> dict[str, Any]:
     pairs = align(reference, hypothesis)
     distance = edit_distance_from(pairs, reference, hypothesis)
     marks = mark_decomposition(reference, hypothesis, pairs)
+    lexical = classify_mark_errors(reference, hypothesis, pairs) if reference else {}
     out = {
         "id": record["id"], "task": record["task"],
         "chars": len(reference), "edits": distance,
@@ -92,6 +94,10 @@ def score_t1_record(record: dict) -> dict[str, Any]:
         out[f"{kind}_same_class"] = entry.get("same_class", 0)
         out[f"{kind}_base_n"] = entry.get("base_correct_n", 0)
         out[f"{kind}_base_error"] = entry.get("base_correct_error", 0)
+        lex = lexical.get(kind, {})
+        out[f"{kind}_real_word"] = lex.get("real_word", 0)
+        out[f"{kind}_non_word"] = lex.get("non_word", 0)
+        out[f"{kind}_word_lost"] = lex.get("word_lost", 0)
     return out
 
 
@@ -115,6 +121,13 @@ def summarize_t1(scored: Sequence[dict]) -> dict[str, Any]:
                 items, lambda xs, k=kind: _ratio(xs, f"{k}_base_error", f"{k}_base_n")),
             "deletion_share_of_errors": _ratio(items, f"{kind}_deleted", f"{kind}_error"),
             "same_class_share_of_errors": _ratio(items, f"{kind}_same_class", f"{kind}_error"),
+            # Registered addendum 2026-09-27: among errors on in-lexicon words
+            # whose misread span survives, the share that is another real word.
+            "real_word_share": bootstrap(items, lambda xs, k=kind: _ratio(
+                [{**x, "_classified": x[f"{k}_real_word"] + x[f"{k}_non_word"]} for x in xs],
+                f"{k}_real_word", "_classified")),
+            "lexical_counts": {c: sum(s[f"{kind}_{c}"] for s in items)
+                               for c in ("real_word", "non_word", "word_lost")},
             "n": sum(s[f"{kind}_n"] for s in items),
         }
     return summary

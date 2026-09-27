@@ -134,3 +134,39 @@ Every comparison is reported with its interval. No test is confirmatory.
 
 Any remedy, any compression arm, the locked split, Fine-grained and
 Handwritten tasks.
+
+---
+
+## Addendum, 2026-09-27 — written before any T1 or T2 output existed
+
+The first smoke submission failed at source checkout and produced no model
+output; the second was still queued when this was written.
+
+**1. Non-word / real-word split — now specified and in scope.** The lexicon is
+PyThaiNLP 5.3.8 `words_th.txt` (CC0-1.0; SHA-256
+`4bf0ab93a570d91b33ae7bbf627eddd5a56f81c6ba33a94c3950f38904235bda`), segmentation
+PyThaiNLP `newmm`, both pinned through the `bench` extra in `uv.lock`.
+
+For every reference mark in error, on normalized strings:
+
+1. take the `newmm` word of the reference containing the mark;
+2. if that word is not in the lexicon, count it `reference_not_in_lexicon` and
+   stop — the test is only meaningful for known words;
+3. take the hypothesis span aligned to the word's characters; if nothing is
+   aligned, `word_lost`;
+4. otherwise `real_word` if the span is in the lexicon, `non_word` if not.
+
+Reported per class: `real_word / (real_word + non_word)`, with the item-level
+bootstrap interval.
+
+*What it means, stated in advance.* A high real-word share is the shape a
+language prior overriding weak evidence would produce; a high non-word share is
+the shape failed perception without prior correction would produce. Neither is
+proof of mechanism — T2's image gain is the direct measure — but the two should
+agree if either reading is right.
+
+**2. BMFL — dropped.** The benchmark's scoring code (`scb-10x/ThaiOCRBench`,
+`eval_scripts/`) carries no licence, so it may not be reused, and a
+reimplementation from the paper's description would not be comparable with the
+published table. §4 made BMFL conditional on a scorer under compatible terms;
+that condition is not met.
