@@ -111,6 +111,37 @@ def kernel_id(root: Path, slug: str) -> str:
     return f"{load_local_config(root)['kaggle_username']}/{slug}"
 
 
+def dataset_id(root: Path, slug: str) -> str:
+    """`<your-kaggle-username>/<slug>`, the Kaggle Dataset counterpart of `kernel_id`."""
+    return f"{load_local_config(root)['kaggle_username']}/{slug}"
+
+
+def dataset_mount_path(slug: str, *parts: str) -> str:
+    """Where a dataset with the given slug is mounted inside a Kaggle kernel.
+
+    Kaggle mounts an attached dataset at `/kaggle/input/<slug>` (the slug only,
+    without the owning username), regardless of whose account it belongs to.
+    """
+    return "/".join(["/kaggle/input", slug, *parts])
+
+
+def build_dataset_metadata(dataset: str, title: str) -> dict[str, Any]:
+    return {"title": title, "id": dataset, "licenses": [{"name": "CC0-1.0"}]}
+
+
+def build_dataset_upload_command(staging_dir: Path, *, exists: bool) -> list[str]:
+    """`kaggle datasets version` for an existing dataset, `create` for a new one.
+
+    Both zip the staging directory rather than uploading it file by file, since
+    a resume checkpoint's `records.jsonl` files are numerous small text files.
+    """
+    if exists:
+        return ["kaggle", "datasets", "version", "-p", str(staging_dir.resolve()),
+                "-m", "resume checkpoint update", "--dir-mode", "zip"]
+    return ["kaggle", "datasets", "create", "-p", str(staging_dir.resolve()),
+            "--dir-mode", "zip"]
+
+
 def local_remote_ref(root: Path, git_root: Path | None = None) -> str:
     """The remote ref a submission script should register as this branch.
 

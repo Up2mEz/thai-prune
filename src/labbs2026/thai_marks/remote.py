@@ -4,6 +4,13 @@ The split is recomputed here from the registered seed, and only calibration
 items are run. Records are appended line by line so a crash loses at most the
 item in flight, and a consistency failure in T2 stops the process instead of
 writing scores that cannot be trusted.
+
+`--resume-dir` points at this same (test, role) leg's output directory from an
+earlier, interrupted submission (mounted read-only, e.g. as a Kaggle dataset
+input). If that leg already finished (its `manifest.json` exists), the whole
+leg is copied forward and no model is loaded at all. Otherwise, any items
+already present in its `records.jsonl` are carried forward and skipped, so a
+resumed run only pays for the items it has not already scored.
 """
 
 from __future__ import annotations
@@ -13,6 +20,7 @@ import hashlib
 import io
 import json
 import platform
+import shutil
 import time
 import traceback
 from pathlib import Path
@@ -24,6 +32,28 @@ from labbs2026.thai_marks.split import calibration_ids
 
 class ConsistencyFailure(RuntimeError):
     pass
+
+
+def completed_keys(records_path: Path, test: str) -> set:
+    """Keys already scored in a previous attempt's `records.jsonl`.
+
+    T1 records one row per (id, prompt_kind); T2 records one row per id.
+    Missing or empty files mean nothing to resume, not an error.
+    """
+    if not records_path.is_file():
+        return set()
+    keys: set = set()
+    with io.open(records_path, encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            if test == "t1":
+                keys.add((record["id"], record["prompt_kind"]))
+            else:
+                keys.add(record["id"])
+    return keys
 
 
 def _prompt(spec: dict, source: Path) -> str:
@@ -61,17 +91,35 @@ def main() -> None:
     parser.add_argument("--remote-spec", type=Path, required=True)
     parser.add_argument("--test", choices=("t1", "t2"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
+    parser.add_argument("--resume-dir", type=Path, default=None,
+                        help="a previous, interrupted attempt's output directory "
+                             "for this same (test, role) leg")
     args = parser.parse_args()
     spec = json.loads(args.remote_spec.read_text(encoding="utf-8"))
     source = Path(spec["source_dir"])
+
+    out_dir = Path(spec["artifact_dir"]) / args.test / args.role
+    out_dir.mkdir(parents=True, exist_ok=False)
+
+    resume_dir = args.resume_dir
+    previous_manifest = resume_dir / "manifest.json" if resume_dir else None
+    if resume_dir and previous_manifest is not None and previous_manifest.is_file():
+        # This leg already finished in a prior attempt: carry it forward
+        # verbatim and skip model loading entirely -- no CUDA cost paid twice.
+        shutil.copyfile(resume_dir / "records.jsonl", out_dir / "records.jsonl")
+        if (resume_dir / "split.json").is_file():
+            shutil.copyfile(resume_dir / "split.json", out_dir / "split.json")
+        manifest = json.loads(previous_manifest.read_text(encoding="utf-8"))
+        manifest["resumed_from"] = str(resume_dir)
+        (out_dir / "manifest.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+        return
 
     import torch
     import transformers
 
     from labbs2026.thai_marks import runtime
 
-    out_dir = Path(spec["artifact_dir"]) / args.test / args.role
-    out_dir.mkdir(parents=True, exist_ok=False)
     typhoon_prompt = _prompt(spec, source)
     started = time.perf_counter()
 
@@ -86,6 +134,12 @@ def main() -> None:
             "locked": sorted(id_col[i] for i in ordered if id_col[i] not in calibration),
             "run_ids": [id_col[i] for i in selected],
         }, handle, ensure_ascii=False, indent=1)
+
+    completed = (completed_keys(resume_dir / "records.jsonl", args.test)
+                 if resume_dir is not None else set())
+    carried_forward = ""
+    if resume_dir is not None and (resume_dir / "records.jsonl").is_file():
+        carried_forward = (resume_dir / "records.jsonl").read_text(encoding="utf-8")
 
     model_spec = spec["models"][args.role]
     device = "cuda"
@@ -104,8 +158,15 @@ def main() -> None:
     failures = []
     records_path = out_dir / "records.jsonl"
     with io.open(records_path, "w", encoding="utf-8", newline="\n") as handle:
+        if carried_forward:
+            handle.write(carried_forward)
+            handle.flush()
         for index in selected:
             row = dataset[index]
+            if args.test == "t2" and row["Id"] in completed:
+                continue
+            if args.test == "t1" and all((row["Id"], p) in completed for p in spec["t1_prompts"]):
+                continue
             original = row["image"].convert("RGB")
             image = runtime.resize_policy(original)
             base = {
@@ -115,6 +176,8 @@ def main() -> None:
             }
             if args.test == "t1":
                 for prompt_kind in spec["t1_prompts"]:
+                    if (row["Id"], prompt_kind) in completed:
+                        continue
                     prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]
                     try:
                         result = runtime.generate(model, processor, image, prompt,
