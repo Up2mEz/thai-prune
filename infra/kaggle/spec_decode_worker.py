@@ -43,6 +43,31 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _github_env() -> tuple[dict, bool]:
+    """Environment for `git fetch` from the private repository.
+
+    The read token comes from the Kaggle Secret `GITHUB_READ_TOKEN` and reaches
+    git only through `GIT_CONFIG_*` environment variables, so it never appears
+    in a command line, a log or an error message. Without the secret the fetch
+    is anonymous, which works only while the repository is public.
+    """
+    env = dict(os.environ)
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    try:
+        from kaggle_secrets import UserSecretsClient
+
+        token = UserSecretsClient().get_secret("GITHUB_READ_TOKEN")
+    except Exception:
+        token = None
+    if not token:
+        return env, False
+    basic = base64.b64encode(f"x-access-token:{token}".encode("utf-8")).decode("ascii")
+    env["GIT_CONFIG_COUNT"] = "1"
+    env["GIT_CONFIG_KEY_0"] = "http.https://github.com/.extraheader"
+    env["GIT_CONFIG_VALUE_0"] = f"Authorization: Basic {basic}"
+    return env, True
+
+
 def _gpu_count() -> int:
     result = subprocess.run(["nvidia-smi", "-L"], capture_output=True, text=True)
     return sum(1 for line in result.stdout.splitlines() if line.startswith("GPU "))
@@ -55,6 +80,7 @@ def main() -> None:
     artifact_dir = Path(spec["output_root"]) / spec["run_id"]
     artifact_dir.mkdir(parents=True, exist_ok=False)
     phase = "source_checkout"
+    github_token_used = False
     try:
         source = Path(spec["source_dir"])
         source.mkdir(parents=True, exist_ok=False)
@@ -63,7 +89,9 @@ def main() -> None:
         # Fetch the registered commit itself, not the branch tip. A submission can
         # sit in Kaggle's queue while the branch moves on; a shallow fetch of the
         # branch then no longer contains the registered SHA and checkout fails.
-        _run(["git", "fetch", "--depth", "1", "origin", spec["git_sha"]], source)
+        git_env, github_token_used = _github_env()
+        _run(["git", "fetch", "--depth", "1", "origin", spec["git_sha"]], source, git_env)
+        del git_env
         _run(["git", "checkout", "--detach", spec["git_sha"]], source)
         head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=source, check=True,
                               capture_output=True, text=True).stdout.strip()
@@ -127,12 +155,14 @@ def main() -> None:
         (artifact_dir / "checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
         _atomic_json(artifact_dir / "SUCCESS.json", {
             "run_id": spec["run_id"], "git_sha": spec["git_sha"], "gpus": gpus,
+            "github_token_used": github_token_used,
             "checksums_sha256": _sha256(artifact_dir / "checksums.sha256"),
         })
     except BaseException as exc:
         message = re.sub(r"(?i)(token|key|password)=\S+", r"\1=<redacted>", str(exc))
         _atomic_json(artifact_dir / "FAILURE.json", {
             "run_id": spec.get("run_id"), "phase": phase,
+            "github_token_used": github_token_used,
             "exception_type": type(exc).__name__, "message": message[:4000],
         })
         raise
