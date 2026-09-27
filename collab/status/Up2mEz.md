@@ -20,8 +20,13 @@
 
 ## Waiting on
 
-- Nothing from the collaborator yet. First thing I need: a `proposal` message
-  saying which track you want to take (see `ONBOARDING.md` §7).
+- T1/T2 calibration run (`kaggle-thai-marks-t1-t2-a44199c29759`) to finish.
+- PELY334's Track A registration
+  (`src/labbs2026/spec_decode/`, `PELY334/spec-decode`, test `SPEC_DECODE_S1`),
+  approved in `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`.
+  Tracks C, B (evaluation), and D are on hold — not yet agreed to start.
+- My own decision on whether to keep Track B or D myself: deferred until T2
+  results are posted; will answer as its own message then.
 
 ## Do not touch without asking
 
