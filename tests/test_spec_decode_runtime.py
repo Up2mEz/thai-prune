@@ -58,6 +58,54 @@ def test_ref_margin_reproduces_greedy_choice():
         assert out["margin_logits"] >= 0
 
 
+def _chat_shaped_inputs():
+    """Like Qwen's chat template: "\\n" before <|vision_start|>, prompt ending in "\\n"."""
+    nl, t, h, w = 7, 1, 8, 12
+    ids = torch.tensor([[1, 2, nl, 502] + [500] * (t * h * w // 4) + [503, 30, 31, 32, 3, nl]])
+    g = torch.Generator().manual_seed(3)
+    return {
+        "input_ids": ids, "attention_mask": torch.ones_like(ids),
+        "pixel_values": torch.randn(t * h * w, 3 * 2 * 16 * 16, generator=g),
+        "image_grid_thw": torch.tensor([[t, h, w]]), "mm_token_type_ids": (ids == 500).long(),
+    }
+
+
+def test_unfiltered_prompt_lookup_drafts_image_tokens_and_crashes():
+    """The Kaggle smoke failure, reproduced: without the filter, the draft after the
+    matching "\\n" is <|vision_start|><|image_pad|>..., which breaks verification."""
+    model = _toy_qwen3vl()
+    inputs = _chat_shaped_inputs()
+    try:
+        with torch.no_grad():
+            model.generate(**inputs, do_sample=False, max_new_tokens=5, prompt_lookup_num_tokens=10,
+                           eos_token_id=511, pad_token_id=511)
+    except ValueError as exc:
+        assert "Image features and image tokens do not match" in str(exc)
+    else:
+        raise AssertionError("expected the unfiltered draft to fail verification")
+
+
+def test_filtered_prompt_lookup_matches_ref_on_chat_shaped_prompt():
+    model = _toy_qwen3vl()
+    assert runtime.multimodal_token_ids(model) == [500, 501, 502, 503]
+    inputs = _chat_shaped_inputs()
+    ref = _arm(model, inputs, {})
+    for k in (5, 10):
+        pld = _arm(model, inputs, {"prompt_lookup_num_tokens": k, "max_matching_ngram_size": 2})
+        result = compare_outputs(truncate_new_tokens(ref["new_token_ids"], 0, MAX_NEW),
+                                 truncate_new_tokens(pld["new_token_ids"], 0, MAX_NEW))
+        assert result.identical, (k, result)
+
+
+def test_drafts_without_restores_the_library():
+    from transformers.generation.candidate_generator import PromptLookupCandidateGenerator
+
+    before = PromptLookupCandidateGenerator.get_candidates
+    with runtime.drafts_without([500]):
+        assert PromptLookupCandidateGenerator.get_candidates is not before
+    assert PromptLookupCandidateGenerator.get_candidates is before
+
+
 def test_seconds_to_first_token_positive():
     model = _toy_qwen3vl()
     assert runtime.seconds_to_first_token(model, _inputs(2), device="cpu") > 0
