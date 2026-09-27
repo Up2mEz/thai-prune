@@ -1,6 +1,6 @@
 # Track A — speed without changing output (speculative decoding)
 
-**Status: `PLAN_APPROVED_REGISTRATION_PENDING`.** Owner `PELY334`. Track agreed
+**Status: `S1_AUTHORIZED`** (`docs/DECISION_LOG.md` 2026-09-28). Owner `PELY334`. Track agreed
 in `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`.
 Authorizes no run: `SPEC_DECODE_S1` still needs its registration and a
 human-approved `docs/DECISION_LOG.md` entry (`ONBOARDING.md` §6.2).
@@ -11,7 +11,7 @@ human-approved `docs/DECISION_LOG.md` entry (`ONBOARDING.md` §6.2).
 | configs | `configs/spec_decode/` |
 | scripts | `scripts/spec_decode_*.py` |
 | worker | `infra/kaggle/spec_decode_worker.py` |
-| registration | `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md` (`DRAFT_FOR_REVIEW`) |
+| registration | `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md` (`APPROVED`) |
 | branch | `PELY334/spec-decode` |
 
 ## 1. Question

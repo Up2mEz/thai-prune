@@ -1,7 +1,7 @@
 schema_version: 1
-status: DRAFT_FOR_REVIEW
+status: APPROVED
 registration: docs/stage0/SPEC_DECODE_S1_REGISTRATION.md
-authorization: null  # docs/DECISION_LOG.md entry, once approved
+authorization: docs/DECISION_LOG.md  # entry 2026-09-28
 claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
 
 models:
