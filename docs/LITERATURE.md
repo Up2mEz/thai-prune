@@ -1,5 +1,11 @@
 # Literature Evidence Matrix
 
+> **Phase note (2026-09-27):** this matrix covers token-reduction literature
+> for the earlier objective. Literature for the current objective (training-
+> free remedies for Thai mark errors) is in
+> `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §2 and
+> `docs/stage0/BEYOND_PRUNING_LITERATURE_SCAN.md`.
+
 > Checked: 2026-09-12. This is an evidence matrix, not evidence that the
 > search is exhaustive. Absence from this matrix must not be described as
 > absence from the literature.

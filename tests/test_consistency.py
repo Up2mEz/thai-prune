@@ -53,7 +53,7 @@ def _write_source_files(root: Path) -> None:
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`"
             "\n`FROZEN_CALIBRATION`"
         ),
-        "docs/exec-plans/active/ADVISOR_READINESS.md": (
+        "docs/archive/exec-plans/ADVISOR_READINESS.md": (
             "Step 3 — Sequential backbone feasibility | `COMPLETE`\n"
             "`KAGGLE_BACKEND_FEASIBLE_PROPOSED`\n"
             "Steps 4–6 — Stage 0 | `FROZEN_CALIBRATION`\n"

@@ -1,5 +1,10 @@
 # Claims Registry
 
+> **Phase note (2026-09-27):** the claim-status vocabulary and the
+> prohibitions below still bind every report, including the current
+> objective. Entries naming specific experiments refer to the completed
+> robustness phase unless stated otherwise. Start from `ONBOARDING.md`.
+
 > Purpose: prevent code, reports, slides, and future paper drafts from making claims stronger than the evidence.
 
 Codex must read this file before writing any research summary, result interpretation, abstract, presentation text, or paper-style prose.

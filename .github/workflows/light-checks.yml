@@ -1,0 +1,26 @@
+# Fast checks on every PR and on main. They need no GPU and no model weights,
+# so they run in about a minute. The full suite (`uv run pytest`) needs the
+# heavy model extras and is run locally before merging code; see
+# docs/COLLABORATION.md §3.
+name: light-checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.25"
+      - name: Install base and dev dependencies
+        run: uv sync --frozen --extra dev --python 3.12
+      - name: Research-governance consistency
+        run: uv run python scripts/check_research_consistency.py
+      - name: collab/ protocol, consistency invariants, onboarding paths
+        run: uv run pytest -q tests/test_collab.py tests/test_consistency.py tests/test_onboarding_paths.py
