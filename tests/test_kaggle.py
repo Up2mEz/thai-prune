@@ -478,3 +478,48 @@ def test_example_config_is_the_only_kaggle_local_file_tracked() -> None:
     ).stdout.strip()
     assert tracked == ""
     assert (root / "configs" / "kaggle_local.example.yaml").exists()
+
+
+# --- resume/checkpoint support (a Kaggle Dataset carries a partial run's ----
+# --- artifacts forward into the next submission) -----------------------------
+
+from labbs2026.kaggle import (  # noqa: E402
+    build_dataset_metadata,
+    build_dataset_upload_command,
+    dataset_id,
+    dataset_mount_path,
+)
+
+
+def test_dataset_id_is_scoped_to_the_local_username(tmp_path: Path) -> None:
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text(
+        "kaggle_username: friend-account\n", encoding="utf-8")
+    assert dataset_id(tmp_path, "labbs2026-resume") == "friend-account/labbs2026-resume"
+
+
+def test_dataset_mount_path_uses_the_slug_without_the_username() -> None:
+    assert (dataset_mount_path("labbs2026-thai-marks-t1-t2-resume", "old-run-id")
+            == "/kaggle/input/labbs2026-thai-marks-t1-t2-resume/old-run-id")
+
+
+def test_dataset_metadata_matches_the_kaggle_cli_template() -> None:
+    metadata = build_dataset_metadata("someone/labbs2026-resume", "Resume checkpoint")
+    assert metadata == {
+        "title": "Resume checkpoint",
+        "id": "someone/labbs2026-resume",
+        "licenses": [{"name": "CC0-1.0"}],
+    }
+
+
+def test_dataset_upload_command_versions_an_existing_dataset(tmp_path: Path) -> None:
+    command = build_dataset_upload_command(tmp_path, exists=True)
+    assert command[:3] == ["kaggle", "datasets", "version"]
+    assert "-m" in command
+    assert command[command.index("-p") + 1] == str(tmp_path.resolve())
+
+
+def test_dataset_upload_command_creates_a_new_dataset(tmp_path: Path) -> None:
+    command = build_dataset_upload_command(tmp_path, exists=False)
+    assert command[:3] == ["kaggle", "datasets", "create"]
+    assert command[command.index("-p") + 1] == str(tmp_path.resolve())

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -12,7 +13,11 @@ import yaml
 from labbs2026.kaggle import (
     atomic_write_json,
     atomic_write_text,
+    build_dataset_metadata,
+    build_dataset_upload_command,
     build_submit_command,
+    dataset_id,
+    dataset_mount_path,
     kernel_id,
     load_local_config,
     local_remote_ref,
@@ -27,6 +32,7 @@ from labbs2026.kaggle import (
 # repository every submission clones from regardless of whose fork or account
 # is pushing it.
 KERNEL_SLUG = "labbs2026-thai-marks-t1-t2"
+RESUME_DATASET_SLUG = f"{KERNEL_SLUG}-resume"
 
 HASHED = (
     "configs/thai_marks/t1_t2.yaml",
@@ -58,12 +64,44 @@ def preflight(root: Path, remote_ref: str) -> str:
     return head
 
 
+def stage_resume_dataset(resume_from: Path, run_dir: Path) -> tuple[str, Path]:
+    """Copy a previous attempt's fetched artifacts into a Kaggle-dataset staging dir.
+
+    Returns the id fragment used to locate this attempt once mounted
+    (`<dataset-slug>/<old_run_id>/<test>/<role>/...`) and the staging directory
+    to upload.
+    """
+    old_run_id = resume_from.name
+    staging = run_dir / "resume_dataset"
+    shutil.copytree(resume_from, staging / old_run_id)
+    return old_run_id, staging
+
+
+def upload_resume_dataset(root: Path, staging: Path) -> str:
+    ref = dataset_id(root, RESUME_DATASET_SLUG)
+    atomic_write_json(staging / "dataset-metadata.json",
+                      build_dataset_metadata(ref, "LabBS2026 Thai Marks T1 T2 Resume"))
+    exists = subprocess.run(["kaggle", "datasets", "status", ref],
+                            capture_output=True, text=True).returncode == 0
+    result = subprocess.run(build_dataset_upload_command(staging, exists=exists),
+                            capture_output=True, text=True)
+    print(result.stdout or result.stderr)
+    if result.returncode:
+        raise SystemExit(result.returncode)
+    return ref
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--tests", default="t1,t2")
     parser.add_argument("--limit", type=int, default=0,
                         help="engineering smoke only: run the first N calibration items")
+    parser.add_argument("--resume-from", type=Path, default=None,
+                        help="a previous, interrupted attempt's fetched artifact "
+                             "directory (runs/kaggle/<old-run-id>/fetched/artifacts/"
+                             "<old-run-id>) whose already-finished legs this "
+                             "submission should skip instead of re-running")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
@@ -110,6 +148,14 @@ def main() -> None:
     }
 
     run_dir = root / "runs" / "kaggle" / run_id
+    dataset_sources: list[str] = []
+    resume_dataset_staging: Path | None = None
+    if args.resume_from:
+        old_run_id, resume_dataset_staging = stage_resume_dataset(
+            args.resume_from.resolve(), run_dir)
+        spec["resume_artifact_dir"] = dataset_mount_path(RESUME_DATASET_SLUG, old_run_id)
+        dataset_sources = [dataset_id(root, RESUME_DATASET_SLUG)]
+
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
     template = root / "infra/kaggle/thai_marks_worker.py"
@@ -119,14 +165,18 @@ def main() -> None:
         "id": kernel_id(root, KERNEL_SLUG), "title": "LabBS2026 Thai Marks T1 T2", "code_file": "worker.py",
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
-        "dataset_sources": [], "competition_sources": [], "kernel_sources": [],
+        "dataset_sources": dataset_sources, "competition_sources": [], "kernel_sources": [],
         "model_sources": [],
     })
     spec["generated_worker_sha256"] = sha256_file(staging / "worker.py")
     atomic_write_json(run_dir / "submission.json", spec)
     print(json.dumps({"run_id": run_id, "git_sha": git_sha, "tests": tests,
-                      "limit": args.limit, "staging": str(staging)}, indent=1))
+                      "limit": args.limit, "staging": str(staging),
+                      "resume_artifact_dir": spec.get("resume_artifact_dir")}, indent=1))
     if args.submit:
+        if resume_dataset_staging is not None:
+            uploaded_ref = upload_resume_dataset(root, resume_dataset_staging)
+            print(f"resume dataset uploaded: {uploaded_ref}")
         result = subprocess.run(build_submit_command(staging), capture_output=True, text=True)
         print(result.stdout or result.stderr)
         if result.returncode:

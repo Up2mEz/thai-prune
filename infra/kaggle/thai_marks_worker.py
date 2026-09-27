@@ -4,6 +4,11 @@ Pins the environment, proves the checkout is the registered commit, downloads
 the benchmark once, then runs one process per model — the base on GPU 0 and
 Typhoon on GPU 1 when two are present, one after the other otherwise. All
 scientific logic lives in `labbs2026.thai_marks`.
+
+When `spec["resume_artifact_dir"]` is set (a previous, interrupted attempt's
+fetched artifacts, mounted read-only, e.g. as a Kaggle dataset input), each
+(test, role) leg is pointed at its own subdirectory there via `--resume-dir` so
+`labbs2026.thai_marks.remote` can skip work it already finished.
 """
 
 from __future__ import annotations
@@ -94,6 +99,8 @@ def main() -> None:
         spec_path = Path("/tmp/labbs2026-thai-marks-spec.json")
         _atomic_json(spec_path, remote_spec)
 
+        resume_root = spec.get("resume_artifact_dir")
+
         gpus = _gpu_count()
         for test in spec["tests"]:
             phase = f"{test}_inference"
@@ -101,19 +108,36 @@ def main() -> None:
             for position, role in enumerate(("base", "typhoon")):
                 role_env = dict(env)
                 role_env["CUDA_VISIBLE_DEVICES"] = str(position if gpus >= 2 else 0)
-                commands.append(([python, "-m", "labbs2026.thai_marks.remote",
-                                  "--remote-spec", str(spec_path), "--test", test,
-                                  "--role", role], role_env, role))
+                command = [python, "-m", "labbs2026.thai_marks.remote",
+                          "--remote-spec", str(spec_path), "--test", test, "--role", role]
+                if resume_root:
+                    leg_resume_dir = Path(resume_root) / test / role
+                    if leg_resume_dir.is_dir():
+                        command += ["--resume-dir", str(leg_resume_dir)]
+                commands.append((command, role_env, role))
             if gpus >= 2:
-                processes = [(subprocess.Popen(cmd, cwd=source, env=e, stdout=subprocess.PIPE,
-                                               stderr=subprocess.STDOUT, text=True), role)
-                             for cmd, e, role in commands]
+                # Redirect each subprocess's stdout straight to its own log file
+                # instead of subprocess.PIPE. A PIPE has a fixed OS buffer (~64KB
+                # on Linux); waiting on process.communicate() one process at a
+                # time means the other process's pipe is never drained, so once
+                # its output (model-loading progress bars, HF warnings) exceeds
+                # that buffer it blocks on write() and stalls -- silently
+                # serializing what was meant to run in parallel across the two
+                # GPUs. Writing to a file has no such buffer limit, so both
+                # processes actually run concurrently.
+                processes = []
+                for cmd, e, role in commands:
+                    log_handle = (artifact_dir / f"{test}_{role}.log").open("w", encoding="utf-8")
+                    process = subprocess.Popen(cmd, cwd=source, env=e, stdout=log_handle,
+                                               stderr=subprocess.STDOUT)
+                    processes.append((process, role, log_handle))
                 errors = []
-                for process, role in processes:
-                    output, _ = process.communicate()
-                    (artifact_dir / f"{test}_{role}.log").write_text(output or "", encoding="utf-8")
+                for process, role, log_handle in processes:
+                    process.wait()
+                    log_handle.close()
                     if process.returncode:
-                        errors.append(f"{role}: {(output or '')[-1500:]}")
+                        output = (artifact_dir / f"{test}_{role}.log").read_text(encoding="utf-8")
+                        errors.append(f"{role}: {output[-1500:]}")
                 if errors:
                     raise RuntimeError(" | ".join(errors))
             else:
