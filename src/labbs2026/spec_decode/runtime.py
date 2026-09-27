@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import math
 import time
+from contextlib import contextmanager, nullcontext
 from typing import Any
 
 from labbs2026.spec_decode.design import top2_margin
@@ -30,9 +31,55 @@ def _language_model(model):
     return model.model.language_model
 
 
+def multimodal_token_ids(model) -> list[int]:
+    """Placeholder and delimiter ids for images and video; never valid draft tokens."""
+    config = model.config
+    names = ("image_token_id", "video_token_id", "vision_start_token_id", "vision_end_token_id")
+    return sorted({int(getattr(config, n)) for n in names if getattr(config, n, None) is not None})
+
+
+@contextmanager
+def drafts_without(token_ids: list[int]):
+    """Cut every prompt-lookup draft at its first token in `token_ids`.
+
+    `PromptLookupCandidateGenerator` searches the whole sequence, image
+    placeholders included. A prompt ending in "\\n" matches the "\\n" before
+    `<|vision_start|>`, the draft becomes `<|vision_start|><|image_pad|>...`,
+    and verifying it fails with more image tokens than image features. Cutting
+    the draft changes only what is proposed; the target model's logits and
+    greedy choice are untouched, so REF's condition is unchanged.
+    """
+    import torch
+    from transformers.generation.candidate_generator import PromptLookupCandidateGenerator
+
+    original = PromptLookupCandidateGenerator.get_candidates
+
+    def get_candidates(self, input_ids, **kwargs):
+        candidate_ids, logits = original(self, input_ids, **kwargs)
+        length = input_ids.shape[-1]
+        drafted = candidate_ids[0, length:]
+        if drafted.numel():
+            forbidden = torch.tensor(token_ids, device=drafted.device, dtype=drafted.dtype)
+            hits = torch.isin(drafted, forbidden).nonzero()
+            if hits.numel():
+                candidate_ids = candidate_ids[:, : length + int(hits[0].item())]
+        if candidate_ids.shape[-1] == length:
+            return input_ids, None
+        return candidate_ids, logits
+
+    PromptLookupCandidateGenerator.get_candidates = get_candidates
+    try:
+        yield
+    finally:
+        PromptLookupCandidateGenerator.get_candidates = original
+
+
 def run_arm(model, inputs: dict[str, Any], arm_kwargs: dict[str, Any], *,
             max_new_tokens: int, device: str) -> dict:
-    """Greedy `generate` with the arm's extra arguments, timed and forward-counted."""
+    """Greedy `generate` with the arm's extra arguments, timed and forward-counted.
+
+    Prompt-lookup arms draft through `drafts_without(multimodal_token_ids(model))`.
+    """
     import torch
 
     forwards = [0]
@@ -40,13 +87,15 @@ def run_arm(model, inputs: dict[str, Any], arm_kwargs: dict[str, Any], *,
     def count(*_):
         forwards[0] += 1
 
+    drafting = (drafts_without(multimodal_token_ids(model))
+                if arm_kwargs.get("prompt_lookup_num_tokens") else nullcontext())
     hook = _language_model(model).register_forward_hook(count)
     try:
         if str(device).startswith("cuda"):
             torch.cuda.reset_peak_memory_stats(device)
         _sync(device)
         started = time.perf_counter()
-        with torch.inference_mode():
+        with torch.inference_mode(), drafting:
             produced = model.generate(**inputs, do_sample=False, num_beams=1,
                                       max_new_tokens=max_new_tokens, **arm_kwargs)
         _sync(device)
