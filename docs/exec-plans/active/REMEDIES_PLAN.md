@@ -26,10 +26,10 @@ evaluation waits for T2 (`QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §6).
 
 | family | method | what it needs | built |
 |---|---|---|---|
-| contrastive decoding | **VCD** (arXiv:2311.16922): contrast logits with a noised image, adaptive plausibility cut | a second forward stream per step (~2× decode) | step 1 |
-| contrastive decoding | **M3ID** form: contrast with **no image**, weight growing with step | a second, text-only stream | step 1 |
-| attention amplification | **PAI** (arXiv:2407.21771): scale attention to image tokens in chosen layers | attention hook; near-free | step 2 |
-| OCR-head intervention | **sink redistribution** (arXiv:2505.15865): move attention mass off sink tokens in OCR heads | head identification first; near-free | step 3 |
+| contrastive decoding | **VCD** (arXiv:2311.16922): contrast logits with a noised image, adaptive plausibility cut | a second forward stream per step (~2× decode) | step 1 — `remedies/contrastive.py` |
+| contrastive decoding | **M3ID** form: contrast with **no image**, weight growing with step | a second, text-only stream | step 1 — `remedies/contrastive.py` |
+| attention amplification | **PAI** (arXiv:2407.21771): scale attention to image tokens in chosen layers | attention hook; near-free | step 2 — `remedies/pai.py` |
+| OCR-head intervention | **sink redistribution** (arXiv:2505.15865): move attention mass off sink tokens in OCR heads | head identification first; near-free | **deferred** by PELY334 (2026-09-28); not started |
 
 Every method's formula is taken from its paper **and must be re-checked against
 the paper text before the registration**; the implementation notes below say
