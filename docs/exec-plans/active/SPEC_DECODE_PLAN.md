@@ -11,7 +11,7 @@ human-approved `docs/DECISION_LOG.md` entry (`ONBOARDING.md` §6.2).
 | configs | `configs/spec_decode/` |
 | scripts | `scripts/spec_decode_*.py` |
 | worker | `infra/kaggle/spec_decode_worker.py` |
-| registration | `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md` (to write) |
+| registration | `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md` (`DRAFT_FOR_REVIEW`) |
 | branch | `PELY334/spec-decode` |
 
 ## 1. Question
@@ -62,15 +62,15 @@ assumption. The CPU result above does not transfer to fp16 on GPU.
    model before registration. → a later test, only if S1 shows the pipeline is
    exact but slow to accept.
 
-## 4. `SPEC_DECODE_S1` — outline for the registration
+## 4. `SPEC_DECODE_S1` — summary (full text: `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md`)
 
 - **Inputs:** `typhoon-ai/ThaiOCRBench@ca610d1ab330`, Full-page OCR and Text
   recognition, **calibration split only**, reusing the seeded `thai_marks`
   split read-only (`labbs2026.thai_marks.split`). Locked split stays closed.
-- **Prompt:** the one pinned after T1, per model. Registration waits for it.
-- **Arms:** plain greedy (reference) vs prompt-lookup at a small fixed set of
-  draft lengths. Any value chosen from data is chosen on a calibration
-  sub-split fixed before the run, and stated in advance.
+- **Prompt:** `TYPHOON_CARD` for both models, as T2 (registration §1 says why
+  this replaces "T1's pinned prompt").
+- **Arms:** plain greedy `REF` vs prompt lookup `PLD5` and `PLD10`; every arm
+  run and reported, nothing chosen from data.
 - **Primary outcome:** fraction of items whose output token ids equal the
   reference after budget truncation. Every mismatch is logged with position,
   dtype and the reference's top-2 logit margin there, and reported
@@ -87,13 +87,14 @@ assumption. The CPU result above does not transfer to fp16 on GPU.
 
 ## 5. GPU estimate
 
-Rough, to be replaced by measured ms/token from the T1 manifests: two or more
-greedy passes per item per model on the calibration items of two tasks,
-≈ 6–10 T4-hours, within PELY334's own 30 h/week.
+Rough, to be replaced by T1's measured seconds per item: three greedy passes
+per item per model on the calibration items of two tasks, ≈ 6–12 T4-hours,
+capped at 12 by registration §7, within PELY334's own 30 h/week.
 
 ## 6. Waiting on
 
-1. T1 results: the pinned prompt and baseline decode ms/token.
-2. `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md`, then a human-approved
-   Decision Log entry for it. Up2mEz will read the registration before agreeing
-   to track C.
+1. Up2mEz's review of `docs/stage0/SPEC_DECODE_S1_REGISTRATION.md` (drafted;
+   fixes `TYPHOON_CARD` as the prompt so it no longer waits on T1's choice).
+2. A human-approved Decision Log entry for S1.
+3. T1's measured seconds per item, only for the pre-registered budget rule
+   (registration §7) — not for any design choice.

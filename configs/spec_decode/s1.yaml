@@ -1,0 +1,55 @@
+schema_version: 1
+status: DRAFT_FOR_REVIEW
+registration: docs/stage0/SPEC_DECODE_S1_REGISTRATION.md
+authorization: null  # docs/DECISION_LOG.md entry, once approved
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+models:
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0   # Apache-2.0-only revision; never main
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  source: thai_marks   # reuse T1's seeded calibration split read-only
+  seed: 20260927
+  calibration_fraction: 0.30
+  strata: [Task, category]
+  run_on: calibration
+
+prompt:
+  name: TYPHOON_CARD
+  file: configs/thai_marks/typhoon_card_prompt.txt
+  sha256: 0e6c57af282f83f3dfdfa30e33bb8e74e0e1addd974f6ee111c1c22b3d47594d
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  attention: sdpa
+  image_policy: typhoon_card
+  max_new_tokens: 3072
+  warmup_items: 1
+
+arms:
+  REF: {}
+  PLD5: {prompt_lookup_num_tokens: 5, max_matching_ngram_size: 2}
+  PLD10: {prompt_lookup_num_tokens: 10, max_matching_ngram_size: 2}
+arm_rotation: [[REF, PLD5, PLD10], [PLD5, PLD10, REF], [PLD10, REF, PLD5]]
+
+analysis:
+  near_tie_margin_logits: 0.1
+  bootstrap_resamples: 10000
+  bootstrap_seed: 20260927
+  repetition_rule: {tail_chars: 200, substring_chars: 20, min_repeats: 3}   # T1's rule
+
+budget:
+  max_t4_hours: 12
+  drop_if_over: PLD10
