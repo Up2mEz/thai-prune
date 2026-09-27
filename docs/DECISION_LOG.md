@@ -2,6 +2,66 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-27 — Primary backbone changed to Qwen3-VL-2B / Typhoon OCR 1.5
+
+**Stage/Gate:** Backbone selection. Gate 0 remains `NOT_RUN`; Gates 1-6 remain
+`BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27. The primary base/specialized pair
+becomes `Qwen/Qwen3-VL-2B-Instruct@89644892e4d85e24eaac8bacfd4f463576704203`
+and `typhoon-ai/typhoon-ocr1.5-2b@9c8a8fa14905041d793f1e4e922312147956dcc0`,
+read at page level. `PaddleOCR-VL-1.6` / `wayu-paxa-ocr-zero` stop being the
+primary pair; their rounds 1-3 are preserved unchanged as the region-level
+record.
+
+The research question is to be tested on an externally accepted benchmark,
+restricted to the task categories that can carry it, rather than on the whole
+benchmark.
+
+### Reasoning
+
+- Typhoon OCR is the strongest open Thai document model the project can use,
+  and a published, recognizable baseline strengthens external credibility.
+- The pinned configs are identical except dtype metadata, so every difference
+  between base and descendant lives in the weights. That supports weight-delta
+  and component-swap analyses that the Paddle/Wayu pair, whose exact fine-tuning
+  parent is not established, cannot.
+- Both read whole pages. Rounds 1-3 showed TEMS crops sit below every
+  processor's pixel floor, so page-level input is what puts resolution
+  reduction in a regime where it discards source information.
+
+### Consequences recorded now, before any design
+
+- **Nothing measured on Paddle/Wayu transfers.** The magnification optimum,
+  the pre-/post-encoder asymmetry, the tone-mark decomposition and the
+  efficiency profile are properties of that model on that corpus and must be
+  re-measured.
+- **Pruning code does not port.** Qwen3-VL's DeepStack adds vision layers 5,
+  11 and 17 into LLM layers 0-2 at visual positions; any token reduction must
+  handle those three streams. See `QWEN3VL_TYPHOON_ARCHITECTURE_GAPS.md`.
+- **The crop-scale efficiency conclusion does not transfer.** Pages carry
+  340-2,240 visual tokens, not 40-160.
+- **Contamination cannot be excluded for Typhoon.** Its report
+  (arXiv:2601.14722) does not evaluate on ThaiOCRBench and makes no
+  decontamination statement; ThaiOCRBench comes from the same group. Absolute
+  scores for Typhoon must be read with that in mind; within-model contrasts are
+  less exposed to it than cross-model ones.
+
+### Not authorized
+
+No inference. The benchmark's own clearance and the task selection are open
+questions recorded in the next entry when decided. One new factor at a time:
+the first registered run is a `FULL` baseline for both models, before any
+compression or ablation arm.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+
+---
+
 ## 2026-09-25 — Typhoon OCR 1.5 cleared at an Apache-2.0-only revision
 
 **Stage/Gate:** Model licence clearance only. Gate 0 remains `NOT_RUN`; Gates
