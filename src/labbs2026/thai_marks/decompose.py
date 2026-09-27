@@ -63,10 +63,10 @@ def align(reference: str, hypothesis: str) -> list[tuple[int | None, int | None]
     return pairs
 
 
-def reference_fates(reference: str, hypothesis: str) -> dict[int, str]:
-    """Fate of every reference character: correct, deleted, or substituted."""
+def _fates_from(pairs, reference: str, hypothesis: str):
     fates: dict[int, str] = {}
-    for ref_index, hyp_index in align(reference, hypothesis):
+    substitute: dict[int, str] = {}
+    for ref_index, hyp_index in pairs:
         if ref_index is None:
             continue
         if hyp_index is None:
@@ -75,7 +75,13 @@ def reference_fates(reference: str, hypothesis: str) -> dict[int, str]:
             fates[ref_index] = "correct"
         else:
             fates[ref_index] = "substituted"
-    return fates
+            substitute[ref_index] = hypothesis[hyp_index]
+    return fates, substitute
+
+
+def reference_fates(reference: str, hypothesis: str) -> dict[int, str]:
+    """Fate of every reference character: correct, deleted, or substituted."""
+    return _fates_from(align(reference, hypothesis), reference, hypothesis)[0]
 
 
 def _base_index(reference: str, index: int) -> int | None:
@@ -85,13 +91,16 @@ def _base_index(reference: str, index: int) -> int | None:
     return j if j >= 0 and reference[j] in CONSONANTS else None
 
 
-def mark_decomposition(reference: str, hypothesis: str) -> dict[str, Any]:
-    """Per-class counts of mark fates, overall and conditioned on a correct base."""
-    fates = reference_fates(reference, hypothesis)
-    substitution_class: dict[int, str] = {}
-    for ref_index, hyp_index in align(reference, hypothesis):
-        if ref_index is not None and hyp_index is not None:
-            substitution_class[ref_index] = hypothesis[hyp_index]
+def mark_decomposition(reference: str, hypothesis: str,
+                       pairs: list | None = None) -> dict[str, Any]:
+    """Per-class counts of mark fates, overall and conditioned on a correct base.
+
+    One alignment serves everything: pass `pairs` to reuse an alignment the
+    caller already computed, since a full page makes alignment the dominant cost.
+    """
+    if pairs is None:
+        pairs = align(reference, hypothesis)
+    fates, substitute = _fates_from(pairs, reference, hypothesis)
 
     out: dict[str, Any] = {}
     for name, members in MARK_CLASSES.items():
@@ -101,7 +110,7 @@ def mark_decomposition(reference: str, hypothesis: str) -> dict[str, Any]:
                 continue
             fate = fates.get(index, "deleted")
             if fate == "substituted":
-                fate = "same_class" if substitution_class.get(index) in members else "other_char"
+                fate = "same_class" if substitute.get(index) in members else "other_char"
             counts["n"] += 1
             counts[fate] += 1
             base = _base_index(reference, index)
@@ -115,6 +124,13 @@ def mark_decomposition(reference: str, hypothesis: str) -> dict[str, Any]:
         "error": sum(fates.get(i) != "correct" for i in consonants),
     }
     return out
+
+
+def edit_distance_from(pairs, reference: str, hypothesis: str) -> int:
+    return sum(
+        1 for r, h in pairs
+        if r is None or h is None or reference[r] != hypothesis[h]
+    )
 
 
 def is_repetitive(text: str, *, tail: int = 200, span: int = 20, times: int = 3) -> bool:

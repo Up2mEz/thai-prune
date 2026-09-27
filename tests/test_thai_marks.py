@@ -188,3 +188,65 @@ def test_continuation_positions_advance_from_the_boundary_on_every_axis() -> Non
     assert out.shape == (3, 1, 3)
     assert out[0, 0].tolist() == [5, 6, 7]
     assert out[2, 0].tolist() == [5, 6, 7]
+
+
+# --- offline analysis --------------------------------------------------------
+
+from labbs2026.thai_marks.analysis import (  # noqa: E402
+    bootstrap,
+    greedy_correct_at,
+    score_t1_record,
+    site_outcomes,
+    summarize_t1,
+    summarize_t2,
+)
+
+
+def _site(kind, index, reference, scores):
+    return {"kind": kind, "index": index, "reference": reference,
+            "variants": {label: {"image": {"logprob": a, "tokens": 1},
+                                 "no_image": {"logprob": b, "tokens": 1}}
+                         for label, (a, b) in scores.items()}}
+
+
+def test_site_outcomes_separate_oracle_prior_and_contrastive() -> None:
+    # With the image the reference wins; without it the prior prefers "none".
+    site = _site("TONE", 3, MAI_THO, {NONE: (-3.0, -0.5), MAI_THO: (-1.0, -2.0)})
+    out = site_outcomes(site)
+    assert out["oracle"] == 1 and out["prior"] == 0
+    assert out["image_gain"] == pytest.approx(1.0)
+    assert out["contrastive_1.0"] == 1
+
+
+def test_greedy_correct_at_mark_and_bare_sites() -> None:
+    reference = "ไฟฟ้า"
+    assert greedy_correct_at({"kind": "TONE", "index": 3}, reference, "ไฟฟ้า") == 1
+    assert greedy_correct_at({"kind": "TONE", "index": 3}, reference, "ไฟฟา") == 0
+    assert greedy_correct_at({"kind": "TONE_ABSENT", "index": 1}, reference, "ไฟฟ้า") == 1
+    assert greedy_correct_at({"kind": "TONE_ABSENT", "index": 1}, reference, "ไฟ่ฟ้า") == 0
+
+
+def test_bootstrap_interval_contains_the_estimate() -> None:
+    items = [{"task": "a", "v": v} for v in (0, 1, 1, 0, 1, 1, 1, 0)]
+    result = bootstrap(items, lambda xs: sum(x["v"] for x in xs) / len(xs), resamples=500)
+    assert result["ci_low"] <= result["estimate"] <= result["ci_high"]
+
+
+def test_t1_scoring_and_summary_on_a_toy_record() -> None:
+    record = {"id": "x", "task": "Full-page OCR", "reference": "ไฟฟ้า น้ำ",
+              "raw_output": "**ไฟฟา** น้ำ", "reached_max_new_tokens": False,
+              "seconds_per_generated_token": 0.03}
+    scored = score_t1_record(record)
+    assert scored["TONE_n"] == 2 and scored["TONE_error"] == 1
+    assert scored["TONE_base_error"] == 1
+    summary = summarize_t1([scored])
+    assert summary["TONE"]["error"]["estimate"] == pytest.approx(0.5)
+
+
+def test_t2_summary_counts_sites_and_greedy() -> None:
+    item = {"id": "x", "task": "Text recognition", "reference_collapsed": "ไฟฟ้า",
+            "sites": [_site("TONE", 3, MAI_THO, {NONE: (-3.0, -0.5), MAI_THO: (-1.0, -2.0)})]}
+    summary = summarize_t2([item], greedy={"x": "ไฟฟา"})
+    assert summary["TONE"]["sites"] == 1
+    assert summary["TONE"]["oracle"]["estimate"] == 1.0
+    assert summary["TONE"]["greedy"]["estimate"] == 0.0
