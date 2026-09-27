@@ -2,6 +2,42 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-27b — ThaiOCRBench cleared for academic research use
+
+**Stage/Gate:** Dataset licence clearance only.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27: the benchmark is used for
+research, not commercially. `typhoon-ai/ThaiOCRBench@ca610d1ab330` is cleared
+for this project under its card licence, CC-BY-SA-4.0, for the tasks selected
+in `docs/stage0/THAIOCRBENCH_TASK_SELECTION.md`.
+
+### Obligations that follow
+
+- **Attribution:** cite the benchmark paper (arXiv:2511.04479, IJCNLP-AACL
+  2025) and the dataset revision in every report that uses it.
+- **ShareAlike:** adapted images or crops must not be redistributed except
+  under CC-BY-SA-4.0. The project does not commit benchmark images to the
+  repository; per-item outputs, scores and aggregates are reported.
+- The researcher's non-commercial intent is recorded here. It is not itself a
+  requirement of CC-BY-SA-4.0, which permits commercial use; attribution and
+  ShareAlike are the binding conditions.
+
+### Residual risk accepted
+
+- The benchmark's sources include "licensed commercial datasets" whose upstream
+  terms are not enumerated.
+- The OpenTyphoon Terms define Services to include datasets; the dataset card
+  at this revision carries no reference to those terms. This is the same
+  situation the 2026-09-25 entry accepted for the model.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+
+---
+
 ## 2026-09-27 — Primary backbone changed to Qwen3-VL-2B / Typhoon OCR 1.5
 
 **Stage/Gate:** Backbone selection. Gate 0 remains `NOT_RUN`; Gates 1-6 remain
