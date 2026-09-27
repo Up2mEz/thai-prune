@@ -1,154 +1,176 @@
-# Experiment plan — Qwen3-VL-2B / Typhoon OCR 1.5 on ThaiOCRBench
+# Research plan — fewer Thai vowel and tone-mark errors, at similar speed, without training
 
-**Status: `PLAN_PENDING_HUMAN_REVIEW`.** Authorizes nothing. Each phase ends at a
-human decision recorded in `docs/DECISION_LOG.md`; no phase starts before the
-previous one's decision is recorded.
+**Status: `PLAN_PENDING_HUMAN_REVIEW`.** Supersedes the 2026-09-27 draft of this
+file (in git history), which the researcher rejected for defaulting to pruning
+and to the `MODEL x BUDGET` frame. Authorizes nothing.
 
-## 0. What is being asked
+## 0. The goal, as the researcher stated it
 
-From `docs/RESEARCH_SPEC.md`:
+Make a Thai document VLM misread vowels and tone marks less often. Any
+training-free technique is admissible — pruning is not required. Faster is
+better; slightly slower is acceptable. Test only what the next decision needs.
 
-| id | question | status before this plan |
-|---|---|---|
-| **RQ1** (active primary) | Does change in exact transcription across actual visual-token budgets differ between a BASE OCR VLM and its Thai-specialized descendant? Non-directional, `MODEL x BUDGET`. | Null for Paddle/Wayu on synthetic pairs, Resolution Reduction only (Wald 5.01, df 3, p = 0.17). Never tested on a pair where budgets discard real pixels. |
-| H1 (descriptive) | Component types may degrade differently with budget. | Descriptive only. |
-| H2 | Component effects may be explained by properties of the visual evidence. | Untested. Round-3 diagnostic found tone marks fail on correctly read consonants at 3–4× the vowel rate, flat across compression. |
-| H3 | Resolution Reduction and post-encoder reduction may differ. | Paddle only, confounded by magnification on TEMS. |
-| H4 | Existing OCR-aware compression may not preserve distinction-critical evidence. | Untested. |
+**Conflict with the current spec, for the researcher to resolve.**
+`RESEARCH_SPEC.md` frames the project as a robustness evaluation under reduced
+visual information and says it "does not assume … a new method is required";
+the gate map puts a new method at Gate 5, after existing methods are fairly
+evaluated. The goal above is a remedy study. The plan below keeps the gate
+*logic* — diagnose, then evaluate existing training-free remedies, then a new
+one only if a gap remains — but `RESEARCH_SPEC.md` §1–§3 need amending to the
+new objective. Draft wording is in §8.
 
-Why this pair answers RQ1 better than Paddle/Wayu: identical architecture and
-processor, so both models receive **byte-identical visual-token budgets** for
-every item; the only varying factor is the weights.
+## 1. Foundations
 
-## 1. Fixed inputs
+### 1.1 How a VLM transcribes a mark
 
-- Models: `Qwen/Qwen3-VL-2B-Instruct@89644892e4d8…`,
-  `typhoon-ai/typhoon-ocr1.5-2b@9c8a8fa14905…` — pinned SHAs only.
-- Benchmark: `typhoon-ai/ThaiOCRBench@ca610d1ab330`, CC-BY-SA-4.0.
-- Tasks: Full-page OCR (197) and Text recognition (333) primary;
-  Fine-grained text recognition (206) secondary.
+- **OCR in VLMs is dense copy-and-paste.** In Qwen3-VL-2B the heads that read
+  text substantially overlap the retrieval/copy heads; OCR specialization
+  keeps their identity and redistributes their importance
+  ([arXiv:2609.21543](https://arxiv.org/abs/2609.21543)). Each emitted token is
+  retrieved from visual evidence and weighed against the language model's
+  prior.
+- **The prior can override the image.** In Greek and Arabic, a fluent error
+  produced largely without the image appears in OCR-specialist models while
+  general-purpose models stay grounded even when wrong
+  ([arXiv:2605.27750](https://arxiv.org/abs/2605.27750)). Diacritics are 37–57%
+  of VLM errors in Greek against 16–17% for classical OCR. It supplies the
+  measuring tool used below: **image gain**,
+  `log p(t | image, prompt) − log p(t | prompt)` under teacher forcing,
+  available on Qwen-architecture models.
+- **Stacked-mark scripts fail structurally.** On Devanagari, VLMs fail on
+  matras and conjuncts while classical OCR fails on surface elements
+  ([arXiv:2606.29213](https://arxiv.org/abs/2606.29213)).
 
-## 2. Split — decided before any output exists
+### 1.2 What the geometry does to a Thai mark
 
-Seeded item-level split, stratified by task × category:
+From `QWEN3VL_TYPHOON_ARCHITECTURE_GAPS.md`: text lines of ~15 px against 16 px
+patches, so a base consonant, its vowels and its tone mark share one patch row;
+one LLM token spans 32×32 px, about two lines and two or three characters. The
+tone mark is a few pixels of a vector dominated by its base.
 
-- **calibration (≈30%)** — every design decision: prompt, normalization,
-  budget grid, validity thresholds, stratum boundaries.
-- **locked (≈70%)** — opened once, for the registered confirmatory run.
+### 1.3 What the language does
 
-Reason: round 3 chose `RR_50` on the same regions it scored, which made the
-improvement optimistic by selection. ThaiOCRBench has no held-out split of its
-own, so one is made before looking.
+- A Thai tone mark is **lexically contrastive** — นา, หน่า, หน้า, น้า, หนา
+  differ only in tone. A lexicon cannot always decide it; the image must.
+- **The choice set is tiny and structured.** At a position where a tone mark
+  may legally attach there are five options: none, ่, ้, ๊, ๋. Orthography
+  fixes where it can attach.
 
-## 3. Phases
+### 1.4 What this project has already measured
 
-### Phase A — Instrument (no inference)
+On PaddleOCR-VL/TEMS (`THAI_MARK_FAILURE_MODES.md`): tone marks are wrong on
+correctly read consonants 25.7% of the time against 7.9% for upper vowels;
+the failure is mostly **deletion**, confusion between tone marks is ~2%;
+the model writes no orthographically illegal sequences; the tone-mark rate
+does not move with compression. **None of this has been measured on
+Qwen3-VL/Typhoon.**
 
-Why: rounds 1–3 lost time to an instrument that was not ready. Each item here
-answers a failure already paid for.
+## 2. Candidate remedies, by family
 
-1. Qwen3-VL adapter: processor contract preflight (factor 32, floor 65,536,
-   ceiling); placeholder accounting; **DeepStack accounting** (three extra
-   streams added at visual positions of LLM layers 0–2); path equivalence
-   checked on a sample, not on one item.
-2. Output normalization, frozen: Markdown/HTML to plain text, the ` | `
-   block separator, whitespace and line breaks. Unit-tested.
-3. Metrics, unit-tested: CER macro/micro; the component decomposition with
-   the base-conditioned mark-specific error of `THAI_MARK_FAILURE_MODES.md`
-   §7; truncation and repetition rates; the benchmark's BMFL as secondary for
-   comparability with the published table.
-4. Stage-resolved cost (`cost.py`), reused.
-5. Exact per-item scale count: native area against the processed grid, to
-   define the stratum where reduced budgets genuinely discard pixels.
-6. **fp16 stability check.** T4 has no native bf16 and Qwen models can
-   overflow in fp16. A fallback to fp32 must be decided on the calibration
-   split, not discovered mid-run.
+| family | representative work | what the evidence says | fit to the constraints |
+|---|---|---|---|
+| contrastive decoding | VCD ([CVPR 2024](https://arxiv.org/abs/2311.16922)), M3ID | Greek/Arabic: effects small and **reverse sign across scripts** | ~2× forward passes; global, can harm |
+| attention amplification | PAI ([arXiv:2407.21771](https://arxiv.org/abs/2407.21771)) — counters "text inertia" | hallucination benchmarks; not OCR | near-free |
+| OCR-head intervention | OCR Heads ([EMNLP 2025](https://arxiv.org/abs/2505.15865)) — sink-token redistribution improves performance | not tested on diacritics | near-free once heads are found |
+| latent steering | VTI ([ICLR 2025](https://arxiv.org/abs/2410.15778)) | hallucination | near-free; needs a steering direction |
+| zoom / visual search | ViCrop ([ICLR 2025](https://arxiv.org/abs/2502.17422)), ZoomEye ([EMNLP 2025](https://arxiv.org/abs/2411.16044)) | strong on small detail | ZoomEye: many passes, **violates the speed constraint** |
+| text-only post-correction | "No Free Lunches" (ACL 2025 workshop); reference-based (AAAI 2025) | helps Greek, **hurts Arabic**; byte-level correctors do not transfer across engines | cheap; blind to the image |
+| script-restricted decoding | tested in arXiv:2605.27750 | **highly damaging** in Greek | — |
+| speculative decoding | HSD ([arXiv:2602.12957](https://arxiv.org/abs/2602.12957)) — training-free, drafts from PP-StructureV3, 2.6× on Qwen3-VL-8B | EN/ZH only | **speed without changing the output** under exact verification |
 
-### Phase B — Stage 0 on the new backbone: FULL validity
+## 3. The gap
 
-Why first: one new factor at a time. Nothing compressed is interpretable until
-both models read the tasks at FULL.
+- No located work measures VLM tone-mark or vowel errors in Thai, or tests any
+  remedy on them. Search-level only; not a claim of absence.
+- The Qwen3-VL-2B specialization study (2609.21543) analyses heads but proposes
+  no fix and analyses no diacritics.
+- The prior-override finding (2605.27750) predicts that Typhoon, an OCR
+  specialist, should show more prior-driven mark errors than its general base.
+  Nobody has tested that on Thai, and this pair is the cleanest possible test:
+  identical architecture, weights differ.
 
-- 2 models × 2 prompts (Typhoon's card prompt; the benchmark's own) × FULL,
-  calibration split. Fine-grained items run twice: whole image with the box,
-  and an oracle crop of the box.
-- Measured: CER, BMFL, component decomposition, truncation, repetition loops,
-  stage costs.
-- **Decided afterwards, by the human:** which prompt is pinned; FULL-validity
-  thresholds frozen for the locked run; whether fp16 holds.
+## 4. Proposed contribution
 
-### Phase C — RQ1: `MODEL x BUDGET`, Input Resolution Reduction
+**Mark-constrained, image-contrastive re-scoring.** A descriptive name; it is
+not an existing method.
 
-Why: this is the registered primary question, and this pair is the first on
-which it can be asked with budgets that discard source pixels.
+1. Decode greedily as usual.
+2. At syllables where a tone mark or vowel could legally attach and the model is
+   uncertain (low top-1 margin), enumerate the orthographically legal variants
+   that differ **only** in that mark — at most five for a tone mark.
+3. Score every variant in one batched teacher-forced pass, with and without the
+   image, and choose by `log p(v | image) − λ·log p(v | no image)`.
+4. Consonants are never touched.
 
-- Budgets: FULL and forced pixel budgets at 75 / 50 / 25% of FULL's tokens.
-  Identical per item for both models by construction.
-- Primary population: items where the 25% budget discards source pixels.
-- Estimand: per-item ΔCER against FULL, and its difference between models at
-  each budget; cluster bootstrap by item, category as stratum, Holm across
-  budgets. Component curves (H1) descriptive.
-- Run on the calibration split first to validate the pipeline; the locked split
-  is opened once the human approves.
+*Why it should work.* The candidate set is tiny and legal by construction, so
+it cannot produce illegal Thai or wander into other words the way free
+post-correction does. It is grounded — every choice is scored against the
+image — so it attacks prior-override directly. And it acts only where the model
+is uncertain, which contains the global side effects that made contrastive
+decoding reverse sign across scripts.
 
-### Phase D — H3: post-encoder reduction, DeepStack-aware
+*When it would fail, stated in advance.* If the correct variant does not score
+highest under the image even with the full candidate set available, the
+evidence is not in the representation, and no decoding-time method can recover
+it; the remedy must move to the input side. §5 test T2 measures exactly this
+before anything is built.
 
-Why after C: it needs pruning re-implemented for DeepStack, and it is only
-interpretable next to C's Resolution Reduction arm.
+*Speed.* Re-scoring is prefill-only and touches a few syllables. If it still
+costs time, speculative decoding (HSD-style, with drafts from a classical Thai
+OCR pipeline) can recover it without changing the output under exact
+verification.
 
-- Grid pruning matched per item to the tokens Resolution Reduction achieved.
-  Removing a visual position removes it from the main stream and all three
-  DeepStack streams at once; accounting asserts it.
-- Includes the restored-detail control from round 3 so detail and magnification
-  can be separated again.
-- Efficiency re-measured: pages carry ~2,240 visual tokens, so prefill may now
-  be a real share of cost — the crop-scale conclusion is not assumed.
+## 5. What to test now — and only this
 
-### Phase E — H2 / mechanism, training-free
+Both on a calibration split (≈30%, seeded, stratified by task × category) of
+ThaiOCRBench Full-page OCR and Text recognition. The remaining ≈70% stays
+locked.
 
-Why: the round-3 diagnostic says tone marks fail independently of compression.
-These probes ask why, at FULL, without training.
+**T1 — FULL baseline, both models.** CER; the base-conditioned mark-specific
+decomposition; deletion versus confusion; non-word versus real-word mark errors
+against a Thai lexicon; decode ms/token. Answers: is the mark problem present
+on this backbone, and is it prior-shaped (real-word substitutions) or
+perception-shaped (non-words, deletions)?
 
-1. **DeepStack ablation** — zero each of the taps from vision layers 5, 11, 17,
-   and all three; per-component effect.
-2. **Patch-phase shift** — translate pages 0–15 px vertically; does tone-mark
-   error oscillate with the 16-px grid while consonant error does not.
-3. **Oracle crop** (Fine-grained) — finding versus reading.
-4. **Base/Typhoon** — per-module weight delta; component swaps.
-5. **Readout** — probability margin between toned and untoned candidates.
+**T2 — oracle variant scoring, no generation.** For every reference syllable
+carrying a tone mark or vowel, teacher-force all legal variants with and
+without the image. Report how often the correct variant wins, against how often
+greedy decoding got it right, and the image gain at mark positions. This is the
+upper bound on §4's method and the direct test of prior-override. It is
+prefill-only and therefore cheap.
 
-E1–E3 are registered secondary families; E4–E5 exploratory.
+**Decision after T1–T2**, by the researcher: build §4, move to an input-side
+remedy, or first evaluate the existing families of §2 on Thai.
 
-### Phase F — H4, gated
+## 6. What is deliberately not tested yet
 
-Existing OCR-aware methods (ET-Prune, FastOCR) only if compatible with this
-architecture and only after a human-approved Gate 3.
-
-## 4. Gate mapping
-
-| phase | gate in `RESEARCH_SPEC.md` §7 |
+| deferred | why |
 |---|---|
-| B | Stage 0 measurement validity, new backbone |
-| C | Gate 1 — overall differential degradation |
-| E1, E2 | Gate 2 — visual-size and major confounds |
-| D | Gate 3 — intervention families |
-| F | Gate 4 — existing methods |
+| pruning, merging, any compression | not the goal; speculative decoding is the better speed lever |
+| quantization | decode cost on this backbone is unmeasured; T1 measures it first |
+| ZoomEye | many forward passes per image; violates the speed constraint |
+| DeepStack ablation, patch-phase shift | become worth running only if T2 says the evidence is missing from the representation |
+| weight delta, component swap, head analysis | mechanistic; not needed for the next decision |
+| the §2 existing families | evaluated after T2, so the comparison is against the right upper bound |
+| Handwriting, Fine-grained tasks | later, if the method works on the primary tasks |
 
-## 5. Cost estimate, to be replaced by Phase B measurement
+## 7. Governance still required
 
-Full-page OCR references are p50 1,345 characters, about 770 output tokens at
-0.57 tokens per character. With a 28-layer decoder at batch 1 on a T4, that is
-on the order of 20 s per page, so decode dominates. Rough totals:
+Models pinned to the SHAs in the 2026-09-25 and 2026-09-27 entries.
+ThaiOCRBench cleared 2026-09-27b. The Thai lexicon for the non-word split needs
+its own licence check. T1 and T2 each need a registration before they run.
 
-- Phase B: 2 models × 2 prompts × ~160 calibration items — a few GPU hours.
-- Phase C locked: 2 models × 4 budgets × ~370 items — roughly 8–12 GPU hours.
+## 8. Draft amendment to `RESEARCH_SPEC.md` (for the researcher)
 
-Kaggle's 30 h/week covers A–C in about one week; D and E follow. These are
-estimates, not measurements.
-
-## 6. What the plan will not claim
-
-No confirmatory claim from the calibration split. No generalization beyond one
-architecture family. No statement that tone marks degrade *faster* — the
-round-3 evidence is of a higher baseline, not a steeper curve. Typhoon's
-absolute scores carry the contamination caveat recorded 2026-09-27.
+> **Objective.** Reduce Thai vowel and tone-mark transcription errors in a
+> page-level OCR VLM without training, at comparable or better inference speed,
+> and explain the mechanism of the errors it removes.
+>
+> **RQ-A.** Are Thai mark errors on Qwen3-VL-2B and Typhoon OCR 1.5 driven by
+> missing visual evidence or by the language prior overriding it?
+>
+> **RQ-B.** Does a training-free remedy reduce mark-specific error without
+> raising other errors, and at what latency?
+>
+> **RQ-C.** Does OCR specialization change the balance between evidence and
+> prior for Thai marks?
