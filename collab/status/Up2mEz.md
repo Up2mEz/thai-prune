@@ -21,10 +21,11 @@
 ## Waiting on
 
 - T1/T2 calibration run (`kaggle-thai-marks-t1-t2-a44199c29759`) to finish.
-- PELY334's Track A registration
-  (`src/labbs2026/spec_decode/`, `PELY334/spec-decode`, test `SPEC_DECODE_S1`),
-  approved in `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`.
-  Tracks C, B (evaluation), and D are on hold — not yet agreed to start.
+- `SPEC_DECODE_S1` registration reviewed and approved (`TYPHOON_CARD` prompt
+  confirmed), in `collab/messages/20260927T1712Z_Up2mEz_to_PELY334_approve-s1-registration.md`.
+  Waiting on PELY334's `docs/DECISION_LOG.md` entry draft; final approval of
+  that entry is a human decision, not automatic once opened.
+  Tracks C, B (evaluation), and D are still on hold — not yet agreed to start.
 - My own decision on whether to keep Track B or D myself: deferred until T2
   results are posted; will answer as its own message then.
 
