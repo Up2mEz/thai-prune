@@ -1,0 +1,31 @@
+{
+ "completed_observations": 26,
+ "device": "cpu",
+ "execution_failures": 0,
+ "max_new_tokens": 64,
+ "observations_sha256": "070ab5a4d5ec8f57e442e1afad601a3a172fb707294064dd2bbf3b54408d6147",
+ "prompt": "OCR:",
+ "python": "3.12.13",
+ "random_seeds": [
+  20260920,
+  20260921
+ ],
+ "ratios": [
+  0.75,
+  0.5,
+  0.25
+ ],
+ "status": "REGION_OCR_RUN_COMPLETE",
+ "wall_seconds": 327.1709622000053,
+ "workload": {
+  "by_family": {
+   "FULL": 2,
+   "INPUT_RESOLUTION_REDUCTION": 6,
+   "POST_ENCODER_TOKEN_PRUNING": 18
+  },
+  "clusters": 1,
+  "conditions_per_region": 13,
+  "observations": 26,
+  "regions": 2
+ }
+}

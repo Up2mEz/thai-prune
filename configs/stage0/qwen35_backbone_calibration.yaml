@@ -1,0 +1,72 @@
+schema_version: 1
+status: FROZEN_QWEN35_BACKBONE_CALIBRATION_AUTHORIZED
+stage: stage0_backbone_measurement_capacity_audit
+authorization_scope: ALREADY_EXPOSED_CALIBRATION_PAIRS_ONLY
+
+frozen_inputs:
+  calibration_design: configs/stage0/calibration_design.yaml
+  calibration_input_bundle: assets/stage0/calibration_input.zip
+  calibration_input_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+  pair_allocation_sha256: 385c283091852820016bd6b1247a01af90ee04e966d298761f14cd392b8f47e8
+  prompt_parser: configs/stage0/prompt_parser.yaml
+  prompt_parser_sha256: e6de7de86b6f396af9a0d747b3fc7d102898f41939ef1fb322029892c331d509
+  model_config: configs/stage0/qwen35_4b_calibration.yaml
+  rationale: docs/stage0/QWEN35_BACKBONE_RATIONALE.md
+  dependency_override_lock: infra/kaggle/qwen35-requirements.lock
+  prompt_version: stage0_forced_choice_th_v1
+  rendering_changed: false
+  candidate_inventory_changed: false
+  primary_metric_changed: false
+
+engineering_smoke:
+  scientific_evidence: false
+  pair_ids: [base_ka_pha, lower_ma, combined_ka, tone_kha, upper_ka]
+  selection_rule: one_predeclared_pair_per_component_before_model_output
+  condition_id: noto_sans_thai_regular__72__center
+  observations_per_exact_run: 20
+  exact_rerun_count: 2
+  total_calls: 40
+  independent_direct_forward_required: true
+  exact_generate_direct_logit_agreement_required: true
+  exact_margin_rerun_agreement_required: true
+  exact_visual_accounting_required: true
+
+calibration:
+  run_only_if_smoke_passes: true
+  full_information_calls_per_run: 800
+  matched_blank_calls_per_run: 200
+  calls_per_exact_run: 1000
+  exact_run_count: 2
+  total_calls: 2000
+  independent_unit: pair_id
+  pair_count: 100
+  pairs_per_component: 20
+  confidence_level: 0.95
+  cluster_bootstrap_resamples: 2000
+  cluster_bootstrap_seed: 20260906
+  exact_reruns_pooled: false
+  primary_analysis_run: exact_run_1
+  reproducibility_run: exact_run_2
+
+measurement_adequacy:
+  chance_accuracy: 0.50
+  sesoi_absolute_accuracy: 0.10
+  component_inadequate_if_accuracy_at_or_below: 0.60
+  component_inadequate_if_ci_low_at_or_below_chance: true
+  adequate_requires_both_member_accuracies_above: 0.60
+  adequate_requires_image_gain_ci_low_above_zero: true
+  adequate_requires_parser_failure_rate: 0.0
+  adequate_requires_exact_rerun: true
+  adequate_requires_stable_visual_accounting: true
+  note: Planning classification only; not Gate 0 criteria and not a locked-validation decision.
+
+prohibitions:
+  locked_validation_authorized: false
+  gate_0_change_authorized: false
+  stage_1a_authorized: false
+  resolution_reduction_authorized: false
+  token_pruning_authorized: false
+  token_merging_authorized: false
+  compression_authorized: false
+  prompt_parser_rendering_change_authorized: false
+  outcome_driven_dataset_change_authorized: false

@@ -1,0 +1,162 @@
+{
+  "amended_contract": "U+FFFD_AFTER_SUCCESSFUL_DECODE_IS_RETAINED_AS_PER_CALL_OUTPUT_CONTRACT_FAILURE_EXACT_ZERO_DENOMINATOR_RETAINED_AND_EXECUTION_CONTINUES",
+  "amendment_impact_classification": "SCIENTIFIC_RUN_CONTROL_AND_FAILURE_TAXONOMY_AMENDMENT",
+  "attempt4_integrity": {
+    "failure_phase": "model_execution",
+    "failure_scientific_identity_mapped": false,
+    "partial_calls_reused": false,
+    "scientific_completed_call_count": 4136,
+    "scientific_outputs_opened": false,
+    "state": "PARTIAL_SCIENTIFIC_OUTPUTS_SEALED",
+    "zip_bytes": 13052397,
+    "zip_read_only": true,
+    "zip_sha256": "e6db8c69b530464bbebdcfa0c8640c1b3c1f771d4b5f89fcb71ef2af8cca8127"
+  },
+  "cer_semantics_audit": {
+    "classification": "EXISTING_CER_RULE_UNAMBIGUOUS_AND_PRESERVED",
+    "distance_unit": "UNICODE_CODEPOINT",
+    "existing_rule_is_unambiguous": true,
+    "formula": "codepoint_edit_distance(parsed_output, target) / max(1, len(target))",
+    "parser": "PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY",
+    "synthetic_codepoint_cer": 1.0,
+    "synthetic_exact_score": 0,
+    "ufffd_preserved_for_cer": true
+  },
+  "changed_files": [
+    "docs/stage0/PADDLE_WAYU_PARTIAL_RUN_UNICODE_REVIEW.md",
+    "docs/stage0/evidence/paddle_wayu_unicode_diagnostic/UNICODE_DIAGNOSTIC.json",
+    "src/labbs2026/stage0/paddle_wayu_unicode_diagnostic.py",
+    "scripts/paddle_wayu_unicode_diagnostic.py",
+    "tests/test_paddle_wayu_unicode_diagnostic.py",
+    "src/labbs2026/stage0/paddle_wayu_locked_panel.py",
+    "src/labbs2026/stage0/locked_panel_analysis.py",
+    "src/labbs2026/stage0/paddle_wayu_u_fffd_protocol_amendment.py",
+    "scripts/paddle_wayu_u_fffd_protocol_amendment.py",
+    "tests/test_paddle_wayu_locked_panel.py",
+    "tests/test_paddle_wayu_u_fffd_protocol_amendment.py",
+    "docs/EXPERIMENT_PROTOCOL.md",
+    "docs/DECISION_LOG.md",
+    "docs/stage0/PADDLE_WAYU_U_FFFD_PROTOCOL_AMENDMENT.md",
+    "docs/stage0/evidence/paddle_wayu_u_fffd_protocol_amendment/AMENDMENT_VALIDATION.json"
+  ],
+  "execution_boundaries": {
+    "attempt5_authorized": false,
+    "attempt5_identity_created": false,
+    "locked_images_generated": false,
+    "locked_inference_run": false,
+    "savekernel_called": false
+  },
+  "old_contract": "U+FFFD_AFTER_SUCCESSFUL_DECODE_CAUSES_FATAL_RUN_LEVEL_ABORT",
+  "recommendation": "KEEP_ATTEMPT5_BLOCKED_PENDING_EXPLICIT_HUMAN_AUTHORIZATION",
+  "s0_open_replay": {
+    "approved_unicode_diagnostic_sha256": "a35881aa75b31ea9355253863970ea8c1e2071cef723c0f41de543793abe5ea8",
+    "checks": {
+      "all_existing_per_call_scientific_fields_identical_1520_of_1520": true,
+      "all_existing_s0_metrics_identical": true,
+      "base_exact_accuracy_identical": true,
+      "denominator_unchanged": true,
+      "exact_classifications_identical_1520_of_1520": true,
+      "generated_token_ids_and_counts_identical_1520_of_1520": true,
+      "no_new_exclusions": true,
+      "output_contract_taxonomy_identical_1520_of_1520": true,
+      "primary_parsed_outputs_identical_1520_of_1520": true,
+      "raw_decoded_outputs_identical_1520_of_1520": true,
+      "specialized_exact_accuracy_identical": true
+    },
+    "classification": "S0_SCIENTIFIC_OUTPUT_EQUIVALENCE_PASS",
+    "model_exact_accuracy": {
+      "BASE": {
+        "amended": 0.29736842105263156,
+        "identical": true,
+        "old": 0.29736842105263156
+      },
+      "SPECIALIZED": {
+        "amended": 0.45526315789473687,
+        "identical": true,
+        "old": 0.45526315789473687
+      }
+    },
+    "output_count": 1520,
+    "source_analysis_sha256": "7209627ada02dd31be0800996a934671a575ec3d7becafff0dccec05a0f0141e",
+    "source_raw_outputs_sha256": "c94fdcb2c82cba5d1b6b8dcb6876b21bc41362d21c2fe17af0acea60f774442e"
+  },
+  "schema_version": 1,
+  "scientific_contract_fields": {
+    "decoder_changed": false,
+    "generation_function_changed": false,
+    "invalid_output_run_behavior_changed": true,
+    "output_contract_failure_validity_threshold_changed": false,
+    "per_example_retry": false,
+    "primary_valid_output_scoring_changed": false,
+    "u_fffd_text_repaired_or_normalized": false
+  },
+  "scope": "U_FFFD_PER_CALL_PROTOCOL_AMENDMENT_LOCAL_VALIDATION",
+  "synthetic_validation": {
+    "checks": {
+      "direct_token_94377_decodes_to_ufffd_under_frozen_decoder": true,
+      "live_telemetry_exactly_blinded": true,
+      "next_call_can_be_classified_after_ufffd": true,
+      "ufffd_becomes_output_contract_failure": true,
+      "ufffd_raw_codepoint_preserved": true,
+      "ufffd_reason_code_exact": true
+    },
+    "denominator_retained_in_two_observation_probe": true,
+    "exact_score": 0,
+    "execution_continued_to_next_observation": true,
+    "literal_ufffd_token_evidence": {
+      "by_model_role": {
+        "BASE": {
+          "processor_contains_ufffd": true,
+          "processor_decode": "�",
+          "processor_equals_tokenizer": true,
+          "token_ids": [
+            94377
+          ],
+          "token_pieces": [
+            "�"
+          ],
+          "tokenizer_decode": "�"
+        },
+        "SPECIALIZED": {
+          "processor_contains_ufffd": true,
+          "processor_decode": "�",
+          "processor_equals_tokenizer": true,
+          "token_ids": [
+            94377
+          ],
+          "token_pieces": [
+            "�"
+          ],
+          "tokenizer_decode": "�"
+        }
+      },
+      "valid": true
+    },
+    "raw_ufffd_preserved": true,
+    "retry_count": 0
+  },
+  "telemetry_contract": {
+    "decoded_outputs_live": false,
+    "live_fields": [
+      "completed_call_count",
+      "phase",
+      "gpu_runtime_health",
+      "provenance_hash_status",
+      "fatal_engineering_errors"
+    ],
+    "per_call_termination_diagnostics_location": "SEALED_SCIENTIFIC_ARTIFACTS_ONLY",
+    "scientific_identity_live": false,
+    "u_fffd_counts_live": false
+  },
+  "terminal_state": "U_FFFD_PROTOCOL_AMENDMENT_VALIDATED_PENDING_ATTEMPT5_AUTHORIZATION",
+  "validation": {
+    "bootstrap_core_integration": "PASS",
+    "clean_detached_worktree_preflight": "VALID_GIT_CLEAN_TRUE_MISSING_PATHS_ZERO",
+    "focused_amendment_logic": "PASS",
+    "focused_and_integration_tests": "31_PASSED",
+    "full_pytest": "191_PASSED_1_OPTIONAL_KAGGLE_IMPORT_SKIPPED",
+    "research_consistency": "VALID_ZERO_ISSUES",
+    "s0_replay_equivalence": "PASS",
+    "synthetic_u_fffd_continuation": "PASS"
+  }
+}

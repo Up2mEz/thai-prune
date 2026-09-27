@@ -1,0 +1,1169 @@
+{
+ "status": "BENCHMARK_PROFILE_NOT_EVIDENCE",
+ "revision": "ca610d1ab330",
+ "total": 2808,
+ "tasks": {
+  "Chart parsing": {
+   "n": 200,
+   "native_area_p10_p50_p90": [
+    256284,
+    622588,
+    1772800
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1512,
+    1960,
+    2968
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    1.216,
+    3.281,
+    7.245
+   ],
+   "answer_chars_p10_p50_p90": [
+    322,
+    667,
+    1634
+   ],
+   "answers_with_thai": 200,
+   "answers_with_markup": 200,
+   "answers_multiline": 200,
+   "tone_marks_in_answers": 3768,
+   "upper_vowels_in_answers": 5101,
+   "lower_vowels_in_answers": 925,
+   "distinct_question_openings": 23,
+   "top_questions": [
+    [
+     "แปลงข้อมูลสำคัญในแผนภูมิเป็นโครงสร้าง Dict ในภาษา Python โดยต้องมีฟิลด์ 'title_t",
+     177
+    ],
+    [
+     "แปลงข้อมูลสำคัญในแผนภูมิเป็นโครงสร้าง Dict ในภาษา Python  โดยต้องมีฟิลด์ 'title_",
+     2
+    ],
+    [
+     "แปลงข้อมูลสำคัญจากแผนภูมิเป็นโครงสร้าง Dict ในภาษา Python โดยต้องมีฟิลด์ 'title_",
+     1
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Government",
+     42
+    ],
+    [
+     "Finance",
+     39
+    ],
+    [
+     "Medical",
+     25
+    ],
+    [
+     "Transportation",
+     24
+    ],
+    [
+     "Manufacturing",
+     9
+    ],
+    [
+     "Agriculture",
+     9
+    ]
+   ],
+   "examples": [
+    {
+     "q": "แปลงข้อมูลสำคัญจากแผนภูมิเป็นโครงสร้าง Dict ในภาษา Python โดยต้องมีฟิลด์ 'title_th', 'title_en', 'chart_type', 'source' และ 'data' ให้ใส่ รายละเอียดทั้งหมดที่ได้จากแผนภูมิ (เช่น หมวดหมู่ จำนวน ร้อยละ)",
+     "a": "{\n    \"title_th\": \"กราฟเปรียบเทียบปริมาณฝนรายเดือน สำนักการระบายน้ำ กรุงเทพมหานคร\",\n    \"title_en\": \"\",\n    \"chart_type\": \"Line chart\",\n    \"source\": \"สำนักการระบายน้ำ กรุงเทพมหานคร\",\n    \"data\": {\n        \"มกราคม\": {\n            \"ปริมาณฝนส",
+     "hw": [
+      705,
+      1007
+     ]
+    },
+    {
+     "q": "แปลงข้อมูลสำคัญในแผนภูมิเป็นโครงสร้าง Dict ในภาษา Python  โดยต้องมีฟิลด์ 'title_th', 'title_en', 'chart_type', 'source' และ 'data' ให้ใส่ รายละเอียดทั้งหมดที่ได้จากแผนภูมิ (เช่น หมวดหมู่ จำนวน ร้อยละ)",
+     "a": "{\n    \"title_th\": \"แผนภูมิวงกลมแสดงจำนวนนักเรียนที่ชอบกีฬาประเภทต่างๆ\",\n    \"title_en\": \"\",\n    \"chart_type\": \"Pie chart\",\n    \"source\": \"\",\n    \"data\": {\n        \"ฟุตบอล\": {\"จำนวน\": 70, \"ร้อยละ\": 38.89},\n        \"วอลเลย์บอล\": {\"จำนวน\": 27,",
+     "hw": [
+      386,
+      686
+     ]
+    }
+   ]
+  },
+  "Cognition VQA": {
+   "n": 217,
+   "native_area_p10_p50_p90": [
+    551980,
+    1458000,
+    12192768
+   ],
+   "native_below_qwen_floor": 1,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1792,
+    2352,
+    3136
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    1.748,
+    3.915
+   ],
+   "answer_chars_p10_p50_p90": [
+    5,
+    21,
+    64
+   ],
+   "answers_with_thai": 187,
+   "answers_with_markup": 8,
+   "answers_multiline": 11,
+   "tone_marks_in_answers": 339,
+   "upper_vowels_in_answers": 557,
+   "lower_vowels_in_answers": 122,
+   "distinct_question_openings": 213,
+   "top_questions": [
+    [
+     "หัวข้อของภาพนี้คืออะไร",
+     3
+    ],
+    [
+     "ร้านอาหารในภาพนี้มีชื่อว่าอะไร",
+     2
+    ],
+    [
+     "เอกสารนี้มีหัวข้อว่าอะไร",
+     2
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Transportation",
+     40
+    ],
+    [
+     "Government",
+     24
+    ],
+    [
+     "Food & Beverage",
+     19
+    ],
+    [
+     "Retail",
+     18
+    ],
+    [
+     "Finance",
+     18
+    ],
+    [
+     "Advertising & Media",
+     14
+    ]
+   ],
+   "examples": [
+    {
+     "q": "ในภาพนำเสนอวิธีใช้ชีวิตช้าเพื่อแก้อะไร ตอบสั้น ๆ",
+     "a": "[\"สมาธิสั้น\", \"แก้สมาธิสั้น\"]",
+     "hw": [
+      512,
+      396
+     ]
+    },
+    {
+     "q": "เอกสารนี้มีชื่อเรียกอย่างไร",
+     "a": "ตารางค่าโดยสารรถโดยสารประจำทางในเขตกรุงเทพมหานครและจังหวัดที่มีเส้นทางต่อเนื่อง หมวดที่ 1 สายที่ 1-38 ชื่อเส้นทางสวนสยาม-สถานีรถไฟฟ้าสนามไชย",
+     "hw": [
+      831,
+      1329
+     ]
+    }
+   ]
+  },
+  "Diagram VQA": {
+   "n": 204,
+   "native_area_p10_p50_p90": [
+    435219,
+    1404000,
+    4352400
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1680,
+    2352,
+    3136
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.499,
+    1.63,
+    5.798
+   ],
+   "answer_chars_p10_p50_p90": [
+    7,
+    25,
+    59
+   ],
+   "answers_with_thai": 187,
+   "answers_with_markup": 0,
+   "answers_multiline": 0,
+   "tone_marks_in_answers": 209,
+   "upper_vowels_in_answers": 439,
+   "lower_vowels_in_answers": 97,
+   "distinct_question_openings": 203,
+   "top_questions": [
+    [
+     "ในภาพนี้ สายรถ A1 มีจุดหมายปลายทางที่ใดเมื่อออกจากท่าอากาศยานดอนเมือง",
+     2
+    ],
+    [
+     "เส้นทางรถไฟในแผนภาพนี้เริ่มต้นที่สถานีใดและสิ้นสุดที่สถานีใด",
+     1
+    ],
+    [
+     "เส้นทางรถไฟที่แสดงในแผนภาพมีจุดสิ้นสุดโครงการที่สถานีใด",
+     1
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Transportation",
+     117
+    ],
+    [
+     "Government",
+     37
+    ],
+    [
+     "Education",
+     12
+    ],
+    [
+     "Finance",
+     7
+    ],
+    [
+     "Real Estate",
+     6
+    ],
+    [
+     "Logistics",
+     4
+    ]
+   ],
+   "examples": [
+    {
+     "q": "เส้นทางรถไฟในแผนภาพนี้เริ่มต้นที่สถานีใดและสิ้นสุดที่สถานีใด",
+     "a": "สถานีเด่นชัย",
+     "hw": [
+      1599,
+      1200
+     ]
+    },
+    {
+     "q": "เส้นทางรถไฟที่แสดงในแผนภาพมีจุดสิ้นสุดโครงการที่สถานีใด",
+     "a": "สถานีเชียงของ",
+     "hw": [
+      2480,
+      1755
+     ]
+    }
+   ]
+  },
+  "Document classification": {
+   "n": 215,
+   "native_area_p10_p50_p90": [
+    214524,
+    498256,
+    2828000
+   ],
+   "native_below_qwen_floor": 2,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1848,
+    2296,
+    2688
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.774,
+    4.644,
+    10.277
+   ],
+   "answer_chars_p10_p50_p90": [
+    8,
+    11,
+    18
+   ],
+   "answers_with_thai": 215,
+   "answers_with_markup": 0,
+   "answers_multiline": 0,
+   "tone_marks_in_answers": 79,
+   "upper_vowels_in_answers": 342,
+   "lower_vowels_in_answers": 44,
+   "distinct_question_openings": 211,
+   "top_questions": [
+    [
+     "เอกสารในภาพเป็นประเภทใด ระหว่าง ['ใบอนุญาตขับรถยนต์ส่วนบุคคล (Private Car Drivin",
+     3
+    ],
+    [
+     "เอกสารในภาพเป็นประเภทใด ระหว่าง ['โฉนดที่ดิน', 'ใบอนุญาตขับรถยนต์ส่วนบุคคล (Priv",
+     2
+    ],
+    [
+     "เอกสารในภาพเป็นประเภทใด ระหว่าง ['บัตรประชาชน', 'ใบอนุญาตขับรถยนต์ส่วนบุคคล (Pri",
+     2
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Government",
+     107
+    ],
+    [
+     "Transportation",
+     23
+    ],
+    [
+     "Real Estate",
+     15
+    ],
+    [
+     "Legal",
+     12
+    ],
+    [
+     "Food & Beverage",
+     12
+    ],
+    [
+     "Education",
+     9
+    ]
+   ],
+   "examples": [
+    {
+     "q": "เอกสารในภาพเป็นประเภทใด ระหว่าง ['นิตยสาร', 'เอกสารการลงบันทึกประจำวันของตำรวจ', 'ป้ายประกาศ', 'ทะเบียนหย่า', 'ทะเบียนสมรส', 'เอกสารราชการ', 'เล่มทะเบียนรถยนต์', 'หนังสือพิมพ์']",
+     "a": "ป้ายประกาศ",
+     "hw": [
+      4032,
+      3024
+     ]
+    },
+    {
+     "q": "ภาพที่แสดงนี้เป็นภาพประเภทอะไร ระหว่าง ['ที่หยุดรถประจำทาง', 'แบบฟอร์มใบถอนเงิน', 'ทะเบียนบ้าน', 'แบบฟอร์มภาษีเงินได้', 'รายงานการประชุม', 'รายงานทางวิชาการ', 'ทะเบียนสมรส', 'ไปรษณียบัตร']",
+     "a": "ที่หยุดรถประจำทาง",
+     "hw": [
+      4032,
+      3024
+     ]
+    }
+   ]
+  },
+  "Document parsing": {
+   "n": 211,
+   "native_area_p10_p50_p90": [
+    249305,
+    605520,
+    3354624
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    2184,
+    2296,
+    2744
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.766,
+    4.247,
+    9.201
+   ],
+   "answer_chars_p10_p50_p90": [
+    729,
+    1567,
+    2885
+   ],
+   "answers_with_thai": 211,
+   "answers_with_markup": 211,
+   "answers_multiline": 211,
+   "tone_marks_in_answers": 14980,
+   "upper_vowels_in_answers": 20876,
+   "lower_vowels_in_answers": 4019,
+   "distinct_question_openings": 146,
+   "top_questions": [
+    [
+     "แปลงภาพนี้ให้เป็น markdown โดยแปลงตารางให้อยู่ในรูปแบบ HTML และสมการในรูปแบบ LaT",
+     9
+    ],
+    [
+     "แปลงข้อความในภาพให้เป็น markdown โดยแปลงตารางให้อยู่ในรูปแบบ HTML และสมการในรูปแ",
+     9
+    ],
+    [
+     "แปลงข้อความในภาพนี้ให้เป็น markdown โดยแปลงตารางให้อยู่ในรูปแบบ HTML และสมการในร",
+     7
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Government",
+     46
+    ],
+    [
+     "Education",
+     36
+    ],
+    [
+     "Finance",
+     28
+    ],
+    [
+     "Transportation",
+     23
+    ],
+    [
+     "Retail",
+     10
+    ],
+    [
+     "Medical",
+     10
+    ]
+   ],
+   "examples": [
+    {
+     "q": "แปลงเอกสารในภาพให้อยู่ในรูปแบบ markdown โดยแปลงตารางให้อยู่ในรูปแบบ HTML และสมการในรูปแบบ LaTeX หากมีรูปภาพในเอกสาร กรุณาใส่ <figure></figure> เพื่อบ่งบอกตำแหน่งโดยไม่ต้อง อธิบายรูปภาพ แต่ถ้ารูปภาพมีค",
+     "a": "### รายงานการประชุม\n#### คณะกรรมการบริหารสถาบันสอนภาษาไทยฟอร์เอกซ์แพท\nครั้งที่ 2/2567  \nวันศุกร์ที่ 25 เมษายน 2567  \nณ ห้องประชุมอะพอลโล อาคารอภิพร  \n\n---\n\n#### ผู้เข้าร่วมประชุม  \n1. รักษาการในตำแหน่งผู้อำนวยการ  \n   **ประธาน**  \n   (ผู้ช่",
+     "hw": [
+      1002,
+      700
+     ]
+    },
+    {
+     "q": "แปลงเอกสารที่ให้มาเป็นภาษาไทยในรูปแบบ Markdown โดยแปลงตารางให้อยู่ในรูปแบบ HTML และสมการในรูปแบบ LaTeX หากมีรูปภาพในเอกสาร กรุณาใส่ <figure></figure> เพื่อบ่งบอกตำแหน่งโดยไม่ต้อง อธิบายรูปภาพ แต่ถ้ารู",
+     "a": "# เลือกใช้บัตรให้ถูกประเภท เดินทางสบายใจ ไม่ถูกปรับ\n\nPlease use the right ticket type.\n\n\n<figure>\n</figure>\n\n\n<figure>\n</figure>\n\n\n## บัตรเด็ก (Child Card)\n\nบุคคลที่มีอายุไม่เกิน 14 ปี และ/หรือไม่เกินวันเกิด\nอายุครบ 14 ปี และมีช่วงความสูง 9",
+     "hw": [
+      4032,
+      3024
+     ]
+    }
+   ]
+  },
+  "Fine-grained text recognition": {
+   "n": 206,
+   "native_area_p10_p50_p90": [
+    487370,
+    1636516,
+    12192768
+   ],
+   "native_below_qwen_floor": 1,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1792,
+    2352,
+    2688
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    1.472,
+    5.483
+   ],
+   "answer_chars_p10_p50_p90": [
+    9,
+    18,
+    42
+   ],
+   "answers_with_thai": 206,
+   "answers_with_markup": 0,
+   "answers_multiline": 42,
+   "tone_marks_in_answers": 386,
+   "upper_vowels_in_answers": 463,
+   "lower_vowels_in_answers": 109,
+   "distinct_question_openings": 1,
+   "top_questions": [
+    [
+     "แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้วช่วยดึงข้อความที่อยู่ในพิกัด",
+     206
+    ]
+   ],
+   "question_mentions_coordinates": 206,
+   "categories": [
+    [
+     "Transportation",
+     45
+    ],
+    [
+     "Food & Beverage",
+     43
+    ],
+    [
+     "Retail",
+     40
+    ],
+    [
+     "Medical",
+     15
+    ],
+    [
+     "Government",
+     13
+    ],
+    [
+     "Hospitality",
+     8
+    ]
+   ],
+   "examples": [
+    {
+     "q": "แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้วช่วยดึงข้อความที่อยู่ในพิกัด [274, 385, 573, 501] ของรูปภาพออกมาให้หน่อย",
+     "a": "ทองเนื้อเก้า",
+     "hw": [
+      810,
+      1080
+     ]
+    },
+    {
+     "q": "แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้วช่วยดึงข้อความที่อยู่ในพิกัด [125, 432, 289, 613] ของรูปภาพออกมาให้หน่อย",
+     "a": "รสหมูสับ",
+     "hw": [
+      291,
+      400
+     ]
+    }
+   ]
+  },
+  "Full-page OCR": {
+   "n": 197,
+   "native_area_p10_p50_p90": [
+    456672,
+    1635570,
+    8703348
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    2016,
+    2240,
+    2744
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.264,
+    1.473,
+    5.023
+   ],
+   "answer_chars_p10_p50_p90": [
+    319,
+    1345,
+    2682
+   ],
+   "answers_with_thai": 197,
+   "answers_with_markup": 31,
+   "answers_multiline": 196,
+   "tone_marks_in_answers": 17188,
+   "upper_vowels_in_answers": 24132,
+   "lower_vowels_in_answers": 4705,
+   "distinct_question_openings": 85,
+   "top_questions": [
+    [
+     "ดึงข้อความทั้งหมดในภาพ แสดงออกมาเป็นข้อความธรรมดา (plain text)",
+     23
+    ],
+    [
+     "ดึงข้อความทั้งหมดในภาพนี้ แสดงออกมาเป็นข้อความธรรมดา (plain text)",
+     19
+    ],
+    [
+     "ดึงข้อความในภาพทั้งหมด แสดงออกมาเป็นข้อความธรรมดา (plain text)",
+     10
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Government",
+     54
+    ],
+    [
+     "Education",
+     35
+    ],
+    [
+     "Lifestyle",
+     18
+    ],
+    [
+     "Medical",
+     16
+    ],
+    [
+     "Finance",
+     12
+    ],
+    [
+     "Religion",
+     10
+    ]
+   ],
+   "examples": [
+    {
+     "q": "จากภาพ ดึงข้อความทั้งหมดแล้วแสดงผล แสดงออกมาเป็นข้อความธรรมดา (plain text)",
+     "a": "08\nEconomic Indicator\nโดย : กองสารสนเทศและดัชนีเศรษฐกิจการค้า\nภาพรวมเศรษฐกิจ\n- ภาพรวมเศรษฐกิจยังคงขยายตัวได้ดี โดยอัตราเงินเฟ้อทั่วไปปรับตัวเพิ่มขึ้นจากราคาพลังงานและราคาสินค้าเกษตรบางชนิด การบริโภคและการใช้จ่ายของ ภาครัฐและเอกชนยังอยู่ในระ",
+     "hw": [
+      3704,
+      2677
+     ]
+    },
+    {
+     "q": "จากภาพนี้ ดึงข้อความทั้งหมดแล้วแสดงผล แสดงออกมาเป็นข้อความธรรมดา (plain text)",
+     "a": "บทสวดบูชาองค์พระแม่ลักษมี\nนะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ (๓ จบ)\nนะโมเม องค์พระแม่ลักษมีผู้ศักดิ์สิทธิ์ ทีเปธูปะผานัง สักการะวันทนัง สุ ปัพพยันนัง โภชนานัง สปริวารัง อุททังวรัง อาคัจฉันตุ ปริภัณขันตุ สัพพุทติ หิตายะ สุขายะ สัน",
+     "hw": [
+      937,
+      1526
+     ]
+    }
+   ]
+  },
+  "Handwritten content extraction": {
+   "n": 209,
+   "native_area_p10_p50_p90": [
+    428000,
+    1992870,
+    12192768
+   ],
+   "native_below_qwen_floor": 1,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1792,
+    2352,
+    2688
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    1.149,
+    5.313
+   ],
+   "answer_chars_p10_p50_p90": [
+    16,
+    67,
+    282
+   ],
+   "answers_with_thai": 206,
+   "answers_with_markup": 30,
+   "answers_multiline": 99,
+   "tone_marks_in_answers": 1829,
+   "upper_vowels_in_answers": 1934,
+   "lower_vowels_in_answers": 549,
+   "distinct_question_openings": 203,
+   "top_questions": [
+    [
+     "ในภาพนี้ มีข้อความที่เขียนด้วยลายมือเป็นภาษาไทย ข้อความนั้นคืออะไร",
+     4
+    ],
+    [
+     "ในภาพนี้ ผลไม้ที่แสดงอยู่เขียนภาษาไทยว่าอะไร",
+     2
+    ],
+    [
+     "ในภาพนี้ มีข้อความที่เขียนด้วยลายมืออยู่ ข้อความนั้นคืออะไร",
+     2
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Food & Beverage",
+     46
+    ],
+    [
+     "Education",
+     35
+    ],
+    [
+     "Lifestyle",
+     26
+    ],
+    [
+     "Retail",
+     22
+    ],
+    [
+     "Government",
+     10
+    ],
+    [
+     "Legal",
+     10
+    ]
+   ],
+   "examples": [
+    {
+     "q": "ในภาพที่ให้มา มีข้อความอะไรอยู่บ้าง",
+     "a": "ซีรีส์เกย์\nสร้างเพื่อสะท้อนค.จริงที่เกิดในสังคม \nคนในสังคมเห็นเรื่องจริง  \nการยอมรับ  \nซีรีส์วาย\nสร้างเพื่อตอบสนองผู้หญิง\nคนในสังคมเห็นภาพที่บิดเบือน\nการลดทอนคุณค่าค.หลากหลายทางเพศ",
+     "hw": [
+      1418,
+      1170
+     ]
+    },
+    {
+     "q": "จากภาพที่แสดง หัวข้อที่ 3 มีข้อความลายมือเขียนว่าอย่างไร",
+     "a": "ผู้ประกอบการ",
+     "hw": [
+      1108,
+      1478
+     ]
+    }
+   ]
+  },
+  "Infographics": {
+   "n": 213,
+   "native_area_p10_p50_p90": [
+    720800,
+    1638400,
+    3356672
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1848,
+    2520,
+    3136
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.768,
+    1.549,
+    3.639
+   ],
+   "answer_chars_p10_p50_p90": [
+    4,
+    21,
+    118
+   ],
+   "answers_with_thai": 172,
+   "answers_with_markup": 24,
+   "answers_multiline": 31,
+   "tone_marks_in_answers": 599,
+   "upper_vowels_in_answers": 696,
+   "lower_vowels_in_answers": 133,
+   "distinct_question_openings": 212,
+   "top_questions": [
+    [
+     "ในภาพนี้มีกาแฟประเภทอะไรบ้าง ตอบแค่ชื่อประเภทตามที่ปรากฏในภาพ",
+     2
+    ],
+    [
+     "ในภาพนี้ระบุว่าคุณภาพการศึกษาของไทยอยู่อันดับที่เท่าไหร่ เมื่อเทียบกับในกลุ่มประ",
+     1
+    ],
+    [
+     "ประเทศไทยเริ่มออกอากาศ Digital TV ควบคู่กับระบบเดิมเมื่อปีใด ตอบแค่ตัวเลข",
+     1
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Finance",
+     35
+    ],
+    [
+     "Government",
+     30
+    ],
+    [
+     "Medical",
+     29
+    ],
+    [
+     "Food & Beverage",
+     19
+    ],
+    [
+     "Transportation",
+     14
+    ],
+    [
+     "Education",
+     12
+    ]
+   ],
+   "examples": [
+    {
+     "q": "ในภาพนี้ระบุว่าคุณภาพการศึกษาของไทยอยู่อันดับที่เท่าไหร่ เมื่อเทียบกับในกลุ่มประเทศอาเซียน",
+     "a": "[\"8\", \"อันดับ 8\", \"อันดับที่ 8\", \"อยู่อันดับที่ 8\"]",
+     "hw": [
+      800,
+      566
+     ]
+    },
+    {
+     "q": "ประเทศไทยเริ่มออกอากาศ Digital TV ควบคู่กับระบบเดิมเมื่อปีใด ตอบแค่ตัวเลข",
+     "a": "2014",
+     "hw": [
+      880,
+      648
+     ]
+    }
+   ]
+  },
+  "Key information extraction": {
+   "n": 201,
+   "native_area_p10_p50_p90": [
+    76800,
+    308025,
+    12192768
+   ],
+   "native_below_qwen_floor": 15,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1400,
+    2352,
+    3024
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    9.53,
+    20.319
+   ],
+   "answer_chars_p10_p50_p90": [
+    124,
+    297,
+    728
+   ],
+   "answers_with_thai": 201,
+   "answers_with_markup": 201,
+   "answers_multiline": 201,
+   "tone_marks_in_answers": 2577,
+   "upper_vowels_in_answers": 4329,
+   "lower_vowels_in_answers": 588,
+   "distinct_question_openings": 114,
+   "top_questions": [
+    [
+     "จากรูปภาพกรุณาดึงข้อมูล ส่วนประกอบ พร้อมเปอร์เซ็นต์ จากรูปภาพเป็นรูปแบบ JSON เป็",
+     16
+    ],
+    [
+     "จากรูปภาพกรุณาดึงข้อมูล ร้อยละปริมาณที่แนะนำต่อวัน ในรูปภาพเป็นรูปแบบ JSON เป็นภ",
+     12
+    ],
+    [
+     "จากรูปภาพกรุณาดึงข้อมูล ส่วนประกอบของส่วนประกอบสำคัญ  พร้อมเปอร์เซ็นต์ พร้อมสารต",
+     10
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Food & Beverage",
+     160
+    ],
+    [
+     "Transportation",
+     12
+    ],
+    [
+     "Finance",
+     11
+    ],
+    [
+     "Education",
+     5
+    ],
+    [
+     "Medical",
+     3
+    ],
+    [
+     "Retail",
+     3
+    ]
+   ],
+   "examples": [
+    {
+     "q": "จากรูปภาพกรุณาดึงข้อมูล  เป็นรูปแบบ JSON  Format: \n{\n  \"ชื่อรายการอาหาร\": \"ราคา\", .....\n}",
+     "a": "{\n  \"ชีสซี่ สไปซี่ชิกเก้นสเต็ก\": \"149.00\",\n  \"ปีกไก่ซอสฮังกรี้เนิร์ด\": \"89.00\",\n  \"ไส้กรอกลาวาชีส\": \"119.00\",\n  \"พอร์คช็อปซอสแจ่ว\": \"189.00\",\n  \"สปาเก็ตตี้ครีมซอสแซลม่อน...\": \"278.00\",\n  \"(จาน)ฮัมเบิร์กไก่ซอสเห็ด+มั...\": \"119.00\",\n  \"Ice Le",
+     "hw": [
+      1478,
+      1108
+     ]
+    },
+    {
+     "q": "จากรูปภาพกรุณาดึงข้อมูลจากรูปภาพเป็นรูปแบบ JSON เป็นภาษาไทย\n{\n    \"เมนูที่ 1\": \"ราคา\",\n    \"เมนูที่ 2\": \"ราคา\",\n    ...\n}",
+     "a": "{\n    \"ข้าวผัดไข่\": \"150RS\",\n    \"ข้าวผัดไก่\": \"180RS\",\n    \"ข้าวราดผัดผักกระเทียมพริกไทย\": \"150RS\",\n    \"ข้าวราดไก่กระเทียมพริกไทย\": \"180RS\",\n    \"ข้าวราดผัดพริกแกง\": \"180RS\",\n    \"ข้าวราดกะเพราไก่\": \"180RS\",\n    \"ไข่ดาว\": \"30RS\",\n    \"ไข่",
+     "hw": [
+      4032,
+      3024
+     ]
+    }
+   ]
+  },
+  "Key information mapping": {
+   "n": 209,
+   "native_area_p10_p50_p90": [
+    167760,
+    530671,
+    12192768
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1680,
+    2352,
+    3136
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    4.502,
+    15.343
+   ],
+   "answer_chars_p10_p50_p90": [
+    121,
+    212,
+    413
+   ],
+   "answers_with_thai": 208,
+   "answers_with_markup": 209,
+   "answers_multiline": 209,
+   "tone_marks_in_answers": 1322,
+   "upper_vowels_in_answers": 2769,
+   "lower_vowels_in_answers": 245,
+   "distinct_question_openings": 148,
+   "top_questions": [
+    [
+     "ตามข้อมูลในภาพที่เป็นผลิตภัณฑ์สีเขียว กรุณาจับคู่และค่าที่เกี่ยวข้องดังต่อไปนี้:",
+     11
+    ],
+    [
+     "ตามข้อมูลในภาพ กรุณาจับคู่และค่าที่เกี่ยวข้องดังต่อไปนี้: 'ไขมันอิ่มตัว', 'โคเลส",
+     8
+    ],
+    [
+     "ตามข้อมูลในภาพ กรุณาจับคู่และค่าที่เกี่ยวข้องดังต่อไปนี้: 'หนึ่งหน่วยบริโภค', 'พ",
+     7
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Food & Beverage",
+     173
+    ],
+    [
+     "Government",
+     8
+    ],
+    [
+     "Entertainment",
+     4
+    ],
+    [
+     "Finance",
+     4
+    ],
+    [
+     "Transportation",
+     4
+    ],
+    [
+     "Education",
+     3
+    ]
+   ],
+   "examples": [
+    {
+     "q": "ตามข้อมูลในภาพ กรุณาจับคู่ค่าที่เกี่ยวข้องดังนี้: ได้แก่ 'เลขหมู่หนังสือวิทยาศาสตร์ธรรมชาติ (Natural sciences)' และ 'หมวดวิชาของแต่ละหมายเลข' ค่าที่จะใช้ในการจับคู่มีดังนี้: '500-590', 'Mathematics', ",
+     "a": "{\n    \"500\": \"วิทยาศาสตร์ธรรมชาติ (Natural sciences)\",\n    \"510\": \"คณิตศาสตร์ (Mathematics)\",\n    \"520\": \"ดาราศาสตร์ (Astronomy and allied sciences)\",\n    \"530\": \"ฟิสิกส์ (Physics)\",\n    \"540\": \"เคมี (Chemistry and allied sciences)\",\n    \"5",
+     "hw": [
+      4032,
+      3024
+     ]
+    },
+    {
+     "q": "โปรดจากรูปภาพกรุณาดึงข้อมูลจากใบเสร็จในภาพด้านล่าง แล้วจัดผลลัพธ์เป็น JSON โดยประกอบด้วยฟิลด์ดังนี้:\n- \"วันที่\"\n- \"เวลา\"\n- \"รหัสโต๊ะ\"\n- \"รายการอาหาร\" (เป็นอาร์เรย์ของชื่อเมนู)\n- \"ราคาแต่ละเมนู\" (เป็นอ",
+     "a": "{\n  \"วันที่\": \"25 กุมภาพันธ์ 2025\",\n  \"เวลา\": \"19:37:11\",\n  \"รหัสโต๊ะ\": \"11\",\n  \"รายการอาหาร\": [\n    \"น้ำแข็ง 1 แก้ว\",\n    \"น้ำเรดดาชาฟีน่า 550 มล.\",\n    \"กระหล่ำปลีผัดน้ำปลา (Fried cabbage with fish sauce)\",\n    \"ผัดกะเพราพริกขี้หนูสวนทะเล",
+     "hw": [
+      3024,
+      4032
+     ]
+    }
+   ]
+  },
+  "Table parsing": {
+   "n": 193,
+   "native_area_p10_p50_p90": [
+    332304,
+    1411696,
+    3330544
+   ],
+   "native_below_qwen_floor": 0,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1456,
+    2296,
+    2912
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.759,
+    1.673,
+    6.563
+   ],
+   "answer_chars_p10_p50_p90": [
+    624,
+    1963,
+    5456
+   ],
+   "answers_with_thai": 192,
+   "answers_with_markup": 193,
+   "answers_multiline": 148,
+   "tone_marks_in_answers": 6399,
+   "upper_vowels_in_answers": 10122,
+   "lower_vowels_in_answers": 2316,
+   "distinct_question_openings": 45,
+   "top_questions": [
+    [
+     "แปลงตารางในรูปภาพให้เป็นรูปแบบ HTML",
+     40
+    ],
+    [
+     "จงแปลงตารางในรูปภาพเป็นรูปแบบ HTML",
+     34
+    ],
+    [
+     "แปลงตารางในรูปภาพเป็นรูปแบบ HTML",
+     19
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Government",
+     33
+    ],
+    [
+     "Finance",
+     27
+    ],
+    [
+     "Medical",
+     27
+    ],
+    [
+     "Education",
+     19
+    ],
+    [
+     "Insurance",
+     18
+    ],
+    [
+     "Transportation",
+     13
+    ]
+   ],
+   "examples": [
+    {
+     "q": "จงแปลงตารางในรูปภาพให้กลายเป็น HTML",
+     "a": "<table>\n  <caption><b>ตารางที่ 4-27 (ต่อ)</b></caption>\n  <thead>\n    <tr>\n      <th rowspan=\"3\">ลักษณะของข้อมูลทั่วไป</th>\n      <th colspan=\"6\">การใช้รองเท้า</th>\n      <th rowspan=\"3\">χ²</th>\n      <th rowspan=\"3\">P-value</th>\n    </tr>\n",
+     "hw": [
+      3412,
+      2432
+     ]
+    },
+    {
+     "q": "กรุณาแปลงตารางในภาพเป็นรูปแบบของ Markdown",
+     "a": "|          | สถาปัตยกรรม                                     | เศรษฐกิจ                                       |\n|------------------|----------------------------------------------------|---------------------------------------------------|\n| ",
+     "hw": [
+      1109,
+      1479
+     ]
+    }
+   ]
+  },
+  "Text recognition": {
+   "n": 333,
+   "native_area_p10_p50_p90": [
+    353184,
+    1853915,
+    12192768
+   ],
+   "native_below_qwen_floor": 7,
+   "typhoon_policy_visual_tokens_p10_p50_p90": [
+    1792,
+    2352,
+    3136
+   ],
+   "typhoon_policy_area_scale_p10_p50_p90": [
+    0.198,
+    1.368,
+    6.945
+   ],
+   "answer_chars_p10_p50_p90": [
+    21,
+    99,
+    508
+   ],
+   "answers_with_thai": 331,
+   "answers_with_markup": 13,
+   "answers_multiline": 139,
+   "tone_marks_in_answers": 4243,
+   "upper_vowels_in_answers": 5534,
+   "lower_vowels_in_answers": 1184,
+   "distinct_question_openings": 242,
+   "top_questions": [
+    [
+     "ข้อความในภาพเขียนว่าอะไร",
+     54
+    ],
+    [
+     "ในภาพนี้มีข้อความเขียนไว้ว่าอะไร",
+     14
+    ],
+    [
+     "ข้อความที่เขียนในภาพคืออะไร",
+     10
+    ]
+   ],
+   "question_mentions_coordinates": 0,
+   "categories": [
+    [
+     "Lifestyle",
+     58
+    ],
+    [
+     "Food & Beverage",
+     54
+    ],
+    [
+     "Government",
+     46
+    ],
+    [
+     "Education",
+     31
+    ],
+    [
+     "Transportation",
+     25
+    ],
+    [
+     "Retail",
+     25
+    ]
+   ],
+   "examples": [
+    {
+     "q": "ข้อความที่เขียนในภาพคืออะไร",
+     "a": "Please leave your returned books here.\nกรุณาวางหนังสือที่คืนแล้วที่นี่ | Thank you",
+     "hw": [
+      3024,
+      4032
+     ]
+    },
+    {
+     "q": "ข้อความในภาพเขียนว่าอะไร",
+     "a": "ขออภัยผู้เข้าชมทุกท่าน ตู้จัดแสดงนี้กำลังอยู่ในระหว่างการปรับปรุงคุณภาพน้ำ\nSORRY FOR ALL CUSTOMERS. THIS TANK IS IN THE PROCESS OF WATER QUALITY IMPROVING.",
+     "hw": [
+      3024,
+      4032
+     ]
+    }
+   ]
+  }
+ }
+}

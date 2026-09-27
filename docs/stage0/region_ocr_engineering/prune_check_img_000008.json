@@ -1,0 +1,65 @@
+{
+ "status": "ENGINEERING_CHECK_ONLY_NOT_A_SCIENTIFIC_RUN",
+ "image": "img_000008.jpg",
+ "image_grid_thw": [
+  1,
+  14,
+  44
+ ],
+ "token_rows_cols": [
+  7,
+  22
+ ],
+ "placeholders": 154,
+ "projector_features": 154,
+ "features_match_placeholders": true,
+ "prompt_sequence_length": 167,
+ "position_ids_available": true,
+ "position_ids_shape": [
+  3,
+  1,
+  167
+ ],
+ "trials": [
+  {
+   "ratio": 1.0,
+   "kept_tokens": 154,
+   "pruned_sequence_length": 167,
+   "expected_sequence_length": 167,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 12,
+   "output": "รูปถ่าย 1 นิว"
+  },
+  {
+   "ratio": 0.75,
+   "kept_tokens": 116,
+   "pruned_sequence_length": 129,
+   "expected_sequence_length": 129,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 12,
+   "output": "รูปถ่าย 1 นิว"
+  },
+  {
+   "ratio": 0.5,
+   "kept_tokens": 77,
+   "pruned_sequence_length": 90,
+   "expected_sequence_length": 90,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 12,
+   "output": "รูปถ่าย 1 นิว"
+  },
+  {
+   "ratio": 0.25,
+   "kept_tokens": 38,
+   "pruned_sequence_length": 51,
+   "expected_sequence_length": 51,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 11,
+   "output": "รูปถ่าย 1 หรือ"
+  }
+ ]
+}

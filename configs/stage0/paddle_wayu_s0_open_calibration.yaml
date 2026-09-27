@@ -1,0 +1,104 @@
+schema_version: 1
+status: APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY
+stage: S0_OPEN_CALIBRATION_FULL_INFORMATION_BASELINE
+prompt: "OCR:"
+
+models:
+  - role: BASE
+    model_id: PaddlePaddle/PaddleOCR-VL-1.6
+    revision: c5630abae1d940eafe0697512a0325494b02ab42
+  - role: SPECIALIZED
+    model_id: wayu-ai/wayu-paxa-ocr-zero
+    revision: af0204b4f334a6d5068b6bac2b3738932d6e289b
+
+source_bundle: assets/stage0/calibration_input.zip
+source_bundle_sha256: d865d689f296f4e929c3adce4b2aa75dab56958d9e203ef940a9edbcf54f1992
+source_design: configs/stage0/calibration_design.yaml
+candidate_inventory: configs/stage0/candidate_pairs.yaml
+selection:
+  source_scope: OPEN_CALIBRATION_MINUS_ENGINEERING_SMOKE
+  excluded_smoke_pair_ids:
+    - base_m1_ue07_ue1c
+    - lower_variant_ue2b
+    - stacked_tone_ue13
+    - tone_ue13
+    - upper_variant_ue0b
+  members: [a, b]
+  condition_ids:
+    - noto_sans_thai_regular__72__center
+    - noto_sans_thai_regular__96__center
+    - noto_serif_thai_regular__72__center
+    - noto_serif_thai_regular__96__center
+  expected_pairs: 95
+  expected_pairs_per_component: 19
+  expected_images: 760
+  expected_calls: 1520
+
+parser:
+  primary: PYTHON_STRIP_LEADING_TRAILING_WHITESPACE_ONLY
+  preserve_internal_whitespace: true
+  unicode_normalization: NONE
+  autocorrect: false
+  punctuation_removal: false
+  fuzzy_replacement: false
+  secondary_normalization: NFC_EXACT_MATCH_DESCRIPTIVE_ONLY
+  error_taxonomy_precedence:
+    - exact_target
+    - opposite_member_substitution
+    - deletion_or_empty
+    - output_contract_failure
+    - other_thai_substitution
+    - non_thai_output
+  output_contract_failure: INTERNAL_WHITESPACE_PRESENT_AFTER_PRIMARY_PARSE
+  thai_output_indicator: CONTAINS_ANY_CODEPOINT_U0E00_TO_U0E7F
+  output_length_unit: UNICODE_CODEPOINT
+
+analysis:
+  independent_unit: pair_id
+  aggregation: MEAN_OVER_2_MEMBERS_X_2_FONTS_X_2_SIZES_PER_PAIR_PER_MODEL
+  primary_metric: exact_target_transcription_accuracy
+  delta_model: SPECIALIZED_MINUS_BASE
+  confidence_interval: PAIR_CLUSTERED_PERCENTILE_BOOTSTRAP
+  confidence_level: 0.95
+  bootstrap_resamples: 10000
+  bootstrap_seed: 20260912
+  component_cluster_count: 19
+  planning_seoi_absolute_pp: 10
+  secondary_metrics:
+    - codepoint_edit_distance
+    - codepoint_cer
+    - opposite_member_substitution
+    - other_thai_substitution
+    - non_thai_output
+    - deletion_or_empty
+    - output_contract_failure
+    - thai_output_rate
+    - output_length_codepoints
+    - nfc_exact_match
+  fixed_accuracy_pass_threshold: NONE
+
+loading:
+  attention_implementation: sdpa
+  sequential_models: true
+decoding:
+  do_sample: false
+  max_new_tokens: 32
+  num_beams: 1
+  use_cache: true
+  per_example_retry: false
+expected_visual_tokens:
+  image_grid_thw: [1, 32, 32]
+  pre_merge: 1024
+  projector_output: 256
+  llm_image_placeholders: 256
+
+prohibitions:
+  locked_validation: false
+  resolution_reduction: false
+  token_pruning: false
+  token_merging: false
+  representation_intervention: false
+  fine_tuning: false
+  new_method_work: false
+
+terminal_state: HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION

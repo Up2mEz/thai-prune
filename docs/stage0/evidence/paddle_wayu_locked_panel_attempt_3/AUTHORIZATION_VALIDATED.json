@@ -1,0 +1,33 @@
+{
+  "EXECUTION_REPAIR_COMMIT": "5091c573b7c7f97ad8696ddf3bd875471a21d08f",
+  "SCIENTIFIC_DESIGN_COMMIT": "871996221a36a56a401fa040c239f55768561210",
+  "authorization_only": false,
+  "frozen_design": {
+    "expected_sha256": "6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1",
+    "file_size": 9421,
+    "packaged_path": "/tmp/labbs-paddle-wayu-locked-package/frozen_design.yaml",
+    "sha256": "6143c454337570217c9cd028522de510b4fd5b4f9f361fa0ea206014eed185a1"
+  },
+  "locked_content_manifest": {
+    "compressed_size": 38638,
+    "encoding": "BASE64_ZLIB_LEVEL_9",
+    "expected_sha256": "5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb",
+    "file_size": 133603,
+    "packaged_path": "/tmp/labbs-paddle-wayu-locked-package/locked_content_manifest.json",
+    "sha256": "5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb"
+  },
+  "locked_source_content": {
+    "all_sha256_match": true,
+    "all_sizes_match": true,
+    "content_manifest_sha256": "5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb",
+    "dataset_root": "/kaggle/input",
+    "exact_path_set": true,
+    "expanded_source_directory": "/kaggle/input/labbs2026-paddle-wayu-locked-source/locked_source",
+    "member_count": 803,
+    "original_transport_archive_sha256": "9edff88382c51ed4d48a073813b4309535fb34ba5318ea85ca8ea6da75bc229e",
+    "total_uncompressed_bytes": 3794984
+  },
+  "schema_version": 1,
+  "scientific_contract_valid": true,
+  "status": "AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION"
+}

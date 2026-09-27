@@ -82,6 +82,54 @@ def atomic_write_text(path: Path, value: str) -> None:
     temporary.replace(path)
 
 
+def load_local_config(root: Path) -> dict[str, Any]:
+    """Per-person overrides for a shared checkout: Kaggle username and remote ref.
+
+    Two researchers each hold a separate Kaggle account, and a kernel id embeds
+    its owner's username. A script that hardcoded one person's username would
+    try to act on their account regardless of who ran it. `configs/kaggle_local.yaml`
+    is git-ignored, so each person's copy never collides with the other's or with
+    what is tracked; `configs/kaggle_local.example.yaml` is the tracked template.
+    """
+    path = root / "configs" / "kaggle_local.yaml"
+    if not path.exists():
+        example = root / "configs" / "kaggle_local.example.yaml"
+        raise RuntimeError(
+            f"{path} not found. Copy {example} to {path} and fill in your Kaggle "
+            "username; see docs/COLLABORATION.md §6."
+        )
+    value = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(value, dict) or not value.get("kaggle_username"):
+        raise ValueError(f"{path} must set kaggle_username")
+    if value["kaggle_username"] == "your-kaggle-username":
+        raise ValueError(f"{path} still has the placeholder username; set your own")
+    return value
+
+
+def kernel_id(root: Path, slug: str) -> str:
+    """`<your-kaggle-username>/<slug>`, so each person's kernels stay in their account."""
+    return f"{load_local_config(root)['kaggle_username']}/{slug}"
+
+
+def local_remote_ref(root: Path, git_root: Path | None = None) -> str:
+    """The remote ref a submission script should register as this branch.
+
+    Uses the override in `configs/kaggle_local.yaml` if set, otherwise the
+    currently checked-out branch — the right default while working on a
+    personal feature branch.
+    """
+    config = load_local_config(root)
+    if config.get("remote_ref"):
+        return str(config["remote_ref"])
+    branch = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=git_root or root,
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    if branch == "HEAD":
+        raise RuntimeError("checkout is in detached-HEAD state; check out a branch first")
+    return f"refs/heads/{branch}"
+
+
 def load_runtime(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):

@@ -295,6 +295,77 @@ Stage 1A changes processor-controlled input resolution. It must record:
 The resulting actual token count is an outcome of Resolution Reduction. It
 does not make Stage 1A a post-encoder pruning experiment.
 
+### 7.4 Qwen3.5-4B Stage 0 audit record
+
+The audited checkpoint is `Qwen/Qwen3.5-4B` revision
+`851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a`, loaded by
+`Qwen3_5ForConditionalGeneration` under Transformers `5.12.0`. Its processor
+uses patch size 16 and spatial merge size 2. For the frozen 448 x 448 image,
+runtime hooks observed 784 `patch_embed` outputs, 196 spatial-merger
+`pooler_output` representations, and 196 LLM image-placeholder positions.
+
+For this adapter, the reported visual-token boundary is the spatial-merger
+output consumed at the LLM image positions. Pre-merge patches must be reported
+separately. The native 196-position count is an architecture fact, not a
+compression budget or a cause of the observed calibration outcome.
+
+The adapter is architecturally inspectable and T4-feasible, but its Stage 0
+measurement outcome is inadequate under the frozen forced-choice contract.
+Architecture accessibility alone is therefore insufficient for backbone
+selection. Exact evidence is in
+`docs/stage0/QWEN35_BACKBONE_CALIBRATION.md`.
+
+---
+
+### 7.5 Proposed Qwen3-VL 2B / Typhoon OCR 1.5 audit
+
+The proposed specialization pair is frozen for audit purposes at
+`Qwen/Qwen3-VL-2B-Instruct@89644892e4d85e24eaac8bacfd4f463576704203`
+and
+`typhoon-ai/typhoon-ocr1.5-2b@15b381a2d62569e6736f9c085859dff68e48608d`.
+Their public configs declare the same Qwen3-VL 2B architecture, patch size 16,
+spatial merge size 2, and DeepStack indexes `[5, 11, 17]`. Remote safetensors
+headers contain the same 625 tensor names, shapes, and dtypes. This establishes
+structural compatibility only; it does not establish equal weight values,
+identify the exact parent revision, or prove fine-tuning was the only change.
+
+The machine-readable diff is
+`docs/architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`. Runtime processor,
+Vision Encoder, DeepStack, and LLM-boundary count equivalence remains untested.
+No inference or compression is authorized while the proposal is
+`SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW` and
+`LEGAL_TERMS_CLEARANCE_REQUIRED` is unresolved.
+
+Human review subsequently set this branch to
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`. This section is retained as historical
+architecture/provenance evidence and does not authorize Typhoon use.
+
+### 7.6 PaddleOCR-VL-1.6 / Wayu-Paxa fallback source audit
+
+The fallback repositories are pinned at
+`PaddlePaddle/PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42`
+and
+`wayu-ai/wayu-paxa-ocr-zero@af0204b4f334a6d5068b6bac2b3738932d6e289b`.
+They share a 608-tensor generative core by key/shape/dtype, while the base has
+12 additional legacy vision packing/head tensors. Both declare patch size 14,
+spatial merge size 2, pre-merge hidden size 1152, and projector output hidden
+size 1024. For `image_grid_thw=(t,h,w)`, inspectable counts are
+`N_pre=t*h*w` and `N_llm=t*(h/2)*(w/2)`.
+
+The natural post-encoder/pre-LLM boundary is the projector output at
+`model.projector` (legacy base name `mlp_AR`). Actual Token Pruning there is
+not a hook-only change: image placeholders, masks, and 3D position metadata
+must remain consistent with the reduced sequence. Exact evidence and all five
+intervention locations are in `FALLBACK_PAIR_CLEARANCE.md` and
+`architecture/PADDLEOCRVL16_WAYU_PAXA_CONFIG_DIFF.json`.
+
+The exact 40-call smoke subsequently verified the native runtime paths and
+observed `[1024,1152]` patch/encoder features, `[256,1024]` projector output,
+and 256 LLM image placeholders for both models on the frozen 448x448 inputs.
+This is engineering evidence only. Current status is
+`HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`; Stage S0 and compression remain
+unauthorized.
+
 ---
 
 ## 8. Architectural claims that are currently forbidden

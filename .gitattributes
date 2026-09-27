@@ -1,9 +1,12 @@
 * text=auto
 *.md text eol=lf
 *.py text eol=lf
+infra/analysis/paddle_wayu_locked_panel/*.R text eol=crlf
 *.toml text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
 *.json text eol=lf
 *.jsonl text eol=lf
 uv.lock text eol=lf
+infra/kaggle/*-requirements.in text eol=lf
+infra/kaggle/*-requirements.lock text eol=lf

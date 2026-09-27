@@ -22,6 +22,8 @@ class VisualStageMetadata:
     runtime_vision_output_count: int | None
     measurement_boundary: str
     processor_class: str
+    runtime_premerge_patch_count: int | None = None
+    runtime_llm_input_position_count: int | None = None
 
 
 @dataclass(frozen=True)

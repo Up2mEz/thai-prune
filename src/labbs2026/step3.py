@@ -23,7 +23,7 @@ import psutil
 import yaml
 from PIL import Image, ImageDraw, ImageFont
 
-from labbs2026.adapters.qwen25_vl import Qwen25VLAdapter
+from labbs2026.adapters.factory import build_adapter
 from labbs2026.preflight import inspect_repository
 
 
@@ -202,38 +202,6 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
-    )
-
-
-def build_adapter(
-    config: dict[str, Any], root: Path, runtime: dict[str, Any] | None = None
-) -> Qwen25VLAdapter:
-    model = config["model"]
-    generation = config["generation"]
-    model_runtime = (runtime or {}).get("model_runtime", {})
-    cache_value = model_runtime.get("cache_dir", model["cache_dir"])
-    cache_dir = Path(cache_value)
-    if not cache_dir.is_absolute():
-        cache_dir = root / cache_dir
-    return Qwen25VLAdapter(
-        model_id=model["model_id"],
-        revision=model["revision"],
-        processor_revision=model["processor_revision"],
-        cache_dir=cache_dir,
-        device=model_runtime.get("device", model["device"]),
-        dtype=model_runtime.get("dtype", model["dtype"]),
-        attention_implementation=model_runtime.get(
-            "attention_implementation", model["attention_implementation"]
-        ),
-        use_fast_processor=bool(model["use_fast_processor"]),
-        max_new_tokens=int(generation["max_new_tokens"]),
-        do_sample=bool(generation.get("do_sample", False)),
-        output_contract_mode=str(
-            generation.get("output_contract", {}).get("mode", "free_generation")
-        ),
-        allowed_labels=tuple(
-            generation.get("output_contract", {}).get("allowed_labels", ["A", "B"])
-        ),
     )
 
 

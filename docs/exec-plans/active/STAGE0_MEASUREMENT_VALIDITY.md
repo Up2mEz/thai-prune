@@ -1,6 +1,7 @@
 # Stage 0 Measurement Validity Execution Plan
 
-**Status:** ACTIVE — Checkpoint A preparation; no model outcomes yet
+**Status:** `PILOT_COMPLETE_HUMAN_REVIEW_REQUIRED`;
+Gate 0 remains `NOT_RUN`
 
 ## Objective
 
@@ -8,21 +9,50 @@ Establish whether the pinned full-information Qwen2.5-VL-3B measurement system
 can discriminate controlled Thai orthographic stimuli. Stage 0 does not vary
 resolution, visual-token budget, or any compression mechanism.
 
+The Qwen2.5 repaired calibration and a separately pre-registered Qwen3.5-4B
+backbone audit are now complete on the open calibration split. Qwen2.5 was not
+adequate across all components; Qwen3.5-4B collapsed to an A-position-biased,
+chance-level measurement. The current recommendation is
+`MEASUREMENT_REDESIGN_REQUIRED`. The frozen D1-D4 diagnostic in
+`docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md` is now complete. Its
+pre-registered classification is `inconclusive`, producing recommendation C:
+screen an architecturally distinct backbone. Execution is stopped for human
+review; no screening run is authorized.
+
+The human researcher subsequently approved the selection, A aggregation,
+paired analysis, SESOI, uncertainty, and protections, but required Condition C
+to use the same center-target-only readout as B and exact target-pixel
+identity. The amended protocol/config are recorded; only deterministic
+stimulus construction, contact sheets, and non-model validation are authorized
+until final visual/protocol approval. That final review passed on 2026-09-12;
+only the frozen 25-pair Qwen3.5 pilot was authorized. The verified run is now
+complete and the frozen decision is `MIXED_TARGETED_INSTRUMENT_REVIEW` because
+Condition C crossed the registered output-failure flag. Execution is stopped.
+
 ## Authorization and stop boundary
 
-Authorized now:
+Completed authorization:
 
 - candidate-pair inventory and non-model validation;
 - deterministic HarfBuzz + FreeType rendering;
 - Unicode, shaping, difference-mask, prompt, parser, record, and metric code;
-- calibration runs after Checkpoint A human approval;
-- a Gate 0 criteria proposal derived from calibration only.
+- analysis and documentation of the completed D1-D4 run using only already
+  exposed calibration pairs.
+- protocol/config amendment, deterministic B/C contact sheets, and target-
+  pixel identity validation for the proposed 25-pair pilot.
+- the exact frozen B/C pilot inference and registered A/B/C analysis, followed
+  immediately by a human-review stop.
+
+No further model inference is currently authorized.
 
 Forbidden now:
 
 - locked Stage 0 validation before criteria are human-frozen;
 - Gate 0 approval;
 - Stage 1A or any compression intervention.
+- post-outcome prompt, label, rendering, pair, or backbone changes presented as
+  the same registered calibration;
+- any model inference beyond this frozen pilot, including backbone screening.
 
 ## Dependencies and checkpoints
 

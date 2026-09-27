@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "status": "PROCESSOR_ONLY_NO_MODEL_INFERENCE",
+  "date": "2026-09-20",
+  "model_weights_loaded": false,
+  "transformers": "4.57.6",
+  "processor": {
+    "model_id": "PaddlePaddle/PaddleOCR-VL-1.6",
+    "revision": "c5630abae1d940eafe0697512a0325494b02ab42",
+    "klass": "PaddleOCRVLImageProcessor",
+    "patch_size": 14,
+    "merge_size": 2,
+    "min_pixels": 112896,
+    "max_pixels": 1003520
+  },
+  "probe_cases": [
+    {
+      "case": "tems_min",
+      "source_w": 47,
+      "source_h": 18,
+      "resized_w": 560,
+      "resized_h": 224,
+      "grid": [
+        1,
+        16,
+        40
+      ],
+      "pre_merge": 640,
+      "placeholders": 160
+    },
+    {
+      "case": "tems_median",
+      "source_w": 262,
+      "source_h": 49,
+      "resized_w": 784,
+      "resized_h": 168,
+      "grid": [
+        1,
+        12,
+        56
+      ],
+      "pre_merge": 672,
+      "placeholders": 168
+    },
+    {
+      "case": "tems_max",
+      "source_w": 1438,
+      "source_h": 275,
+      "resized_w": 1428,
+      "resized_h": 280,
+      "grid": [
+        1,
+        20,
+        102
+      ],
+      "pre_merge": 2040,
+      "placeholders": 510
+    },
+    {
+      "case": "control_448sq",
+      "source_w": 448,
+      "source_h": 448,
+      "resized_w": 448,
+      "resized_h": 448,
+      "grid": [
+        1,
+        32,
+        32
+      ],
+      "pre_merge": 1024,
+      "placeholders": 256
+    }
+  ],
+  "tems_placeholder_distribution": {
+    "n": 5000,
+    "min": 144,
+    "p1": 145,
+    "p5": 148,
+    "p25": 154,
+    "median": 160,
+    "p75": 168,
+    "p95": 175,
+    "p99": 180,
+    "max": 405,
+    "distinct_values": 33,
+    "most_common": [
+      [
+        168,
+        726
+      ],
+      [
+        150,
+        599
+      ],
+      [
+        160,
+        506
+      ],
+      [
+        162,
+        413
+      ],
+      [
+        156,
+        367
+      ]
+    ],
+    "degenerate_four_level_grid": 0
+  },
+  "tems_metadata_csv_sha256": "163059c62d28086f5455db5cdbbcd99d9a4b9435084668dcd2fdd254936ca9e6"
+}

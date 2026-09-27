@@ -1,0 +1,67 @@
+{
+ "status": "ENGINEERING_CHECK_ONLY_NOT_A_SCIENTIFIC_RUN",
+ "standard_path_output": "สปาเกตติ์ใก่สับซอสแดง",
+ "image": "img_000022.jpg",
+ "image_grid_thw": [
+  1,
+  10,
+  60
+ ],
+ "token_rows_cols": [
+  5,
+  30
+ ],
+ "placeholders": 150,
+ "projector_features": 150,
+ "features_match_placeholders": true,
+ "prompt_sequence_length": 163,
+ "position_ids_available": true,
+ "position_ids_shape": [
+  3,
+  1,
+  163
+ ],
+ "trials": [
+  {
+   "ratio": 1.0,
+   "kept_tokens": 150,
+   "pruned_sequence_length": 163,
+   "expected_sequence_length": 163,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 19,
+   "output": "สปาเกตติ์ใก่สับซอสแดง",
+   "identity_with_standard_path": true
+  },
+  {
+   "ratio": 0.75,
+   "kept_tokens": 112,
+   "pruned_sequence_length": 125,
+   "expected_sequence_length": 125,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 19,
+   "output": "สปาเกตติ์ใก่สับซอสแดง"
+  },
+  {
+   "ratio": 0.5,
+   "kept_tokens": 75,
+   "pruned_sequence_length": 88,
+   "expected_sequence_length": 88,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 19,
+   "output": "สปาเกตติ์ใก่สับซอสแดง"
+  },
+  {
+   "ratio": 0.25,
+   "kept_tokens": 38,
+   "pruned_sequence_length": 51,
+   "expected_sequence_length": 51,
+   "sequence_shrank_exactly": true,
+   "generation_ok": true,
+   "returned_tokens": 17,
+   "output": "สปาเกตติโกสับซอสแดง"
+  }
+ ]
+}

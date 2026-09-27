@@ -1,7 +1,83 @@
 # Research Specification
 
-> Status: pre-registration draft. Scientific gates remain human-owned
-> decisions; H1 directionality was frozen on 2026-09-04.
+> Current status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
+> Scientific gates remain human-owned decisions.
+
+## 2026-09-27 Objective amendment — reduce Thai mark errors, training-free
+
+**Status: in effect by human decision, `docs/DECISION_LOG.md` entry 2026-09-27c.**
+This section supersedes §1–§3 as the project's *current* objective. Everything
+below it is preserved unchanged as the record of the robustness-evaluation phase
+and its Paddle/Wayu results; its statements remain true of that phase.
+
+**Objective.** Reduce Thai vowel and tone-mark transcription errors in a
+page-level OCR VLM without training, at comparable or better inference speed,
+and explain the mechanism of the errors removed.
+
+**Backbone.** `Qwen/Qwen3-VL-2B-Instruct` (general-purpose base) and
+`typhoon-ai/typhoon-ocr1.5-2b` (Thai OCR specialist, full fine-tune of the same
+architecture), pinned by SHA in the Decision Log.
+
+**Evaluation data.** ThaiOCRBench Full-page OCR and Text recognition
+(primary), Fine-grained text recognition (secondary), with a seeded
+calibration/locked split made before any output exists.
+
+- **RQ-A.** Are Thai mark errors on these models driven by missing visual
+  evidence, or by the language prior overriding the evidence?
+- **RQ-B.** Does a training-free remedy reduce mark-specific error without
+  raising other errors, and at what latency?
+- **RQ-C.** Does OCR specialization change the balance between evidence and
+  prior for Thai marks?
+
+The gate logic is kept: diagnose first, then evaluate existing training-free
+remedies fairly, and propose a new method only if a meaningful gap remains. The
+project still does not assume that tone marks degrade faster, or that any
+particular remedy works.
+
+---
+
+## 2026-09-14 Thai-specific OCR adaptation study — registered panel complete
+
+Attempt 5 completed all 6,400 registered calls and passed local artifact
+verification. FULL validity passed. The registered primary GLMM raised an
+eligible numerical fit exception before diagnostics were available, so the
+unchanged registered pair-clustered fallback supplied the primary analysis.
+Its global 3-df test was not significant (`p=0.170947`), yielding
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. This is not equivalence
+or proof of equal robustness. Exact results and limits are in
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+The eligibility clarification was an explicit post-data-access amendment made
+after FULL validity was known but before any reduced-budget result was computed
+or inspected. No formula, fallback estimator, test, threshold, or classifier
+changed. No downstream intervention is authorized.
+
+The revised research question is:
+
+> Does Thai-specific OCR adaptation change the degradation curve under
+> controlled visual-information reduction?
+
+The current comparison is **base OCR VLM versus Thai-specialized OCR
+descendant**, not general VLM versus OCR-specialized VLM. `MODEL` represents
+`PaddlePaddle/PaddleOCR-VL-1.6` as the base OCR model and
+`wayu-ai/wayu-paxa-ocr-zero` as its declared Thai-specific OCR adaptation.
+PaddleOCR-VL-1.6 is already an OCR/document-recognition model.
+
+The frozen primary hypothesis is a non-directional `MODEL x BUDGET`
+interaction. `MODEL x BUDGET x COMPONENT` is descriptive/diagnostic under the
+current 19-cluster-per-component design. The 45,723-page
+synthetic training set must not be described as the only difference between
+the checkpoints. The fallback terms gate,
+provenance limits, compression boundaries, and exact proposed non-scientific
+workload are in `FALLBACK_PAIR_CLEARANCE.md`. The historical Typhoon proposal
+remains in `SPECIALIZATION_PIVOT_REVIEW.md`.
+
+S0 remains open-calibration full-information baseline measurement only. It did
+not test `MODEL x BUDGET`. The later locked panel tested the active overall
+interaction under Input Resolution Reduction after FULL validity passed. The
+historical staged `Gate 0` execution remains `NOT_RUN` and was replaced by the
+registered FULL-validity condition. Prior Qwen2.5 and Qwen3.5 evidence retains
+only its original diagnostic scope.
 
 ## 1. Research objective
 
@@ -26,25 +102,28 @@ Possible outcomes are:
 - report an inconclusive feasibility result; or
 - stop because novelty, measurement, or resources are insufficient.
 
-## 3. RQ1 — Differential degradation
+## 3. Active RQ1 — Differential degradation by model
 
-When actual visual-token budget decreases within a clearly named intervention
-family, do orthographic component categories have different degradation
-curves?
+Does the change in exact transcription across actual visual-token budgets
+differ between the BASE OCR VLM and its Thai-specialized OCR descendant?
 
-The primary RQ is non-directional. It asks about a `component_type × budget`
-interaction, not whether Thai tone marks necessarily degrade faster.
+The primary RQ is non-directional; the active primary is frozen non-directional
+and asks about `MODEL x BUDGET`. Component
+curves remain descriptive/diagnostic. The earlier `component_type x budget`
+question below is preserved as research history but is not the active
+confirmatory primary hypothesis under the current dataset.
 
-## 4. H1 directionality — frozen non-directional
+## 4. Historical component H1 — non-directional, now descriptive
 
 The current Claims Registry permits the non-directional hypothesis:
 
 > Distinctions involving Thai orthographic components may degrade differently
 > as visual-token budget changes.
 
-The human researcher approved the non-directional `component_type × budget`
-interaction as H1 on 2026-09-04. An earlier draft proposed the directional
-form:
+The human researcher approved the non-directional `component_type x budget`
+interaction as H1 on 2026-09-04. On 2026-09-13, the human reviewer froze
+`MODEL x BUDGET` as the active primary and retained component results as
+descriptive/diagnostic. An earlier draft proposed the directional form:
 
 > Micro-features may exhibit greater degradation than base-character
 > distinctions.
@@ -66,9 +145,9 @@ These are hypotheses from `CLAIMS.md`, not established facts.
 
 ## 6. Estimand and unit of analysis
 
-For a registered intervention family, the central estimand is the change in
-forced-choice correctness across actual visual-token budgets and whether that
-change differs by `component_type`.
+For the active registered Input Resolution Reduction design, the central
+estimand is whether change in exact transcription correctness across actual
+LLM image-position budgets differs by `MODEL`.
 
 - An **observation** is one model response for one rendered stimulus under one
   model, budget, prompt, and candidate order.
@@ -93,28 +172,38 @@ Stage 0 asks whether the selected model, controlled dataset, forced-choice
 task, parser, and metrics can measure the intended distinctions at
 full-information settings.
 
-1. `Stage 0 calibration` estimates measurement quality.
-2. The human researcher freezes justified Gate 0 criteria.
-3. `Stage 0 locked validation` evaluates those criteria on locked data.
-4. The human researcher records `PASS`, `FAIL`, or `INCONCLUSIVE`.
+1. `Stage 0 calibration` estimates measurement quality on open data.
+2. The human researcher freezes justified FULL-validity criteria and the whole
+   confirmatory panel before any locked outcome.
+3. The authorized one-shot locked panel executed all four budgets without
+   intermediate scientific outcome access.
+4. After the panel became immutable, the FULL condition was evaluated. Failure
+   makes the overall `MODEL x BUDGET` analysis `NOT_INTERPRETABLE`; PASS permits
+   the already-frozen primary analysis.
+
+Attempt 5 attained FULL `PASS`; this is an observed measurement-validity result,
+not evidence that every component has adequate capacity.
 
 No compression outcome may be used to select Gate 0 thresholds.
 
-### Stage 1A — Resolution Sensitivity Pilot
+### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen first experiment
 
-Stage 1A is a conditional, non-gate pilot allowed only after Gate 0 is
-human-approved `PASS`. It changes input resolution through the official image
-processor and records the resulting actual visual-token counts.
+The earlier Stage 1A concept was a conditional non-gate pilot. The amended
+2026-09-13 freeze superseded it with the now-complete registered Paddle/Wayu
+`MODEL x BUDGET` Input Resolution Reduction panel. There was no conditional
+continuation after a FULL-only run.
 
 Stage 1A evidence is `Preliminary/Pilot`. It cannot approve Gate 1, reject a
 post-encoder Token Pruning hypothesis, or test H3. Post-encoder compression
 remains `Not Tested` until directly manipulated.
 
-### Gate 1 — Differential degradation
+### Gate 1 — Overall differential degradation
 
-Gate 1 requires a registered main experiment with an explicitly named
-intervention family, predefined uncertainty/effect criteria, per-component
-curves, and a `component_type × budget` analysis.
+Gate 1 evidence has now been produced by the frozen Input Resolution Reduction
+experiment with predefined uncertainty/effect criteria. The registered
+classifier returned `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`.
+Per-component curves remain descriptive/diagnostic. A human gate decision and
+any later-stage authorization remain pending.
 
 - `PASS`: evidence supports a meaningful interaction within the registered
   intervention scope.

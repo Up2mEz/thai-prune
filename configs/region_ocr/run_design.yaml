@@ -1,0 +1,122 @@
+schema_version: 1
+status: AUTHORIZED_PRELIMINARY_PILOT
+protocol: docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md
+authorization: docs/DECISION_LOG.md  # entries 2026-09-20, 2026-09-21
+round2_registration: docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md
+round3_registration: docs/stage0/REGION_OCR_ROUND3_REGISTRATION.md
+
+research_question: >
+  Within one experiment, on the same regions, the same model, the same prompt,
+  and matched actual visual-token counts, does post-encoder Token Pruning
+  produce a different Thai text-region recognition degradation pattern than
+  Input Resolution Reduction?
+
+evidence_status: Preliminary/Pilot
+
+model:
+  role: BASE
+  model_id: PaddlePaddle/PaddleOCR-VL-1.6
+  revision: c5630abae1d940eafe0697512a0325494b02ab42
+
+dataset:
+  name: TEMS
+  doi: 10.17632/ntdmgksh9w.5
+  license: CC BY 4.0
+  attribution_required: true
+  metadata_csv_sha256: 163059c62d28086f5455db5cdbbcd99d9a4b9435084668dcd2fdd254936ca9e6
+  archive_sha256: 7002f6441bbc78c1cbb82bbeff9f738c920bd516cb98f23c59be1816f3152da9
+  ground_truth_field: label            # never the filename; 1.6% disagree
+  eligibility: label contains U+0E00-U+0E7F
+  split_used: train
+  evaluation_split_opened: false
+
+selection:
+  seed: 20260920
+  photos: 200                         # clusters; the bootstrap resamples these
+  crops_per_photo: 2
+  regions: 400                        # photos x crops_per_photo, for reference
+  cluster_field: source_photo_id
+  rule: recomputed remotely from this seed, never shipped as a list
+
+intervention:
+  families:
+    - FULL
+    - INPUT_RESOLUTION_REDUCTION
+    - POST_ENCODER_TOKEN_PRUNING
+    - POST_ENCODER_SPATIAL_MERGE     # round 2; not ToMe, acts after the projector
+    - RESOLUTION_REDUCTION_RESTORED  # round 3; reduced detail at FULL's token count
+    - MAGNIFICATION_SWEEP            # round 3; budgets above and below FULL
+  ratios: [0.75, 0.5, 0.25]
+  ratio_semantics: nominal            # achieved is recorded per region
+  resolution_reduction:
+    mechanism: force_equal_min_max_pixels
+  pruning:
+    policies: [GRID, RANDOM, COVERAGE]
+    grid_selection: uniform over the 2D token grid
+    coverage_selection: >
+      same cell partition as GRID; within each cell keep the token with the
+      highest raw-patch contrast, scored from the image and never from decoder
+      attention
+    random_seeds: [20260920, 20260921]
+    budget_source: count achieved by the matching Resolution Reduction condition
+  merge:
+    policies: [MERGE_GRID]
+    survivors: identical to GRID, including M-RoPE positions
+    operation: each survivor carries the mean of its cell
+  restored:
+    mechanism: >
+      render the region at a budget's grid with the processor's own resampling
+      filter, then restore it to FULL's grid, so the arm carries that budget's
+      pixel detail at FULL's token count and magnification
+    conditions: [RR_RESTORED, PRUNE_GRID_RESTORED]
+  magnification_sweep:
+    factors: [2.0, 1.5, 0.125]          # multiples of FULL's token count
+    purpose: >
+      these crops sit far below the processor's pixel floor, so every condition
+      is an upsample and none loses source information; the sweep traces whether
+      accuracy is a scale preference with FULL on its wrong side
+  conditions_per_region: 28
+
+output_contract:
+  prompt: "OCR:"
+  decoding: {do_sample: false, num_beams: 1, max_new_tokens: 64}
+  parser: strip leading and trailing whitespace only
+  unicode_normalization: none         # NFC reported as sensitivity only
+  u_fffd_repair: forbidden
+
+analysis:
+  primary_population: every eligible region
+  secondary_population: regions where CER(FULL) = 0
+  primary_metric: mean per-region delta-CER against FULL, paired within region
+  sensitivity_metric: corpus CER
+  cluster_unit: source_photo_id
+  bootstrap_resamples: 10000
+  registered_estimand: DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)
+  contrast_families:                  # round 2; each corrected within itself only
+    A: deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)
+    B: deltaCER(MERGE_GRID,b) - deltaCER(PRUNE_GRID,b)
+    C: deltaCER(PRUNE_COVERAGE,b) - deltaCER(PRUNE_GRID,b)
+    D: deltaCER(PRUNE_GRID_RESTORED,b) - deltaCER(RR,b)   # H3 with detail matched
+    E: deltaCER(RR_RESTORED,b) - deltaCER(FULL)           # detail alone, tokens fixed
+  multiplicity: Holm across the three budgets within each family; families not pooled
+  failed_calls_scored_as_cer_one: false
+
+cost_measurement:
+  status: DESCRIPTIVE_COST_ACCOUNTING
+  execution_path: identical for every family; all reach generate() via inputs_embeds
+  path_equivalence_check: required; the run fails unless FULL reproduces the
+    legacy pixel_values route character-for-character
+  stages: [processor, vision, select, embed, prefill, generate]
+  analytic_counters: [vision_patches, vision_tokens_after_merge, llm_prefill_positions, llm_visual_positions]
+  claims_rest_on: analytic counters; wall clock is illustrative only
+  registered_exchange_rate_between_cer_and_seconds: none
+
+prohibited:
+  - opening the evaluation split
+  - post-outcome changes to prompt, parser, budgets, dataset, split, or model
+  - swapping the primary and secondary populations after seeing results
+  - treating this run as Gate 0 or Gate 1 evidence
+  - quoting a whole-pipeline speed-up from a language-model-only saving
+  - introducing any accuracy-per-second trade-off rule after seeing results
+  - describing MERGE_GRID as ToMe, or any deferred method as tested
+  - reading family A as evidence about the insertion point without family D

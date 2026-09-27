@@ -1,6 +1,65 @@
 # Experiment Protocol
 
-> Status: living protocol before the main experiment. Changes that affect scientific interpretation must be logged in `docs/DECISION_LOG.md`.
+> Current status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
+> Changes affecting scientific interpretation are logged in
+> `docs/DECISION_LOG.md`.
+
+## 2026-09-14 Thai-specific OCR adaptation panel — complete
+
+The one-shot 6,400-call Input Resolution Reduction panel completed as Attempt 5
+and passed local verification. FULL validity passed. The registered GLMM was
+attempted and raised an eligible numerical fit exception before diagnostics;
+the unchanged registered pair-clustered fallback returned the frozen decision
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. See
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+The primary comparison is **base OCR VLM versus Thai-specialized OCR
+descendant**. Do not describe it as general VLM versus OCR-specialized VLM.
+The research question is: “Does Thai-specific OCR adaptation change the
+degradation curve under controlled visual-information reduction?” The frozen
+primary interaction is non-directional `MODEL x BUDGET`; S0 measured only
+full-information baseline capacity and did not test that interaction.
+
+The complete frozen design is in `OVERALL_MODEL_BUDGET_FREEZE.md`. The
+budget variable was categorical actual LLM image-placeholder count at
+`256/196/121/64`, realized by processor targets `448/392/308/224` using Input
+Resolution Reduction only. `MODEL x BUDGET x COMPONENT` is
+descriptive/diagnostic. The executed protocol forbade a FULL-only run,
+conditional continuation, and access to intermediate scientific outcomes.
+
+The Typhoon branch is `NOT_PURSUED_DUE_TO_USAGE_TERMS`; no Typhoon inference,
+smoke, compression, or benchmarking is authorized. The broader historical
+model-agnostic question remains in the record, while the active confirmatory
+question is now frozen for PaddleOCR-VL-1.6 and Wayu-Paxa. This pair passed the
+engineering smoke and completed the authorized S0 open-calibration baseline.
+The 45,723-page synthetic training set is not assumed to be the only checkpoint
+difference.
+
+The earlier 25-`pair_id`, 400-call Typhoon proposal below is historical and is
+not transferred to Paddle/Wayu. The current S0 contract excludes the five
+engineering-smoke pairs and uses the remaining 95 open-calibration pairs only.
+
+For provenance, the historical non-executable proposal required prompt
+selection from a separate non-scientific smoke before S0 outcomes. Its
+preferred contract applied the exact pinned official Typhoon
+OCR prompt to both models with identical deterministic decoding and one
+parser. If the base cannot execute that interface in the smoke, a predeclared
+two-contract sensitivity design may compare a shared semantic OCR contract
+with each model's frozen interface; prompt/interface effects must then be
+reported separately from checkpoint capability.
+
+The terms/model-card snapshots used for this experiment are execution
+provenance; `TERMS_CLEAR` in the earlier source-only audit is not permanent
+legal advice for future work.
+Before any later experiment, processor-only and runtime evidence must map requested resolution to
+actual grid, pre-merge patches, post-merge primary visual positions, DeepStack
+accounting, and LLM image-placeholder positions. Resolution Reduction,
+pre-encoder reduction, post-encoder Token Pruning, Token Merging/Pooling, and
+dynamic decoding-time access remain distinct interventions.
+
+The historical Typhoon contract is `SPECIALIZATION_PIVOT_REVIEW.md`; the
+fallback source-only audit is `FALLBACK_PAIR_CLEARANCE.md`. This section does
+not authorize execution or alter the active stages below.
 
 ## 1. Purpose
 
@@ -28,12 +87,17 @@ Goal: verify that the dataset, task, prompt, parser, model adapter, and metrics 
 Primary question:
 > Can the uncompressed/full-information model reliably discriminate the controlled stimuli?
 
-### Stage 1 — Differential degradation
-Goal: determine whether component categories show different degradation as visual information/token budget decreases.
+### Stage 1 — Overall differential degradation
+Goal: determine whether the BASE and SPECIALIZED checkpoints have different
+exact-transcription degradation curves as actual visual-information budget
+decreases under Input Resolution Reduction. Component curves are
+descriptive/diagnostic.
 
-### Stage 1A — Resolution Sensitivity Pilot
-Goal: obtain preliminary evidence about sensitivity to processor-controlled
-input Resolution Reduction after Gate 0 is human-approved `PASS`.
+### Historical Stage 1A Resolution Sensitivity Pilot — superseded for the frozen Paddle/Wayu design
+The earlier pilot concept is preserved as history. The completed first
+Paddle/Wayu budget experiment is the overall `MODEL x BUDGET` design in
+`OVERALL_MODEL_BUDGET_FREEZE.md`. FULL validity was evaluated only after the
+complete panel became immutable.
 
 Stage 1A is not the main Stage 1 experiment and cannot approve Gate 1. It does
 not test post-encoder Token Pruning and cannot reject H3 because only one
@@ -231,13 +295,15 @@ Every compression configuration must record:
 - method-specific parameters.
 
 ### 9.1 Budget grid
-Initial pilot budgets may use a coarse grid such as:
+The historical pilot proposal used a coarse nominal grid such as:
 
 ```text
 100%, 75%, 50%, 25%
 ```
 
-However, final main-experiment budgets must be chosen before the main analysis and recorded explicitly.
+The active Paddle/Wayu grid is now frozen at actual LLM image-position counts
+`256/196/121/64` before locked output. Do not replace these with nominal
+percentages.
 
 For Stage 1A, the grid is selected using processor/token mapping only, before
 opening predictions. If processor rounding maps requested budgets to duplicate
@@ -281,27 +347,88 @@ before later-stage evidence is collected.
 
 ---
 
-## 11. Main statistical question
+## 11. Active main statistical question
 
-The central Stage 1/2 question is not simply whether accuracy decreases.
-
-It is whether degradation depends on component type as budget changes.
+The active question is not simply whether accuracy decreases. It is whether
+degradation differs by MODEL as budget changes after accounting for different
+FULL baselines.
 
 Conceptually:
 
 ```text
-correct
-~ budget
-+ component_type
-+ budget × component_type
-+ visual confound variables
+exact_correct
+~ MODEL * BUDGET
++ FONT + FONT_SIZE + MEMBER + COMPONENT
++ (1 | pair_id) + (1 | pair_id:member)
 ```
 
-The interaction `budget × component_type` is therefore central.
+The confirmatory interaction is `MODEL x BUDGET`; `BUDGET` is a categorical
+four-level factor. The global omnibus is the registered 3-df likelihood-ratio
+test against the model without the interaction. Report all three frozen
+`DID_196`, `DID_121`, and `DID_64` marginal probability-scale contrasts with
+pair-clustered uncertainty and Holm multiplicity control. The exact GLMM
+diagnostics and direction-independent fallback are in
+`stage0/PADDLE_WAYU_PRIMARY_ANALYSIS_SPEC.md`. Component interactions are
+descriptive/diagnostic.
 
-The final statistical model must be selected based on the data structure before final analysis. Possible approaches include mixed-effects logistic regression and paired/bootstrap analyses.
+### Post-data-access numerical GLMM fit-exception eligibility amendment
+
+After Attempt 5 was verified and FULL validity passed, but before any
+reduced-budget result was computed or inspected, the registered `glmer` path
+raised a numerical fitting exception before diagnostics were materialized. The
+frozen fallback trigger had specified diagnostic failure but was ambiguous for
+this pre-diagnostic state. Human review therefore approved an explicit
+post-data-access eligibility amendment: a numerical exception arising inside
+the validated registered `glmer` fitting/optimization path may enter the
+already frozen fallback. Non-fit, input, environment, configuration, I/O,
+provenance, code, container, and ambiguous failures remain fatal. The GLMM
+formula and all fallback estimands/tests/thresholds/classifier remain
+unchanged. See
+`stage0/PADDLE_WAYU_GLMM_EXCEPTION_ELIGIBILITY_AMENDMENT.md`.
+
+The one authorized rerun then reproduced the exception at `pwrssUpdate` during
+`FULL_MODEL_FIT`, recorded
+`FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE` with
+`diagnostics_available=false`, and used the unchanged fallback. The completed
+result and disclosure are in
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`. No additional rerun is
+authorized.
 
 Do not treat a visually different graph as statistically established evidence by itself.
+
+---
+
+### 11.1 Post-failure U+FFFD per-call protocol amendment
+
+After Attempt 4 stopped fail-closed on a successfully decoded string containing
+the Unicode replacement character U+FFFD, and before any Attempt-4 scientific
+output was inspected, the protocol was amended under outcome blinding.
+
+The generation and decoding function remains unchanged: exact model and
+processor revisions, prompt, output slicing, `do_sample`, `num_beams`,
+`max_new_tokens=32`, EOS behavior, `skip_special_tokens=True`,
+`clean_up_tokenization_spaces=False`, parser, and Unicode normalization are
+unchanged.
+
+When `processor.decode()` successfully returns a Python string containing one
+or more U+FFFD codepoints, retain the raw string and generated token IDs in the
+sealed scientific record. Mark that observation
+`output_contract_failure_reason=U_FFFD_REPLACEMENT_CHARACTER`, score
+`exact_correct=0`, retain it in the denominator and registered
+output-contract-failure rate, do not retry or repair it, and continue to the
+next registered call. Other runtime or decode exceptions remain fatal and
+ambiguous cases fail closed.
+
+Per-call token count, EOS/cap flags, token IDs, decoded output, U+FFFD flag, and
+failure reason remain inside sealed scientific artifacts. Live telemetry must
+not expose them or any scientific factor identity. The existing FULL
+output-contract-failure maximum of 1% per model remains unchanged and has no
+special exemption for U+FFFD.
+
+Attempt 4 remains an invalid sealed partial run and contributes zero
+observations to any future confirmatory analysis. Any later authorized run
+must start a fresh 6,400-call panel from the beginning under one frozen amended
+executable.
 
 ---
 

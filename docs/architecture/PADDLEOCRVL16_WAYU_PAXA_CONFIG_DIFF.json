@@ -1,0 +1,71 @@
+{
+  "audit_date": "2026-09-12",
+  "scope": "official metadata, configs, artifacts, source, and safetensors headers only; no inference",
+  "status": "APPROVED_FOR_ENGINEERING_SMOKE_ONLY",
+  "terms_classification": "TERMS_CLEAR",
+  "recommendation": "APPROVE_PADDLE_WAYU_FOR_ENGINEERING_SMOKE",
+  "base": {
+    "model_id": "PaddlePaddle/PaddleOCR-VL-1.6",
+    "revision": "c5630abae1d940eafe0697512a0325494b02ab42",
+    "license": "apache-2.0",
+    "safetensors_parameters_bf16": 958588736,
+    "tensor_count": 620,
+    "architecture": "PaddleOCRVLForConditionalGeneration"
+  },
+  "specialized": {
+    "model_id": "wayu-ai/wayu-paxa-ocr-zero",
+    "revision": "af0204b4f334a6d5068b6bac2b3738932d6e289b",
+    "license": "apache-2.0 plus Wayu Research Acceptable Use terms",
+    "declared_base_model": "PaddlePaddle/PaddleOCR-VL-1.6",
+    "immutable_parent_revision_declared": false,
+    "training": "full fine-tune of all 0.9B parameters for one epoch on 45,723 synthetic pages",
+    "safetensors_parameters_bf16": 905601648,
+    "tensor_count": 608,
+    "architecture": "PaddleOCRVLForConditionalGeneration"
+  },
+  "shared_core_config": {
+    "language_hidden_size": 1024,
+    "language_intermediate_size": 3072,
+    "language_layers": 18,
+    "language_attention_heads": 16,
+    "language_key_value_heads": 2,
+    "vocab_size": 103424,
+    "vision_hidden_size": 1152,
+    "vision_intermediate_size": 4304,
+    "vision_layers": 27,
+    "vision_attention_heads": 16,
+    "patch_size": 14,
+    "spatial_merge_size": 2,
+    "projector_input_size": 4608,
+    "projector_output_size": 1024,
+    "prompt_contract": "OCR:"
+  },
+  "state_dict": {
+    "common_keys_equal_shape_dtype": 608,
+    "specialized_only_keys": [],
+    "base_only_key_groups": {
+      "visual.vision_model.embeddings.packing_position_embedding.weight": 1,
+      "visual.vision_model.head.*": 11
+    },
+    "common_weight_values_compared": false,
+    "interpretation": "generative-core structural compatibility only; not weight identity or exact causal matching"
+  },
+  "artifact_relationships": {
+    "chat_template_blob_equal": true,
+    "tokenizer_model_blob_equal": true,
+    "base_runtime": "repository remote custom code",
+    "specialized_runtime": "native Transformers paddleocr_vl implementation"
+  },
+  "token_shape_logic": {
+    "pre_merge": "N_pre = t * h * w",
+    "llm_boundary": "N_llm = t * (h / spatial_merge_size) * (w / spatial_merge_size)",
+    "feature_placeholder_equality_required": true
+  },
+  "prohibited_inferences": [
+    "training data is the only difference",
+    "common weight values are equal",
+    "the audited base revision is the exact fine-tuning parent",
+    "T4 feasibility is established",
+    "compression robustness differs between the models"
+  ]
+}

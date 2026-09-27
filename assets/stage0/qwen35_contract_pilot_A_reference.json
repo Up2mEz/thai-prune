@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source_run_id": "kaggle-qwen35-measurement-953dd5e386ea-79122b58",
+  "source_path": "runs/kaggle/kaggle-qwen35-measurement-953dd5e386ea-79122b58/fetched/artifacts/kaggle-qwen35-measurement-953dd5e386ea-79122b58/D1_position_swap.jsonl",
+  "source_sha256": "203cd2692c7e9274d2e043d3f8a8621047690eddbfda8282f2d35b6b650f2232",
+  "row_count": 200,
+  "selected_pair_count": 25,
+  "locked_pair_count": 0,
+  "aggregation": "(registered_correct + swapped_correct) / 2",
+  "orders_are_independent": false,
+  "artifact_sha256": "e418e8a415f36b616af81b9e14624d0d93c26d83d879c1ff57143165c9462e1a"
+}

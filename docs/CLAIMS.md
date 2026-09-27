@@ -29,11 +29,50 @@ Must not be presented as a project finding.
 
 ## SUPPORTED
 
-None yet. No main experiment has been completed.
+No unqualified cross-dataset, cross-model, or cross-intervention claim is
+supported. The completed main-panel claim is registered below with explicit
+scope and limitations.
 
 ---
 
 ## SUPPORTED_WITH_LIMITS
+
+### Completed Paddle/Wayu MODEL x BUDGET panel
+
+Within the exact pinned PaddleOCR-VL-1.6 / Wayu-Paxa model pair, controlled
+synthetic Thai minimal-pair dataset, OCR prompt/parser, four registered budgets,
+and BICUBIC Input Resolution Reduction intervention, FULL validity passed and
+the registered primary analysis returned
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`.
+
+The primary GLMM was unavailable because the registered full `glmer` fit raised
+a numerical exception before diagnostics. The already specified pair-clustered
+fallback supplied the result after a transparently documented post-data-access
+eligibility amendment. Its global p-value was `0.170947`; all three exact DIDs
+were Holm-nonsignificant and had observed magnitudes below the 10 pp SESOI.
+
+This supports only the scoped statement that the experiment did not find
+confirmatory evidence of different degradation curves under this design. It
+does not support equivalence, equal robustness, a causal Wayu-training effect,
+component-specific confirmatory effects, general compression robustness,
+post-encoder Token Pruning, Token Merging, mechanism, or real-world/cross-model
+generalization. See
+`stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+### Proposed specialization-pair architecture audit
+
+At the pinned public repository revisions recorded on 2026-09-12,
+`Qwen/Qwen3-VL-2B-Instruct` and `typhoon-ai/typhoon-ocr1.5-2b` declare the same
+`Qwen3VLForConditionalGeneration` architecture/config dimensions, BF16
+parameter count, patch size, spatial merge size, DeepStack indexes, and
+state-dict key/shape/dtype structure. Typhoon public metadata declares the
+Qwen model ID as its fine-tuning base.
+
+This supports only the wording “closely related base and OCR-specialized
+descendant.” It does not establish the immutable parent revision, equality of
+all non-training conditions, which weights changed, or fine-tuning as the only
+causal difference. No model inference was performed. The audit is in
+`docs/architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`.
 
 ### Step 3 engineering feasibility
 
@@ -100,14 +139,84 @@ non-causal measurement diagnostics reported in
 registered metric, validate every component, approve Gate 0, establish model
 capacity, or support any compression/H1/real-world claim.
 
+The pinned `Qwen/Qwen3.5-4B` revision was evaluated only on the already exposed
+100-pair Stage 0 calibration split after a pre-registered selection rationale.
+Its T4 FP16 engineering contract passed and two 1,000-observation runs
+reproduced exactly, but full-information accuracy was 49.875% with a 100%
+blank A-position preference and aggregate image-gain interval crossing zero.
+This supports the bounded claim that Qwen3.5-4B is not an adequate measurement
+instrument under this exact prompt, parser, rendering, dataset, revision, and
+runtime contract. It does not support a general Qwen3.5-versus-Qwen2.5 ranking,
+a Thai-language capability claim, a visual-token-count mechanism, Gate 0, or
+any claim about Resolution Reduction, Token Pruning, Token Merging, H1–H4, or
+real-world text.
+
+The pre-registered Qwen3.5 D1-D4 diagnostic subsequently found very low A/B
+content consistency, candidate scores near chance after blank correction,
+strong separation in a post-spatial-merger representation probe, and a
+positive visual-rescue gain when glyphs were clearly magnified. Under the
+frozen classifier these jointly support only an `inconclusive` root-cause
+classification and a recommendation to screen an architecturally distinct
+backbone. D3 is a diagnostic probe rather than a primary metric, and D4 is a
+scale rescue rather than compression evidence. The result does not establish
+a purely interface or purely visual cause, does not rank Qwen3.5 against
+Qwen2.5 under D1-D4, and does not support Gate 0, H1-H4, real-world Thai OCR,
+or any compression claim. Exact estimates, pair-clustered intervals, and
+scope are in `docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_REPORT.md`.
+
+The subsequent frozen 25-pair measurement-contract pilot found exact target
+accuracy of 0% in both isolated direct transcription and center-target
+transcription with artificial surrounding layout. This supports only the
+bounded statement that direct transcription did not rescue this exact
+Qwen3.5 revision, prompt, rendering, decoding, and open-calibration subset; it
+does not establish that the A/B interface is harmless or that visual
+representation is absent. Because Condition C crossed the preregistered 20%
+output-contract-failure flag, the frozen decision is
+`MIXED_TARGETED_INSTRUMENT_REVIEW`. It does not authorize backbone screening,
+Gate 0, compression, or a Qwen3.5-versus-Qwen2.5 comparison. Exact evidence is
+in `docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
+
 ---
 
 ## HYPOTHESES
 
-### H1 — Differential component degradation
+### Thai-specific OCR adaptation hypothesis — frozen overall design
+
+Thai-specific OCR adaptation may change the degradation curve under decreasing
+realized visual-information budgets for the base OCR VLM and its declared
+Thai-specialized OCR descendant.
+The frozen primary test is a non-directional `MODEL x BUDGET` interaction.
+A `MODEL x BUDGET x COMPONENT` interaction is descriptive/diagnostic under the
+current dataset and cannot be promoted without a separately powered approval.
+
+**Status:** `NOT_SUPPORTED` as a confirmatory interaction under this exact
+design. The one-shot 6,400-call panel completed, FULL validity passed, and the
+registered fallback global test was not significant (`p=0.170947`). This does
+not disprove the hypothesis and is not evidence of equivalence.
+
+The Typhoon candidate was subsequently set to
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`; this is an operational decision, not a
+scientific rejection. PaddleOCR-VL-1.6 / Wayu-Paxa completed the accepted
+engineering smoke and S0 full-information open-calibration baseline. Those
+results remain baseline association evidence, not `MODEL x BUDGET` or
+compression evidence.
+
+The observed FULL-validity PASS means only that the overall primary
+`MODEL x BUDGET` analysis is measurement-interpretable under the registered
+planning criterion. It does not establish measurement capacity for every
+component.
+
+The absolute SESOI is 10 percentage points. A non-significant omnibus test is
+classified only as `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`; it is
+not equivalence or proof that the models have equal robustness. The three
+pair-clustered bootstrap 95% CIs are reported separately and are not described
+as Holm-adjusted CIs; Holm multiplicity control applies to p-values.
+
+### Historical H1 — Differential component degradation
 Under decreasing visual-token budgets, distinctions involving small Thai orthographic components may degrade differently from other character distinctions.
 
-**Status:** untested.
+**Status:** untested and descriptive/diagnostic under the current dataset; not
+the active confirmatory primary hypothesis.
 
 **Directionality:** frozen as non-directional on 2026-09-04. The stronger claim
 that micro-features degrade more than base-character distinctions is not
@@ -162,6 +271,25 @@ The following claims are currently forbidden:
 - "A phenomenon observed in one Qwen model generalizes to all VLMs."
 - "Synthetic controlled results demonstrate real-world OCR failure."
 - "A statistically significant effect is automatically practically important."
+- "Typhoon OCR is more robust than Qwen3-VL under visual-information reduction."
+- "OCR specialization improves compression robustness."
+- "The BASE and SPECIALIZED models have equivalent or equal robustness."
+- "Every true DID is smaller than the 10 pp SESOI."
+- "Fine-tuning is the only difference between the proposed checkpoints."
+- "OCR specialization causes an attention or representation change."
+- "Representation quality explains transcription performance."
+- "Thai orthographic components degrade differently under the proposed pivot."
+- "The previous Qwen3.5 transcription failure is evidence for a Typhoon specialization effect."
+- "PaddleOCR-VL-1.6 and Wayu-Paxa differ only by Thai training data."
+- "The audited Paddle/Wayu pair is T4-feasible."
+- "Wayu-Paxa is more robust than PaddleOCR-VL-1.6 under visual-information reduction."
+- "The Paddle/Wayu source-only audit is Gate 0 or compression evidence."
+- "PaddleOCR-VL-1.6 is a general-purpose VLM control against an OCR model."
+- "S0 tests the MODEL x BUDGET interaction."
+- "The 45,723-page synthetic training set is the only checkpoint difference."
+- "The frozen 256/196/121/64 budget grid is Token Pruning."
+- "The design freeze authorizes locked validation or Resolution Reduction inference."
+- "The experiment has 84-97% power" without stating the registered simulation assumptions.
 
 The following inference is also forbidden:
 

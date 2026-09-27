@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-09-12",
+  "status": "PROVENANCE_AUDIT_COMPLETE_NO_INFERENCE",
+  "comparison_label": "closely related base and OCR-specialized descendant",
+  "causal_equivalence_claim": false,
+  "models": {
+    "base": {
+      "model_id": "Qwen/Qwen3-VL-2B-Instruct",
+      "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+      "license_tag": "apache-2.0",
+      "architecture": "Qwen3VLForConditionalGeneration",
+      "model_type": "qwen3_vl",
+      "parameter_count_bf16": 2127532032,
+      "weight_file_bytes": 4255140312,
+      "weight_blob_id": "756540b03375b1bb98d2b4b2c562f02eaf569821"
+    },
+    "specialized": {
+      "model_id": "typhoon-ai/typhoon-ocr1.5-2b",
+      "revision": "15b381a2d62569e6736f9c085859dff68e48608d",
+      "license_tag": "apache-2.0",
+      "additional_terms_notice": "Model card links OpenTyphoon Terms and Conditions; current terms require clearance before competitive benchmarking.",
+      "declared_base_model": "Qwen/Qwen3-VL-2B-Instruct",
+      "declared_base_revision": null,
+      "architecture": "Qwen3VLForConditionalGeneration",
+      "model_type": "qwen3_vl",
+      "parameter_count_bf16": 2127532032,
+      "weight_file_bytes": 4255140312,
+      "weight_blob_id": "1169aa35846a23d39302c7d1f28ec712a052c833"
+    }
+  },
+  "architecture_comparison": {
+    "config_architecture_match": true,
+    "text_config_match_after_ignoring_serialization_metadata": true,
+    "vision_config_match_after_ignoring_serialization_metadata": true,
+    "vision": {
+      "patch_size": 16,
+      "temporal_patch_size": 2,
+      "spatial_merge_size": 2,
+      "depth": 24,
+      "hidden_size": 1024,
+      "intermediate_size": 4096,
+      "num_heads": 16,
+      "num_position_embeddings": 2304,
+      "out_hidden_size": 2048,
+      "deepstack_visual_indexes": [5, 11, 17]
+    },
+    "text": {
+      "hidden_size": 2048,
+      "intermediate_size": 6144,
+      "num_hidden_layers": 28,
+      "num_attention_heads": 16,
+      "num_key_value_heads": 8,
+      "vocab_size": 151936,
+      "max_position_embeddings": 262144
+    },
+    "config_differences": [
+      {
+        "path": "dtype",
+        "base": "MISSING",
+        "specialized": "bfloat16",
+        "interpretation": "serialization metadata difference"
+      },
+      {
+        "path": "vision_config.dtype",
+        "base": "MISSING",
+        "specialized": "bfloat16",
+        "interpretation": "serialization metadata difference"
+      },
+      {
+        "path": "transformers_version",
+        "base": "4.57.0.dev0",
+        "specialized": "4.57.1",
+        "interpretation": "serialization/runtime provenance difference"
+      }
+    ]
+  },
+  "state_dict_header_comparison": {
+    "base_tensor_count": 625,
+    "specialized_tensor_count": 625,
+    "key_names_identical": true,
+    "tensor_shapes_identical": true,
+    "tensor_dtypes_identical": true,
+    "tensor_byte_lengths_identical": true,
+    "repository_weight_blob_ids_identical": false,
+    "weight_artifacts_byte_identical": "NOT_DIRECTLY_TESTED",
+    "weight_values_compared": false,
+    "interpretation": "Headers prove structural compatibility only; distinct repository blob IDs do not identify which tensors changed or why."
+  },
+  "tokenizer_comparison": {
+    "tokenizer_class": "Qwen2Tokenizer",
+    "model_vocab_entries": 151643,
+    "configured_vocab_size": 151936,
+    "added_token_count": 26,
+    "vocab_json_byte_identical": true,
+    "vocab_json_sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+    "merges_semantically_identical": true,
+    "merge_count": 151387,
+    "serialization_differences": [
+      "specialized merges.txt adds the standard #version: 0.2 header",
+      "base tokenizer.json serializes merges as strings; specialized serializes equivalent pairs as arrays",
+      "specialized tokenizer.json explicitly sets model.ignore_merges=false",
+      "chat-template storage differs: base chat_template.json/tokenizer_config; specialized chat_template.jinja"
+    ],
+    "tokenization_equivalence_inferred_from_files": true,
+    "runtime_equivalence_tested": false
+  },
+  "processor_comparison": {
+    "processor_class": "Qwen3VLProcessor",
+    "image_processor_type": "Qwen2VLImageProcessorFast",
+    "core_image_fields_equal": true,
+    "core_fields": {
+      "patch_size": 16,
+      "temporal_patch_size": 2,
+      "merge_size": 2,
+      "shortest_edge": 65536,
+      "longest_edge": 16777216,
+      "image_mean": [0.5, 0.5, 0.5],
+      "image_std": [0.5, 0.5, 0.5]
+    },
+    "specialized_explicit_default_fields": [
+      "crop_size",
+      "data_format",
+      "default_to_square",
+      "device",
+      "disable_grouping",
+      "do_center_crop",
+      "do_convert_rgb",
+      "do_normalize",
+      "do_pad",
+      "do_rescale",
+      "do_resize",
+      "input_data_format",
+      "max_pixels",
+      "min_pixels",
+      "pad_size",
+      "resample",
+      "rescale_factor",
+      "return_tensors"
+    ],
+    "runtime_equivalence_tested": false
+  },
+  "generation_config_differences": [
+    {
+      "path": "bos_token_id",
+      "base": 151643,
+      "specialized": "MISSING"
+    },
+    {
+      "path": "eos_token_id",
+      "base": [151645, 151643],
+      "specialized": [151645, 151645, 151643]
+    },
+    {
+      "path": "repetition_penalty",
+      "base": 1.0,
+      "specialized": "MISSING"
+    },
+    {
+      "path": "transformers_version",
+      "base": "4.56.0",
+      "specialized": "4.57.1"
+    }
+  ],
+  "official_typhoon_contract": {
+    "source": "https://huggingface.co/typhoon-ai/typhoon-ocr1.5-2b/blob/15b381a2d62569e6736f9c085859dff68e48608d/README.md#L91-L108",
+    "prompt_first_line": "Extract all text from the image.",
+    "prompt_utf8_sha256": "0e6c57af282f83f3dfdfa30e33bb8e74e0e1addd974f6ee111c1c22b3d47594d",
+    "prompt_character_count": 991,
+    "prompt_line_count": 18,
+    "prompt_reproduced_here": false,
+    "output_elements": ["clean Markdown", "HTML tables", "LaTeX equations", "figure tags", "page_number tags", "checkbox glyphs"],
+    "model_card_warning": "Task-specific model; intended for the provided prompt only; no VQA capability is claimed."
+  },
+  "unresolved_provenance": [
+    "The exact immutable Qwen parent revision used to initialize Typhoon OCR 1.5 is not declared.",
+    "Public artifacts do not prove fine-tuning was the only training or checkpoint transformation.",
+    "No weight-value delta or training log was inspected.",
+    "Runtime tokenizer, processor, DeepStack, and LLM-boundary counts remain untested for these revisions.",
+    "The legal interaction between the apache-2.0 repository tag and linked OpenTyphoon Terms requires qualified review or written permission before comparative inference."
+  ],
+  "sources": {
+    "base_api": "https://huggingface.co/api/models/Qwen/Qwen3-VL-2B-Instruct?blobs=true",
+    "specialized_api": "https://huggingface.co/api/models/typhoon-ai/typhoon-ocr1.5-2b?blobs=true",
+    "base_config": "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct/blob/89644892e4d85e24eaac8bacfd4f463576704203/config.json",
+    "specialized_config": "https://huggingface.co/typhoon-ai/typhoon-ocr1.5-2b/blob/15b381a2d62569e6736f9c085859dff68e48608d/config.json",
+    "typhoon_report": "https://arxiv.org/abs/2601.14722",
+    "open_typhoon_terms": "https://opentyphoon.ai/tac"
+  }
+}

@@ -282,9 +282,14 @@ def _run_pass(
     cuda_memory: dict[str, int | None] = {
         "allocated_after_model_load_bytes": None,
         "reserved_after_model_load_bytes": None,
+        "allocated_after_first_call_bytes": None,
+        "reserved_after_first_call_bytes": None,
+        "peak_allocated_through_first_call_bytes": None,
+        "peak_reserved_through_first_call_bytes": None,
         "peak_allocated_during_inference_bytes": None,
         "peak_reserved_during_inference_bytes": None,
     }
+    first_call_probe: dict[str, Any] | None = None
     started = time.perf_counter()
     with peak_rss_monitor() as memory:
         import torch
@@ -308,6 +313,9 @@ def _run_pass(
                 prediction = result.prediction
                 margin = _position_margin(result.logit_a, result.logit_b)
                 render = render_by_key.get((observation["pair_id"], observation["condition_id"]))
+                reference = spec.get("binary_reference", {}).get(
+                    observation["observation_id"]
+                )
                 row = {
                     **observation,
                     "font_id": render.get("font_id") if render else None,
@@ -325,9 +333,12 @@ def _run_pass(
                         prediction.parsed_output == observation["expected_label"]
                         if observation["expected_label"] is not None else None
                     ),
-                    "binary_reference_prediction": spec["binary_reference"][observation["observation_id"]],
-                    "binary_reference_agrees": prediction.parsed_output
-                    == spec["binary_reference"][observation["observation_id"]],
+                    "binary_reference_prediction": reference,
+                    "binary_reference_agrees": (
+                        prediction.parsed_output == reference
+                        if reference is not None
+                        else None
+                    ),
                     "raw_output": prediction.raw_output,
                     "parse_status": prediction.parse_status,
                     "generated_token_ids": list(prediction.generated_token_ids),
@@ -342,6 +353,26 @@ def _run_pass(
                 if not all(math.isfinite(row[key]) for key in ("logit_A", "logit_B", "position_margin")):
                     raise RuntimeError("non-finite decision logit")
                 rows.append(row)
+                if len(rows) == 1:
+                    first_call_probe = {
+                        "observation_id": row["observation_id"],
+                        "preprocess_seconds": row["preprocess_seconds"],
+                        "inference_seconds": row["generation_seconds"],
+                    }
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                        cuda_memory["allocated_after_first_call_bytes"] = int(
+                            torch.cuda.memory_allocated()
+                        )
+                        cuda_memory["reserved_after_first_call_bytes"] = int(
+                            torch.cuda.memory_reserved()
+                        )
+                        cuda_memory["peak_allocated_through_first_call_bytes"] = int(
+                            torch.cuda.max_memory_allocated()
+                        )
+                        cuda_memory["peak_reserved_through_first_call_bytes"] = int(
+                            torch.cuda.max_memory_reserved()
+                        )
             except BaseException as exc:
                 failures.append({
                     "observation_id": observation["observation_id"],
@@ -358,11 +389,13 @@ def _run_pass(
         "run_status": "VALID" if len(rows) == len(observations) and not failures else "INVALID",
         "git_commit": spec["git_sha"], "model_id": adapter.model_id,
         "model_revision": adapter.revision, "processor_revision": adapter.processor_revision,
+        "tokenizer_revision": adapter.tokenizer_revision,
         "environment": environment_record(), "frozen_environment_contract": spec["environment_contract"],
         "architecture": architecture, "model_load_seconds": adapter.model_load_seconds,
         "observation_count": len(observations), "completed_count": len(rows),
         "failure_count": len(failures), "total_seconds": time.perf_counter() - started,
         "peak_rss_bytes": memory["peak_rss_bytes"], "cuda_memory": cuda_memory,
+        "first_call_probe": first_call_probe,
         "locked_validation_pair_count_exposed_to_model": 0,
         "primary_metric_replaced": False, "compression_family": "FULL_INFORMATION",
     }

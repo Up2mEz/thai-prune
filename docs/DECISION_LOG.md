@@ -2,6 +2,1495 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-27c — Objective amended; T1 and T2 authorized
+
+**Stage/Gate:** New objective, Stage 0 on the new backbone. Prior gates are not
+re-opened or re-decided by this entry.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27: amend `RESEARCH_SPEC.md` to the
+objective in `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §8, and
+write the code for tests T1 and T2 and run their inference. Authorizes exactly
+the runs registered in `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`, on the
+calibration split only. The locked split stays closed.
+
+### Reasoning
+
+The researcher's goal is fewer Thai vowel and tone-mark errors at similar speed
+by any training-free technique. The previous objective framed the work as a
+robustness evaluation under compression, which kept steering the plan back to
+pruning.
+
+### Consequences
+
+- The robustness phase and its results are preserved; the spec records the new
+  objective above them rather than rewriting them.
+- A new method is still only proposed after existing remedies are evaluated.
+- T1 and T2 are diagnostic; no remedy is run under this authorization.
+
+### Files/configs affected
+
+- `docs/RESEARCH_SPEC.md`
+- `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`
+- `configs/thai_marks/t1_t2.yaml`
+
+---
+
+## 2026-09-27b — ThaiOCRBench cleared for academic research use
+
+**Stage/Gate:** Dataset licence clearance only.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27: the benchmark is used for
+research, not commercially. `typhoon-ai/ThaiOCRBench@ca610d1ab330` is cleared
+for this project under its card licence, CC-BY-SA-4.0, for the tasks selected
+in `docs/stage0/THAIOCRBENCH_TASK_SELECTION.md`.
+
+### Obligations that follow
+
+- **Attribution:** cite the benchmark paper (arXiv:2511.04479, IJCNLP-AACL
+  2025) and the dataset revision in every report that uses it.
+- **ShareAlike:** adapted images or crops must not be redistributed except
+  under CC-BY-SA-4.0. The project does not commit benchmark images to the
+  repository; per-item outputs, scores and aggregates are reported.
+- The researcher's non-commercial intent is recorded here. It is not itself a
+  requirement of CC-BY-SA-4.0, which permits commercial use; attribution and
+  ShareAlike are the binding conditions.
+
+### Residual risk accepted
+
+- The benchmark's sources include "licensed commercial datasets" whose upstream
+  terms are not enumerated.
+- The OpenTyphoon Terms define Services to include datasets; the dataset card
+  at this revision carries no reference to those terms. This is the same
+  situation the 2026-09-25 entry accepted for the model.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+
+---
+
+## 2026-09-27 — Primary backbone changed to Qwen3-VL-2B / Typhoon OCR 1.5
+
+**Stage/Gate:** Backbone selection. Gate 0 remains `NOT_RUN`; Gates 1-6 remain
+`BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27. The primary base/specialized pair
+becomes `Qwen/Qwen3-VL-2B-Instruct@89644892e4d85e24eaac8bacfd4f463576704203`
+and `typhoon-ai/typhoon-ocr1.5-2b@9c8a8fa14905041d793f1e4e922312147956dcc0`,
+read at page level. `PaddleOCR-VL-1.6` / `wayu-paxa-ocr-zero` stop being the
+primary pair; their rounds 1-3 are preserved unchanged as the region-level
+record.
+
+The research question is to be tested on an externally accepted benchmark,
+restricted to the task categories that can carry it, rather than on the whole
+benchmark.
+
+### Reasoning
+
+- Typhoon OCR is the strongest open Thai document model the project can use,
+  and a published, recognizable baseline strengthens external credibility.
+- The pinned configs are identical except dtype metadata, so every difference
+  between base and descendant lives in the weights. That supports weight-delta
+  and component-swap analyses that the Paddle/Wayu pair, whose exact fine-tuning
+  parent is not established, cannot.
+- Both read whole pages. Rounds 1-3 showed TEMS crops sit below every
+  processor's pixel floor, so page-level input is what puts resolution
+  reduction in a regime where it discards source information.
+
+### Consequences recorded now, before any design
+
+- **Nothing measured on Paddle/Wayu transfers.** The magnification optimum,
+  the pre-/post-encoder asymmetry, the tone-mark decomposition and the
+  efficiency profile are properties of that model on that corpus and must be
+  re-measured.
+- **Pruning code does not port.** Qwen3-VL's DeepStack adds vision layers 5,
+  11 and 17 into LLM layers 0-2 at visual positions; any token reduction must
+  handle those three streams. See `QWEN3VL_TYPHOON_ARCHITECTURE_GAPS.md`.
+- **The crop-scale efficiency conclusion does not transfer.** Pages carry
+  340-2,240 visual tokens, not 40-160.
+- **Contamination cannot be excluded for Typhoon.** Its report
+  (arXiv:2601.14722) does not evaluate on ThaiOCRBench and makes no
+  decontamination statement; ThaiOCRBench comes from the same group. Absolute
+  scores for Typhoon must be read with that in mind; within-model contrasts are
+  less exposed to it than cross-model ones.
+
+### Not authorized
+
+No inference. The benchmark's own clearance and the task selection are open
+questions recorded in the next entry when decided. One new factor at a time:
+the first registered run is a `FULL` baseline for both models, before any
+compression or ablation arm.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+
+---
+
+## 2026-09-25 — Typhoon OCR 1.5 cleared at an Apache-2.0-only revision
+
+**Stage/Gate:** Model licence clearance only. Gate 0 remains `NOT_RUN`; Gates
+1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-25: a revision published under
+Apache-2.0 is to be treated as usable. This reverses, for one pinned revision
+only, the 2026-09-12 entry that closed the Typhoon branch as
+`NOT_PURSUED_DUE_TO_USAGE_TERMS`.
+
+Cleared, and only at these exact revisions:
+
+| role | repository | revision |
+|---|---|---|
+| Thai-specialized descendant | `typhoon-ai/typhoon-ocr1.5-2b` | `9c8a8fa14905041d793f1e4e922312147956dcc0` |
+| declared base | `Qwen/Qwen3-VL-2B-Instruct` | `89644892e4d85e24eaac8bacfd4f463576704203` |
+
+**The pin is the basis of the decision, not a detail of it.** The clearance
+rests on revision `9c8a8fa149` having been distributed with a model card whose
+only licence statement was `license: apache-2.0`. The current `main`
+(`15b381a2d6`, 2026-06-11) adds a sentence binding users to the OpenTyphoon
+Terms. Loading `main`, or any revision from 2026-06-11 on, would fall outside
+this decision. The weights are byte-identical across the two revisions
+(`model.safetensors` has the same LFS oid), so pinning costs nothing.
+
+### Evidence
+
+- `docs/stage0/TYPHOON_TERMS_RECHECK_2026-09-24.md`, including its addendum:
+  the terms sentence was added in a README-only commit; no Typhoon OCR
+  repository carries a `LICENSE` file or is gated; the base is `apache-2.0`
+  with no additional terms.
+
+### Reasoning
+
+Apache-2.0 §2 grants a perpetual and irrevocable copyright licence. The
+researcher's position is that a release distributed under it alone remains
+usable on those terms, and that a sentence added to a later README does not
+attach to an earlier release.
+
+### Risk accepted
+
+Recorded so that it was accepted knowingly rather than overlooked:
+
+- The OpenTyphoon Terms §3 assert that they govern use through every channel
+  and prevail over third-party terms. Whether that binds a user of a pinned
+  earlier revision is a question of contract law that no project document has
+  answered; this entry is not a legal opinion.
+- The vendor's current stated position is that competitive benchmarking needs
+  prior written consent. Publishing on the basis of the earlier revision may
+  create friction with the Typhoon team, who are central to Thai NLP and may be
+  among the reviewers. Requesting written confirmation remains available and
+  would remove this risk.
+
+### What this does not authorize
+
+Licence clearance only. No Typhoon or Qwen3-VL inference is authorized by this
+entry: any run still needs its own registration, as every Paddle/Wayu run did.
+Before one is registered, the existing pruning code must be re-implemented for
+Qwen3-VL, whose DeepStack injects visual features into several decoder layers,
+so removing tokens from the input sequence alone would not remove them from the
+model.
+
+### Files/configs affected
+
+- `docs/DECISION_LOG.md`
+- `docs/stage0/TYPHOON_TERMS_RECHECK_2026-09-24.md`
+
+---
+
+## 2026-09-21b — Region OCR round 3 authorized: break the magnification confound
+
+**Stage/Gate:** Region-OCR branch, round 3. Gate 0 remains `NOT_RUN`; Gates 1-6
+remain `BLOCKED`. Claim level remains `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Instructed in session on 2026-09-21: run the experiment that
+removes the upsampling confound before anything else, and defer the decoder
+insertion point as too slow. This authorizes the run registered in
+`docs/stage0/REGION_OCR_ROUND3_REGISTRATION.md`. The approval covers:
+
+1. two new arms per budget, `RR_RESTORED` and `PRUNE_GRID_RESTORED`, which carry
+   a reduced-detail rendering at FULL's token count and magnification;
+2. a three-point magnification sweep at 2.0x, 1.5x and 0.125x FULL's token
+   count, deliberately ignoring the processor's own pixel floor and ceiling;
+3. contrast families D and E, each Holm-corrected within itself;
+4. re-running round 2's nineteen conditions unchanged in the same run, so every
+   contrast comes from one set of images;
+5. one Kaggle T4 submission on `PaddleOCR-VL-1.6` alone.
+
+Explicitly **not** authorized and explicitly deferred by the same instruction:
+the decoder insertion point (FastV / SparseVLM territory), on grounds of time.
+`wayu` also remains deferred.
+
+### Evidence
+
+- `docs/stage0/REGION_OCR_ROUND2_RESULTS.md`, which recorded the defect this
+  round repairs: a median area scale of 9.67x at every post-encoder condition
+  against 2.44x at `RR_25`.
+- Direct probe on region `img_000002` (41 x 176 px): the processor's floor is
+  112,896 px, so the source is fifteen times smaller than the smallest grid the
+  processor will produce. The restored round trip yields grid `[1, 12, 50]` and
+  150 placeholders, identical to `FULL`, with different pixel values.
+- Round 2 macro CER is monotone in magnification: `RR_25` 0.1962, `RR_50`
+  0.2230, `RR_75` 0.2520, `FULL` 0.2714.
+
+### Reasoning
+
+Because every region sits below the processor's pixel floor, no round-2
+condition lost source information; Resolution Reduction on this corpus changes
+magnification, not information. Magnification and token count are one knob, so
+they cannot be separated by varying budgets alone. Pre-rendering at a coarse
+grid and restoring to FULL's grid separates them: detail falls while token count
+and magnification stay fixed.
+
+The registration states in advance what each of the three candidate
+explanations - magnification, detail, insertion point - predicts for families D
+and E and for the sweep. The three predictions differ on all three rows, so the
+round can discriminate rather than merely accumulate.
+
+### Alternatives considered
+
+- Moving the cut into the decoder after layer k. Deferred by the human
+  instruction on time grounds, and in any case it would add an insertion point
+  to a contrast that is still confounded.
+- Forcing `RR` to upsample as much as `FULL`. Impossible: for a whole image the
+  pixel budget sets magnification and token count together.
+- Leaving family A as the headline. Rejected: it is not an insertion-point
+  result until family D is beside it, and the prohibition list now says so.
+
+### Known limitations
+
+Five families of three, each corrected separately, leaves the round-wide error
+rate uncontrolled; nothing here is confirmatory. The result will not generalise
+beyond regions that sit below the processor's pixel floor, and every region in
+this corpus does. If families D and E both come back near zero, the finding is
+that this corpus is the wrong instrument for H3, and the next step becomes
+obtaining larger regions rather than implementing another method.
+
+### Consequence for next stage
+
+Submit one Kaggle T4 run, 400 regions x 28 conditions. Fetch, verify, report.
+The outcome decides whether the next step is a new corpus or a new insertion
+point.
+
+### Files/configs affected
+
+- `docs/stage0/REGION_OCR_ROUND3_REGISTRATION.md`
+- `configs/region_ocr/run_design.yaml`
+- `src/labbs2026/region_ocr/{budget,workload,execute,run,analysis,report}.py`
+- `scripts/{region_ocr_run,region_ocr_kaggle}.py`
+- `docs/DECISION_LOG.md`
+
+---
+
+## 2026-09-21 — Region OCR round 2 authorized: two new post-encoder arms and stage-resolved cost measurement
+
+**Stage/Gate:** Region-OCR branch, round 2. Gate 0 remains `NOT_RUN`; Gates 1-6
+remain `BLOCKED`. Claim level remains `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Approved in session on 2026-09-21 ("อนุมัติ kaggle"). This
+authorizes the run registered in
+`docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md`, whose status changes from
+`PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT` to `APPROVED`. The approval covers:
+
+1. the addition of `MERGE_GRID` (post-encoder spatial merge) and
+   `PRUNE_COVERAGE` (coverage-preserving, content-aware selection) as arms,
+   bringing the grid to 19 conditions per region;
+2. contrast families B and C, each Holm-corrected within itself and not pooled
+   with family A or with each other;
+3. stage-resolved timing and per-condition peak-memory accounting;
+4. the change of execution path described below;
+5. submission of one Kaggle T4 run on `PaddleOCR-VL-1.6` alone.
+
+**Path change requiring explicit notice.** Every condition now reaches
+`generate()` through `inputs_embeds`, where previously `FULL` and `RR` passed
+`pixel_values` and let `generate()` drive the vision tower. Round 1 timings
+compared two different call graphs and are therefore **withdrawn from any
+comparative use**; round 1 accuracy findings are unaffected.
+`assert_path_equivalence` runs both routes under greedy decoding and fails the
+run unless the output is character-identical, so the `FULL` baseline is the same
+quantity across rounds rather than assumed to be.
+
+### Evidence
+
+- engineering smoke 2026-09-21, 2 regions x 19 conditions, CPU float32:
+  38/38 completed, 0 failures, `path_equivalence: IDENTICAL`,
+  `post_encoder_vision_cost_invariant: true`, token accounting exact for every
+  observation. Recorded in the appendix of the registration document.
+- commits `e68c8a8`, `2fdbaa8`, `9ce8159` on
+  `codex/pinned-analysis-runner-amendment`.
+- 360 tests pass; `scripts/check_research_consistency.py` reports `valid: true`.
+
+### Reasoning
+
+Round 1 could not support an efficiency claim, and the reason was the
+instrument rather than the sample: the families did not run the same code, and
+peak memory was recorded once for the whole job. Both are fixed before more
+evidence is collected rather than after.
+
+The two new arms answer questions no existing contrast can. `MERGE_GRID` keeps
+`PRUNE_GRID`'s survivors, count and M-RoPE positions and changes only what the
+surviving vectors contain, which separates damage caused by discarded content
+from damage caused by the reduced token count. `PRUNE_COVERAGE` keeps the same
+one-survivor-per-cell coverage guarantee and changes only where within a cell
+the survivor sits.
+
+### Alternatives considered
+
+- Running `wayu-paxa-ocr-zero` in the same submission. Rejected: a new method
+  and a new model introduced together cannot be told apart when something looks
+  wrong. wayu runs after this round's mechanics are confirmed, under the same
+  contract.
+- Naming the merge arm after Token Merging (ToMe). Rejected: ToMe merges
+  between vision-transformer layers; this acts on projector output, a different
+  operation at a different insertion point, and the name would claim a
+  reproduction that has not been performed.
+- Adding `VisionZip`, `ET-Prune`, `SparseVLM`, `FastV`, `S2Prune`, `RTPrune`, or
+  pre-encoder patch dropping. Deferred with reasons recorded in the
+  registration document; none may be described as tested on this round.
+
+### Known limitations
+
+No sealed confirmatory split exists, so nothing here is confirmatory. Three
+families of three are corrected separately, so the round-wide error rate is not
+controlled. Efficiency is descriptive: no exchange rate between characters and
+seconds is registered, and none may be introduced after seeing the numbers.
+Wall clock comes from a shared accelerator and is not reproducible; the exact
+token and patch counters recorded beside it are.
+
+The smoke surfaced a confound that this round must be able to rule out: the
+processor upsamples these crops roughly 16x in area at `FULL` against 4x at
+`RR_25`. Round 1's finding that `RR_25` beat `FULL` may be an interpolation
+artefact rather than evidence that compression helps, and the geometry now
+recorded per observation is what decides it.
+
+### Consequence for next stage
+
+Submit one Kaggle T4 run, 400 regions x 19 conditions on `PaddleOCR-VL-1.6`.
+Fetch, verify and report. Only then propose the wayu arm as a separate
+registration.
+
+### Files/configs affected
+
+- `docs/stage0/REGION_OCR_ROUND2_REGISTRATION.md`
+- `src/labbs2026/region_ocr/{execute,cost,merge_runtime,pruning,workload,analysis,report,run}.py`
+- `docs/DECISION_LOG.md`
+
+---
+
+## 2026-09-20 — Region OCR analysis-population decision
+
+**Stage/Gate:** Region-OCR branch analysis specification. Gate 0 remains
+`NOT_RUN`; Gates 1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Option 3 of
+`docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md` — approve the
+amendment with the roles reversed. The registered **primary** population is
+every eligible region; the `CER(FULL) = 0` subset is a **pre-registered
+secondary**, reported alongside with its own intervals but outside the primary
+multiplicity family.
+
+This supersedes protocol §8.2.1 as committed in `463912f`, which had proposed
+the subset as primary and was held `PENDING_HUMAN_APPROVAL_NOT_IN_EFFECT`.
+
+### Reasoning
+The headline estimate must describe the corpus rather than a subpopulation,
+otherwise the strongest available statement is limited to "among regions this
+model already reads correctly". Registering the subset as a secondary keeps the
+more sensitive analysis available without it appearing to have been chosen after
+the fact: both populations are fixed before any pruning inference exists, so
+reporting the subset later is a registered secondary rather than a post-hoc cut.
+
+### Alternatives considered
+- Option 1, subset as primary — rejected: more sensitive, because regions
+  already misread at FULL have little headroom and dilute the contrast, but it
+  trades external validity and invites the objection that the analysis was
+  selected on the control arm's outcome.
+- Option 2, reject outright — rejected: the subset analysis would then be
+  unregistered, so reporting it after a null primary would be post-hoc.
+
+### Known limitations
+The two populations are nested, not independent, and must not be counted as two
+independent tests. Within the secondary population `CER(FULL) = 0` holds by
+construction, so each arm's marginal delta-CER is non-negative by construction;
+no absolute degradation rate and no generalisation to Thai region OCR as a whole
+may be claimed from it.
+
+### Consequence for next stage
+Both populations are frozen before any pruning inference. One run produces both;
+no additional workload is required. Kaggle submission is authorized separately
+in the same session.
+
+### Files/configs affected
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md` §8.2.1
+- `docs/stage0/REGION_OCR_POPULATION_AMENDMENT_REQUEST.md`
+
+## 2026-09-20 — Region OCR token-pruning branch authorized
+
+**Stage/Gate:** New intervention-family branch. Gate 0 remains `NOT_RUN`;
+Gates 1-6 remain `BLOCKED`.
+
+**Decision owner:** Human researcher
+
+**Decision:** Authorize a separately-registered branch testing post-encoder
+Token Pruning against Input Resolution Reduction within a single experiment on
+Thai text regions, using `PaddlePaddle/PaddleOCR-VL-1.6`
+@`c5630abae1d940eafe0697512a0325494b02ab42` and `wayu-ai/wayu-paxa-ocr-zero`
+@`af0204b4f334a6d5068b6bac2b3738932d6e289b`. The frozen design is
+`docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md`, committed in `806dfed`
+before any inference.
+
+The researcher additionally approved, in the same decision:
+
+- **Dataset:** TEMS (Mendeley DOI `10.17632/ntdmgksh9w.5`, v5, CC BY 4.0),
+  selected over `mekpro/ocr_th` (no region annotations, synthetic) and
+  `typhoon-ai/ThaiOCRBench` (ShareAlike plus unenumerated commercial upstream
+  terms, unconfirmed bbox structure). Audit:
+  `docs/stage0/REGION_OCR_DATASET_CANDIDATE_AUDIT.md`.
+- **Domain-mismatch risk accepted.** TEMS is scene text while both models are
+  document OCR models. The researcher accepted this risk explicitly, on the
+  condition that the Phase-1 smoke measures `FULL` capability before any
+  system-building or pruning outcome is examined.
+- **Evidence ceiling:** `Preliminary/Pilot`. This branch cannot approve or
+  reject any gate, confirm or reject H1-H4, or justify a new method.
+
+### Evidence
+- prior run: `kaggle-paddle-wayu-locked-panel-attempt5` (Resolution Reduction
+  only; Wald 5.011636, df 3, p 0.170947;
+  `NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`)
+- terms basis: `docs/FALLBACK_PAIR_CLEARANCE.md` (`TERMS_CLEAR`); re-snapshot
+  into `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md` is a precondition of execution
+- geometry basis: `docs/stage0/PADDLE_WAYU_PROCESSOR_GEOMETRY.json`
+
+### Reasoning
+Post-encoder Token Pruning has never been tested, and the Claims Registry
+forbids inferring anything about it from the Resolution Reduction null.
+Estimating whether the two families differ requires the contrast inside one
+design on shared stimuli at matched actual token counts, so Resolution
+Reduction is re-run here rather than imported from the completed panel.
+
+### Alternatives considered
+- Comparing a new pruning run against the completed panel — rejected: a
+  difference between a significant and a non-significant result across separate
+  experiments is not evidence of a difference.
+- Full-page OCR through a layout detector — rejected: the layout stage is not
+  subject to the intervention and would dilute the estimand; the selected
+  models are region recognizers and would be off-distribution.
+- A newer or different backbone — rejected: no additional model is cleared, and
+  Typhoon remains `NOT_PURSUED_DUE_TO_USAGE_TERMS`.
+
+### Known limitations
+New dataset, no sealed confirmatory split, two models from one architecture
+family, scene-text domain against document-trained models. Claim scope is
+text-region recognition, not end-to-end document OCR.
+
+### Consequence for next stage
+Complete the remaining Phase-0 preconditions: re-snapshot and hash the model
+cards, licences, and Wayu Terms into `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md`,
+and record dataset provenance. Then run the Phase-1 feasibility smoke and
+**stop for human review** if `FULL` capability, token accounting, or the frozen
+scale policy fail.
+
+### Still prohibited
+Locked inference, opening any evaluation split during development, quantization,
+fine-tuning, method development, Token Merging, post-outcome changes to prompt,
+parser, budgets, dataset, split, or model presented as the same registered run,
+and any use of this branch as Gate 0 or Gate 1 evidence.
+
+### Files/configs affected
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_PROTOCOL.md` (frozen, `806dfed`)
+- `docs/stage0/REGION_OCR_DATASET_CANDIDATE_AUDIT.md` (`806dfed`)
+- `docs/stage0/REGION_OCR_TOKEN_PRUNING_AUTHORIZATION_REQUEST.md` (`806dfed`)
+- `docs/stage0/PAGE_OCR_MODEL_CLEARANCE.md` (pending, pre-execution)
+
+No existing research document is amended to execute this branch,
+`src/labbs2026/consistency.py` is not modified, and Stage 1A text is untouched.
+
+## 2026-09-14 — Attempt 5 registered MODEL x BUDGET analysis complete
+
+**Execution status:**
+`LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
+
+**Evidence:** Attempt 5 completed 6,400/6,400 calls and remained `VERIFIED`.
+The FULL measurement-validity condition passed: BASE exact accuracy 31.750%
+(pair-clustered 95% CI 24.750%–38.875%; output-contract failure 0%) and
+SPECIALIZED exact accuracy 45.625% (38.875%–52.500%; output-contract failure
+0.125%). This PASS means only that the overall registered analysis is
+measurement-interpretable; component capacity is not implied.
+
+**Primary fitting path:** The one authorized analysis rerun attempted the
+unchanged registered GLMM. The full fit raised
+`Downdated VtV is not positive definite` at `pwrssUpdate` before diagnostics,
+and recorded `FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE`,
+`fit_stage=FULL_MODEL_FIT`, `diagnostics_available=false`. No diagnostics were
+fabricated and no optimizer/formula search occurred.
+
+**Primary analysis:** `PRIMARY_GLMM_UNAVAILABLE` and
+`REGISTERED_NONPARAMETRIC_FALLBACK_USED`. The unchanged pair-clustered
+fallback's 3-df global Wald test gave `W=5.011636`, `p=0.170947`. Registered
+exact DIDs were `DID_196=+0.250 pp` (95% CI −2.375 to +2.875; raw
+`p=0.887411`; Holm `p=1.0`), `DID_121=+1.625 pp` (−1.500 to +4.875;
+raw `p=0.339966`; Holm `p=1.0`), and `DID_64=−1.750 pp` (−5.250 to
++1.875; raw `p=0.357464`; Holm `p=1.0`). These are separate bootstrap CIs,
+not Holm-adjusted CIs.
+
+**Frozen decision:**
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. The result is not
+equivalence or proof of equal robustness. CER was only partially directionally
+consistent and did not alter the primary conclusion. Component summaries
+remain `DESCRIPTIVE_DIAGNOSTIC_ONLY`.
+
+**Claim boundary:** The result applies only to the exact pinned model pair,
+controlled synthetic testbed, prompt/parser, registered budgets, and
+controlled BICUBIC Input Resolution Reduction. It is not evidence about
+post-encoder Token Pruning, Token Merging, compression generally, causal
+training-data effects, mechanisms, or real-world/cross-model generalization.
+
+**Next-stage consequence:** Stop for human review. No additional experiment,
+post-hoc rescue analysis, threshold or budget change, prompt tuning,
+pruning/merging, or fine-tuning is authorized.
+
+**Report:**
+`docs/stage0/PADDLE_WAYU_LOCKED_MODEL_BUDGET_REPORT.md`.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
+## 2026-09-14 — Numerical GLMM fit-exception fallback eligibility amended
+
+**Human decision:** Accept the failure-path audit classification
+`FROZEN_CONTRACT_AMBIGUOUS` and authorize
+`NUMERICAL_GLMM_FIT_EXCEPTION_FALLBACK_AMENDMENT_APPROVED` as an explicit
+`POST_DATA_ACCESS_STATISTICAL_PROTOCOL_AMENDMENT`.
+
+**Timing:** Attempt 5 was complete and verified, scientific access had begun,
+FULL validity had passed, and the registered GLMM had raised
+`Downdated VtV is not positive definite`. No reduced-budget global interaction,
+DID, CER, or component result had been computed or inspected. The amendment is
+not preregistered and does not eliminate all post-data-access bias risk.
+
+**Eligibility change only:** The unchanged preregistered fallback may now be
+used when either a returned fit fails the frozen diagnostics or the registered
+`lme4::glmer` numerical fitting path raises a numerical model-fit exception
+before diagnostics are available, after all non-statistical validation passes.
+Eligibility is execution-location/failure-class based, not tied to an error
+string or scientific outcome. Package, environment, input, formula/config,
+model-matrix, I/O, provenance, container, memory, code, entrypoint, ambiguous,
+and other non-fit failures remain fatal.
+
+**Structured state:** Eligible exceptions record
+`FIT_EXCEPTION_NUMERICAL_FALLBACK_ELIGIBLE`, actual condition class/message,
+fit stage, and `diagnostics_available=false`; they must not fabricate
+`diagnostics_pass=false`.
+
+**Frozen method:** GLMM formulas/random effects/optimizer/diagnostics, fallback
+estimator and global Wald test, DIDs, bootstrap/covariance, Holm procedure,
+SESOI, CER, component summaries, and four-case classifier remain unchanged.
+Exact amendment details are in
+`docs/stage0/PADDLE_WAYU_GLMM_EXCEPTION_ELIGIBILITY_AMENDMENT.md`.
+
+**Conditional rerun:** After synthetic routing tests, full tests, research
+consistency, clean detached-worktree preflight, exact diff audits, and renewed
+Attempt-5 verification pass, exactly one registered analysis rerun is
+authorized. No optimizer or formula search is permitted.
+
+## 2026-09-14 — Registered analysis packaging repair authorized locally
+
+**Human decision:** Accept the registered-analysis environment failure as an
+engineering packaging defect and authorize
+`REGISTERED_ANALYSIS_PACKAGING_REPAIR_AUTHORIZED_LOCAL_ONLY`.
+
+**Amendment classification:** `ANALYSIS_ENVIRONMENT_PACKAGING_AMENDMENT`. The
+originally frozen analysis Docker packaging was found to be incomplete after
+the locked 6,400-call experiment completed but before any Attempt-5 scientific
+output was accessed: required system build dependencies were absent, the frozen
+R entrypoint was not copied into the image, and package-installation failures
+were not propagated to Docker build status.
+
+**Authorized engineering repair:** Add only the required system build
+dependencies, copy the already frozen `run_glmm.R`, and make dependency,
+version, library-load, parseability and entrypoint-hash validation fail closed.
+R version, R package versions, statistical code, estimands, thresholds,
+fallback, bootstrap, Holm procedure, SESOI and decision rules remain unchanged.
+
+**Scientific boundary:** Attempt 5 remains the sole `VERIFIED` 6,400-call
+panel. This task must not mount, read, decode or analyze Attempt-5 raw outputs;
+must not touch Kaggle; and must not run `write_analysis_inputs(...)` or the
+frozen `analyze` command.
+
+**Required stop:** After focused/full tests, research consistency, clean
+detached-worktree preflight, exact-commit image build and no-data validation,
+stop at
+`REGISTERED_ANALYSIS_PACKAGING_REPAIR_VALIDATED_PENDING_DATA_ACCESS_AUTHORIZATION`.
+
+## 2026-09-13 — Attempt 5 fresh full locked panel authorized
+
+**Human decision:** Accept the validated U+FFFD per-call protocol amendment at
+commit `ee9f8c4f85feea935f8c99d05005deea16c30442` and authorize exactly one fresh
+Attempt 5 under `ATTEMPT5_FRESH_FULL_LOCKED_PANEL_AUTHORIZED`.
+
+**Effective protocol provenance:** Attempt 5 combines original scientific
+design commit `871996221a36a56a401fa040c239f55768561210` with the accepted
+U+FFFD amendment commit above. The future Attempt-5 execution commit is a
+separate engineering provenance identity and must be resolved from the exact
+pushed commit used for submission.
+
+**Frozen Attempt-5 execution identity:** `attempt=5`, stable run ID
+`kaggle-paddle-wayu-locked-panel-attempt5`, and the authorization label above
+come from the single committed transport config. Bootstrap and core must
+validate exact agreement; no runtime identity override is permitted.
+
+**Attempt-4 exclusion:** Attempt 4 remains an immutable excluded partial run at
+4,136/6,400 calls. Its canonical artifact SHA-256 is
+`e6db8c69b530464bbebdcfa0c8640c1b3c1f771d4b5f89fcb71ef2af8cca8127`.
+Its scientific outputs remain sealed and contribute zero observations to
+Attempt 5 or final analysis.
+
+**Execution boundary:** Submit exactly once only after local validation,
+effective-protocol diff audit, exact push verification, Dataset/content audit,
+package audit, runtime-import preflight, and authorization/handoff validation
+all pass. No retry, resume, alternate commit, or Attempt 6 is authorized.
+
+**Analysis boundary:** Unseal only after 6,400/6,400 calls, immutable checksum
+finalization, and local verification. Then apply the registered FULL validity
+gate and frozen analysis in order. If any unexpected fatal failure occurs,
+preserve sealed evidence and stop for human review.
+
+**Mandatory final stop:** `HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
+## 2026-09-13 — U+FFFD per-call protocol amendment authorized for local validation
+
+**Human decision:** Accept the open-data Unicode diagnostic and authorize
+`U_FFFD_PER_CALL_PROTOCOL_AMENDMENT_LOCAL_VALIDATION_AUTHORIZED`. Attempt 5 is
+not authorized.
+
+**Amendment:** After successful frozen decoding, a string containing U+FFFD no
+longer aborts the entire run. It is preserved unmodified as a per-call
+`output_contract_failure` with reason `U_FFFD_REPLACEMENT_CHARACTER`, primary
+exact score zero, denominator retained, no retry, and execution continues.
+This is classified
+`SCIENTIFIC_RUN_CONTROL_AND_FAILURE_TAXONOMY_AMENDMENT`, not engineering-only.
+
+**Unchanged contract:** Models/revisions, generation, prompt,
+`max_new_tokens=32`, EOS, processor/tokenizer, decode arguments, output slicing,
+normalization, data, rendering, budgets, BICUBIC resize, exact-match, CER
+formula, statistical analysis, SESOI, Holm procedure, classifier, and the 1%
+output-contract-failure threshold remain unchanged. Other engineering/runtime
+failures remain fatal; ambiguity fails closed.
+
+**Timing and evidence boundary:** The amendment occurred after Attempt 4's
+partial execution but before inspection of any Attempt-4 scientific output. It
+is justified only by S0 open-calibration evidence, tokenizer-only synthetic
+diagnostics, the existing `output_contract_failure` taxonomy, and the existing
+validity threshold. It was not preregistered before Attempt 4.
+
+**Attempt-4 boundary:** Attempt 4 remains
+`PARTIAL_SCIENTIFIC_OUTPUTS_SEALED` and invalid. Its 4,136 calls contribute zero
+observations and must not be resumed, reused, merged, compared, or analyzed.
+Any future authorized confirmatory run must be a fresh 6,400-call panel.
+
+**Required stop:** Complete local tests, S0 replay equivalence, immutable ZIP
+verification, and clean detached-worktree preflight, then stop at
+`U_FFFD_PROTOCOL_AMENDMENT_VALIDATED_PENDING_ATTEMPT5_AUTHORIZATION`.
+
+## 2026-09-13 — Attempt 4 identity and one-shot rerun authorized
+
+**Human decision:** Authorize the combined Attempt-4 workflow: narrow
+execution-identity repair, local validation, exact commit pinning,
+pre-submission verification, exactly one Kaggle submission, fail-closed remote
+execution, and registered analysis only after a complete locally verified
+sealed panel.
+
+**Frozen Attempt-4 identity:** `attempt=4`, authorization label
+`LOCKED_PANEL_RERUN_AUTHORIZED`, and stable run ID
+`kaggle-paddle-wayu-locked-panel-attempt4`. The run ID does not depend on the
+future execution commit SHA. The committed Attempt-4 transport config is the
+single source consumed by lifecycle preparation; bootstrap and core validate
+the identity carried in the signed execution spec.
+
+**Local validation:** Attempt-4 identity and handoff focused tests passed 29/29;
+the full suite passed 181 tests with one pre-existing optional Kaggle-package
+skip. The proposed patch has no change from the accepted pre-patch state for
+the frozen scientific configuration, allocation, content manifest, runtime
+profile, or resolution pipeline.
+
+**Execution boundary:** Submission is permitted exactly once only after the
+new commit is pushed exactly and all read-only and package/authorization gates
+pass. No automatic retry or resubmission is permitted.
+
+## 2026-09-13 — Artifact handoff repair authorized locally
+
+**Human decision:** Accept root-cause classification
+`ENGINEERING_ARTIFACT_DIRECTORY_OWNERSHIP_COLLISION` and authorize
+`ENGINEERING_ARTIFACT_HANDOFF_REPAIR_AUTHORIZED_LOCAL_ONLY`. Kaggle
+resubmission remains unauthorized.
+
+**Engineering repair:** Bootstrap is the initial owner and may atomically create
+only `engineering/AUTHORIZATION_VALIDATED.json`. Core validates the exact
+pre-ownership tree, rejects symlinks and any stale/unexpected artifact,
+validates all registered identities, then exclusively creates
+`engineering/CORE_OWNERSHIP_CLAIMED.json`. Only after that claim may it create
+`sealed/`.
+
+**Validation result:** The explicit local bootstrap-to-core integration test
+passed and stopped immediately after empty `sealed/` creation, before CUDA,
+image generation, model loading, or inference. Focused tests passed 24/24 and
+the full suite passed 176 tests with one pre-existing optional Kaggle-package
+skip. Required local model-extra imports passed. `wrapt` is absent from the
+locked project dependency graph and was not added; the earlier Kaggle
+`sitecustomize` warning remains a separate environment observation rather than
+the Attempt 3 cause.
+
+**Scientific immutability:** Frozen design, locked allocation, Dataset content,
+model IDs/revisions, prompt/parser, budgets, resize pipeline, analysis, SESOI,
+Holm procedure, decision classifier, blinding, and sealed-output semantics were
+not changed. No model inference or Kaggle submission occurred.
+
+**Terminal state:**
+`ARTIFACT_HANDOFF_REPAIR_VALIDATED_PENDING_RERUN_AUTHORIZATION`.
+
+## 2026-09-13 — Attempt 3 stopped before inference after one authorized submission
+
+**Human authorization:** `EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3`.
+The approved private Kaggle Dataset ID `12006749`, version 1, was used without
+creating a new Dataset version. Exactly one Attempt 3 `SaveKernel` submission
+was made; it created private kernel version 2.
+
+**Verified transport evidence:** Runtime authorization verified the unique
+expanded `locked_source/` directory against the frozen content manifest:
+803 regular files, 3,794,984 uncompressed bytes, exact path set, all byte sizes,
+and all file SHA-256 values passed. The content-manifest SHA-256 remained
+`5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb`.
+
+**Fail-closed result:**
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED`. After the
+bootstrap wrote `engineering/AUTHORIZATION_VALIDATED.json`, the core runner
+attempted to create the already-existing run artifact directory with
+`exist_ok=False` and raised `FileExistsError`. This occurred before CUDA
+preflight, model loading, locked image generation, or model inference.
+Completed scientific calls remain 0/6,400.
+
+**Scientific integrity:** Downloaded output contains only two engineering JSON
+records and the kernel log. It contains no sealed raw outputs, call ledger,
+decoded prediction, metric, or analysis artifact. No scientific outcome was
+displayed, inspected, calculated, or unsealed.
+
+**Decision boundary:** No code repair, retry, or resubmission was performed.
+Any repair requires a new human decision. Stop for human review.
+
+## 2026-09-13 — Expanded locked-source transport authorized
+
+**Human decision:** Accept the safe Attempt 3 pre-submission stop and authorize
+`EXPANDED_LOCKED_SOURCE_TRANSPORT_AND_ATTEMPT_3`. Reuse private Kaggle Dataset
+ID `12006749`, version 1; do not create version 2 unless content verification
+fails.
+
+**Identity amendment:** The immutable original ZIP SHA-256 remains historical
+transport provenance. Runtime scientific-input identity is the frozen,
+lexicographically sorted manifest of exact relative POSIX path, uncompressed
+byte size, and uncompressed-file SHA-256 for every regular archive member.
+
+**Verified evidence:** The original archive produced 803 manifest records and
+3,794,984 uncompressed bytes. Content-manifest SHA-256 is
+`5b0983c7cc75e2904ac240ef0adc0472a9bf2bbe4695fb0669f7f9f36e2eaebb`.
+Read-only verification of Dataset version 1 passed exact path set, all sizes,
+all SHA-256 values, external-manifest identity, and unique expanded-source
+directory checks. No image was decoded or scientifically inspected.
+
+**Execution boundary:** Attempt 3 may be submitted exactly once only after the
+remaining repository, worker authorization-only, frozen-design, private
+Dataset/version, and payload allowlist checks pass. No retry or resubmission.
+Scientific outputs remain sealed under the frozen execution rules.
+
+## 2026-09-13 — Attempt 3 stopped at private-Dataset pre-submission gate
+
+**Human decision:** Accept `PACKAGE_OR_PAYLOAD_LIMIT_ERROR` and authorize
+`PACKAGE_LIMIT_REPAIR_AND_ATTEMPT_3`, conditional on a private Dataset and a
+successful authorization-only validation before exactly one submission.
+
+**Observed engineering evidence:** Local two-file Dataset staging preserved the
+2,114,013-byte locked archive at its existing SHA-256 and passed archive and
+manifest verification. Kaggle created private Dataset
+`thanakritsamoena/labbs2026-paddle-wayu-locked-source`, ID `12006749`, version
+1. Kaggle then expanded the ZIP into paths under `locked_source/`; an exact
+read-only request for remote `locked_source.zip` returned HTTP 404.
+
+**Fail-closed result:** `ATTEMPT_3_PRE_SUBMISSION_ENGINEERING_VALIDATION_FAILED`.
+The required archive could not be resolved from the Dataset mount contract, so
+Attempt 3 staging and `SaveKernel` were not executed. Scientific calls remain
+0/6,400; no locked image was visually inspected and no model was loaded.
+
+**Decision boundary:** No automatic Dataset version repair, alternate filename,
+kernel submission, or retry is authorized. The Dataset remains private. Stop
+for human review because an alternate opaque-file transport would change the
+approved engineering contract.
+
+## 2026-09-13 — Attempt 2 HTTP 400 diagnostic completed; Attempt 3 blocked
+
+**Human authorization:** `ATTEMPT_2_HTTP400_DIAGNOSTIC_ONLY`. Read-only Kaggle
+checks, local request reconstruction, successful-run metadata comparison,
+remote-state verification, and package audit were permitted. Attempt 3 was not
+authorized.
+
+**Observed engineering evidence:** OAuth authentication and authenticated
+read-only API operations succeeded. The remote locked-panel kernel reports
+`current_version_number = 1` and remains the failed Attempt 1 worker. Local
+reconstruction made zero network calls and successfully serialized the Attempt
+2 `ApiSaveKernelRequest`. Its source text is 2,844,948 bytes, versus 6,017 and
+6,849 bytes for successful S0 and smoke submissions; all non-identity request
+fields match. Attempt 2 staging contains no unrelated cache, weights, `runs/`,
+or evidence directory.
+
+**Engineering classification:** `D. PACKAGE_OR_PAYLOAD_LIMIT_ERROR`. This is a
+strongly supported inference from the isolated payload-size difference and
+Kaggle-hosted reports of the same HTTP 400 above the 1 MB kernel-source limit.
+The original full response body was not stored and cannot be recovered without
+a prohibited resubmission; that limitation remains explicit.
+
+**Proposed repair, not authorized or applied:** keep the frozen design embedded
+and transport only the immutable locked-source ZIP through a private,
+version-pinned Kaggle Dataset, with its existing SHA-256 verified before locked
+generation or model loading. No scientific design element changes.
+
+**Decision boundary:** zero scientific calls; no image generation, inference,
+scientific-output access, Dataset creation, repair, retry, or kernel submission.
+Stop at `ATTEMPT_2_HTTP400_ROOT_CAUSE_PENDING_HUMAN_REVIEW`.
+
+## 2026-09-13 — Locked panel attempt 2 stopped before submission
+
+**Engineering validation:** The repaired embedded payload passed local
+authorization-only validation through
+`AUTHORIZED_TO_POINT_IMMEDIATELY_BEFORE_LOCKED_EXECUTION`. The byte-identical
+design hash, YAML parse, scientific contract, and source-bundle hash all passed.
+No locked image generation or model loading occurred in that validation.
+
+**Submission result:** Kaggle rejected `SaveKernel` with HTTP 400 before a new
+kernel version was created. The existing kernel remained the failed version 1
+from Attempt 1. Attempt 2 therefore produced zero scientific calls and no
+scientific-output artifact.
+
+**Decision boundary:** Per the authorized failure policy, no package adjustment,
+retry, or resubmission was performed. Preserve Attempt 2 and stop for human
+review. The exact reason for Kaggle's HTTP 400 is not established by the CLI
+response and must not be inferred from worker size alone.
+
+## 2026-09-13 — Attempt 1 accepted; engineering repair and exact rerun authorized
+
+**Human decision:** Accept Attempt 1 as
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED` with zero
+scientific calls. Authorize `ENGINEERING_REPAIR_AND_EXACT_RERUN`.
+
+**Permitted repair:** Change only how the byte-identical frozen design artifact
+reaches the Kaggle worker. Package it in a deterministic worker-visible payload,
+record its source/packaged paths, size, observed and expected SHA-256, and verify
+and parse it before any locked image generation or model loading. Perform an
+authorization-only staging validation that exits before scientific execution.
+
+**Identity boundary:** The scientific design remains commit
+`871996221a36a56a401fa040c239f55768561210`. A later execution-repair commit is
+an engineering identity only and must be recorded separately. Attempt 2 must
+use a distinct run ID and must preserve Attempt 1.
+
+**Rerun boundary:** If staging validation passes, the exact one-shot 6,400-call
+panel is authorized with unchanged blinding and no automatic retry. A second
+pre-inference failure stops for review; any failure after scientific calls also
+preserves the partial immutable artifact and stops without restart.
+
+## 2026-09-13 — Locked panel attempt 1 stopped before inference
+
+**Observed engineering status:** Kaggle kernel version 1 ended with `ERROR` in
+the `authorization` phase because the staged frozen-design file was not present
+at `/kaggle/working/frozen_design.yaml`. The worker classified the attempt as
+`LOCKED_PANEL_TECHNICAL_INVALID_SCIENTIFIC_OUTPUTS_REMAIN_SEALED`.
+
+**Scientific exposure audit:** The downloaded kernel output contains only the
+engineering failure record and the kernel log. It contains no raw-output file,
+no decoded prediction artifact, and no completed model call. No accuracy, CER,
+DID, component outcome, or FULL-validity result was calculated or inspected.
+
+**Decision boundary:** This attempt is technically invalid and supplies no
+scientific evidence. No automatic retry or engineering repair is authorized.
+Stop for human review before another submission.
+
+## 2026-09-13 — Frozen one-shot locked panel execution authorized
+
+**Human decision:** `FINAL LOCKED PANEL AUTHORIZATION: APPROVED`. Execute the
+frozen commit `871996221a36a56a401fa040c239f55768561210` design as one 6,400-call
+locked panel with no scientific design changes and no intermediate scientific
+outcome access.
+
+**Execution boundary:** Runtime visibility is engineering-only. Scientific
+records remain sealed until all calls complete, checksums are immutable, and
+local verification passes. Any identity, input, resize, token, boundary,
+missing/duplicate-call, tensor/runtime, provenance, or checksum failure stops
+before unsealing.
+
+**After verified execution:** Apply the frozen FULL-validity check, primary
+categorical omnibus, three DIDs, pair-clustered CIs, Holm adjustment, four-case
+SESOI classifier, sensitivities, and descriptive/diagnostic component report in
+the registered order. Then stop for human review.
+
+**Authorized mechanism only:** controlled BICUBIC Input Resolution Reduction;
+no post-encoder Token Pruning, Token Merging, general compression claim,
+fine-tuning, post-hoc rescue, or method development.
+
+**Required terminal state:**
+`HUMAN_REVIEW_AFTER_LOCKED_MODEL_BUDGET_PANEL`.
+
+## 2026-09-13 — Final pre-inference interpretation amendment complete
+
+**Human decision:** Keep the frozen models, dataset, four-budget grid, image
+pipeline, target-aware random effects, metrics, and 6,400-call workload
+unchanged. Freeze the final interpretation before any locked execution.
+
+**Decision rule:** The primary test is the categorical global
+`MODEL x BUDGET` omnibus at two-sided alpha 0.05. Report `DID_196`, `DID_121`,
+and `DID_64` with separate pair-clustered bootstrap 95% CIs and Holm-adjusted
+p-values. The CIs are not Holm-adjusted. The absolute SESOI is 10 percentage
+points. The four exact registered labels are
+`MEANINGFUL_MODEL_BUDGET_INTERACTION_SUPPORTED`,
+`INTERACTION_DETECTED_BELOW_PLANNED_SESOI`,
+`SUGGESTIVE_MEANINGFUL_INTERACTION_NOT_CONFIRMED`, and
+`NO_CONFIRMATORY_MODEL_BUDGET_INTERACTION_EVIDENCE`. Non-significance is not
+equivalence or proof of equal robustness.
+
+**Execution blinding:** Scientific predictions and summaries remain sealed
+until all 6,400 calls complete, artifacts/checksums are immutable, and local
+verification passes. Runtime display is limited to engineering-only progress,
+failure codes without prediction content, GPU/runtime state, and token
+accounting.
+
+**No execution in this amendment:** No calibration, simulation, prompt tuning,
+dataset modification, design search, locked image generation, or model
+inference occurred. A separate explicit human run order is still required.
+
+**Terminal state:** `FINAL_LOCKED_PANEL_AUTHORIZATION_READY`.
+
+## 2026-09-13 — Locked-panel design amended; final authorization pending
+
+> Historical pre-final state retained. Its pending interpretation layer is
+> superseded by the final pre-inference amendment above.
+
+**Human decision:** Accepted the overall non-directional `MODEL x BUDGET`
+direction but withheld locked inference. The model pair, dataset membership,
+five component categories, and processor budget grid are not reopened.
+
+**Selection-bias repair:** The former FULL-first Gate-0 run plus conditional
+continuation is removed. The only registered locked execution is one immutable
+6,400-call panel: 100 pairs x 2 members x 2 fonts x 2 sizes x 2 models x 4
+budgets. No intermediate scientific outcome may be opened. FULL validity is
+evaluated only after the whole panel is sealed; failure makes the primary
+analysis `NOT_INTERPRETABLE_FULL_VALIDITY_FAILED`.
+
+**Frozen analysis amendment:** `BUDGET` is categorical. The global primary is
+the 3-df likelihood-ratio omnibus `MODEL x BUDGET` test. Report all three
+probability-scale `DID_196`, `DID_121`, and `DID_64` contrasts with pair-cluster
+bootstrap uncertainty and Holm control. Existing S0 artifacts showed target-
+level excess residual covariance `0.05545`, pair-bootstrap 95% CI `[0.03469,
+0.07877]`; therefore the primary random structure is
+`(1 | pair_id) + (1 | pair_id:member)`. `pair_id` remains the resampling unit.
+
+**Pipeline and estimator contracts:** Every reduced PNG is a deterministic
+Pillow 12.3.0 BICUBIC downsample of the immutable registered 448x448 RGB source,
+with exact file/pixel hashes and no re-rendering or OCR preprocessing. GLMM
+convergence, Hessian, singularity, finite-value, and separation diagnostics are
+frozen. Diagnostic failure is reported transparently and invokes only the
+pre-registered pair-clustered marginal-DID fallback; no outcome-dependent
+model repair is allowed.
+
+**Still unauthorized:** locked image generation, locked inference, Resolution
+Reduction inference, Token Pruning, Token Merging, fine-tuning, and method work.
+
+**Terminal state:**
+`REVISED_OVERALL_MODEL_BUDGET_DESIGN_PENDING_FINAL_AUTHORIZATION`.
+
+## 2026-09-13 — Overall MODEL x BUDGET design and Gate-0 criteria frozen
+
+> Historical decision retained. Its FULL-first conditional execution and
+> pair-only random-intercept details are superseded by the amendment above.
+
+**Human decision:** Accepted `FREEZE_OVERALL_MODEL_BUDGET_DESIGN`. The future
+primary question is whether Thai-specific OCR adaptation changes the degradation
+curve under controlled visual-information reduction. The non-directional
+confirmatory effect is `MODEL x BUDGET`; component interactions remain
+descriptive/diagnostic under the current design.
+
+**Frozen analysis:** Observation-level mixed-effects logistic regression with
+`MODEL * BUDGET`, font, font size, member, and component main effects plus a
+`pair_id` random intercept. The user-facing effect is the marginal
+probability-scale Difference-in-Differences with pair-clustered uncertainty;
+pair-level paired bootstrap and codepoint CER are sensitivities.
+
+**Frozen Gate-0 criteria:** Each model's overall exact-accuracy lower
+pair-clustered 95% CI must be at least 20%; output-contract failure at most 1%
+per model; exact visual-token accounting; zero unauthorized/out-of-workload
+locked pairs; and no parser/runtime corruption. There is no baseline upper
+limit, Thai-output gate, raw render-range gate, or component gate on the overall
+experiment.
+
+**Frozen future mechanism/grid:** Input Resolution Reduction only, with actual
+LLM image-position budgets `256/196/121/64` from processor targets
+`448/392/308/224`. No reduced-resolution outcome was observed. The same 100
+locked pairs are intended for Gate-0 FULL and the later budget panel, so the
+complete grid, analysis, metrics, and exclusions are frozen before locked
+output.
+
+**Still unauthorized:** locked inference, Resolution Reduction inference,
+Token Pruning, Token Merging, fine-tuning, and method development.
+
+**Terminal state:**
+`OVERALL_MODEL_BUDGET_DESIGN_FROZEN_PENDING_LOCKED_AUTHORIZATION`.
+
+## 2026-09-12 — Measurement-readiness audit complete; human review required
+
+**Human input:** Accepted `BASELINE_CAPACITY_MIXED_CRITERIA_REVIEW_REQUIRED` and
+authorized an identifiability audit using existing S0 open-calibration artifacts
+only. Numeric criteria were explicitly not frozen. Locked validation, model
+inference, compression, budget selection based on output, and fine-tuning were
+not authorized.
+
+**Audit:** The SESOI-derived headroom rule classified BASE
+`LOWER_VOWEL_VARIANT`, `STACKED_TONE_MARK`, and `UPPER_VOWEL_VARIANT` as
+`FLOOR_LIMITED`. Overall 95-cluster design simulations showed materially higher
+10 pp interaction detection than 19-cluster component simulations. Exact
+assumptions, results, metric review, and analysis-model recommendation are in
+`MEASUREMENT_READINESS_AUDIT.md`.
+
+**Agent recommendation:** `FREEZE_OVERALL_MODEL_BUDGET_DESIGN`. This is a
+proposal for the analysis structure only; it does not itself freeze criteria,
+select budgets, authorize compression, or open locked validation.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_MEASUREMENT_READINESS_AUDIT`.
+
+## 2026-09-12 — Paddle/Wayu S0 complete; mandatory human-review stop
+
+**Run:** `kaggle-paddle-wayu-s0-a7f3eec06bce-832fe44f` completed the frozen
+1,520-call open-calibration full-information baseline. Verification was
+`VERIFIED`, artifact checksums matched, failures were empty, and
+`locked_pair_count=0`.
+
+**Calibration observation:** Pair-clustered exact accuracy was 29.74% [23.29,
+36.71] for BASE and 45.53% [38.68, 52.50] for SPECIALIZED; the paired
+`SPECIALIZED - BASE` estimate was +15.79 pp [+9.08, +22.63]. Several BASE
+component cells remained close to floor. These are open-calibration baseline
+associations, not compression or causal evidence.
+
+**Agent recommendation:**
+`BASELINE_CAPACITY_MIXED_CRITERIA_REVIEW_REQUIRED`. Proposed numerical validity
+criteria are documented in `PADDLE_WAYU_S0_OPEN_CALIBRATION_REPORT.md`; they are
+not frozen or authorized until human review.
+
+**Terminal state:** `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`. No locked
+validation, budget intervention, compression, or later stage is authorized.
+
+## 2026-09-12 — Scientific framing amended; S0 baseline authorized
+
+**Human decision:** Accept the Paddle/Wayu engineering smoke and set
+`APPROVED_FOR_S0_OPEN_CALIBRATION_BASELINE_ONLY`.
+
+**Required framing:** The comparison is **base OCR VLM versus Thai-specialized
+OCR descendant**, or **Thai-specific OCR adaptation**. It is not general VLM
+versus OCR-specialized VLM because PaddleOCR-VL-1.6 is already an
+OCR/document-recognition model. The revised question is: “Does Thai-specific
+OCR adaptation change robustness to controlled visual-information reduction?”
+The future primary interaction remains non-directional `MODEL x BUDGET`.
+
+**Causal boundary:** Do not claim that the 45,723-page synthetic training set
+is the only difference between checkpoints.
+
+**Authorized scope:** S0 open-calibration full-information baseline only. Use
+the remaining 95 open-calibration `pair_id` values after excluding the five
+engineering-smoke pairs; do not replace them from locked validation. The exact
+workload is 95 pairs x 2 members x 2 fonts x 2 sizes x 2 models = 1,520 calls,
+with identical registered 448x448 PNGs, prompt `OCR:`, deterministic greedy
+decoding, and a parser frozen before inference.
+
+**Not authorized:** locked validation, Resolution Reduction, Token Pruning,
+Token Merging, any other compression or representation intervention,
+fine-tuning, new-method work, or scientific comparison with Qwen3.5 history.
+After S0 analysis, stop at `HUMAN_REVIEW_AFTER_S0_OPEN_CALIBRATION`.
+
+## 2026-09-12 — Paddle/Wayu engineering smoke complete; human review required
+
+**Scope:** Non-scientific engineering validation only. The authorized 40-call
+workload completed once on Kaggle T4 with no retry or resubmission.
+
+**Observed engineering evidence:** Both exact revisions resolved and loaded as
+`PaddleOCRVLForConditionalGeneration` with `PaddleOCRVLProcessor`. All 40 calls
+used the identical `OCR:` contract and matched PNG hashes. All 20 exact-repeat
+groups were identical. Every call recorded `image_grid_thw=[1,32,32]`, 1,024
+pre-merge positions, 256 projector positions, 256 LLM image placeholders, and
+finite expected intermediate tensors. Output slicing and Unicode decoding
+passed. Kaggle selected Tesla T4; peak reserved VRAM was approximately 1.810
+GiB per sequentially loaded model. `locked_pair_count=0`; failure log was empty;
+local artifact verification was `VERIFIED`.
+
+**Codex recommendation:**
+`ENGINEERING_SMOKE_PASS_S0_READY_PROPOSED`.
+
+**Scientific boundary:** No accuracy, model ranking, specialization benefit,
+measurement capacity, component effect, or compression robustness was
+calculated or interpreted. This recommendation is not Stage S0 approval.
+
+**Decision state:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`. Stage S0, locked
+validation, Resolution Reduction, Token Pruning, Token Merging, scientific
+representation comparison, fine-tuning, and new-method work remain prohibited.
+Full evidence is in `PADDLE_WAYU_ENGINEERING_SMOKE_REPORT.md` and the immutable
+run `kaggle-paddle-wayu-smoke-dcd835673e1c-28c1cecd`.
+
+## 2026-09-12 — Paddle/Wayu engineering smoke authorized
+
+**Human decision:** Accept the fallback audit and current-scope
+`TERMS_CLEAR` classification. The PaddleOCR-VL-1.6 / Wayu-Paxa pair is
+`APPROVED_FOR_ENGINEERING_SMOKE_ONLY` for exactly 40 calls: five already
+exposed open-calibration `pair_id` values, two members, two models, and two
+exact repeats under the shared direct region-recognition prompt `OCR:`.
+
+**Purpose:** Engineering validation only. Accuracy, model ranking,
+specialization benefit, component capacity, and compression robustness are not
+smoke gates and must not be calculated or interpreted.
+
+**Fail-closed boundary:** Any checkpoint, loading, processor, prompt, output
+slicing, Unicode, determinism, visual-token accounting, tensor/module, runtime,
+T4, or locked-set failure stops the run. Engineering repair requires another
+human review before rerun.
+
+**Still prohibited:** Stage S0, locked validation, Resolution Reduction, Token
+Pruning, Token Merging, scientific representation comparison, fine-tuning,
+new-method work, and comparison with historical Qwen3.5 outputs.
+
+**Mandatory stop:** `HUMAN_REVIEW_AFTER_ENGINEERING_SMOKE`.
+
+## 2026-09-12 — Paddle/Wayu engineering smoke authorized
+
+**Human decision:** Accept the fallback-pair audit and current-scope
+`TERMS_CLEAR` classification. The PaddleOCR-VL-1.6 / Wayu-Paxa candidate pair
+is `APPROVED_FOR_ENGINEERING_SMOKE_ONLY`.
+
+**Authorized workload:** exactly 40 non-scientific calls: five already-exposed
+open-calibration `pair_id` values, both members, both models, and two exact
+repeats. Both models use identical PNGs and the direct region-recognition
+prompt `OCR:`. Accuracy is not an engineering gate and no scientific model or
+component comparison may be calculated or interpreted.
+
+**Fail-closed boundary:** any identity, loading, processor, prompt, output
+slicing, Unicode, determinism, token-accounting, tensor-path/shape, runtime,
+T4-feasibility, or locked-set failure stops the run. An engineering repair
+requires a new human review before rerun.
+
+**Still prohibited:** Stage S0, locked validation, Resolution Reduction, Token
+Pruning, Token Merging, scientific representation comparison, fine-tuning,
+new-method work, and comparison with Qwen3.5 diagnostic history. After the
+smoke report, stop for human review; do not advance automatically.
+
+## 2026-09-12 — Typhoon branch closed; fallback pair audited
+
+**Human decision:** Typhoon OCR is `NOT_PURSUED_DUE_TO_USAGE_TERMS`. The
+current OpenTyphoon competitive-benchmarking consent dependency is not
+operationally acceptable for this project. This is not a scientific rejection.
+Prior provenance, architecture, literature, and design records are preserved.
+
+**Fallback source-only audit:** The candidate
+`PaddlePaddle/PaddleOCR-VL-1.6@c5630abae1d940eafe0697512a0325494b02ab42`
+and
+`wayu-ai/wayu-paxa-ocr-zero@af0204b4f334a6d5068b6bac2b3738932d6e289b`
+is classified `TERMS_CLEAR`. Official sources declare Wayu as a full fine-tune
+of the Paddle base on 45,723 synthetic pages and the shared 608-tensor
+generative core has matching key names, shapes, and dtypes. The exact immutable
+fine-tuning parent revision and equality of common weight values are not
+established; PaddleOCR-VL-1.6 is itself an OCR model.
+
+**Codex recommendation:** `APPROVE_PADDLE_WAYU_FOR_ENGINEERING_SMOKE` using
+the exact 40-call, open-calibration-only workload proposed in
+`FALLBACK_PAIR_CLEARANCE.md`. This recommendation does not authorize execution.
+
+**Current decision:** `FALLBACK_PAIR_PENDING_HUMAN_REVIEW`.
+
+**Not authorized:** any Typhoon use; any fallback-model inference; locked
+validation; Resolution Reduction; Token Pruning; Token Merging; fine-tuning;
+or Gate 0 change. The research question remains model-agnostic.
+
+## 2026-09-12 — Specialization pivot proposed; human review required
+
+**Stage/Gate:** Proposed amendment only; `Gate 0` remains `NOT_RUN`.
+
+**Proposal:** Evaluate a closely related base and OCR-specialized descendant,
+`Qwen/Qwen3-VL-2B-Instruct` and `typhoon-ai/typhoon-ocr1.5-2b`, under a staged
+S0-S5 plan. The proposed primary question is a non-directional
+`MODEL x BUDGET` interaction. A component-level three-way interaction remains
+conditional on measurement capacity.
+
+**Audit evidence:** Both pinned repositories declare the same Qwen3-VL 2B
+architecture/config structure, parameter count, patch/merge settings,
+DeepStack indexes, and 625 compatible state-dict key names/shapes/dtypes.
+Typhoon declares the Qwen model ID as its fine-tuning base, but does not declare
+the immutable parent revision. Weight values and full training lineage were
+not established. Exact evidence is in `SPECIALIZATION_PIVOT_REVIEW.md` and
+`architecture/QWEN3VL2B_TYPHOON_OCR15_CONFIG_DIFF.json`.
+
+**Blocking issue:** The Typhoon model card links OpenTyphoon Terms whose
+current text prohibits competitive benchmarking without prior express written
+consent. Future model use therefore requires
+`LEGAL_TERMS_CLEARANCE_REQUIRED`; this is not a legal conclusion about the
+interaction between those terms and the HF `apache-2.0` tag.
+
+**Decision:** `SPECIALIZATION_PIVOT_PENDING_HUMAN_REVIEW`.
+
+**Not authorized:** model inference, engineering smoke, locked validation,
+Resolution Reduction, Token Pruning, Token Merging, fine-tuning, prompt tuning,
+or new-method implementation. Historical Qwen2.5/Qwen3.5 decisions and
+artifacts are not overwritten and cannot be used as matched specialization
+evidence.
+
+## 2026-09-12 — Measurement-contract pilot result and human-review stop
+
+**Observed result:** The verified 25-pair open-calibration pilot produced A
+accuracy 49.50% (pair-clustered 95% CI 47.50–51.00%), B 0.00% (0–0%), and C
+0.00% (0–0%). `delta_interface` was -49.50 pp (-51.00 to -47.50), while
+`delta_surrounding` was 0.00 pp (0–0). B/C had no exact or opposite-member
+outputs. Condition C's output-contract-failure rate was 22.5% (17.0–29.0%),
+exceeding the frozen 20% interpretability flag. `locked_pair_count=0`.
+
+**Frozen decision:** `MIXED_TARGETED_INSTRUMENT_REVIEW`. Direct transcription
+did not rescue the current model and therefore does not support A/B interface
+as the sole/main explanation. The result also does not establish visual-
+representation failure because transcription readout remained invalid and the
+prior D3 representation probe was strong.
+
+**Stop boundary:** Human review is required. Do not screen another backbone,
+change Gate 0, run compression, tune the prompt/layout, open locked validation,
+or start the main experiment. Full evidence is in
+`docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_REPORT.md`.
+
+## 2026-09-12 — Final visual/protocol approval for pilot inference
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;
+Gate 0 remains `NOT_RUN`.
+
+**Human decision:** The B/C contact sheets across all five components, both
+fonts, and both sizes passed visual review. The existing 200/200 byte-level
+target-pixel identity validation is accepted. Run only the frozen 25-pair
+Qwen3.5 pilot, then stop for human review.
+
+**Frozen interpretation:** Condition C is a controlled artificial surrounding-
+layout diagnostic, not natural-language context, positional robustness, or a
+realistic document-layout test. `delta_surrounding = C - B` supports only a
+statement associated with adding the frozen surrounding layout around the
+same centered target.
+
+**Authorization:** Conditions B/C inference and the registered A/B/C analysis
+are authorized. Condition A must reuse its verified D1 rows. Locked validation,
+backbone screening, Gate 0 changes, compression, post-outcome tuning, and the
+main experiment remain prohibited.
+
+## 2026-09-12 — Condition C pre-inference amendment required
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement-contract pilot only;
+Gate 0 remains `NOT_RUN`.
+
+**Human decision:** Approve the 25-pair selection, Condition A aggregation,
+`pair_id` analysis, 10 pp SESOI, uncertainty, locked-set protection, and
+general decision logic. Require Condition C revision and final visual/protocol
+approval before inference.
+
+**Amendment:** Conditions B and C now share one exact center-target-only prompt
+and return one target string. C is constructed from the exact frozen B PNG by
+adding fixed anchors and separators only outside the target cell. Literal pipe
+output and full-line alignment are removed. The paired contrast is renamed
+`delta_surrounding = C - B` and supports only an association with adding the
+frozen controlled surrounding visual layout, not a single causal mechanism or
+natural-language contextual effect. Full-line transcription is deferred to a
+separate future diagnostic.
+
+**Required pre-inference evidence:** paired B/C contact sheets and a byte-level
+report showing identical B/C target-crop RGB hashes for every one of the 200
+selected target observations, plus invariant non-target layers within each
+font/size condition.
+
+**Generated non-model evidence:**
+`docs/stage0/evidence/qwen35_measurement_contract_pilot_preflight/CONTACT_SHEETS.md`
+contains 20 paired B/C sheets. The corresponding
+`pixel_identity_validation.json` reports 200/200 target observations passing
+raw-RGB target-crop identity, zero non-target invariance failures, zero locked
+pairs, and `model_inference_performed=false`. Human visual/protocol approval
+remains pending.
+
+**Historical provenance:** Commit
+`13c64500442bc3790362f82964ad39666fc8b382` preserves the superseded
+pre-inference C contract. No pilot model output was observed before this
+amendment.
+
+**Current authorization:** Protocol/config amendment, deterministic stimulus
+construction, contact sheets, and pixel-identity validation only. Model
+inference, locked validation, backbone screening, compression, and the main
+experiment remain unauthorized.
+
+## 2026-09-12 — Measurement-contract pilot approved with revisions before inference
+
+**Stage/Gate:** Qwen3.5 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Human decision:** Approve in principle a three-condition pilot using A
+forced-choice, B isolated transcription, and C line-layout transcription, but
+require a revised frozen protocol and another quick human check before any
+model inference.
+
+**Required revisions recorded:** B/C have no 50% chance-validity threshold;
+the primary diagnostics are paired `delta_interface = B - A` and
+`delta_line = C - B`, with a 10 percentage-point SESOI and an important effect
+requiring point estimate at least +10 pp plus pair-clustered paired 95% CI
+lower bound above zero. A's two candidate orders reduce to one target-level
+score and are not independent. C uses fixed cells whose non-target pixels are
+invariant across target members, and is explicitly a line-layout—not natural-
+language context—diagnostic. Selection, prompt, decoding, normalization,
+alignment, taxonomy, metrics, and stop rules are fixed before inference.
+
+**Revised protocol:**
+`docs/stage0/QWEN35_MEASUREMENT_CONTRACT_PILOT_PROTOCOL.md` and
+`configs/stage0/qwen35_measurement_contract_pilot.yaml`.
+
+**Current authorization:** Documentation and non-model validation only.
+Inference remains unauthorized pending the quick human protocol check.
+Locked validation, backbone screening, split changes, Gate 0, Stage 1A,
+compression, and the main experiment remain prohibited.
+
+## 2026-09-08 — Qwen3.5 measurement diagnostic result and stop
+
+**Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Observed result:** The verified D1-D4 run used only the 100 previously exposed
+calibration `pair_id`s. D1 content consistency was 10.75% (pair-clustered 95%
+CI 6.63-15.38%) and position following was 89.25% (84.63-93.38%). D2
+blank-corrected candidate accuracy was 52.88% (50.75-55.13%). D3
+post-spatial-merger retrieval accuracy was 97.88% (96.75-98.88%). D4 magnified
+visual rescue reached 65.50% corrected accuracy (60.50-70.50%) and improved
+16.00 percentage points (10.50-21.50) over its matched original-source
+condition.
+
+**Frozen classification:** `inconclusive`. The D1 estimate showed strong
+position sensitivity, but its lower CI did not reach the pre-registered 90%
+interface threshold. D2 did not reach the registered signal criterion, while
+D3 and D4 did. This tension must not be post hoc relabeled as `mixed`.
+
+**Codex recommendation:** **C. screen an architecturally distinct backbone**.
+Recommend `google/gemma-3-4b-it` for human consideration because it is a
+different multimodal model family and 4B-scale T4 fit is plausible, not yet
+verified. Do not run it without a separate human authorization and frozen
+screening contract.
+
+**Evidence:** `docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_REPORT.md`; run
+`kaggle-qwen35-measurement-953dd5e386ea-79122b58`; inference commit
+`953dd5e386eaeee22b549995b9c80f2a3691ebbf`; pre-registration commit
+`4243b7f780c561e447d3efa5c624e8fe777559aa`.
+
+**Consequence:** Stop at `HUMAN_REVIEW_CHECKPOINT`. No Qwen2.5 D1-D4 comparison
+is valid because Qwen2.5 has not been evaluated under the same diagnostic
+contract. Locked validation, Gate 0, Stage 1A, every compression intervention,
+the main experiment, and a new-backbone run remain blocked.
+
+## 2026-09-08 — Qwen3.5 measurement diagnostic authorization and pre-registration
+
+**Stage/Gate:** Stage 0 open-calibration measurement diagnostic only; Gate 0
+remains `NOT_RUN`.
+
+**Human decision:** After the Qwen3.5-4B calibration failure, authorize D1
+position swap, D2 candidate sequence scoring without A/B tokens, D3
+post-merger representation separation, and D4 a clearly magnified visual
+rescue using only the 100 already exposed calibration pairs. Require metrics,
+root-cause decision criteria, and the A/B/C action map to be committed before
+diagnostic outcomes are observed.
+
+**Frozen protocol:**
+`docs/stage0/QWEN35_MEASUREMENT_DIAGNOSTIC_PROTOCOL.md` and
+`configs/stage0/qwen35_measurement_diagnostic.yaml`. `pair_id` remains the
+independent unit and uncertainty uses pair-clustered bootstrap. Candidate
+scoring is blank-corrected sum sequence log-probability. Representation
+retrieval is diagnostic only. Visual rescue changes glyph scale within the
+same 448 x 448 canvas and must retain the same processor and 196 native visual
+positions.
+
+**Still prohibited:** locked validation, frozen-split changes, Gate 0 approval,
+Stage 1A, Resolution Reduction, Token Pruning, Token Merging, the main
+experiment, all compression interventions, and any new-backbone inference.
+
+**Mandatory stop:** After D1-D4, record one bounded root-cause classification
+and one A/B/C recommendation, update reproducibility artifacts, and stop for
+human review.
+
+## 2026-09-07 — Qwen3.5-4B measurement-capacity audit authorization
+
+**Stage/Gate:** Stage 0 calibration-only backbone assessment; Gate 0 remains
+`NOT_RUN`.
+
+**Human decision:** Evaluate `Qwen/Qwen3.5-4B` end to end as a candidate primary
+measurement backbone using only the 100 already exposed calibration pairs.
+Authorize a minimal adapter/factory, tests, Kaggle T4 model-load and engineering
+smoke, and—only if the smoke passes—two exact 1,000-observation full-information
+calibration passes with matched blank controls. The human request explicitly
+forbids locked validation, Gate 0 approval, Stage 1A, Resolution Reduction,
+Token Pruning, Token Merging, and every other compression experiment.
+
+**Pre-registered rationale:** The candidate is opened before any Qwen3.5 Thai
+calibration outcome because it is a compact current-generation open-weight
+multimodal model with official OCR/visual-language capability, an inspectable
+Vision Encoder and spatial merger, reproducible Hugging Face inference, a
+future-accessible post-encoder representation, and Apache-2.0 licensing. The
+exact rationale and pinned pre-inference identity are recorded in
+`docs/stage0/QWEN35_BACKBONE_RATIONALE.md` with outcome state
+`NO_QWEN35_MODEL_OUTPUT_OBSERVED`.
+
+**Selection integrity:** Qwen3.5 may not be chosen because its outcome supports
+a preferred Thai-specific or compression hypothesis. Failure to establish
+baseline measurement capacity is a valid result. A T4 fallback to
+`Qwen/Qwen3.5-2B` may be considered only after a recorded 4B compute
+infeasibility classification, never because of 4B accuracy.
+
+**Mandatory stop:** After the calibration assessment, report a backbone
+recommendation and stop for human review. Gate 0 and all later stages remain
+human-owned and blocked.
+
+## 2026-09-07 — Qwen3.5-4B calibration result and backbone recommendation
+
+**Stage/Gate:** Stage 0 open calibration only; Gate 0 remains `NOT_RUN`.
+
+**Observed result:** The pinned Qwen3.5-4B FP16 checkpoint fit on Kaggle Tesla
+T4. The 40-call engineering smoke passed pinned identity, exact one-token A/B,
+direct/generation logit equality, 784-to-196 runtime visual accounting, and
+exact rerun. Two full 1,000-observation calibration runs then reproduced
+exactly with zero parser/execution failures and zero locked-pair exposure.
+Primary-run accuracy was 49.875% (pair-clustered 95% CI 49.00–50.75%). Blank
+controls selected A 100%, expected-A/B accuracies were 93.25%/6.50%, and mean
+image gain was 0.0106 (95% CI -0.0173 to 0.0399). All five components are
+`INADEQUATE` under the pre-registered measurement-planning rules.
+
+**Codex recommendation:** `MEASUREMENT_REDESIGN_REQUIRED`. Do not adopt
+Qwen3.5-4B as primary under the present measurement contract. This is not a
+Gate 0 decision and does not authorize post-outcome prompt retuning, another
+backbone run, dataset changes, locked validation, Stage 1A, or compression.
+
+**Evidence:** `docs/stage0/QWEN35_BACKBONE_CALIBRATION.md`; run
+`kaggle-qwen35-stage0-4fef178183d7-b31935da`; inference commit
+`4fef178183d77c533fcc854a37748ce308688e38`.
+
+**Interpretation boundary:** The result establishes measurement inadequacy for
+this exact Qwen3.5 checkpoint, prompt/label contract, synthetic calibration,
+rendering, and runtime. It does not establish general Thai OCR weakness, an
+architecture ranking, a visual-token-count cause, or any compression effect.
+
+**Consequence:** Stop for human review. Gate 0 remains `NOT_RUN`; locked
+validation and all compression work remain blocked.
+
 ## 2026-09-07 — Calibration image-gain diagnostic authorization and result
 
 **Stage/Gate:** Stage 0 calibration diagnostic only; Gate 0 remains `NOT_RUN`.

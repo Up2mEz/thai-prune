@@ -1,0 +1,853 @@
+{
+ "absolute_cer": {
+  "FULL": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.27207437036208604,
+   "macro_cer_clamped": 0.24733563612161036,
+   "micro_cer": 0.19335689045936397,
+   "region_count": 400,
+   "regions_over_one": 17
+  },
+  "PRUNE_GRID_25": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.42305282024644947,
+   "macro_cer_clamped": 0.36770256031741233,
+   "micro_cer": 0.38332155477031804,
+   "region_count": 400,
+   "regions_over_one": 18
+  },
+  "PRUNE_GRID_50": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.340000286671611,
+   "macro_cer_clamped": 0.29657460124592555,
+   "micro_cer": 0.2674204946996466,
+   "region_count": 400,
+   "regions_over_one": 17
+  },
+  "PRUNE_GRID_75": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.30874195075421484,
+   "macro_cer_clamped": 0.28415031206524644,
+   "micro_cer": 0.22954063604240282,
+   "region_count": 400,
+   "regions_over_one": 22
+  },
+  "PRUNE_RANDOM_s20260920_25": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.46015354790202734,
+   "macro_cer_clamped": 0.4188155129256302,
+   "micro_cer": 0.471095406360424,
+   "region_count": 400,
+   "regions_over_one": 21
+  },
+  "PRUNE_RANDOM_s20260920_50": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.30596678011071005,
+   "macro_cer_clamped": 0.275272471431663,
+   "micro_cer": 0.2514487632508834,
+   "region_count": 400,
+   "regions_over_one": 15
+  },
+  "PRUNE_RANDOM_s20260920_75": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.26928795944114703,
+   "macro_cer_clamped": 0.2465469994207752,
+   "micro_cer": 0.19166077738515902,
+   "region_count": 400,
+   "regions_over_one": 14
+  },
+  "PRUNE_RANDOM_s20260921_25": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.5559966828891498,
+   "macro_cer_clamped": 0.4876486228866185,
+   "micro_cer": 0.560565371024735,
+   "region_count": 400,
+   "regions_over_one": 29
+  },
+  "PRUNE_RANDOM_s20260921_50": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.34475016376585477,
+   "macro_cer_clamped": 0.3209472144262041,
+   "micro_cer": 0.2856537102473498,
+   "region_count": 400,
+   "regions_over_one": 21
+  },
+  "PRUNE_RANDOM_s20260921_75": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.2885811675742597,
+   "macro_cer_clamped": 0.2727810148760807,
+   "micro_cer": 0.21978798586572437,
+   "region_count": 400,
+   "regions_over_one": 15
+  },
+  "RR_25": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.19644579145819005,
+   "macro_cer_clamped": 0.17597506189535522,
+   "micro_cer": 0.15901060070671377,
+   "region_count": 400,
+   "regions_over_one": 11
+  },
+  "RR_50": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.2229740789627623,
+   "macro_cer_clamped": 0.20429566015934353,
+   "micro_cer": 0.15363957597173145,
+   "region_count": 400,
+   "regions_over_one": 13
+  },
+  "RR_75": {
+   "empty_hypotheses": 0,
+   "macro_cer": 0.2572928927250737,
+   "macro_cer_clamped": 0.22718641329119485,
+   "micro_cer": 0.18007067137809188,
+   "region_count": 400,
+   "regions_over_one": 17
+  }
+ },
+ "claim_scope": "text-region recognition on Thai document images",
+ "component_diagnostic": {
+  "by_condition": {
+   "FULL": {
+    "BASE_CONSONANT": {
+     "deletion": 90,
+     "hypothesis_total": 3540,
+     "insertion": 55,
+     "reference_total": 3890,
+     "substitution": 569
+    },
+    "LOWER_VOWEL": {
+     "deletion": 5,
+     "hypothesis_total": 134,
+     "insertion": 2,
+     "reference_total": 154,
+     "substitution": 26
+    },
+    "OTHER": {
+     "deletion": 45,
+     "hypothesis_total": 2538,
+     "insertion": 135,
+     "reference_total": 2056,
+     "substitution": 181
+    },
+    "TONE_MARK": {
+     "deletion": 57,
+     "hypothesis_total": 252,
+     "insertion": 12,
+     "reference_total": 337,
+     "substitution": 64
+    },
+    "UPPER_VOWEL": {
+     "deletion": 24,
+     "hypothesis_total": 606,
+     "insertion": 12,
+     "reference_total": 638,
+     "substitution": 91
+    }
+   },
+   "PRUNE_GRID_25": {
+    "BASE_CONSONANT": {
+     "deletion": 351,
+     "hypothesis_total": 3486,
+     "insertion": 201,
+     "reference_total": 3890,
+     "substitution": 862
+    },
+    "LOWER_VOWEL": {
+     "deletion": 20,
+     "hypothesis_total": 130,
+     "insertion": 8,
+     "reference_total": 154,
+     "substitution": 43
+    },
+    "OTHER": {
+     "deletion": 163,
+     "hypothesis_total": 2471,
+     "insertion": 286,
+     "reference_total": 2056,
+     "substitution": 338
+    },
+    "TONE_MARK": {
+     "deletion": 55,
+     "hypothesis_total": 270,
+     "insertion": 16,
+     "reference_total": 337,
+     "substitution": 93
+    },
+    "UPPER_VOWEL": {
+     "deletion": 65,
+     "hypothesis_total": 634,
+     "insertion": 59,
+     "reference_total": 638,
+     "substitution": 152
+    }
+   },
+   "PRUNE_GRID_50": {
+    "BASE_CONSONANT": {
+     "deletion": 211,
+     "hypothesis_total": 3428,
+     "insertion": 75,
+     "reference_total": 3890,
+     "substitution": 694
+    },
+    "LOWER_VOWEL": {
+     "deletion": 12,
+     "hypothesis_total": 123,
+     "insertion": 6,
+     "reference_total": 154,
+     "substitution": 35
+    },
+    "OTHER": {
+     "deletion": 97,
+     "hypothesis_total": 2585,
+     "insertion": 222,
+     "reference_total": 2056,
+     "substitution": 241
+    },
+    "TONE_MARK": {
+     "deletion": 55,
+     "hypothesis_total": 253,
+     "insertion": 8,
+     "reference_total": 337,
+     "substitution": 75
+    },
+    "UPPER_VOWEL": {
+     "deletion": 41,
+     "hypothesis_total": 603,
+     "insertion": 22,
+     "reference_total": 638,
+     "substitution": 98
+    }
+   },
+   "PRUNE_GRID_75": {
+    "BASE_CONSONANT": {
+     "deletion": 145,
+     "hypothesis_total": 3435,
+     "insertion": 51,
+     "reference_total": 3890,
+     "substitution": 653
+    },
+    "LOWER_VOWEL": {
+     "deletion": 4,
+     "hypothesis_total": 135,
+     "insertion": 5,
+     "reference_total": 154,
+     "substitution": 34
+    },
+    "OTHER": {
+     "deletion": 56,
+     "hypothesis_total": 2638,
+     "insertion": 177,
+     "reference_total": 2056,
+     "substitution": 212
+    },
+    "TONE_MARK": {
+     "deletion": 48,
+     "hypothesis_total": 259,
+     "insertion": 14,
+     "reference_total": 337,
+     "substitution": 75
+    },
+    "UPPER_VOWEL": {
+     "deletion": 31,
+     "hypothesis_total": 587,
+     "insertion": 16,
+     "reference_total": 638,
+     "substitution": 103
+    }
+   },
+   "PRUNE_RANDOM_s20260920_25": {
+    "BASE_CONSONANT": {
+     "deletion": 539,
+     "hypothesis_total": 3201,
+     "insertion": 236,
+     "reference_total": 3890,
+     "substitution": 1018
+    },
+    "LOWER_VOWEL": {
+     "deletion": 30,
+     "hypothesis_total": 115,
+     "insertion": 6,
+     "reference_total": 154,
+     "substitution": 44
+    },
+    "OTHER": {
+     "deletion": 322,
+     "hypothesis_total": 2469,
+     "insertion": 291,
+     "reference_total": 2056,
+     "substitution": 360
+    },
+    "TONE_MARK": {
+     "deletion": 74,
+     "hypothesis_total": 290,
+     "insertion": 34,
+     "reference_total": 337,
+     "substitution": 91
+    },
+    "UPPER_VOWEL": {
+     "deletion": 89,
+     "hypothesis_total": 551,
+     "insertion": 38,
+     "reference_total": 638,
+     "substitution": 161
+    }
+   },
+   "PRUNE_RANDOM_s20260920_50": {
+    "BASE_CONSONANT": {
+     "deletion": 194,
+     "hypothesis_total": 3501,
+     "insertion": 80,
+     "reference_total": 3890,
+     "substitution": 643
+    },
+    "LOWER_VOWEL": {
+     "deletion": 13,
+     "hypothesis_total": 130,
+     "insertion": 7,
+     "reference_total": 154,
+     "substitution": 31
+    },
+    "OTHER": {
+     "deletion": 80,
+     "hypothesis_total": 2517,
+     "insertion": 204,
+     "reference_total": 2056,
+     "substitution": 236
+    },
+    "TONE_MARK": {
+     "deletion": 62,
+     "hypothesis_total": 251,
+     "insertion": 10,
+     "reference_total": 337,
+     "substitution": 65
+    },
+    "UPPER_VOWEL": {
+     "deletion": 44,
+     "hypothesis_total": 603,
+     "insertion": 19,
+     "reference_total": 638,
+     "substitution": 91
+    }
+   },
+   "PRUNE_RANDOM_s20260920_75": {
+    "BASE_CONSONANT": {
+     "deletion": 126,
+     "hypothesis_total": 3542,
+     "insertion": 66,
+     "reference_total": 3890,
+     "substitution": 546
+    },
+    "LOWER_VOWEL": {
+     "deletion": 6,
+     "hypothesis_total": 140,
+     "insertion": 5,
+     "reference_total": 154,
+     "substitution": 22
+    },
+    "OTHER": {
+     "deletion": 50,
+     "hypothesis_total": 2477,
+     "insertion": 117,
+     "reference_total": 2056,
+     "substitution": 167
+    },
+    "TONE_MARK": {
+     "deletion": 52,
+     "hypothesis_total": 253,
+     "insertion": 10,
+     "reference_total": 337,
+     "substitution": 66
+    },
+    "UPPER_VOWEL": {
+     "deletion": 31,
+     "hypothesis_total": 611,
+     "insertion": 15,
+     "reference_total": 638,
+     "substitution": 77
+    }
+   },
+   "PRUNE_RANDOM_s20260921_25": {
+    "BASE_CONSONANT": {
+     "deletion": 567,
+     "hypothesis_total": 3331,
+     "insertion": 345,
+     "reference_total": 3890,
+     "substitution": 1182
+    },
+    "LOWER_VOWEL": {
+     "deletion": 40,
+     "hypothesis_total": 115,
+     "insertion": 21,
+     "reference_total": 154,
+     "substitution": 53
+    },
+    "OTHER": {
+     "deletion": 314,
+     "hypothesis_total": 2465,
+     "insertion": 333,
+     "reference_total": 2056,
+     "substitution": 473
+    },
+    "TONE_MARK": {
+     "deletion": 80,
+     "hypothesis_total": 293,
+     "insertion": 57,
+     "reference_total": 337,
+     "substitution": 114
+    },
+    "UPPER_VOWEL": {
+     "deletion": 104,
+     "hypothesis_total": 607,
+     "insertion": 85,
+     "reference_total": 638,
+     "substitution": 198
+    }
+   },
+   "PRUNE_RANDOM_s20260921_50": {
+    "BASE_CONSONANT": {
+     "deletion": 208,
+     "hypothesis_total": 3484,
+     "insertion": 129,
+     "reference_total": 3890,
+     "substitution": 759
+    },
+    "LOWER_VOWEL": {
+     "deletion": 15,
+     "hypothesis_total": 126,
+     "insertion": 4,
+     "reference_total": 154,
+     "substitution": 36
+    },
+    "OTHER": {
+     "deletion": 109,
+     "hypothesis_total": 2494,
+     "insertion": 132,
+     "reference_total": 2056,
+     "substitution": 273
+    },
+    "TONE_MARK": {
+     "deletion": 53,
+     "hypothesis_total": 259,
+     "insertion": 17,
+     "reference_total": 337,
+     "substitution": 83
+    },
+    "UPPER_VOWEL": {
+     "deletion": 42,
+     "hypothesis_total": 603,
+     "insertion": 36,
+     "reference_total": 638,
+     "substitution": 125
+    }
+   },
+   "PRUNE_RANDOM_s20260921_75": {
+    "BASE_CONSONANT": {
+     "deletion": 127,
+     "hypothesis_total": 3505,
+     "insertion": 60,
+     "reference_total": 3890,
+     "substitution": 636
+    },
+    "LOWER_VOWEL": {
+     "deletion": 5,
+     "hypothesis_total": 137,
+     "insertion": 3,
+     "reference_total": 154,
+     "substitution": 30
+    },
+    "OTHER": {
+     "deletion": 54,
+     "hypothesis_total": 2513,
+     "insertion": 116,
+     "reference_total": 2056,
+     "substitution": 247
+    },
+    "TONE_MARK": {
+     "deletion": 47,
+     "hypothesis_total": 254,
+     "insertion": 8,
+     "reference_total": 337,
+     "substitution": 74
+    },
+    "UPPER_VOWEL": {
+     "deletion": 33,
+     "hypothesis_total": 601,
+     "insertion": 14,
+     "reference_total": 638,
+     "substitution": 101
+    }
+   },
+   "RR_25": {
+    "BASE_CONSONANT": {
+     "deletion": 66,
+     "hypothesis_total": 3706,
+     "insertion": 60,
+     "reference_total": 3890,
+     "substitution": 393
+    },
+    "LOWER_VOWEL": {
+     "deletion": 10,
+     "hypothesis_total": 137,
+     "insertion": 5,
+     "reference_total": 154,
+     "substitution": 20
+    },
+    "OTHER": {
+     "deletion": 55,
+     "hypothesis_total": 2412,
+     "insertion": 188,
+     "reference_total": 2056,
+     "substitution": 122
+    },
+    "TONE_MARK": {
+     "deletion": 51,
+     "hypothesis_total": 268,
+     "insertion": 8,
+     "reference_total": 337,
+     "substitution": 51
+    },
+    "UPPER_VOWEL": {
+     "deletion": 19,
+     "hypothesis_total": 627,
+     "insertion": 15,
+     "reference_total": 638,
+     "substitution": 62
+    }
+   },
+   "RR_50": {
+    "BASE_CONSONANT": {
+     "deletion": 80,
+     "hypothesis_total": 3674,
+     "insertion": 53,
+     "reference_total": 3890,
+     "substitution": 428
+    },
+    "LOWER_VOWEL": {
+     "deletion": 9,
+     "hypothesis_total": 134,
+     "insertion": 2,
+     "reference_total": 154,
+     "substitution": 19
+    },
+    "OTHER": {
+     "deletion": 53,
+     "hypothesis_total": 2338,
+     "insertion": 102,
+     "reference_total": 2056,
+     "substitution": 127
+    },
+    "TONE_MARK": {
+     "deletion": 42,
+     "hypothesis_total": 287,
+     "insertion": 11,
+     "reference_total": 337,
+     "substitution": 52
+    },
+    "UPPER_VOWEL": {
+     "deletion": 27,
+     "hypothesis_total": 614,
+     "insertion": 15,
+     "reference_total": 638,
+     "substitution": 67
+    }
+   },
+   "RR_75": {
+    "BASE_CONSONANT": {
+     "deletion": 71,
+     "hypothesis_total": 3600,
+     "insertion": 61,
+     "reference_total": 3890,
+     "substitution": 527
+    },
+    "LOWER_VOWEL": {
+     "deletion": 5,
+     "hypothesis_total": 133,
+     "insertion": 3,
+     "reference_total": 154,
+     "substitution": 25
+    },
+    "OTHER": {
+     "deletion": 33,
+     "hypothesis_total": 2513,
+     "insertion": 152,
+     "reference_total": 2056,
+     "substitution": 167
+    },
+    "TONE_MARK": {
+     "deletion": 45,
+     "hypothesis_total": 269,
+     "insertion": 10,
+     "reference_total": 337,
+     "substitution": 63
+    },
+    "UPPER_VOWEL": {
+     "deletion": 24,
+     "hypothesis_total": 626,
+     "insertion": 18,
+     "reference_total": 638,
+     "substitution": 70
+    }
+   }
+  },
+  "note": "alignment-dependent; not causal; outside every multiplicity family",
+  "status": "DESCRIPTIVE_DIAGNOSTIC_ONLY"
+ },
+ "execution_failures": 0,
+ "failures_scored_as_cer_one": false,
+ "generation_health": {
+  "FULL": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 1
+  },
+  "PRUNE_GRID_25": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 4
+  },
+  "PRUNE_GRID_50": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 3
+  },
+  "PRUNE_GRID_75": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 2
+  },
+  "PRUNE_RANDOM_s20260920_25": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 5
+  },
+  "PRUNE_RANDOM_s20260920_50": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 1
+  },
+  "PRUNE_RANDOM_s20260920_75": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 1
+  },
+  "PRUNE_RANDOM_s20260921_25": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 7
+  },
+  "PRUNE_RANDOM_s20260921_50": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 1
+  },
+  "PRUNE_RANDOM_s20260921_75": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 0
+  },
+  "RR_25": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 1
+  },
+  "RR_50": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 0
+  },
+  "RR_75": {
+   "cer_over_one": 0,
+   "empty": 0,
+   "observations": 400,
+   "truncated": 2
+  }
+ },
+ "limitations": [
+  "A median crop carries far fewer tokens of native detail than it is presented with, so most visual tokens are interpolated redundancy. That biases the design towards finding pruning harmless: a positive result is strong, a null is weak.",
+  "Budget labels are nominal; achieved fractions vary by region and are recorded per observation.",
+  "Within the secondary population each arm's marginal delta-CER is non-negative by construction, so no absolute degradation rate and no generalisation to Thai region OCR as a whole may be claimed from it.",
+  "Scene text against document-trained models; single model family."
+ ],
+ "observations": 5200,
+ "primary": {
+  "arms": {
+   "PRUNE_GRID_25": {
+    "ci_high": 0.22586395894960332,
+    "ci_low": 0.08681619516482784,
+    "mean": 0.15097844988436343,
+    "n_regions": 400
+   },
+   "PRUNE_GRID_50": {
+    "ci_high": 0.13180093838920312,
+    "ci_low": 0.01642749686033307,
+    "mean": 0.06792591630952492,
+    "n_regions": 400
+   },
+   "PRUNE_GRID_75": {
+    "ci_high": 0.0679929984266947,
+    "ci_low": 0.0013908973447624355,
+    "mean": 0.0366675803921288,
+    "n_regions": 400
+   },
+   "RR_25": {
+    "ci_high": -0.030007153349501714,
+    "ci_low": -0.12306785889138162,
+    "mean": -0.07562857890389602,
+    "n_regions": 400
+   },
+   "RR_50": {
+    "ci_high": -0.017531267702711156,
+    "ci_low": -0.08732724867671221,
+    "mean": -0.049100291399323766,
+    "n_regions": 400
+   },
+   "RR_75": {
+    "ci_high": 0.010000174377313889,
+    "ci_low": -0.03892933997535939,
+    "mean": -0.014781477637012385,
+    "n_regions": 400
+   }
+  },
+  "bootstrap_resamples": 10000,
+  "clusters": 200,
+  "did": {
+   "25": {
+    "ci_high": 0.30084810087660707,
+    "ci_low": 0.16532498359016914,
+    "estimate": 0.22660702878825945,
+    "p_holm": 0.0,
+    "p_value": 0.0
+   },
+   "50": {
+    "ci_high": 0.17408371887218113,
+    "ci_low": 0.07389005149184305,
+    "estimate": 0.11702620770884867,
+    "p_holm": 0.0004,
+    "p_value": 0.0002
+   },
+   "75": {
+    "ci_high": 0.09091130844099937,
+    "ci_low": 0.009156031767798684,
+    "estimate": 0.051449058029141195,
+    "p_holm": 0.0129,
+    "p_value": 0.0129
+   }
+  },
+  "estimand": "DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)",
+  "multiplicity": "Holm across budgets",
+  "population": "ALL_ELIGIBLE",
+  "regions": 400
+ },
+ "regions_at_full": 400,
+ "run_manifest": {
+  "completed_observations": 5200,
+  "cuda_device": "Tesla T4",
+  "git_sha": "44109c662d8497d475bebb087ed8941261e03c85",
+  "peak_cuda_allocated_bytes": 1868912128,
+  "run_id": "kaggle-region-ocr-44109c662d84",
+  "wall_seconds": 2666.185378749,
+  "workload": {
+   "by_family": {
+    "FULL": 400,
+    "INPUT_RESOLUTION_REDUCTION": 1200,
+    "POST_ENCODER_TOKEN_PRUNING": 3600
+   },
+   "clusters": 200,
+   "conditions_per_region": 13,
+   "observations": 5200,
+   "regions": 400
+  }
+ },
+ "secondary": {
+  "arms": {
+   "PRUNE_GRID_25": {
+    "ci_high": 0.2521470133008904,
+    "ci_low": 0.14253491923111536,
+    "mean": 0.1919042803752204,
+    "n_regions": 158
+   },
+   "PRUNE_GRID_50": {
+    "ci_high": 0.13737770772903504,
+    "ci_low": 0.03800921361422864,
+    "mean": 0.08008130570010238,
+    "n_regions": 158
+   },
+   "PRUNE_GRID_75": {
+    "ci_high": 0.07842082825191164,
+    "ci_low": 0.02564334941709177,
+    "mean": 0.049588896300233,
+    "n_regions": 158
+   },
+   "RR_25": {
+    "ci_high": 0.029953353967216167,
+    "ci_low": 0.010971160094122417,
+    "mean": 0.019538953527841872,
+    "n_regions": 158
+   },
+   "RR_50": {
+    "ci_high": 0.021057623485204426,
+    "ci_low": 0.0067853138204024025,
+    "mean": 0.013061057350544239,
+    "n_regions": 158
+   },
+   "RR_75": {
+    "ci_high": 0.07955012464540342,
+    "ci_low": 0.014597981697979058,
+    "mean": 0.042776758379115425,
+    "n_regions": 158
+   }
+  },
+  "bootstrap_resamples": 10000,
+  "clusters": 124,
+  "did": {
+   "25": {
+    "ci_high": 0.226505545814355,
+    "ci_low": 0.12645995683435454,
+    "estimate": 0.17236532684737854,
+    "p_holm": 0.0,
+    "p_value": 0.0
+   },
+   "50": {
+    "ci_high": 0.12441584162080291,
+    "ci_low": 0.02368699666429173,
+    "estimate": 0.06702024834955814,
+    "p_holm": 0.0268,
+    "p_value": 0.0134
+   },
+   "75": {
+    "ci_high": 0.04367159946858776,
+    "ci_low": -0.033622421504570926,
+    "estimate": 0.006812137921117563,
+    "p_holm": 0.7243,
+    "p_value": 0.7243
+   }
+  },
+  "estimand": "DiD_b = deltaCER(PRUNE_GRID,b) - deltaCER(RR,b)",
+  "multiplicity": "none (secondary)",
+  "population": "CER_FULL_ZERO",
+  "regions": 158
+ },
+ "status": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
+ "verification": {
+  "files_verified": 6,
+  "success": {
+   "checksums_sha256": "0966a266feb590c015055e4ea1615b9ea87465bc0ba1628649b74f7f3d9f90dd",
+   "git_sha": "44109c662d8497d475bebb087ed8941261e03c85",
+   "run_id": "kaggle-region-ocr-44109c662d84",
+   "schema_version": 1
+  }
+ }
+}
