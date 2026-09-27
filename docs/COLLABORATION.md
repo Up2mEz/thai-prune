@@ -82,6 +82,9 @@ kernel id / branch อ้างอิงติดชื่อผู้ใช้�
 `configs/kaggle_local.yaml` (อยู่ใน `.gitignore` แล้ว ไม่ต้อง commit) แล้วใส่
 username ของตัวเอง
 
+ขั้นตอนแบบละเอียด ทำตามได้ทีละคำสั่ง (ออกแบบมาให้ AI agent ของอีกฝ่ายรันตามได้
+เองด้วย ไม่ต้องพิมพ์ทุกบรรทัดเอง) อยู่ที่ [`docs/KAGGLE_SETUP.md`](KAGGLE_SETUP.md)
+
 ## 7. มองเห็นว่าใครทำอะไรอยู่
 
 ทั้งสองคนเขียนแผนไว้ที่ `docs/exec-plans/active/<TRACK>_PLAN.md` อยู่แล้วเป็น
