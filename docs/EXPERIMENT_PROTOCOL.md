@@ -1,5 +1,13 @@
 # Experiment Protocol
 
+> **Phase note (2026-09-27):** this protocol governs the completed
+> robustness-evaluation phase (Paddle/Wayu, Qwen2.5/3.5, synthetic minimal
+> pairs, region-OCR on TEMS). It is preserved as the record of that phase.
+> The current objective, backbone and test protocol are in
+> `docs/RESEARCH_SPEC.md` (2026-09-27 section),
+> `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` and
+> `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`. Start from `ONBOARDING.md`.
+
 > Current status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
 > Changes affecting scientific interpretation are logged in
 > `docs/DECISION_LOG.md`.

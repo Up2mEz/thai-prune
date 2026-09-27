@@ -3,6 +3,16 @@
 Research codebase for studying orthographic micro-feature
 robustness under visual-token compression in VLMs.
 
+# Start here
+
+- **New to this repository, or a second researcher's session? Read
+  `ONBOARDING.md` first.** It says what is current, what is history, and how
+  the two researchers' sessions communicate (`collab/`).
+- Current objective: `docs/RESEARCH_SPEC.md`, top section. Current plans:
+  `docs/exec-plans/active/` (see its `INDEX.md`). Two-person workflow:
+  `docs/COLLABORATION.md`.
+- `docs/archive/` is superseded material kept for the record. Do not act on it.
+
 # Source of truth
 
 Research questions and hypotheses:

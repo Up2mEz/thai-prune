@@ -1,5 +1,12 @@
 # VLM Architecture Assumptions and Measurement Points
 
+> **Phase note (2026-09-27):** the measurement-point definitions below
+> (resolution vs. patches vs. visual tokens vs. compression point) remain
+> valid vocabulary, but the model-specific sections describe the earlier
+> backbones. The current backbone (Qwen3-VL-2B / Typhoon OCR 1.5, with
+> DeepStack) is mapped layer by layer in
+> `docs/stage0/QWEN3VL_TYPHOON_ARCHITECTURE_GAPS.md`. Start from `ONBOARDING.md`.
+
 > Purpose: define exactly what this project means by image resolution, visual patches, visual representations, visual tokens, and compression points. This file prevents experiments from mixing different mechanisms under one label.
 
 ## 1. Scope

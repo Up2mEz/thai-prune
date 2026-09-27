@@ -14,7 +14,7 @@ SOURCE_FILES = (
     "docs/ARCHITECTURE.md",
     "docs/DECISION_LOG.md",
     "docs/CLAIMS.md",
-    "docs/exec-plans/active/ADVISOR_READINESS.md",
+    "docs/archive/exec-plans/ADVISOR_READINESS.md",
 )
 
 
@@ -70,7 +70,7 @@ def inspect_source_of_truth(root: Path) -> ConsistencyResult:
     architecture = texts["docs/ARCHITECTURE.md"]
     decisions = texts["docs/DECISION_LOG.md"]
     claims = texts["docs/CLAIMS.md"]
-    active_plan = texts["docs/exec-plans/active/ADVISOR_READINESS.md"]
+    active_plan = texts["docs/archive/exec-plans/ADVISOR_READINESS.md"]
     normalized_decisions = " ".join(decisions.split())
     combined = "\n".join(texts.values())
 
