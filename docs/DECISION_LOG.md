@@ -2,6 +2,41 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-27c — Objective amended; T1 and T2 authorized
+
+**Stage/Gate:** New objective, Stage 0 on the new backbone. Prior gates are not
+re-opened or re-decided by this entry.
+
+**Decision owner:** Human researcher
+
+**Decision:** Stated in session on 2026-09-27: amend `RESEARCH_SPEC.md` to the
+objective in `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §8, and
+write the code for tests T1 and T2 and run their inference. Authorizes exactly
+the runs registered in `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`, on the
+calibration split only. The locked split stays closed.
+
+### Reasoning
+
+The researcher's goal is fewer Thai vowel and tone-mark errors at similar speed
+by any training-free technique. The previous objective framed the work as a
+robustness evaluation under compression, which kept steering the plan back to
+pruning.
+
+### Consequences
+
+- The robustness phase and its results are preserved; the spec records the new
+  objective above them rather than rewriting them.
+- A new method is still only proposed after existing remedies are evaluated.
+- T1 and T2 are diagnostic; no remedy is run under this authorization.
+
+### Files/configs affected
+
+- `docs/RESEARCH_SPEC.md`
+- `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`
+- `configs/thai_marks/t1_t2.yaml`
+
+---
+
 ## 2026-09-27b — ThaiOCRBench cleared for academic research use
 
 **Stage/Gate:** Dataset licence clearance only.

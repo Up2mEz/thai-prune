@@ -3,6 +3,39 @@
 > Current status: `LOCKED_MODEL_BUDGET_EXPERIMENT_COMPLETE_PENDING_HUMAN_REVIEW`.
 > Scientific gates remain human-owned decisions.
 
+## 2026-09-27 Objective amendment — reduce Thai mark errors, training-free
+
+**Status: in effect by human decision, `docs/DECISION_LOG.md` entry 2026-09-27c.**
+This section supersedes §1–§3 as the project's *current* objective. Everything
+below it is preserved unchanged as the record of the robustness-evaluation phase
+and its Paddle/Wayu results; its statements remain true of that phase.
+
+**Objective.** Reduce Thai vowel and tone-mark transcription errors in a
+page-level OCR VLM without training, at comparable or better inference speed,
+and explain the mechanism of the errors removed.
+
+**Backbone.** `Qwen/Qwen3-VL-2B-Instruct` (general-purpose base) and
+`typhoon-ai/typhoon-ocr1.5-2b` (Thai OCR specialist, full fine-tune of the same
+architecture), pinned by SHA in the Decision Log.
+
+**Evaluation data.** ThaiOCRBench Full-page OCR and Text recognition
+(primary), Fine-grained text recognition (secondary), with a seeded
+calibration/locked split made before any output exists.
+
+- **RQ-A.** Are Thai mark errors on these models driven by missing visual
+  evidence, or by the language prior overriding the evidence?
+- **RQ-B.** Does a training-free remedy reduce mark-specific error without
+  raising other errors, and at what latency?
+- **RQ-C.** Does OCR specialization change the balance between evidence and
+  prior for Thai marks?
+
+The gate logic is kept: diagnose first, then evaluate existing training-free
+remedies fairly, and propose a new method only if a meaningful gap remains. The
+project still does not assume that tone marks degrade faster, or that any
+particular remedy works.
+
+---
+
 ## 2026-09-14 Thai-specific OCR adaptation study — registered panel complete
 
 Attempt 5 completed all 6,400 registered calls and passed local artifact

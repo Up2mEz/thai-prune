@@ -1,0 +1,48 @@
+schema_version: 1
+status: APPROVED
+registration: docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md
+authorization: docs/DECISION_LOG.md  # entry 2026-09-27c
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+models:
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0   # Apache-2.0-only revision; never main
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  strata: [Task, category]
+  run_on: calibration
+
+prompts:
+  TYPHOON_CARD:
+    file: configs/thai_marks/typhoon_card_prompt.txt
+    sha256: 0e6c57af282f83f3dfdfa30e33bb8e74e0e1addd974f6ee111c1c22b3d47594d
+  BENCHMARK_QUESTION: item.question
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32      # used only if the first item yields non-finite logits
+  attention: sdpa
+  image_policy: typhoon_card   # long side to 1800 px if either side > 300 px
+
+t1:
+  prompts: [TYPHOON_CARD, BENCHMARK_QUESTION]
+  max_new_tokens: 3072
+
+t2:
+  prompt: TYPHOON_CARD
+  window_after_chars: 8
+  consistency_tolerance_nats:
+    float16: 0.1
+    float32: 0.001
