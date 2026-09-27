@@ -1,8 +1,8 @@
 # SPEC_DECODE_S1 — registration
 
-**Status: `DRAFT_FOR_REVIEW`.** Track A, owner `PELY334`
+**Status: `APPROVED`**, `docs/DECISION_LOG.md` entry 2026-09-28. Track A, owner `PELY334`
 (`docs/exec-plans/active/SPEC_DECODE_PLAN.md`). Written before any S1 output
-exists. Authorizes nothing until a `docs/DECISION_LOG.md` entry approves it.
+exists. Authorized by that entry for the calibration split only.
 Claim level of every result: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`
 (calibration split only).
 
