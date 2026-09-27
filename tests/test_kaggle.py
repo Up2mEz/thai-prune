@@ -408,3 +408,73 @@ def test_failure_message_redacts_common_secret_forms(tmp_path: Path) -> None:
     failure = json.loads((artifact_dir / "FAILURE.json").read_text(encoding="utf-8"))
     assert "secret" not in failure["message"]
     assert "password" not in failure["message"]
+
+
+# --- per-person Kaggle config (docs/COLLABORATION.md) -----------------------
+
+from labbs2026.kaggle import kernel_id, load_local_config, local_remote_ref  # noqa: E402
+
+
+def _init_repo(root: Path) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "test"], cwd=root, check=True)
+    (root / ".gitkeep").write_text("", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=root, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=root, check=True)
+    subprocess.run(["git", "checkout", "-q", "-b", "someone/their-track"], cwd=root, check=True)
+
+
+def test_load_local_config_requires_the_file(tmp_path: Path) -> None:
+    (tmp_path / "configs").mkdir()
+    with pytest.raises(RuntimeError, match="kaggle_local.yaml"):
+        load_local_config(tmp_path)
+
+
+def test_load_local_config_rejects_the_placeholder_username(tmp_path: Path) -> None:
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text(
+        "kaggle_username: your-kaggle-username\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="placeholder"):
+        load_local_config(tmp_path)
+
+
+def test_load_local_config_requires_a_username(tmp_path: Path) -> None:
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text("{}\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="kaggle_username"):
+        load_local_config(tmp_path)
+
+
+def test_kernel_id_is_scoped_to_the_local_username(tmp_path: Path) -> None:
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text(
+        "kaggle_username: friend-account\n", encoding="utf-8")
+    assert kernel_id(tmp_path, "labbs2026-some-track") == "friend-account/labbs2026-some-track"
+
+
+def test_local_remote_ref_defaults_to_the_current_branch(tmp_path: Path) -> None:
+    _init_repo(tmp_path)
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text(
+        "kaggle_username: friend-account\n", encoding="utf-8")
+    assert local_remote_ref(tmp_path) == "refs/heads/someone/their-track"
+
+
+def test_local_remote_ref_honours_an_explicit_override(tmp_path: Path) -> None:
+    _init_repo(tmp_path)
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs" / "kaggle_local.yaml").write_text(
+        "kaggle_username: friend-account\nremote_ref: refs/heads/pinned\n", encoding="utf-8")
+    assert local_remote_ref(tmp_path) == "refs/heads/pinned"
+
+
+def test_example_config_is_the_only_kaggle_local_file_tracked() -> None:
+    """The real kaggle_local.yaml must never be committed by either person."""
+    root = Path(__file__).resolve().parents[1]
+    tracked = subprocess.run(
+        ["git", "ls-files", "configs/kaggle_local.yaml"], cwd=root,
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    assert tracked == ""
+    assert (root / "configs" / "kaggle_local.example.yaml").exists()

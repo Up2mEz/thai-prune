@@ -14,3 +14,4 @@ models/
 runs/
 artifacts/
 
+configs/kaggle_local.yaml

@@ -1,0 +1,17 @@
+# Per-person Kaggle settings. Copy this file to `configs/kaggle_local.yaml`
+# (git-ignored — never commit it) and fill in your own values.
+#
+# Two researchers on this project each hold a separate Kaggle account and
+# quota. Kernel ids embed the account's username, so a script that hardcodes
+# one person's username would try to push kernels to their account, or
+# collide with kernels they already own, when the other person runs it.
+# This file lets each person's local checkout resolve those values without
+# editing any tracked file — see docs/COLLABORATION.md §6.
+
+# Your Kaggle username, exactly as in ~/.kaggle/kaggle.json.
+kaggle_username: your-kaggle-username
+
+# Optional: which branch a submission script should register as the remote
+# ref to fetch from. Leave unset to use the current checked-out branch,
+# which is almost always what you want on a personal feature branch.
+# remote_ref: refs/heads/<your-name>/<track-slug>
