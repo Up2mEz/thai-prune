@@ -1,15 +1,9 @@
 """Kaggle bootstrap for the Thai-mark T1/T2 submission.
 
 Pins the environment, proves the checkout is the registered commit, downloads
-the benchmark once, then runs one process per (test, role) leg — every leg
-whose role is "base" pinned to GPU 0, every "typhoon" leg to GPU 1, when two
-GPUs are present, one after the other otherwise. All four legs (t1/base,
-t1/typhoon, t2/base, t2/typhoon) are launched together rather than waiting for
-t1 to finish before starting t2, since a role's t1 and t2 legs do not depend
-on each other and a T4 has enough VRAM headroom for a 2B-parameter model
-loaded twice. All scientific logic lives in `labbs2026.thai_marks`; this file
-only decides what runs alongside what and does not change any model input,
-prompt, seed, or measurement.
+the benchmark once, then runs one process per model — the base on GPU 0 and
+Typhoon on GPU 1 when two are present, one after the other otherwise. All
+scientific logic lives in `labbs2026.thai_marks`.
 
 When `spec["resume_artifact_dir"]` is set (a previous, interrupted attempt's
 fetched artifacts, mounted read-only, e.g. as a Kaggle dataset input), each
@@ -108,15 +102,9 @@ def main() -> None:
         resume_root = spec.get("resume_artifact_dir")
 
         gpus = _gpu_count()
-        phase = "inference"
-        # Build every (test, role) leg up front instead of looping test-by-test
-        # and waiting for both roles to finish before moving to the next test.
-        # A role's t1 and t2 legs are independent (different code paths, no
-        # shared state), so nothing requires t1 to fully finish before t2
-        # starts; launching all four together keeps both GPUs busy instead of
-        # idling one while the other's slower t1 leg still runs.
-        commands = []
         for test in spec["tests"]:
+            phase = f"{test}_inference"
+            commands = []
             for position, role in enumerate(("base", "typhoon")):
                 role_env = dict(env)
                 role_env["CUDA_VISIBLE_DEVICES"] = str(position if gpus >= 2 else 0)
@@ -126,35 +114,35 @@ def main() -> None:
                     leg_resume_dir = Path(resume_root) / test / role
                     if leg_resume_dir.is_dir():
                         command += ["--resume-dir", str(leg_resume_dir)]
-                commands.append((command, role_env, test, role))
-        if gpus >= 2:
-            # Redirect each subprocess's stdout straight to its own log file
-            # instead of subprocess.PIPE. A PIPE has a fixed OS buffer (~64KB
-            # on Linux); waiting on process.communicate() one process at a
-            # time means another process's pipe is never drained, so once its
-            # output (model-loading progress bars, HF warnings) exceeds that
-            # buffer it blocks on write() and stalls -- silently serializing
-            # what was meant to run in parallel across the two GPUs. Writing
-            # to a file has no such buffer limit, so processes sharing a GPU
-            # (e.g. a role's t1 and t2 legs) actually run concurrently.
-            processes = []
-            for cmd, e, test, role in commands:
-                log_handle = (artifact_dir / f"{test}_{role}.log").open("w", encoding="utf-8")
-                process = subprocess.Popen(cmd, cwd=source, env=e, stdout=log_handle,
-                                           stderr=subprocess.STDOUT)
-                processes.append((process, test, role, log_handle))
-            errors = []
-            for process, test, role, log_handle in processes:
-                process.wait()
-                log_handle.close()
-                if process.returncode:
-                    output = (artifact_dir / f"{test}_{role}.log").read_text(encoding="utf-8")
-                    errors.append(f"{test}/{role}: {output[-1500:]}")
-            if errors:
-                raise RuntimeError(" | ".join(errors))
-        else:
-            for cmd, e, test, role in commands:
-                _run(cmd, source, e)
+                commands.append((command, role_env, role))
+            if gpus >= 2:
+                # Redirect each subprocess's stdout straight to its own log file
+                # instead of subprocess.PIPE. A PIPE has a fixed OS buffer (~64KB
+                # on Linux); waiting on process.communicate() one process at a
+                # time means the other process's pipe is never drained, so once
+                # its output (model-loading progress bars, HF warnings) exceeds
+                # that buffer it blocks on write() and stalls -- silently
+                # serializing what was meant to run in parallel across the two
+                # GPUs. Writing to a file has no such buffer limit, so both
+                # processes actually run concurrently.
+                processes = []
+                for cmd, e, role in commands:
+                    log_handle = (artifact_dir / f"{test}_{role}.log").open("w", encoding="utf-8")
+                    process = subprocess.Popen(cmd, cwd=source, env=e, stdout=log_handle,
+                                               stderr=subprocess.STDOUT)
+                    processes.append((process, role, log_handle))
+                errors = []
+                for process, role, log_handle in processes:
+                    process.wait()
+                    log_handle.close()
+                    if process.returncode:
+                        output = (artifact_dir / f"{test}_{role}.log").read_text(encoding="utf-8")
+                        errors.append(f"{role}: {output[-1500:]}")
+                if errors:
+                    raise RuntimeError(" | ".join(errors))
+            else:
+                for cmd, e, role in commands:
+                    _run(cmd, source, e)
 
         phase = "checksums"
         lines = [f"{_sha256(p)}  {p.relative_to(artifact_dir).as_posix()}"
