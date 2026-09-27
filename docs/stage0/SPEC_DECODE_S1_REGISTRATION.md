@@ -161,3 +161,32 @@ any claim about VLMs beyond these two checkpoints of one architecture family.
   image grid; the arms therefore cannot inherit each other's offsets. Checked
   on a random-weight model in `tests/test_spec_decode_identity.py`.
 - The CPU fp32 check says nothing about fp16 on T4; that is what §4 measures.
+
+---
+
+## Addendum, 2026-09-28 — written before any S1 output existed
+
+The first smoke that reached inference (`kaggle-spec-decode-s1-86cf28ec3e85-smoke2`,
+both models) failed inside the first `PLD10` `generate` with
+`Image features and image tokens do not match, tokens: 2361, features: 2352`.
+No record was written.
+
+**Cause.** `transformers`' `PromptLookupCandidateGenerator` searches the whole
+sequence, image placeholders included. Qwen's chat template puts `"\n"` just
+before `<|vision_start|>` and ends the prompt with `"\n"`, so the one-token
+match proposes `<|vision_start|>` followed by nine `<|image_pad|>` as the
+draft; verifying it presents more image tokens than image features.
+Reproduced on a random-weight model in
+`tests/test_spec_decode_runtime.py::test_unfiltered_prompt_lookup_drafts_image_tokens_and_crashes`.
+
+**Change.** In the `PLD*` arms every draft is cut at its first image/video
+placeholder or delimiter token (`labbs2026.spec_decode.runtime.drafts_without`,
+ids from the model config). A draft cut to zero length means no draft at that
+step, i.e. an ordinary greedy step.
+
+**What it does not change.** The target model's inputs, logits and greedy choice;
+`REF` (no drafting) and the registered parameters `prompt_lookup_num_tokens`,
+`max_matching_ngram_size`. Every §4–§7 rule stands. The only possible effect is
+on acceptance and speed: drafts that would have started at a placeholder are
+not tried, which could only be rejected anyway because a greedy OCR output
+never emits image placeholders.
