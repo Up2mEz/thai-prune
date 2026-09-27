@@ -120,6 +120,18 @@ costs time, speculative decoding (HSD-style, with drafts from a classical Thai
 OCR pipeline) can recover it without changing the output under exact
 verification.
 
+## 4b. What to build after T1/T2 — routed by outcome, not decided now
+
+`docs/stage0/T1_T2_CONTINGENT_REMEDY_PLAN.md` fixes, before either test has
+run, which remedy family is indicated by each way the four T2 numbers
+(headroom, image_gain, oracle_accuracy, real_word_share) could come out. It
+also carries literature found after this plan was written, including a
+mechanism paper that names the prior-override hypothesis directly
+(arXiv:2605.08245) and a training-free candidate this plan did not have: a
+scale-diverse consensus vote restricted to the mark sites T2 flags, combining
+this project's own round-3 magnification finding with published consensus-
+voting methods.
+
 ## 5. What to test now — and only this
 
 Both on a calibration split (≈30%, seeded, stratified by task × category) of

@@ -39,3 +39,18 @@ No located source measures whether quantization, or any efficiency lever,
 disproportionately removes Thai vowels and tone marks. That is a candidate gap
 at search level only — a bounded scan is not proof of absence, and it must not
 be written as "first".
+
+## Addendum, 2026-09-28 — searched while T1/T2 was running on Kaggle
+
+Located while preparing `docs/stage0/T1_T2_CONTINGENT_REMEDY_PLAN.md`, which
+routes each to a specific branch of what T1/T2 could show. Same status as
+above: search-level, not an audit, not citable until verified.
+
+| source | what it offers | relevance / gap |
+|---|---|---|
+| "When Language Overwrites Vision", [arXiv:2605.08245](https://arxiv.org/abs/2605.08245) | names and mechanises exactly this project's prior-override hypothesis: visual embeddings pulled toward a "universal text subspace" during modality bridging; training-free fix projects that subspace out, no added inference cost by the authors' account | evaluated on POPE/CHAIR/AMBER/CLAIR hallucination benchmarks; no OCR, no diacritics, no Thai |
+| Geometric Risk Control for VLM OCR, [arXiv:2603.19790](https://arxiv.org/html/2603.19790) | training-free, black-box: re-render under mild transforms, vote across views, abstain without consensus; 112x reduction in severe errors at ~90% coverage on scene-text OCR | English scene text only (IIIT5K, ICDAR 2013); is an abstention method, not a correction method, unless read as consensus voting |
+| Consensus Entropy, [arXiv:2504.11101](https://arxiv.org/html/2504.11101v4) | training-free multi-VLM agreement metric; low-entropy trusts the majority, high-entropy routes to a stronger model | multi-model ensemble, not single-model; no Thai |
+| "Reading Between the Lines" (latent representation probes), [arXiv:2511.19806](https://arxiv.org/html/2511.19806) | abstention from internal hidden-state probes, beats self-consistency on English OCRBench v2 etc. (75.0% vs 68.0%) | **requires trained probes on labelled error data — not training-free** in this project's sense; does not separate perception failure from decoding failure |
+| Constrained CTC decoding for diacritic restoration, [arXiv:2607.18946](https://arxiv.org/html/2607.18946) | a lattice/WFST that fixes base characters and restricts decoding to legal diacritic slots — the same shape as this project's proposed mark-constrained re-scoring | **speech-to-text, Arabic, no image at all** — confirms the confusion-set idea has prior art in a different modality, not a competing OCR method |
+| Catastrophic forgetting of visual grounding under instruction fine-tuning, e.g. [SMoLoRA](https://arxiv.org/pdf/2411.13949), [arXiv:2309.10313](https://arxiv.org/pdf/2309.10313) | motivates RQ-C: an OCR-specialized fine-tune may have measurably degraded grounding relative to its base | fixes proposed are all training-time (dual-expert, replay); no training-free analogue located beyond routing between models |
