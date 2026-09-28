@@ -2,12 +2,12 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-09-28c — T2 empty-window defect fixed; T2 precision proposed, not authorized
+## 2026-09-28c — T2 empty-window defect fixed; T2 rerun in fp32 authorized
 
-**Stage/Gate:** T2 instrument repair. No inference run by this entry.
+**Stage/Gate:** T2 instrument repair and rerun authorization (calibration split).
 
-**Decision owner:** Up2mEz directed the fix. The precision change below is a
-proposal awaiting the researcher's approval before any T2 submission.
+**Decision owner:** Up2mEz directed the fix and, on 2026-09-28, authorized the
+fp32 T2 rerun below, to be preceded by a timing smoke.
 
 **Decision (code, effective):** `runtime.scoring_window_token` steps back one
 token only when a site is the last character and starts its own token (the
@@ -15,7 +15,7 @@ token only when a site is the last character and starts its own token (the
 closed on an empty window and now records per-variant token ids and
 per-token log-probabilities. Evidence: `THAI_MARKS_T1_SCORING_V2.md` §7.
 
-**Proposal (not authorized):** `t2.dtype: float32` for both roles. The fp16
+**Authorized:** `t2.dtype: float32` for both roles, calibration split only. The fp16
 base leg stopped at item 4 because the registered guard found cached and
 uncached forwards disagreeing by 0.1358 nats (> 0.1); fp32 keeps the guard at
 0.001 instead of loosening it. Cost: fp32 on T4 is several times slower than
