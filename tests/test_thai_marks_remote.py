@@ -55,3 +55,13 @@ def test_completed_keys_skips_blank_lines(tmp_path: Path) -> None:
     path = tmp_path / "records.jsonl"
     path.write_text('{"id": "A1", "sites": []}\n\n\n', encoding="utf-8")
     assert completed_keys(path, "t2") == {"A1"}
+
+
+def test_shards_partition_the_items_exactly_and_stay_balanced() -> None:
+    from labbs2026.thai_marks.remote import shard_items
+    items = list(range(178))
+    parts = [shard_items(items, s, 2) for s in range(2)]
+    assert sorted(parts[0] + parts[1]) == items
+    assert not set(parts[0]) & set(parts[1])
+    assert abs(len(parts[0]) - len(parts[1])) <= 1
+    assert shard_items(items, 0, 1) == items

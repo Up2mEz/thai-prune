@@ -57,6 +57,11 @@ def completed_keys(records_path: Path, test: str) -> set:
     return keys
 
 
+def shard_items(items: list, shard: int, shards: int) -> list:
+    """Every `shards`-th item from `shard`: interleaved, so shards stay balanced."""
+    return items[shard::shards]
+
+
 def _prompt(spec: dict, source: Path) -> str:
     path = source / spec["typhoon_prompt_file"]
     text = path.read_text(encoding="utf-8")
@@ -95,11 +100,18 @@ def main() -> None:
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
                              "for this same (test, role) leg")
+    parser.add_argument("--shard", type=int, default=0,
+                        help="this process's share of the items: selected[shard::shards]")
+    parser.add_argument("--shards", type=int, default=1)
     args = parser.parse_args()
+    if not 0 <= args.shard < args.shards:
+        raise SystemExit("--shard must be in [0, --shards)")
     spec = json.loads(args.remote_spec.read_text(encoding="utf-8"))
     source = Path(spec["source_dir"])
 
     out_dir = Path(spec["artifact_dir"]) / args.test / args.role
+    if args.shards > 1:
+        out_dir = out_dir / f"shard-{args.shard}-of-{args.shards}"
     out_dir.mkdir(parents=True, exist_ok=False)
 
     resume_dir = args.resume_dir
@@ -129,6 +141,7 @@ def main() -> None:
     limit = int(spec.get("limit") or 0)
     if limit:
         selected = selected[:limit]
+    selected = shard_items(selected, args.shard, args.shards)
     with io.open(out_dir / "split.json", "w", encoding="utf-8") as handle:
         json.dump({
             "calibration": sorted(calibration),

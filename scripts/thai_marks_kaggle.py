@@ -96,6 +96,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--tests", default="t1,t2")
+    parser.add_argument("--roles", default="base,typhoon",
+                        help="which models to run, e.g. 'base' for a one-model session")
+    parser.add_argument("--shards", type=int, default=1,
+                        help="split each role's items across this many processes/GPUs")
     parser.add_argument("--limit", type=int, default=0,
                         help="engineering smoke only: run the first N calibration items")
     parser.add_argument("--resume-from", type=Path, default=None,
@@ -112,7 +116,12 @@ def main() -> None:
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
     tests = [t for t in args.tests.split(",") if t]
-    suffix = f"-smoke{args.limit}" if args.limit else ""
+    roles = [r for r in args.roles.split(",") if r]
+    if set(roles) - {"base", "typhoon"} or not roles:
+        raise SystemExit(f"unknown roles: {roles}")
+    suffix = "" if roles == ["base", "typhoon"] else "-" + "-".join(roles)
+    suffix += f"-x{args.shards}" if args.shards > 1 else ""
+    suffix += f"-smoke{args.limit}" if args.limit else ""
     run_id = f"kaggle-thai-marks-{'-'.join(tests)}-{git_sha[:12]}{suffix}"
 
     spec = {
@@ -130,6 +139,8 @@ def main() -> None:
         "output_root": "/kaggle/working/artifacts",
         "tests": tests,
         "limit": args.limit,
+        "roles": roles,
+        "shards": args.shards,
         "models": config["models"],
         "benchmark_repo": config["benchmark"]["repo"],
         "benchmark_revision": config["benchmark"]["revision"],
