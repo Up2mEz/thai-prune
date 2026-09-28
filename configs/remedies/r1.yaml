@@ -1,0 +1,52 @@
+schema_version: 1
+status: APPROVED
+registration: docs/stage0/REMEDIES_R1_REGISTRATION.md
+authorization: docs/DECISION_LOG.md  # entry 2026-09-28b (Track B evaluation without waiting on T2)
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+models:
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0   # Apache-2.0-only revision; never main
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  source: thai_marks          # T1's seeded calibration split, read-only
+  seed: 20260927
+  calibration_fraction: 0.30
+  strata: [Task, category]
+  pilot_items_per_task: 12    # first N per task in hash order sha256("20260927:" + Id)
+
+prompt: BENCHMARK_QUESTION    # the item's own question; T1 v2's primary prompt
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  attention: sdpa
+  image_policy: typhoon_card
+  max_new_tokens: 3072
+  generation:                 # passed explicitly to every generate(); the checkpoints default to sampling
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+
+arms:
+  FULL: {kind: generate}
+  VCD: {kind: contrastive, contrast: noised_image, weight: constant, alpha: 1.0, beta: 0.1, noise_step: 500}
+  M3ID: {kind: contrastive, contrast: no_image, weight: m3id, lam: 0.02, max_weight: 10.0, beta: 0.1}
+  PAI: {kind: pai, alpha: 0.5, first_layer: 2}
+smoke_controls:               # smoke only: isolate our own machinery from the method
+  PAI_ALPHA0: {kind: pai, alpha: 0.0, first_layer: 2}
+  CD_ALPHA0: {kind: contrastive, contrast: no_image, weight: constant, alpha: 0.0, beta: 0.0}
+
+budget:
+  max_t4_hours: 6
