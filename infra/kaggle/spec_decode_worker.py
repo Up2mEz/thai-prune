@@ -134,15 +134,22 @@ def main() -> None:
                                   "--remote-spec", str(spec_path),
                                   "--role", role], role_env, role))
             if gpus >= 2:
-                processes = [(subprocess.Popen(cmd, cwd=source, env=e, stdout=subprocess.PIPE,
-                                               stderr=subprocess.STDOUT, text=True), role)
-                             for cmd, e, role in commands]
+                # Each process writes straight to its own log file, not a PIPE: draining
+                # pipes one process at a time lets the other's ~64KB buffer fill, block
+                # its write() and silently serialize the two GPUs (fixed the same way
+                # in infra/kaggle/thai_marks_worker.py, PR #16).
+                processes = []
+                for cmd, e, role in commands:
+                    log_handle = (artifact_dir / f"{test}_{role}.log").open("w", encoding="utf-8")
+                    processes.append((subprocess.Popen(cmd, cwd=source, env=e, stdout=log_handle,
+                                                       stderr=subprocess.STDOUT), role, log_handle))
                 errors = []
-                for process, role in processes:
-                    output, _ = process.communicate()
-                    (artifact_dir / f"{test}_{role}.log").write_text(output or "", encoding="utf-8")
+                for process, role, log_handle in processes:
+                    process.wait()
+                    log_handle.close()
                     if process.returncode:
-                        errors.append(f"{role}: {(output or '')[-1500:]}")
+                        output = (artifact_dir / f"{test}_{role}.log").read_text(encoding="utf-8")
+                        errors.append(f"{role}: {output[-1500:]}")
                 if errors:
                     raise RuntimeError(" | ".join(errors))
             else:

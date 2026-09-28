@@ -190,3 +190,43 @@ step, i.e. an ordinary greedy step.
 on acceptance and speed: drafts that would have started at a placeholder are
 not tried, which could only be rejected anyway because a greedy OCR output
 never emits image placeholders.
+
+---
+
+## Addendum 2, 2026-09-28 — written before the full run was submitted
+
+No full-run output exists when this is written; the only S1 outputs are the
+engineering smoke `kaggle-spec-decode-s1-be7333b19b85-smoke2` (2 timed items
+per model, reported to Up2mEz).
+
+**1. §7 budget input.** T1 has not posted. As proposed by Up2mEz in
+`collab/messages/20260928T0221Z_Up2mEz_to_PELY334_spec-decode-full-run-no-t1-wait.md`,
+"T1's measured mean seconds per item" is replaced, for this run only, by the
+same quantity measured in the smoke under the identical condition (`REF`,
+`TYPHOON_CARD`, same 2×T4 harness), timed items only, slower model:
+
+| model | REF seconds per timed item | mean |
+|---|---|---|
+| base | 6.55, 111.21 | 58.88 |
+| typhoon | 113.96, 61.42 | **87.69** |
+
+Estimate = 178 × 87.69 × 3 ÷ 2 ÷ 3600 = **6.50 T4-hours ≤ 12** → all three arms
+run; `PLD10` is not dropped. The formula and the 12-hour cap are unchanged.
+§6's cross-check against T1's outputs is done later, once T1 posts.
+
+**2. Added sensitivity analysis for §5 (headline population).** T1's
+repetition rule (a 20-character substring three times in the last 200
+characters) misses loops whose period exceeds 200 characters; a smoke output
+repeated a whole paragraph to `max_new_tokens` without being flagged
+(`docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`, F4). The headline population stays
+exactly as registered. In addition, and reported next to it, a **sensitivity
+headline** further excludes items whose `REF` output has a trailing loop by
+`labbs2026.output_diagnostics.structure.loop_period` (default arguments:
+period 20–4000 characters, at least two back-to-back copies). If the two
+headlines disagree on whether the interval lies above 1.0, both are reported
+and the registered one is not preferred silently.
+
+**3. Worker.** `infra/kaggle/spec_decode_worker.py` now writes each model's
+process output to its log file instead of a pipe (the fix Up2mEz made to the
+`thai_marks` worker in PR #16), so the two GPUs cannot silently serialize. No
+change to what is computed.
