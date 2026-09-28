@@ -115,3 +115,19 @@ redistribution (deferred); PAI's logit-refinement half; `TYPHOON_CARD`; Fine-
 grained and Handwritten tasks; any claim about VLMs beyond these two
 checkpoints of one architecture family; any comparison with T2's oracle as if
 final.
+
+---
+
+## Addendum, 2026-09-28 — §6 budget from the smoke, written before any pilot output
+
+Smoke `kaggle-remedies-r1-92796af7ef92-smoke1` (1 item per task, both models,
+plus the controls) completed: 0 failures, fp16, checksums verified. Both
+zero-strength controls (`PAI_ALPHA0`, `CD_ALPHA0`) reproduced `FULL` token
+for token on all 4 model × item cases, so the machinery itself does not change
+greedy output on T4 fp16. Engineering observations only (n = 2 items per
+model), reported to Up2mEz, not evidence.
+
+§6 estimate, slower model (typhoon), seconds per item summed over the four
+pilot arms (FULL, VCD, M3ID, PAI; controls excluded): 232.4 and 368.4, mean
+**300.4 s** → 24 items × 300.4 s = **2.0 T4-hours ≤ 6**. `items_per_task`
+stays 12. No other change.
