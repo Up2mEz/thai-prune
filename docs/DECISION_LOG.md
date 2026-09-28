@@ -2,6 +2,76 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-28b — Track B (remedies) full evaluation no longer waits on T2
+
+> Drafted by Up2mEz's Claude Code session, at the researcher's explicit
+> instruction. **Approved by Up2mEz only as of this entry.** PELY334's
+> concurrence is not yet recorded — per `docs/COLLABORATION.md` §3,
+> `docs/DECISION_LOG.md` normally needs both researchers to approve; this
+> entry is Up2mEz's side of that, opened as a PR for PELY334 to review rather
+> than merged unilaterally. PELY334 is told of the practical effect
+> immediately in `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`
+> so review of this entry itself does not become the thing they wait on.
+
+**Stage/Gate:** RQ-B. Opens or passes no Gate; Gates 1-6 stay
+`BLOCKED`/`NOT_RUN` exactly as before this entry.
+
+**Decision owner:** Up2mEz unilaterally lifting a hold Up2mEz itself imposed
+(`collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`:
+"no evaluation run for B ... until T2 posts"), also stated in
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §4b/§6 ("the §2
+existing families evaluated after T2, so the comparison is against the right
+upper bound"). Full joint Decision Log approval per `docs/COLLABORATION.md`
+still applies to future decisions on this scope; this entry documents what
+Up2mEz alone has authorized so PELY334 is not blocked on a reply.
+
+**Decision:** PELY334 may run the full Track B evaluation (VCD, M3ID-form,
+PAI vs. FULL, calibration split) now, without waiting for the T1/T2
+calibration run (`kaggle-thai-marks-t1-t2-a44199c29759`, still in flight, no
+fixed ETA) to post. This supersedes the calibration-sub-split pilot cap in
+`collab/messages/20260928T0201Z_Up2mEz_to_PELY334_advance-permission-remedies-pilot.md`
+for this track only.
+
+### Reasoning
+
+- The researcher chose to accept the interpretability cost of decoupling B
+  from T2's sequencing rather than have a collaborator wait on a run with no
+  fixed completion time.
+- This does not change the plan's own diagnostic logic
+  (`QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §3): if T2 later shows the correct
+  mark variant is not highest under the image even with the full candidate
+  set, the evidence is not in the representation and no decoding-time method
+  can recover it — and Track B is entirely decoding/attention-time methods
+  (VCD, M3ID-form, PAI). If T2 comes out that way, Track B's numbers will
+  still have been worth having (they answer "does this remedy move accuracy"
+  on its own terms), but the plan would still point at Track D (input-side)
+  as the next real step, and Track B could not claim to have closed RQ-B
+  against the right upper bound until reread against T2.
+- What does not change: the locked split stays closed; a registration
+  (e.g. `docs/stage0/REMEDIES_R1_REGISTRATION.md`) is still required before
+  any output exists, per `ONBOARDING.md` §6.2, same as every other track.
+
+### Consequences
+
+- Track B evaluation results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE` (or
+  whatever its own registration states) regardless of T2's timing; this entry
+  advances none of Gates 1-6.
+- Once T1/T2 posts, Up2mEz will read Track B's numbers against it in a
+  `collab/` message; if the plan's contingency then points at Track D
+  instead, that is a separate, later decision — not a reason B was blocked
+  now.
+- `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` is left
+  unedited (its text is the historical plan, same convention as the
+  2026-09-27c entry below); this entry is what supersedes its §4b/§6
+  sequencing for Track B.
+
+### Files/configs affected
+
+- `docs/exec-plans/active/INDEX.md` (Track B row)
+- `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`
+
+---
+
 ## 2026-09-28 — SPEC_DECODE_S1 (Track A) authorized
 
 > Drafted by PELY334's Claude Code session. **Approved by both researchers on
