@@ -136,6 +136,7 @@ def main() -> None:
     typhoon_prompt = _prompt(spec, source)
     started = time.perf_counter()
 
+    load_started = time.perf_counter()
     dataset, ordered, calibration, id_col = load_items(spec)
     selected = [i for i in ordered if id_col[i] in calibration]
     limit = int(spec.get("limit") or 0)
@@ -172,6 +173,7 @@ def main() -> None:
         if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):
             raise RuntimeError("non-finite logits in both fp16 and fp32")
 
+    setup_seconds = time.perf_counter() - load_started  # dataset + model load, before any item
     gen_kwargs = generation_record = None
     if args.test == "t1":  # T2 teacher-forces and never generates
         gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
@@ -218,6 +220,7 @@ def main() -> None:
                 sites = sample_sites(find_sites(reference), row["Id"])
                 if not sites:
                     continue
+                item_started = time.perf_counter()
                 try:
                     scored = runtime.score_item(
                         model, processor, image, typhoon_prompt, reference, sites,
@@ -233,7 +236,9 @@ def main() -> None:
                     torch.cuda.empty_cache()
                     continue
                 handle.write(json.dumps({**base, "reference_collapsed": reference,
-                                         "sites": scored}, ensure_ascii=False) + "\n")
+                                         "sites": scored,
+                                         "seconds": time.perf_counter() - item_started},
+                                        ensure_ascii=False) + "\n")
                 handle.flush()
 
     with io.open(out_dir / "manifest.json", "w", encoding="utf-8") as handle:
@@ -241,6 +246,7 @@ def main() -> None:
             "test": args.test, "role": args.role,
             "model_id": model_spec["model_id"], "revision": model_spec["revision"],
             "dtype_used": dtype, "items": len(selected), "failures": failures,
+            "setup_seconds": setup_seconds,
             "generation": generation_record,
             "wall_seconds": time.perf_counter() - started,
             "torch": torch.__version__, "transformers": transformers.__version__,

@@ -94,6 +94,17 @@ def main() -> None:
               f"load_dataset({spec['benchmark_repo']!r}, split={spec['benchmark_split']!r},"
               f" revision={spec['benchmark_revision']!r})"], source, env)
 
+        # Download each model once, before any process starts. Two shards of
+        # one role would otherwise fetch the same weights concurrently, and the
+        # download time would be charged to their timing.
+        phase = "model_download"
+        for role in spec.get("roles") or ["base", "typhoon"]:
+            model = spec["models"][role]
+            _run([python, "-c",
+                  "from huggingface_hub import snapshot_download;"
+                  f"snapshot_download({model['model_id']!r}, revision={model['revision']!r})"],
+                 source, env)
+
         remote_spec = dict(spec)
         remote_spec["artifact_dir"] = str(artifact_dir)
         spec_path = Path("/tmp/labbs2026-thai-marks-spec.json")
