@@ -149,9 +149,21 @@ Found on the complete Typhoon T2 leg (178 items); base T2 did not finish.
 
 Until (1) is fixed and (2) is understood, T2's tone-mark headroom
 (oracle − greedy) must not be used to route a remedy under
-`T1_T2_CONTINGENT_REMEDY_PLAN.md`. This is an observation with a hypothesis
-(the window cut 8 characters past the site makes tokenizations of the rare
-marks incomparable), not an established cause.
+`T1_T2_CONTINGENT_REMEDY_PLAN.md`.
+
+**Update 2026-09-28c.** (1) Cause found and fixed: all 10 are sites that are
+the last character of the reference and whose mark starts its own token, so
+the window held only the mark and the "no mark" variant was empty.
+`runtime.scoring_window_token` now steps back one token in exactly that case
+(verified with the pinned tokenizer: 10 of 6,958 sites change, 0 empty
+windows remain), and `score_item` fails closed on any empty window. (2) The
+hypothesis that the window end cutting through a token explains the tone
+errors is **refuted** with the pinned tokenizer: some variant's window end
+falls mid-token on 42.0% of wrong and 42.3% of right tone sites alike. The
+cause remains unknown. `score_item` now records every variant's token ids
+and per-token log-probabilities, so the scoring convention — including the
+first token where variants diverge, the decision greedy decoding actually
+makes — can be compared offline after the next T2 run instead of assumed.
 
 ## 8. Known limitations
 

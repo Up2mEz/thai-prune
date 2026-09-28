@@ -67,6 +67,10 @@ scoring:
 
 t2:
   prompt: TYPHOON_CARD
+  # Added 2026-09-28 (DECISION_LOG 2026-09-28c). Both roles, so the pair stays
+  # comparable. The 2026-09-27 fp16 run stopped at base item 4: cached vs
+  # uncached disagreed by 0.1358 nats > 0.1. The tolerance is not loosened.
+  dtype: float32
   window_after_chars: 8
   consistency_tolerance_nats:
     float16: 0.1

@@ -174,6 +174,28 @@ def _full_forward(model, processor, prompt_ids_inputs: dict, full_ids, has_image
     return out, kwargs["position_ids"]
 
 
+def scoring_window_token(offsets: Sequence[tuple[int, int]], site_index: int,
+                         clean_prefix, text_length: int) -> int:
+    """Index of the reference token where a site's scoring window starts.
+
+    Starts at the token containing the site (as registered), then (1) only
+    when the site is the last character of the text and its token starts at
+    the site, steps back one token — otherwise the "no mark" variant is an
+    empty window whose summed log-probability of 0 beats every real variant
+    (10 sites of the 2026-09-27 run) — and (2) steps back to a boundary whose
+    token prefix decodes cleanly, since byte-level BPE can split a rare Thai
+    character across two tokens. Every variant of the site shares the result.
+    """
+    k = next((i for i, (start, end) in enumerate(offsets) if start <= site_index < end), None)
+    if k is None:
+        raise RuntimeError(f"no token covers character {site_index}")
+    if k > 0 and offsets[k][0] >= site_index and site_index == text_length - 1:
+        k -= 1
+    while k > 0 and not clean_prefix(k):
+        k -= 1
+    return k
+
+
 def score_item(model, processor, image, prompt: str, reference: str,
                sites: Sequence[Site], *, device: str, tolerance: float,
                window_after: int = 8) -> list[dict]:
@@ -189,12 +211,6 @@ def score_item(model, processor, image, prompt: str, reference: str,
     ref_ids = encoded["input_ids"]
     offsets = encoded["offset_mapping"]
 
-    def token_containing(char_index: int) -> int:
-        for k, (start, end) in enumerate(offsets):
-            if start <= char_index < end:
-                return k
-        raise RuntimeError(f"no token covers character {char_index}")
-
     results: dict[tuple[int, str], dict] = {}
     for condition in ("image", "no_image"):
         has_image = condition == "image"
@@ -209,18 +225,17 @@ def score_item(model, processor, image, prompt: str, reference: str,
         cache = out.past_key_values
 
         for site_number, site in enumerate(sites):
-            k = token_containing(site.index)
-            # Byte-level BPE can split a rare Thai character across two tokens;
-            # step back to the nearest boundary that decodes cleanly. Every
-            # variant of the site shares that boundary, so fairness is kept.
-            while k > 0 and tokenizer.decode(
-                ref_ids[:k], clean_up_tokenization_spaces=False
-            ) != reference[: offsets[k][0]]:
-                k -= 1
+            k = scoring_window_token(
+                offsets, site.index,
+                lambda j: tokenizer.decode(ref_ids[:j], clean_up_tokenization_spaces=False)
+                == reference[: offsets[j][0]], len(reference))
             window_start = offsets[k][0]
             boundary = prompt_len + k - 1  # re-fed token, whose output predicts the window
             for label, window in window_variants(reference, site, window_start, window_after):
                 targets = tokenizer(window, add_special_tokens=False)["input_ids"]
+                if not targets:
+                    raise RuntimeError(f"empty scoring window at site {site.index} ({label!r}); "
+                                       "refusing to record scores")
                 feed = torch.tensor([[int(full_ids[0, boundary])] + targets[:-1]],
                                     device=full_ids.device, dtype=full_ids.dtype)
                 branch = copy.deepcopy(cache)
@@ -239,6 +254,10 @@ def score_item(model, processor, image, prompt: str, reference: str,
                 })
                 entry["variants"].setdefault(label, {})[condition] = {
                     "logprob": sum(token_logps), "tokens": len(targets),
+                    # Kept per token so scoring conventions (sum, mean, first
+                    # divergent token) can be compared offline without a rerun.
+                    "token_ids": [int(t) for t in targets],
+                    "token_logprobs": token_logps,
                 }
 
                 if site_number == 0 and label == site.reference:

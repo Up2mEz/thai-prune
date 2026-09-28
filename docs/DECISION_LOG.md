@@ -2,6 +2,35 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-28c — T2 empty-window defect fixed; T2 precision proposed, not authorized
+
+**Stage/Gate:** T2 instrument repair. No inference run by this entry.
+
+**Decision owner:** Up2mEz directed the fix. The precision change below is a
+proposal awaiting the researcher's approval before any T2 submission.
+
+**Decision (code, effective):** `runtime.scoring_window_token` steps back one
+token only when a site is the last character and starts its own token (the
+10 empty-window sites; 0 of the other 6,948 change); `score_item` fails
+closed on an empty window and now records per-variant token ids and
+per-token log-probabilities. Evidence: `THAI_MARKS_T1_SCORING_V2.md` §7.
+
+**Proposal (not authorized):** `t2.dtype: float32` for both roles. The fp16
+base leg stopped at item 4 because the registered guard found cached and
+uncached forwards disagreeing by 0.1358 nats (> 0.1); fp32 keeps the guard at
+0.001 instead of loosening it. Cost: fp32 on T4 is several times slower than
+fp16 (Typhoon's fp16 T2 leg took 4,563 s), so the rerun of both T2 legs must
+be budgeted before submission. Only T2 is resubmitted (`--tests t2`); T1 is not rerun.
+
+### Consequences
+
+- The 2026-09-27 Typhoon T2 leg stays as recorded (fp16, 10 defective sites);
+  it is not merged with a new run, and the new run's numbers supersede it.
+- T2 tone-mark headroom still may not route a remedy until the scoring
+  convention question (§7 item 2) is answered with the recorded per-token data.
+
+---
+
 ## 2026-09-28b — T1 scoring version 2; decoding parameters pinned
 
 **Stage/Gate:** measurement correction on already-collected T1/T2 output of

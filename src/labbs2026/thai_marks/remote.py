@@ -144,7 +144,10 @@ def main() -> None:
 
     model_spec = spec["models"][args.role]
     device = "cuda"
-    dtype = spec["dtype_preferred"]
+    # T2 may pin its own precision: its consistency guard compares a cached
+    # continuation with an uncached forward, and fp16 kernels disagreed by
+    # 0.1358 nats on base (2026-09-27); fp32 keeps the guard strict (0.001).
+    dtype = (spec.get("t2_dtype") if args.test == "t2" else None) or spec["dtype_preferred"]
     model, processor = runtime.load(model_spec["model_id"], model_spec["revision"], dtype, device)
     probe = runtime.resize_policy(dataset[selected[0]]["image"].convert("RGB"))
     if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):

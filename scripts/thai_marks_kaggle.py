@@ -145,6 +145,7 @@ def main() -> None:
         "max_new_tokens": config["t1"]["max_new_tokens"],
         "generation": config["t1"]["generation"],
         "window_after_chars": config["t2"]["window_after_chars"],
+        "t2_dtype": config["t2"].get("dtype"),
         "consistency_tolerance": config["t2"]["consistency_tolerance_nats"],
         "created_at_utc": utc_now(),
     }
