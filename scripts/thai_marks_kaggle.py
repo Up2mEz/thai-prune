@@ -39,6 +39,7 @@ HASHED = (
     "configs/thai_marks/typhoon_card_prompt.txt",
     "src/labbs2026/thai_marks/__init__.py",
     "src/labbs2026/thai_marks/decompose.py",
+    "src/labbs2026/thai_marks/generation.py",
     "src/labbs2026/thai_marks/normalize.py",
     "src/labbs2026/thai_marks/orthography.py",
     "src/labbs2026/thai_marks/remote.py",
@@ -142,7 +143,9 @@ def main() -> None:
         "dtype_fallback": config["runtime"]["dtype_fallback"],
         "t1_prompts": config["t1"]["prompts"],
         "max_new_tokens": config["t1"]["max_new_tokens"],
+        "generation": config["t1"]["generation"],
         "window_after_chars": config["t2"]["window_after_chars"],
+        "t2_dtype": config["t2"].get("dtype"),
         "consistency_tolerance": config["t2"]["consistency_tolerance_nats"],
         "created_at_utc": utc_now(),
     }

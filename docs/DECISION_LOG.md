@@ -2,6 +2,92 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-09-28c — T2 empty-window defect fixed; T2 precision proposed, not authorized
+
+**Stage/Gate:** T2 instrument repair. No inference run by this entry.
+
+**Decision owner:** Up2mEz directed the fix. The precision change below is a
+proposal awaiting the researcher's approval before any T2 submission.
+
+**Decision (code, effective):** `runtime.scoring_window_token` steps back one
+token only when a site is the last character and starts its own token (the
+10 empty-window sites; 0 of the other 6,948 change); `score_item` fails
+closed on an empty window and now records per-variant token ids and
+per-token log-probabilities. Evidence: `THAI_MARKS_T1_SCORING_V2.md` §7.
+
+**Proposal (not authorized):** `t2.dtype: float32` for both roles. The fp16
+base leg stopped at item 4 because the registered guard found cached and
+uncached forwards disagreeing by 0.1358 nats (> 0.1); fp32 keeps the guard at
+0.001 instead of loosening it. Cost: fp32 on T4 is several times slower than
+fp16 (Typhoon's fp16 T2 leg took 4,563 s), so the rerun of both T2 legs must
+be budgeted before submission. Only T2 is resubmitted (`--tests t2`); T1 is not rerun.
+
+### Consequences
+
+- The 2026-09-27 Typhoon T2 leg stays as recorded (fp16, 10 defective sites);
+  it is not merged with a new run, and the new run's numbers supersede it.
+- T2 tone-mark headroom still may not route a remedy until the scoring
+  convention question (§7 item 2) is answered with the recorded per-token data.
+
+---
+
+## 2026-09-28b — T1 scoring version 2; decoding parameters pinned
+
+**Stage/Gate:** measurement correction on already-collected T1/T2 output of
+`kaggle-thai-marks-t1-t2-a44199c29759` (calibration split). No inference is
+re-run; no model, prompt, seed or raw record changes. Post-hoc: designed
+after T1 output was seen. Gate 0 remains `NOT_RUN`. Full rules and evidence:
+`docs/stage0/THAI_MARKS_T1_SCORING_V2.md`.
+
+**Decision owner:** Up2mEz, who rejected the version-1 CER (values above
+100%) as a comparison of structured output against plain-text references,
+and directed: split by task, use `BENCHMARK_QUESTION` for Text recognition,
+redesign the measurement cleanly, and pin decoding parameters.
+
+**Decision:**
+
+1. Scoring version 2 — parser-based extraction following `TYPHOON_CARD`'s own
+   `<figure>` contract; reference-anchored alignment with over-generation
+   reported separately; a chance-calibrated located rule (permutation null,
+   5th percentile, per cell) so chance character matches earn no credit;
+   results always per (model, task, prompt), never pooled.
+2. Primary prompt: `BENCHMARK_QUESTION` for Text recognition (researcher's
+   decision); `BENCHMARK_QUESTION` for Full-page OCR (**confirmed by the researcher
+   2026-09-28**). `TYPHOON_CARD` stays secondary, with the
+   contract diagnostic `ref_in_figure_share`.
+3. `t1.generation` pinned in `configs/thai_marks/t1_t2.yaml` (greedy:
+   `do_sample` false, `num_beams` 1, `repetition_penalty` 1.0,
+   `no_repeat_ngram_size` 0), validated in code, resolved config written to
+   every T1 manifest. These are the values the 2026-09-27 run used implicitly;
+   that is established from code and the checkpoints' configs, not from a
+   runtime record.
+
+### Consequences
+
+- Version 1 stays in code and is reported alongside for continuity; no
+  version-1 number is to be quoted as a reading measurement.
+- Base under `TYPHOON_CARD` is a format-following failure (reference located
+  on 18/69 Full-page and 17/109 Text recognition items), so that cell cannot
+  carry a base-versus-Typhoon reading comparison.
+- The same scope and contract questions apply to any other track that scores
+  `TYPHOON_CARD` output against these references (e.g. `SPEC_DECODE_S1`
+  output-identity is unaffected, but any accuracy claim would be).
+- T2 findings (scoring doc §7): a zero-token-window defect on 10 sites, and
+  tone-mark oracle accuracy that moves 88.9-96.3% with the scoring
+  convention while vowels do not. T2 tone headroom is not to be used for
+  remedy routing until both are resolved.
+
+### Files affected
+
+- `src/labbs2026/thai_marks/extract.py`, `generation.py` (new);
+  `decompose.py` (`align_anchored`), `analysis.py` (version-2 functions),
+  `runtime.py`, `remote.py`; `configs/thai_marks/t1_t2.yaml`;
+  `scripts/thai_marks_score_v2.py` (new), `scripts/thai_marks_kaggle.py`
+- `tests/test_thai_marks_scoring_v2.py`, `tests/test_thai_marks_generation.py`
+- `docs/stage0/THAI_MARKS_T1_SCORING_V2.md` (new)
+
+---
+
 ## 2026-09-28 — SPEC_DECODE_S1 (Track A) authorized
 
 > Drafted by PELY334's Claude Code session. **Approved by both researchers on
