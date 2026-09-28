@@ -5,13 +5,10 @@
 ## 2026-09-28b — Track B (remedies) full evaluation no longer waits on T2
 
 > Drafted by Up2mEz's Claude Code session, at the researcher's explicit
-> instruction. **Approved by Up2mEz only as of this entry.** PELY334's
-> concurrence is not yet recorded — per `docs/COLLABORATION.md` §3,
-> `docs/DECISION_LOG.md` normally needs both researchers to approve; this
-> entry is Up2mEz's side of that, opened as a PR for PELY334 to review rather
-> than merged unilaterally. PELY334 is told of the practical effect
-> immediately in `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`
-> so review of this entry itself does not become the thing they wait on.
+> instruction. **Approved by both researchers on 2026-09-28:** Up2mEz as
+> drafted; PELY334 stated in session and recorded by PELY334's Claude Code
+> session in PR #18. PELY334 was told of the practical effect in
+> `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`.
 
 **Stage/Gate:** RQ-B. Opens or passes no Gate; Gates 1-6 stay
 `BLOCKED`/`NOT_RUN` exactly as before this entry.
