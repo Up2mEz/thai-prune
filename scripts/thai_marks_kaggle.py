@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -53,6 +54,18 @@ REPOSITORY = "https://github.com/Up2mEz/thai-prune.git"
 def _git(root: Path, *args: str) -> str:
     return subprocess.run(["git", *args], cwd=root, check=True,
                           capture_output=True, text=True).stdout.strip()
+
+
+def committed_sha256(root: Path, git_sha: str, path: str) -> str:
+    """Hash of the file as committed, which is what the Kaggle worker checks out.
+
+    The working copy can differ in line endings only (Windows autocrlf, or a
+    tool writing CRLF) while git reports it clean; hashing it then fails the
+    worker's source check on a file nobody changed.
+    """
+    blob = subprocess.run(["git", "show", f"{git_sha}:{path}"], cwd=root, check=True,
+                          capture_output=True).stdout
+    return hashlib.sha256(blob).hexdigest()
 
 
 def preflight(root: Path, remote_ref: str) -> str:
@@ -130,7 +143,7 @@ def main() -> None:
         "repository_url": REPOSITORY,
         "remote_ref": remote_ref,
         "git_sha": git_sha,
-        "expected_file_hashes": {p: sha256_file(root / p) for p in HASHED},
+        "expected_file_hashes": {p: committed_sha256(root, git_sha, p) for p in HASHED},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
