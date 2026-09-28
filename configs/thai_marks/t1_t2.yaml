@@ -39,6 +39,31 @@ runtime:
 t1:
   prompts: [TYPHOON_CARD, BENCHMARK_QUESTION]
   max_new_tokens: 3072
+  # Pinned 2026-09-28 (docs/DECISION_LOG.md 2026-09-28b). Both checkpoints'
+  # generation_config.json default to sampling (do_sample true, T 0.7, top_p 0.8,
+  # top_k 20); these explicit values override them. Greedy is the temperature->0
+  # limit, so temperature/top_p/top_k have no effect and are not set here. These
+  # are the values the 2026-09-27 run already used implicitly (do_sample=False,
+  # num_beams=1 in code; repetition_penalty 1.0 from both checkpoints); every run
+  # now records the resolved config in its manifest.
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+
+# Scoring version 2 (docs/stage0/THAI_MARKS_T1_SCORING_V2.md). Offline only;
+# changes no inference input.
+scoring:
+  version: 2
+  cells_split_by: [task, prompt]        # never pooled across either
+  primary_prompt:
+    Full-page OCR: BENCHMARK_QUESTION
+    Text recognition: BENCHMARK_QUESTION
+  secondary_prompt: TYPHOON_CARD
+  alignment: reference_anchored
+  located_rule: permutation_null_q05    # see scoring doc §4
+  null_seed: 20260928
 
 t2:
   prompt: TYPHOON_CARD

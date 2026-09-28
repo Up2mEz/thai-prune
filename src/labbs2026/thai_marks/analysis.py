@@ -13,12 +13,15 @@ import statistics
 from typing import Any, Callable, Iterable, Sequence
 
 from labbs2026.thai_marks.decompose import (
+    _fates_from,
     align,
+    align_anchored,
     edit_distance_from,
     is_repetitive,
     mark_decomposition,
     reference_fates,
 )
+from labbs2026.thai_marks.extract import extract, extract_text
 from labbs2026.thai_marks.lexicon import classify_mark_errors
 from labbs2026.thai_marks.normalize import normalize_text
 from labbs2026.thai_marks.orthography import TONE_MARKS
@@ -179,7 +182,13 @@ def greedy_correct_at(site: dict, reference: str, hypothesis: str,
     return int(not (h + 1 < len(hypothesis) and hypothesis[h + 1] in TONE_MARKS))
 
 
-def summarize_t2(items: Sequence[dict], greedy: dict[str, str] | None = None) -> dict[str, Any]:
+def _greedy_fates_v1(reference_collapsed: str, greedy_output: str):
+    hyp = normalize_text(greedy_output)
+    return hyp, align(reference_collapsed, hyp), reference_fates(reference_collapsed, hyp)
+
+
+def summarize_t2(items: Sequence[dict], greedy: dict[str, str] | None = None,
+                 fates_of: Callable = _greedy_fates_v1) -> dict[str, Any]:
     """Site-level accuracies by kind, aggregated per item before bootstrapping."""
     per_item = []
     for item in items:
@@ -188,9 +197,7 @@ def summarize_t2(items: Sequence[dict], greedy: dict[str, str] | None = None) ->
         hypothesis = greedy.get(item["id"]) if greedy else None
         pairs = fates = None
         if hypothesis is not None:
-            hyp = normalize_text(hypothesis)
-            pairs = align(item["reference_collapsed"], hyp)
-            fates = reference_fates(item["reference_collapsed"], hyp)
+            hyp, pairs, fates = fates_of(item["reference_collapsed"], hypothesis)
         for site in item["sites"]:
             outcome = site_outcomes(site)
             kind = outcome["kind"]
@@ -225,3 +232,192 @@ def summarize_t2(items: Sequence[dict], greedy: dict[str, str] | None = None) ->
         block["image_gain_share_positive"] = statistics.fmean(g > 0 for g in all_gains)
         summary[kind] = block
     return summary
+
+
+# --- Scoring version 2 (docs/stage0/THAI_MARKS_T1_SCORING_V2.md) -------------
+#
+# Version 1 above is kept unchanged so the as-registered numbers stay
+# reproducible. Version 2 differs in three ways only: structure-aware
+# extraction (`extract.py`), reference-anchored alignment, and results that are
+# always split by task and prompt, never pooled.
+
+
+def anchored_cer(reference: str, hypothesis: str) -> float | None:
+    if not reference:
+        return None
+    pairs, _, _ = align_anchored(reference, hypothesis)
+    return edit_distance_from(pairs, reference, hypothesis) / len(reference)
+
+
+def chance_threshold(references: Sequence[str], hypotheses: Sequence[str], *,
+                     seed: int, quantile: float = 0.05) -> dict[str, Any]:
+    """The anchored CER a wrong answer reaches by chance, for one cell.
+
+    Each reference is aligned against a different item's hypothesis from the
+    same cell (a seeded derangement). An observed CER below the `quantile` of
+    this null is better than chance at that level; above it, the output cannot
+    be told apart from one that never read the reference, and chance
+    character matches must not be credited as reading.
+    """
+    order = [i for i, r in enumerate(references) if r]
+    if len(order) < 2:
+        return {"threshold": None, "n": len(order)}
+    random.Random(seed).shuffle(order)
+    null = sorted(anchored_cer(references[order[k]], hypotheses[order[(k + 1) % len(order)]])
+                  for k in range(len(order)))
+    return {
+        "threshold": null[int(quantile * len(null))],
+        "quantile": quantile, "n": len(null),
+        "null_median": statistics.median(null), "null_min": null[0],
+    }
+
+
+def score_t1_record_v2(record: dict, located_below: float | None = None) -> dict[str, Any]:
+    """Per-observation reading metrics, with surplus output measured apart.
+
+    `cer` is reference-anchored: text produced before or after the span that
+    matches the reference is not a reading error, and is reported as
+    `overgeneration` (surplus characters per reference character) instead.
+    With `located_below` (from `chance_threshold`), an output whose anchored
+    CER is not below chance level is `located = 0`: it is scored as reading
+    nothing (every reference character deleted, `cer` 1) rather than credited
+    with chance matches; `cer_raw` keeps the unthresholded value.
+    `ref_in_figure_share` is the `TYPHOON_CARD` contract diagnostic: the share
+    of reference characters read correctly only when `<figure>` content is
+    kept, i.e. transcription placed where the prompt asks for an image
+    description. It is never folded into `cer`.
+    """
+    reference = extract_text(record["reference"])
+    hypothesis, structure = extract(record["raw_output"])
+    pairs, start, end = align_anchored(reference, hypothesis)
+    edits = edit_distance_from(pairs, reference, hypothesis)
+    cer_raw = edits / len(reference) if reference else None
+    located = int(cer_raw is not None and (located_below is None or cer_raw < located_below))
+    if reference and not located:
+        pairs, start, end, edits = [(i, None) for i in range(len(reference))], 0, 0, len(reference)
+    marks = mark_decomposition(reference, hypothesis, pairs)
+    lexical = classify_mark_errors(reference, hypothesis, pairs) if reference else {}
+
+    ref_in_figure = None
+    if reference and structure["figures"]:
+        kept = extract_text(record["raw_output"], keep_figures=True)
+        kept_pairs, _, _ = align_anchored(reference, kept)
+        kept_cer = edit_distance_from(kept_pairs, reference, kept) / len(reference)
+        kept_located = located_below is None or kept_cer < located_below
+        kept_fates = _fates_from(kept_pairs, reference, kept)[0] if kept_located else {}
+        fates, _ = _fates_from(pairs, reference, hypothesis)
+        only_in_figure = sum(1 for i in range(len(reference))
+                             if kept_fates.get(i) == "correct" and fates.get(i) != "correct")
+        ref_in_figure = only_in_figure / len(reference)
+
+    out = {
+        "id": record["id"], "task": record["task"], "prompt_kind": record.get("prompt_kind"),
+        "chars": len(reference), "edits": edits,
+        "cer": edits / len(reference) if reference else None,
+        "cer_raw": cer_raw, "located": located,
+        "hyp_chars": len(hypothesis), "window_chars": end - start,
+        "overgeneration": (len(hypothesis) - (end - start)) / len(reference) if reference else None,
+        "figures": structure["figures"], "unclosed_figures": structure["unclosed_figures"],
+        "ref_in_figure_share": ref_in_figure,
+        "truncated": int(bool(record["reached_max_new_tokens"])),
+        "repetitive": int(is_repetitive(record["raw_output"])),
+        "seconds_per_token": record["seconds_per_generated_token"],
+        "consonant_n": marks["CONSONANT"]["n"], "consonant_error": marks["CONSONANT"]["error"],
+    }
+    for kind in MARK_KINDS:
+        entry = marks.get(kind, {})
+        out[f"{kind}_n"] = entry.get("n", 0)
+        out[f"{kind}_error"] = entry.get("n", 0) - entry.get("correct", 0)
+        out[f"{kind}_deleted"] = entry.get("deleted", 0)
+        out[f"{kind}_same_class"] = entry.get("same_class", 0)
+        out[f"{kind}_base_n"] = entry.get("base_correct_n", 0)
+        out[f"{kind}_base_error"] = entry.get("base_correct_error", 0)
+        lex = lexical.get(kind, {})
+        out[f"{kind}_real_word"] = lex.get("real_word", 0)
+        out[f"{kind}_non_word"] = lex.get("non_word", 0)
+        out[f"{kind}_word_lost"] = lex.get("word_lost", 0)
+    return out
+
+
+def summarize_t1_v2(scored: Sequence[dict]) -> dict[str, Any]:
+    """Version-1 summary fields plus robust and surplus-output metrics, one cell."""
+    cells = {(s["task"], s["prompt_kind"]) for s in scored}
+    if len(cells) > 1:
+        raise ValueError(f"summarize one (task, prompt) cell at a time, got {sorted(cells)}")
+    summary = summarize_t1(scored)
+    items = [s for s in scored if s["chars"]]
+    summary["median_cer"] = statistics.median(s["cer"] for s in items) if items else None
+    summary["located_rate"] = statistics.fmean(s["located"] for s in items) if items else None
+    summary["median_cer_raw"] = statistics.median(s["cer_raw"] for s in items) if items else None
+    summary["median_overgeneration"] = (
+        statistics.median(s["overgeneration"] for s in items) if items else None)
+    with_figure = [s for s in items if s["figures"]]
+    summary["figure_contract"] = {
+        "outputs_with_figure": len(with_figure),
+        "unclosed_figure_outputs": sum(1 for s in items if s["unclosed_figures"]),
+        "mean_ref_in_figure_share": (
+            statistics.fmean(s["ref_in_figure_share"] for s in with_figure)
+            if with_figure else None),
+    }
+    return summary
+
+
+def analyze_t1_v2(records: Sequence[dict], *, seed: int) -> dict[str, dict[str, Any]]:
+    """Scoring version 2 for one model's T1 records: per cell, chance-calibrated."""
+    cells: dict[tuple[str, str], list[dict]] = collections.defaultdict(list)
+    for record in records:
+        cells[(record["task"], record["prompt_kind"])].append(record)
+    out = {}
+    for (task, prompt), rows in sorted(cells.items()):
+        rows = sorted(rows, key=lambda r: r["id"])
+        chance = chance_threshold([extract_text(r["reference"]) for r in rows],
+                                  [extract_text(r["raw_output"]) for r in rows], seed=seed)
+        scored = [score_t1_record_v2(r, located_below=chance["threshold"]) for r in rows]
+        summary = summarize_t1_v2(scored)
+        summary["chance"] = chance
+        out[f"{task} / {prompt}"] = summary
+    return out
+
+
+def summarize_t1_cells(scored: Sequence[dict]) -> dict[str, dict[str, Any]]:
+    """One summary per (task, prompt) cell; results are never pooled across tasks."""
+    cells: dict[tuple[str, str], list[dict]] = collections.defaultdict(list)
+    for s in scored:
+        cells[(s["task"], s["prompt_kind"])].append(s)
+    return {f"{task} / {prompt}": summarize_t1_v2(rows)
+            for (task, prompt), rows in sorted(cells.items())}
+
+
+def greedy_fates_v2(reference_collapsed: str, greedy_output: str,
+                    located_below: float | None = None):
+    """Hypothesis, alignment and site fates of a T1 greedy output under version 2.
+
+    The reference stays whitespace-collapsed only, because T2 site indices
+    point into it. An output not below the chance threshold reads no site.
+    """
+    hypothesis = extract_text(greedy_output)
+    pairs, _, _ = align_anchored(reference_collapsed, hypothesis)
+    cer = edit_distance_from(pairs, reference_collapsed, hypothesis) / max(1, len(reference_collapsed))
+    if located_below is not None and cer >= located_below:
+        return hypothesis, [], {}
+    fates, _ = _fates_from(pairs, reference_collapsed, hypothesis)
+    return hypothesis, pairs, fates
+
+
+def summarize_t2_v2(items: Sequence[dict], greedy: dict[str, str] | None = None,
+                    located_below: dict[str, float] | None = None) -> dict[str, dict[str, Any]]:
+    """`summarize_t2` split by task, with greedy correctness from version-2 scoring.
+
+    `located_below` maps task to the chance threshold of the T1 cell the greedy
+    outputs come from.
+    """
+    by_task: dict[str, list[dict]] = collections.defaultdict(list)
+    for item in items:
+        by_task[item["task"]].append(item)
+    out = {}
+    for task, rows in sorted(by_task.items()):
+        threshold = (located_below or {}).get(task)
+        out[task] = summarize_t2(
+            rows, greedy,
+            fates_of=lambda ref, hyp, t=threshold: greedy_fates_v2(ref, hyp, located_below=t))
+    return out

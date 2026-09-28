@@ -73,7 +73,17 @@ def _sync(device: str) -> None:
         torch.cuda.synchronize(device)
 
 
-def generate(model, processor, image, prompt: str, *, max_new_tokens: int, device: str) -> dict:
+def resolved_generation(model, kwargs: dict) -> dict:
+    """The generation config `generate()` will actually use for these kwargs.
+
+    Uses the same merge `generate()` applies (pinned transformers 5.12).
+    """
+    config, _ = model._prepare_generation_config(None, **kwargs)
+    return config.to_dict()
+
+
+def generate(model, processor, image, prompt: str, *, generation: dict, device: str) -> dict:
+    """Greedy transcription; `generation` is `generation.generation_kwargs(...)`."""
     import torch
 
     _sync(device)
@@ -84,9 +94,9 @@ def generate(model, processor, image, prompt: str, *, max_new_tokens: int, devic
     visual = int((inputs["input_ids"] == image_token).sum().item())
     if str(device).startswith("cuda"):
         torch.cuda.reset_peak_memory_stats(device)
+    max_new_tokens = generation["max_new_tokens"]
     with torch.inference_mode():
-        produced = model.generate(**inputs, do_sample=False, num_beams=1,
-                                  max_new_tokens=max_new_tokens)
+        produced = model.generate(**inputs, **generation)
     _sync(device)
     finished = time.perf_counter()
     new = produced[0][inputs["input_ids"].shape[-1]:]

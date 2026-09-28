@@ -25,6 +25,7 @@ import time
 import traceback
 from pathlib import Path
 
+from labbs2026.thai_marks.generation import describe_resolved, generation_kwargs
 from labbs2026.thai_marks.normalize import collapse_whitespace
 from labbs2026.thai_marks.orthography import find_sites, sample_sites
 from labbs2026.thai_marks.split import calibration_ids
@@ -155,6 +156,12 @@ def main() -> None:
         if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):
             raise RuntimeError("non-finite logits in both fp16 and fp32")
 
+    gen_kwargs = generation_record = None
+    if args.test == "t1":  # T2 teacher-forces and never generates
+        gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
+        generation_record = {"requested": gen_kwargs,
+                             **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
+
     failures = []
     records_path = out_dir / "records.jsonl"
     with io.open(records_path, "w", encoding="utf-8", newline="\n") as handle:
@@ -181,8 +188,7 @@ def main() -> None:
                     prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]
                     try:
                         result = runtime.generate(model, processor, image, prompt,
-                                                  max_new_tokens=int(spec["max_new_tokens"]),
-                                                  device=device)
+                                                  generation=gen_kwargs, device=device)
                     except Exception as exc:  # recorded, never scored as an output
                         failures.append({"id": row["Id"], "prompt": prompt_kind,
                                          "error": f"{type(exc).__name__}: {exc}"[:800]})
@@ -219,6 +225,7 @@ def main() -> None:
             "test": args.test, "role": args.role,
             "model_id": model_spec["model_id"], "revision": model_spec["revision"],
             "dtype_used": dtype, "items": len(selected), "failures": failures,
+            "generation": generation_record,
             "wall_seconds": time.perf_counter() - started,
             "torch": torch.__version__, "transformers": transformers.__version__,
             "cuda_device": torch.cuda.get_device_name(0), "platform": platform.platform(),
