@@ -2,6 +2,21 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-02 — T3 results
+
+**Evidence:** `docs/stage0/T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §7 (run
+`kaggle-thai-marks-t3-e5dd45e9d341-typhoon-x2`, 256/256, clean).
+
+**Finding (pilot, n = 34 skips):** when Typhoon skips a line, the skipped
+line is neither a near-tie (median margin ~7.5 nats over 12 characters) nor
+out of contention (skip margins are no larger than ordinary transitions).
+What distinguishes it is weak image support (+1.3 to +2.0 nats) where an
+ordinary next line gets strong support (−9 to −10). The evidence for skipped
+lines reaches the decision weakly; this points to input-side causes more than
+to the decoder's choice. No remedy is authorized by this entry.
+
+---
+
 ## 2026-10-01d — T3 (line-skip diagnostic) authorized
 
 **Stage/Gate:** Stage 0 diagnostic, calibration split only. No remedy is

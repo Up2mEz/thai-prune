@@ -96,3 +96,41 @@ rate.
 
 1. Approve T3 as drafted, or change it.
 2. Whether `TYPHOON_CARD` is scored too (its 48% share is similar).
+
+## 7. Results (2026-10-02)
+
+Run `kaggle-thai-marks-t3-e5dd45e9d341-typhoon-x2`: 256/256 cases, fp32, no
+failures, guard ≤ 0.00004 nats, checksums verified. Calibration only;
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Margin = log P(what the model wrote) −
+log P(the alternative), over 12 characters; image support = no-image margin −
+image margin (positive: the image favours the alternative).
+
+| prompt | case | n | margin median | 10th–90th pct | image support median | image support > 0 |
+|---|---|---|---|---|---|---|
+| BQ | skip | 19 | 7.5 | −4.6 to 36.9 | **+1.3** | 58% |
+| BQ | control | 119 | 13.0 | −3.3 to 27.5 | −9.4 | 14% |
+| TC | skip | 15 | 7.8 | −8.9 to 23.3 | **+2.0** | 60% |
+| TC | control | 103 | 16.5 | 0.2 to 29.2 | −10.2 | 24% |
+
+Skip vs control margins: Mann–Whitney p = 0.14 (BQ), 0.018 (TC); 89% and
+100% of skip margins lie at or below the control 90th percentile. Per-token
+mean convention: same direction, BQ difference vanishes (p = 0.60), TC
+p = 0.034.
+
+**Reading against §4, fixed in advance.**
+- Skip margins are *not* far larger than controls (if anything smaller), so
+  "the line was not a candidate" does not fit.
+- Skips are not near-ties either: the median skip is preferred by ~7.5 nats
+  over 12 characters; only the lower tail (≈10% of skips, margin < 0) is one.
+- The clearest contrast is image support. At an ordinary line transition the
+  image strongly favours reading the next line (support −9 to −10 nats: without
+  the image the model would be far readier to jump). At a skip it barely
+  favours the skipped line (+1.3 to +2.0, positive 58–60% of the time). The
+  evidence for the skipped line reaches the decision weakly.
+
+Closest pre-registered reading: between "decision slip" and "no image
+support": the skipped line competes like a normal alternative, but without
+the image backing that normal next lines get. A decoding-time fix would have
+to overturn ~7.5 nats with little image evidence behind it; the observation
+points more to how the skipped lines are seen than to how the decoder
+chooses. n = 34 skips: direction, not rate.
