@@ -36,6 +36,36 @@ correctly on Full-page OCR: most of its mark errors are marks inside text it
 skipped, not marks it misread. For this model, reducing mark errors means
 reducing omission.
 
+## 2b. Every wrong mark, by cause (`attribution.py`, added 2026-10-01)
+
+Each reference mark not read correctly gets exactly one cause. Single reads
+only, so anchored alignment is valid here.
+
+| model · task · prompt | marks wrong | whole line missing | line reordered | span missing | misread, base right | misread with base |
+|---|---|---|---|---|---|---|
+| typhoon · Full-page · BQ | 6.2% | **50%** | 13% | 11% | 7% | 18% |
+| typhoon · Full-page · TC | 7.1% | **48%** | 7% | 12% | 8% | 25% |
+| typhoon · Text rec. · BQ | 17.2% | 46% | 1% | 28% | 6% | 18% |
+| typhoon · Text rec. · TC | 3.5% | 5% | 7% | 26% | 19% | 44% |
+| base · Full-page · BQ | 41.5% | 11% | 0% | 33% | 18% | **38%** |
+| base · Text rec. · BQ | 23.0% | 1% | 0% | 33% | 24% | **42%** |
+
+(Base under `TYPHOON_CARD` is the format failure of the scoring doc: 87–94%
+"missing" because its text sits in `<figure>`.)
+
+Of the 178 reference lines Typhoon leaves out on Full-page OCR (BQ), 124 more
+are read in another order; of the 178 truly absent, 108 are digits, dates or
+Latin only (page numbers, map compass letters, logos) and carry no Thai mark;
+60 hold Thai marks (514 marks). The page-level loss correlates between the two
+prompts (Spearman 0.50) but only 32% of lost characters are lost by both.
+Neither downscaling (ρ 0.10–0.15, n.s.) nor text density (inconsistent sign
+across prompts) explains which pages lose text, so resolution is **not**
+supported as the cause.
+
+**For RQ-C:** specialization changes the kind of error, not only its amount.
+Base's mark errors are mostly misreadings (38% with the base consonant, 18%
+of the mark alone); Typhoon's are mostly skipped lines.
+
 ## 3. Evidence that two reads cover each other's gaps
 
 The two prompts skip different text. Upper bound (a reference-aided choice

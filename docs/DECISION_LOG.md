@@ -2,6 +2,29 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-01 — R-FUSE fails its development check; outcome rule for length-changing methods
+
+**Stage/Gate:** method development on the calibration split, existing
+outputs only. No inference; the locked split stays closed.
+
+**Decision owner:** Up2mEz (researcher); the finding and the rule were
+produced by Claude Code and are recorded for the researcher's review.
+
+**Finding:** R-FUSE (`fusion.py`, two-read merge, Typhoon, Full-page OCR) was
+implemented and run with its registered negative control. Concatenating both
+reads (`CAT`) beat `FUSE` on reference-side outcomes (96.4% marks correct),
+which exposed those outcomes as rewarding extra text. Under global alignment:
+mark F1 `FUSE` 92.5% versus 93.1% (`BENCHMARK_QUESTION`) and 93.7%
+(`TYPHOON_CARD`); global CER +9.5 points. The exploratory gain reported on
+2026-09-28 (marks correct 93.8% → 95.6%) is withdrawn as an artefact.
+
+**Rule (in effect):** a method that changes output length is evaluated on
+Full-page OCR by mark precision, recall and F1 and by CER under global
+alignment; reference-side accuracy and anchored CER are secondary only.
+`R_FUSE_REGISTRATION_DRAFT.md` is marked not to be run on the locked split.
+
+---
+
 ## 2026-09-28c — T2 empty-window defect fixed; T2 rerun in fp32 authorized
 
 **Stage/Gate:** T2 instrument repair and rerun authorization (calibration split).
