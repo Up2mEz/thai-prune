@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-01c — T2 valid; registered routing applied
+
+**Stage/Gate:** Stage 0, calibration only. Gate 0 remains `NOT_RUN`.
+
+**Evidence:** `docs/stage0/THAI_MARKS_T1_T2_RESULTS.md` (T2 run
+`kaggle-thai-marks-t2-09cfb2da2307`, fp32, in-context tokenization, clean).
+
+**Routing, as the 2026-09-27 contingent plan prescribes, for the researcher's
+review:** Typhoon — "oracle high, both do well" at the sites it reads; no
+mark-level remedy indicated; residual errors are mostly skipped lines, so the
+next diagnostic is T3 (draft, not authorized). Base — "headroom large,
+image_gain small, prior ≈ oracle": a mark-constrained re-scoring could only
+claim prior-driven gains, its realisable share is unknown because the oracle
+is given correct context, and the image-contrastive form lowers accuracy.
+RQ-C (specialization increases prior reliance) is not supported by
+image_gain; reported as a finding.
+
+No remedy, gate or locked-split run is authorized by this entry.
+
+---
+
 ## 2026-10-01b — T2 tone oracle was a tokenization artefact; fixed; T2 rerun
 
 **Stage/Gate:** T2 instrument repair, under the 2026-09-28c authorization
