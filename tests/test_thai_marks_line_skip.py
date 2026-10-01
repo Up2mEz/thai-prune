@@ -103,3 +103,30 @@ def test_a_case_whose_two_continuations_coincide_is_dropped() -> None:
     record = {"id": "p2", "reference": "\n".join([L1, same, L3, L4]),
               "raw_output": " ".join([L1, L3, L4])}
     assert not [c for c in boundaries(record, controls_per_page=0) if c["kind"] == "skip"]
+
+
+# --- T3 summary ------------------------------------------------------------------------
+
+from labbs2026.thai_marks.line_skip import margin, summarize_t3  # noqa: E402
+
+
+def _scored(kind, actual, expected, actual_noimg=None, expected_noimg=None, prompt="BENCHMARK_QUESTION"):
+    def e(lp):
+        return {"logprob": lp, "tokens": 4}
+    return {"kind": kind, "prompt_kind": prompt, "scores": {
+        "actual": {"image": e(actual), "no_image": e(actual if actual_noimg is None else actual_noimg)},
+        "expected": {"image": e(expected), "no_image": e(expected if expected_noimg is None else expected_noimg)}}}
+
+
+def test_margin_is_actual_minus_expected() -> None:
+    assert margin(_scored("skip", -2.0, -5.0), "image") == 3.0
+
+
+def test_summary_separates_skips_from_controls_and_measures_image_support() -> None:
+    rows = [_scored("skip", -2.0, -2.5, expected_noimg=-6.0) for _ in range(5)]
+    rows += [_scored("control", -1.0, -20.0) for _ in range(20)]
+    s = summarize_t3(rows)["BENCHMARK_QUESTION"]
+    assert s["skip"]["margin_median"] == 0.5          # near-tie
+    assert s["control"]["margin_median"] == 19.0      # an ordinary skip is far
+    assert s["skip"]["image_support_median"] == 3.5   # image favours the skipped line
+    assert s["skip_share_within_control_q90"] == 1.0

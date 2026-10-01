@@ -84,6 +84,54 @@ def raw_position(raw: str, extracted_prefix: str, tail: int = 24) -> int | None:
     return matches[rank - 1].end()
 
 
+def margin(record: dict, condition: str, convention: str = "sum") -> float:
+    """log P(actual) − log P(expected) for one scored case; large = not close."""
+    a = record["scores"]["actual"][condition]
+    e = record["scores"]["expected"][condition]
+    if convention == "sum":
+        return a["logprob"] - e["logprob"]
+    if convention == "mean":
+        return a["logprob"] / a["tokens"] - e["logprob"] / e["tokens"]
+    raise ValueError(convention)
+
+
+def summarize_t3(records: list[dict], convention: str = "sum") -> dict[str, Any]:
+    """Skip versus control margins, per prompt, as `T3_..._DRAFT.md` §3–4 reads them.
+
+    `image_support` is how much the image narrows the margin
+    (no-image margin − image margin): positive means the image favours the
+    line that should have been read.
+    """
+    import statistics
+
+    from scipy.stats import mannwhitneyu
+
+    out: dict[str, Any] = {}
+    for prompt in sorted({r["prompt_kind"] for r in records}):
+        rows = [r for r in records if r["prompt_kind"] == prompt]
+        block: dict[str, Any] = {}
+        for kind in ("skip", "control"):
+            m = [margin(r, "image", convention) for r in rows if r["kind"] == kind]
+            s = [margin(r, "no_image", convention) - margin(r, "image", convention)
+                 for r in rows if r["kind"] == kind]
+            block[kind] = {
+                "n": len(m),
+                "margin_median": statistics.median(m) if m else None,
+                "margin_q10_q90": (sorted(m)[int(.1 * len(m))], sorted(m)[int(.9 * len(m))])
+                if m else None,
+                "image_support_median": statistics.median(s) if s else None,
+                "image_support_positive_share": statistics.fmean(x > 0 for x in s) if s else None,
+            }
+        skips = [margin(r, "image", convention) for r in rows if r["kind"] == "skip"]
+        controls = sorted(margin(r, "image", convention) for r in rows if r["kind"] == "control")
+        if skips and controls:
+            q90 = controls[int(.9 * len(controls))]
+            block["skip_share_within_control_q90"] = statistics.fmean(x <= q90 for x in skips)
+            block["mann_whitney_p"] = float(mannwhitneyu(skips, controls).pvalue)
+        out[prompt] = block
+    return out
+
+
 def build_cases(records, *, task: str = "Full-page OCR", seed: int = 20261001,
                 controls_per_page: int = 2) -> list[dict[str, Any]]:
     """Every scorable T3 case from one model's T1 records, in a fixed order.
