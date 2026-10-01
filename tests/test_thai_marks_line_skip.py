@@ -39,3 +39,16 @@ def test_controls_are_seeded() -> None:
 def test_a_line_read_in_another_order_is_not_a_skip() -> None:
     cases = boundaries(_record(" ".join([L1, L3, L4, L2])), controls_per_page=0)
     assert not [c for c in cases if c["kind"] == "skip"]
+
+
+def test_the_raw_prefix_keeps_the_newline_the_model_wrote() -> None:
+    raw = f"{L1}\n{L3}\n{L4}"
+    skip = [c for c in boundaries(_record(raw), controls_per_page=0) if c["kind"] == "skip"][0]
+    assert skip["raw_prefix"] == L1 + "\n"
+    assert skip["raw_actual"] == L3[:12]
+
+
+def test_a_prefix_that_cannot_be_placed_in_the_raw_text_is_unscorable() -> None:
+    from labbs2026.thai_marks.line_skip import raw_position
+    assert raw_position("abc", "xyz") is None
+    assert raw_position("ก ข\nค", "ก ข") == 3

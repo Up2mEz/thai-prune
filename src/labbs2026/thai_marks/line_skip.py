@@ -14,6 +14,7 @@ Offline and CPU-only: this module only builds the cases.
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
 from labbs2026.thai_marks.attribution import MARKS, WHOLE_LINE, reference_lines
@@ -37,6 +38,28 @@ def _line_status(reference: str, hypothesis: str, lines: list[str]):
         status.append({"line": line, "missing": missing,
                        "hyp_end": max(ends) + 1 if ends else None})
     return status
+
+
+def raw_position(raw: str, extracted_prefix: str, tail: int = 24) -> int | None:
+    """Index in the raw output where `extracted_prefix` ends, or None.
+
+    The model decided on its raw text (newlines, markup), not on extracted
+    text, so T3 must teacher-force the raw prefix. The last `tail`
+    non-space characters of the extracted prefix are matched in the raw output
+    allowing any whitespace between them; the occurrence used is the one with
+    the same rank as in the extracted text. None if it cannot be placed
+    (markup inside the tail), in which case the case is unscorable.
+    """
+    chars = [c for c in extracted_prefix if not c.isspace()][-tail:]
+    if not chars:
+        return None
+    pattern = r"\s*".join(re.escape(c) for c in chars)
+    flat = "".join(c for c in extracted_prefix if not c.isspace())
+    rank = flat.count("".join(chars))
+    matches = list(re.finditer(pattern, raw))
+    if len(matches) < rank or rank == 0:
+        return None
+    return matches[rank - 1].end()
 
 
 def boundaries(record: dict, *, controls_per_page: int = 2, seed: int = 20261001,
@@ -66,8 +89,15 @@ def boundaries(record: dict, *, controls_per_page: int = 2, seed: int = 20261001
         actual = hypothesis[cut:].lstrip()[:chars]
         if len(actual) < chars:
             continue
+        raw = record["raw_output"]
+        at = raw_position(raw, prefix)
+        separator = re.match(r"\s*", raw[at:]).group(0) if at is not None else ""
         case = {"id": record["id"], "line": k, "prefix": prefix, "actual": actual,
-                "marked": any(c in MARKS for c in cur["line"])}
+                "marked": any(c in MARKS for c in cur["line"]),
+                # What T3 feeds: the raw prefix, then each continuation after the
+                # whitespace the model itself emitted there (usually a newline).
+                "raw_prefix": raw[:at] + separator if at is not None else None,
+                "raw_actual": raw[at + len(separator):][:chars] if at is not None else None}
         if cur["missing"]:
             out.append({**case, "kind": "skip", "expected": cur["line"][:chars]})
         elif k + 1 < len(status) and actual.startswith(cur["line"][:4]):
