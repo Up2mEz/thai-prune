@@ -52,6 +52,8 @@ def completed_keys(records_path: Path, test: str) -> set:
             record = json.loads(line)
             if test == "t1":
                 keys.add((record["id"], record["prompt_kind"]))
+            elif test == "t3":
+                keys.add(record["case"])
             else:
                 keys.add(record["id"])
     return keys
@@ -92,10 +94,57 @@ def load_items(spec: dict):
     return dataset, ordered, calibration, id_col
 
 
+def load_t3_cases(spec: dict) -> list[dict]:
+    """T3 cases from the attached Kaggle dataset (path in spec, else searched)."""
+    path = Path(spec.get("t3_cases") or "")
+    if not path.is_file():
+        found = sorted(Path("/kaggle/input").rglob("t3_cases.json"))
+        if len(found) != 1:
+            raise RuntimeError(f"expected one t3_cases.json under /kaggle/input, found {found}")
+        path = found[0]
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if spec.get("t3_cases_sha256") and digest != spec["t3_cases_sha256"]:
+        raise RuntimeError(f"t3_cases.json hash {digest} does not match the submission")
+    return payload["cases"]
+
+
+def _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
+            typhoon_prompt, device, dtype, failures, runtime, torch) -> list:
+    """Score every T3 case of this shard; returns the cases run (for the manifest)."""
+    cases = shard_items(load_t3_cases(spec), args.shard, args.shards)
+    if int(spec.get("limit") or 0):
+        cases = cases[: int(spec["limit"])]
+    index_of = {id_col[i]: i for i in ordered}
+    for case in cases:
+        if case["case"] in completed:
+            continue
+        row = dataset[index_of[case["id"]]]
+        image = runtime.resize_policy(row["image"].convert("RGB"))
+        prompt = typhoon_prompt if case["prompt_kind"] == "TYPHOON_CARD" else row["question"]
+        started = time.perf_counter()
+        try:
+            scores = runtime.score_continuations(
+                model, processor, image, prompt, case["prefix"], case["continuations"],
+                device=device, tolerance=float(spec["consistency_tolerance"][dtype]))
+        except RuntimeError as exc:
+            if "refusing to record" in str(exc):
+                raise ConsistencyFailure(str(exc)) from exc
+            failures.append({"case": case["case"], "error": f"{type(exc).__name__}: {exc}"[:800]})
+            torch.cuda.empty_cache()
+            continue
+        handle.write(json.dumps({k: case[k] for k in ("case", "id", "prompt_kind", "kind",
+                                                       "line", "marked")}
+                                | {"scores": scores, "seconds": time.perf_counter() - started},
+                                ensure_ascii=False) + "\n")
+        handle.flush()
+    return cases
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
@@ -161,7 +210,8 @@ def main() -> None:
     # T2 may pin its own precision: its consistency guard compares a cached
     # continuation with an uncached forward, and fp16 kernels disagreed by
     # 0.1358 nats on base (2026-09-27); fp32 keeps the guard strict (0.001).
-    dtype = (spec.get("t2_dtype") if args.test == "t2" else None) or spec["dtype_preferred"]
+    # T3 reuses T2's scoring machinery and therefore its precision.
+    dtype = (spec.get("t2_dtype") if args.test in ("t2", "t3") else None) or spec["dtype_preferred"]
     model, processor = runtime.load(model_spec["model_id"], model_spec["revision"], dtype, device)
     probe = runtime.resize_policy(dataset[selected[0]]["image"].convert("RGB"))
     if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):
@@ -186,7 +236,10 @@ def main() -> None:
         if carried_forward:
             handle.write(carried_forward)
             handle.flush()
-        for index in selected:
+        if args.test == "t3":
+            selected = _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model,
+                               processor, typhoon_prompt, device, dtype, failures, runtime, torch)
+        for index in ([] if args.test == "t3" else selected):
             row = dataset[index]
             if args.test == "t2" and row["Id"] in completed:
                 continue

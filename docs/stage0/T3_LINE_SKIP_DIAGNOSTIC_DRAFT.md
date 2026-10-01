@@ -1,6 +1,6 @@
 # T3 — why does Typhoon skip lines? A line-boundary oracle
 
-**Status: `DRAFT_FOR_REVIEW`, nothing authorized.** Diagnostic only; it
+**Status: `APPROVED`** by the researcher 2026-10-01 (`DECISION_LOG.md` 2026-10-01d), both prompts. Diagnostic only; it
 evaluates no remedy. Calibration split, existing T1 outputs as context.
 
 ## 1. Question

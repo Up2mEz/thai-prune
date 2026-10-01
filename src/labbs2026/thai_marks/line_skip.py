@@ -84,6 +84,30 @@ def raw_position(raw: str, extracted_prefix: str, tail: int = 24) -> int | None:
     return matches[rank - 1].end()
 
 
+def build_cases(records, *, task: str = "Full-page OCR", seed: int = 20261001,
+                controls_per_page: int = 2) -> list[dict[str, Any]]:
+    """Every scorable T3 case from one model's T1 records, in a fixed order.
+
+    Unplaceable cases (no raw prefix) are dropped here; their count is the
+    caller's to report.
+    """
+    cases = []
+    for record in sorted(records, key=lambda r: (r["prompt_kind"], r["id"])):
+        if record["task"] != task:
+            continue
+        for case in boundaries(record, controls_per_page=controls_per_page, seed=seed):
+            if case["raw_prefix"] is None:
+                continue
+            cases.append({
+                "case": f"{record['prompt_kind']}:{case['id']}:{case['line']}:{case['kind']}",
+                "id": case["id"], "prompt_kind": record["prompt_kind"], "kind": case["kind"],
+                "line": case["line"], "marked": case["marked"],
+                "prefix": case["raw_prefix"],
+                "continuations": {"actual": case["raw_actual"], "expected": case["expected"]},
+            })
+    return cases
+
+
 def boundaries(record: dict, *, controls_per_page: int = 2, seed: int = 20261001,
                chars: int = CONTINUATION_CHARS) -> list[dict[str, Any]]:
     """Skip and control boundaries of one T1 record, on extracted text.

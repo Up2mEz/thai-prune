@@ -2,6 +2,22 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-01d — T3 (line-skip diagnostic) authorized
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. No remedy is
+evaluated; Gate 0 remains `NOT_RUN`; the locked split stays closed.
+
+**Decision owner:** Up2mEz, in session 2026-10-01 ("อนุมัติ รันต่อเลย").
+
+**Decision:** run T3 exactly as `docs/stage0/T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md`
+specifies, Typhoon only, Full-page OCR, both prompts (§6.2 taken as yes, since
+it only widens n), fp32, consistency tolerance 0.001 nats, cases built
+offline from T1 run `kaggle-thai-marks-t1-t2-a44199c29759` by
+`line_skip.boundaries` (seed 20261001, 2 controls per page) and shipped as a
+private Kaggle dataset. A 2-case smoke precedes the full run.
+
+---
+
 ## 2026-10-01c — T2 valid; registered routing applied
 
 **Stage/Gate:** Stage 0, calibration only. Gate 0 remains `NOT_RUN`.

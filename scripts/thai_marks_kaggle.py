@@ -7,6 +7,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import time
 from pathlib import Path
 
 import yaml
@@ -34,6 +35,7 @@ from labbs2026.kaggle import (
 # is pushing it.
 KERNEL_SLUG = "labbs2026-thai-marks-t1-t2"
 RESUME_DATASET_SLUG = f"{KERNEL_SLUG}-resume"
+T3_DATASET_SLUG = f"{KERNEL_SLUG}-t3-cases"
 
 HASHED = (
     "configs/thai_marks/t1_t2.yaml",
@@ -91,6 +93,34 @@ def stage_resume_dataset(resume_from: Path, run_dir: Path) -> tuple[str, Path]:
     return old_run_id, staging
 
 
+def upload_dataset(root: Path, staging: Path, slug: str, title: str,
+                   wait_seconds: int = 900) -> str:
+    """Create or version a private dataset and wait until Kaggle marks it ready.
+
+    A kernel pushed while its input dataset is still processing may start
+    without the files, so the push waits for `ready`.
+    """
+    ref = dataset_id(root, slug)
+    atomic_write_json(staging / "dataset-metadata.json", build_dataset_metadata(ref, title))
+    exists = subprocess.run(["kaggle", "datasets", "status", ref],
+                            capture_output=True, text=True).returncode == 0
+    result = subprocess.run(build_dataset_upload_command(staging, exists=exists),
+                            capture_output=True, text=True)
+    print(result.stdout or result.stderr)
+    if result.returncode:
+        raise SystemExit(result.returncode)
+    deadline = time.monotonic() + wait_seconds
+    while time.monotonic() < deadline:
+        status = subprocess.run(["kaggle", "datasets", "status", ref],
+                                capture_output=True, text=True).stdout.strip().lower()
+        if "ready" in status:
+            return ref
+        if "error" in status:
+            raise SystemExit(f"dataset {ref} failed processing: {status}")
+        time.sleep(15)
+    raise SystemExit(f"dataset {ref} not ready after {wait_seconds} s")
+
+
 def upload_resume_dataset(root: Path, staging: Path) -> str:
     ref = dataset_id(root, RESUME_DATASET_SLUG)
     atomic_write_json(staging / "dataset-metadata.json",
@@ -120,6 +150,9 @@ def main() -> None:
                              "directory (runs/kaggle/<old-run-id>/fetched/artifacts/"
                              "<old-run-id>) whose already-finished legs this "
                              "submission should skip instead of re-running")
+    parser.add_argument("--t3-cases", type=Path, default=None,
+                        help="T3 cases JSON (scripts/thai_marks_t3_cases.py); attached as a "
+                             "private dataset")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
@@ -177,11 +210,23 @@ def main() -> None:
     run_dir = root / "runs" / "kaggle" / run_id
     dataset_sources: list[str] = []
     resume_dataset_staging: Path | None = None
+    t3_staging: Path | None = None
+    if args.t3_cases:
+        if "t3" not in tests:
+            raise SystemExit("--t3-cases given but t3 is not in --tests")
+        t3_staging = run_dir / "t3_dataset"
+        t3_staging.mkdir(parents=True, exist_ok=False)
+        shutil.copyfile(args.t3_cases, t3_staging / "t3_cases.json")
+        spec["t3_cases_sha256"] = sha256_file(t3_staging / "t3_cases.json")
+        spec["t3_cases"] = dataset_mount_path(T3_DATASET_SLUG, "t3_cases.json")
+        dataset_sources.append(dataset_id(root, T3_DATASET_SLUG))
+    elif "t3" in tests:
+        raise SystemExit("t3 needs --t3-cases")
     if args.resume_from:
         old_run_id, resume_dataset_staging = stage_resume_dataset(
             args.resume_from.resolve(), run_dir)
         spec["resume_artifact_dir"] = dataset_mount_path(RESUME_DATASET_SLUG, old_run_id)
-        dataset_sources = [dataset_id(root, RESUME_DATASET_SLUG)]
+        dataset_sources.append(dataset_id(root, RESUME_DATASET_SLUG))
 
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
@@ -201,6 +246,9 @@ def main() -> None:
                       "limit": args.limit, "staging": str(staging),
                       "resume_artifact_dir": spec.get("resume_artifact_dir")}, indent=1))
     if args.submit:
+        if t3_staging is not None:
+            print("t3 cases dataset ready:", upload_dataset(
+                root, t3_staging, T3_DATASET_SLUG, "LabBS2026 Thai Marks T3 Cases"))
         if resume_dataset_staging is not None:
             uploaded_ref = upload_resume_dataset(root, resume_dataset_staging)
             print(f"resume dataset uploaded: {uploaded_ref}")
