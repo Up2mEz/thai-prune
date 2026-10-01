@@ -15,6 +15,7 @@ import yaml
 
 from labbs2026.thai_marks.analysis import (
     analyze_t1_v2,
+    oracle_by_convention,
     score_t1_record,
     summarize_t1,
     summarize_t2_v2,
@@ -73,7 +74,7 @@ def main() -> None:
                                   text=True, check=True).stdout.strip(),
         "git_dirty": bool(subprocess.run(["git", "status", "--porcelain"], capture_output=True,
                                          text=True, check=True).stdout.strip()),
-        "t1": {}, "t1_v1_as_registered": {}, "t2": {}, "t2_source": {}, "excluded": {},
+        "t1": {}, "t1_v1_as_registered": {}, "t2": {}, "t2_source": {}, "t2_conventions": {}, "excluded": {},
     }
 
     for role in ("base", "typhoon"):
@@ -109,6 +110,9 @@ def main() -> None:
                       if prompt == config["t2"]["prompt"]}
         result["t2"][role] = summarize_t2_v2(t2_records, greedy=greedy,
                                              located_below=thresholds)
+        result["t2_conventions"][role] = {
+            task: oracle_by_convention([r for r in t2_records if r["task"] == task])
+            for task in sorted({r["task"] for r in t2_records})}
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -123,6 +127,12 @@ def main() -> None:
             print(f"{role:8s} {task:17s} {prompt:18s} {tag:9s} "
                   f"located {_pct(s['located_rate'])}  median CER {_pct(s['median_cer'])}  "
                   f"micro CER {_pct(s['micro_cer']['estimate'])}  | mark-specific {marks}")
+    for role, tasks in result["t2_conventions"].items():
+        for task, conventions in tasks.items():
+            for convention, kinds in conventions.items():
+                row = "  ".join(f"{k} oracle {_pct(v['oracle'])} prior {_pct(v['prior'])}"
+                                for k, v in kinds.items())
+                print(f"T2 {role:8s} {task:17s} {convention:16s} {row}")
     print(f"written to {args.out}")
 
 
