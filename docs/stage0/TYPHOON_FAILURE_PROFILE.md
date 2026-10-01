@@ -66,6 +66,24 @@ supported as the cause.
 Base's mark errors are mostly misreadings (38% with the base consonant, 18%
 of the mark alone); Typhoon's are mostly skipped lines.
 
+## 2c. Text recognition: the misses are question-following, not reading
+
+The 10 of 109 Text recognition items where Typhoon's `BENCHMARK_QUESTION`
+answer never located the reference (questions read from the pinned
+benchmark's `question` column; 84 distinct phrasings among the 109):
+
+| failure | n | example |
+|---|---|---|
+| paraphrased or described instead of transcribing | 4 | asked what the yellow text says, answered with a summary of the speaker's pledge; one answer in English |
+| selected the wrong text for a condition in the question | 3 | "the red Thai text", "the orange Thai text", "option 3 of item 4" |
+| transcribed only the first line | 2 | a ward sign, a menu |
+| declined | 1 | "I do not know what Thai text is in the image" |
+
+Under `TYPHOON_CARD`, which asks for all text on the image, the same model
+reads the reference region with 3.5% of marks wrong. On this task the
+remaining errors are about which text to return and in what mode, which a
+reading remedy cannot touch.
+
 ## 3. Evidence that two reads cover each other's gaps
 
 The two prompts skip different text. Upper bound (a reference-aided choice
