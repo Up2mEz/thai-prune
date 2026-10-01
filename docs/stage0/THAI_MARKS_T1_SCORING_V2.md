@@ -167,6 +167,18 @@ makes — can be compared offline after the next T2 run instead of assumed.
 
 ## 8. Known limitations
 
+- **Anchored scoring rewards more text when output length is the thing that
+  changes.** Found 2026-10-01 with R-FUSE's negative control: simply
+  concatenating Typhoon's two reads (`CAT`, output 2.08× the reference) scored
+  96.4% marks correct versus 93.8% for one read, because the aligner can pick
+  whichever copy matches each stretch and pays only for the hypothesis
+  characters it skips. Anchored scoring is valid for comparing models and
+  prompts whose outputs are about reference length (Full-page
+  `BENCHMARK_QUESTION`: 1.00–1.03×), and necessary for Text recognition, where
+  the reference is one region. It must **not** be the primary outcome for a
+  method that changes output length on Full-page OCR; there, global alignment
+  (every surplus character counted) is required, with the anchored value as a
+  secondary.
 - Reading order inside the matched window still counts; a model that reads a
   full page in a different order is penalized for order, not only for reading.
 - Chance thresholds are per cell (0.70–0.81), so they differ slightly between

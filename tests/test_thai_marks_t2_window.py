@@ -43,3 +43,47 @@ def test_an_uncovered_character_is_an_error() -> None:
 def test_a_mark_starting_its_token_mid_text_keeps_the_registered_window() -> None:
     offsets = [(0, 2), (2, 3), (3, 6)]  # a mark at 2 starts its own token, text goes on
     assert scoring_window_token(offsets, 2, _always_clean, 6) == 1
+
+
+# --- scoring conventions -------------------------------------------------------
+
+from labbs2026.thai_marks.analysis import oracle_by_convention, variant_scores  # noqa: E402
+
+
+def _variant(ids, logps):
+    def entry():
+        return {"logprob": sum(logps), "tokens": len(ids), "token_ids": list(ids),
+                "token_logprobs": list(logps)}
+    return {"image": entry(), "no_image": entry()}
+
+
+def _site():
+    # Shared first token 7; at the decision token the reference (้) wins, but the
+    # rare variant (๊) collects easy follow-on tokens and wins the summed score.
+    return {"kind": "TONE", "index": 0, "reference": "้", "variants": {
+        "้": _variant([7, 1, 2], [-0.1, -1.0, -3.0]),
+        "๊": _variant([7, 5, 6, 8], [-0.1, -2.5, -0.2, -0.1]),
+    }}
+
+
+def test_conventions_can_disagree_and_first_divergent_scores_the_decision() -> None:
+    site = _site()
+    assert max(variant_scores(site, "image", "sum").items(), key=lambda kv: kv[1])[0] == "๊"
+    first = variant_scores(site, "image", "first_divergent")
+    assert first == {"้": -1.0, "๊": -2.5}
+
+
+def test_records_without_per_token_data_fall_back_to_sum_only() -> None:
+    site = _site()
+    for v in site["variants"].values():
+        for c in v.values():
+            del c["token_ids"], c["token_logprobs"]
+    assert variant_scores(site, "image", "sum") is not None
+    assert variant_scores(site, "image", "first_divergent") is None
+
+
+def test_oracle_by_convention_counts_sites_per_kind() -> None:
+    result = oracle_by_convention([{"sites": [_site()]}])
+    assert result["sum"]["TONE"]["oracle"] == 0.0
+    assert result["first_divergent"]["TONE"]["oracle"] == 1.0
+    assert result["first_divergent"]["TONE"]["sites"] == 1

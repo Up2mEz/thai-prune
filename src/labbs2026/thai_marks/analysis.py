@@ -160,6 +160,63 @@ def site_outcomes(site: dict, lambdas: Sequence[float] = (0.5, 1.0)) -> dict[str
     return out
 
 
+CONVENTIONS = ("sum", "mean", "first_divergent")
+
+
+def variant_scores(site: dict, condition: str, convention: str) -> dict[str, float] | None:
+    """Each variant's score for one site under a scoring convention.
+
+    `sum` is the registered summed log-probability of the window; `mean`
+    divides by its token count; `first_divergent` is the log-probability of
+    the first token after the longest token prefix every variant shares — the
+    decision greedy decoding actually makes there, before later tokens are
+    conditioned on different text. Needs per-token data (runs from 2026-09-28
+    on); returns None when it is absent, or when one variant's tokens are a
+    prefix of all the others'.
+    """
+    variants = site["variants"]
+    if convention == "sum":
+        return {k: v[condition]["logprob"] for k, v in variants.items()}
+    if any("token_logprobs" not in v[condition] for v in variants.values()):
+        return None
+    if convention == "mean":
+        return {k: v[condition]["logprob"] / v[condition]["tokens"] for k, v in variants.items()}
+    if convention == "first_divergent":
+        seqs = [v[condition]["token_ids"] for v in variants.values()]
+        shared = 0
+        while all(len(s) > shared for s in seqs) and len({s[shared] for s in seqs}) == 1:
+            shared += 1
+        if any(len(s) == shared for s in seqs):
+            return None
+        return {k: v[condition]["token_logprobs"][shared] for k, v in variants.items()}
+    raise ValueError(f"unknown convention {convention!r}")
+
+
+def oracle_by_convention(items: Sequence[dict]) -> dict[str, dict[str, Any]]:
+    """Oracle and prior accuracy per mark kind under every scoring convention."""
+    out: dict[str, dict[str, Any]] = {}
+    for convention in CONVENTIONS:
+        counts: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+        for item in items:
+            for site in item["sites"]:
+                c = counts[site["kind"]]
+                for condition, key in (("image", "oracle"), ("no_image", "prior")):
+                    scores = variant_scores(site, condition, convention)
+                    if scores is None:
+                        c[f"{key}_unscorable"] += 1
+                        continue
+                    c[f"{key}_n"] += 1
+                    c[key] += _argmax({k: {"s": v} for k, v in scores.items()},
+                                      lambda v: v["s"]) == site["reference"]
+        out[convention] = {
+            kind: {key: (c[key] / c[f"{key}_n"] if c[f"{key}_n"] else None)
+                   for key in ("oracle", "prior")} | {
+                       "sites": c["oracle_n"], "unscorable": c["oracle_unscorable"]}
+            for kind, c in sorted(counts.items())
+        }
+    return out
+
+
 def greedy_correct_at(site: dict, reference: str, hypothesis: str,
                       fates: dict[int, str] | None = None,
                       pairs: list | None = None) -> int:

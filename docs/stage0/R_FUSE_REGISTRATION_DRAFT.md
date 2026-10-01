@@ -1,7 +1,16 @@
 # R-FUSE — recovering skipped text by fusing two reads
 
-**Status: `DRAFT_FOR_REVIEW`, nothing authorized.** No output of the locked
-split exists. Evidence motivating it: `TYPHOON_FAILURE_PROFILE.md`, from the
+**Status: `DEV_CHECK_FAILED_DO_NOT_RUN_ON_LOCKED`** (2026-10-01). No output of
+the locked split exists, and this rule should not consume it. The development
+check on the 69 calibration pages (`fusion.py`, unit-tested) found the
+negative control `CAT` beating `FUSE` on the outcome registered below, which
+exposed that outcome as rewarding extra text; on an outcome that charges it
+(mark F1 under global alignment), `FUSE` 92.5% is below a single read
+(93.1% / 93.7%) and global CER rises 9.5 points. Detail and table:
+`TYPHOON_FAILURE_PROFILE.md` §3 correction. The primary outcome of any
+successor must be **mark precision/recall/F1 under global alignment** (Full-
+page OCR), never reference-side accuracy alone. The text below is kept as
+drafted, for the record. Evidence motivating it: `TYPHOON_FAILURE_PROFILE.md`, from the
 calibration split only. Scoring: `THAI_MARKS_T1_SCORING_V2.md`.
 
 ## 1. Question and why

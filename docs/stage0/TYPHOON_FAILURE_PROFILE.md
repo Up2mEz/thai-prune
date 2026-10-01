@@ -57,6 +57,27 @@ Exploratory: one rule, one run, calibration split, the same data that
 suggested it. The 1.15 length shows some duplication (reordered blocks
 inserted a second time).
 
+**Correction 2026-10-01 — the gain above is a measurement artefact.** The
+negative control (`CAT`: both reads concatenated, no merging) scored *higher*
+on this table's metrics (96.4% marks correct), because reference-anchored
+alignment and "marks correct" count only reference characters and so reward
+extra text. Under global alignment with every surplus character charged
+(Full-page OCR, both reads ≈ reference length, so this is the right scale):
+
+| read | global CER | insertions / reference | mark precision | mark recall | mark F1 |
+|---|---|---|---|---|---|
+| `BENCHMARK_QUESTION` | 16.0% | 7.9% | 91.9% | 94.3% | 93.1% |
+| `TYPHOON_CARD` | 21.3% | 11.6% | 94.5% | 92.9% | **93.7%** |
+| fused (rule above, duplicate filter) | 25.5% | 18.0% | 90.3% | 94.7% | 92.5% |
+| `CAT` (control) | 113.9% | 109.4% | 48.4% | 97.2% | 64.6% |
+
+Fusion raises recall slightly and loses more precision: global CER rises 9.5
+points (95% interval +0.03 to +23.0). Most inserted runs are text the first
+read already has in a slightly different form, which an exact-substring
+duplicate check cannot see. The upper bound in this section's first paragraph
+is a recall bound only and says nothing about recoverable precision. §1–§2
+stand: they are single-read measurements at ≈1.0× reference length.
+
 ## 4. Proposal — omission-recovery by fusing complementary reads (R-FUSE)
 
 Training-free, Typhoon only first (one new factor per round).
