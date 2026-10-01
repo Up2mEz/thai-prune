@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-02b — Typhoon's "missing lines" re-examined
+
+**Evidence:** `docs/stage0/TYPHOON_FAILURE_PROFILE.md` §2d,
+`T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §8. Offline, calibration split, existing
+outputs; no new model run.
+
+**Finding:** a third of the marks counted as "whole line missing" on
+Full-page OCR were read, in another order and not verbatim. With them set
+aside, Typhoon's whole-line absent marks are 1.7% (BQ) / 2.3% (TC) of all
+marks, and what is absent is mostly text in graphics, inset ads and page
+furniture; 6 of the 34 T3 skips were reorderings. Base is not affected.
+`attribute_marks` keeps the 2026-10-01 rule as default
+(`approximate_reorder=False`).
+
+**Open for the researcher:** (1) an order-free full-page measure alongside
+the anchored one (scoring change, not made); (2) whether text inside
+graphics is in scope; (3) given Typhoon's ~4% headroom, whether the next
+remedy targets base. No remedy is authorized by this entry.
+
+---
+
 ## 2026-10-02 — T3 results
 
 **Evidence:** `docs/stage0/T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §7 (run

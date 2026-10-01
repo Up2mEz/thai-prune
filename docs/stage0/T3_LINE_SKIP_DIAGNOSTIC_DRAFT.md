@@ -134,3 +134,21 @@ the image backing that normal next lines get. A decoding-time fix would have
 to overturn ~7.5 nats with little image evidence behind it; the observation
 points more to how the skipped lines are seen than to how the decoder
 chooses. n = 34 skips: direction, not rate.
+
+## 8. What the skips are (added 2026-10-02, after reading the raw outputs)
+
+Six of the 34 skip cases are not skips: the "missing" line is in the output
+elsewhere, read in another column order (`TYPHOON_FAILURE_PROFILE.md` §2d;
+`52A433B2:19`, `79216F4C:19`, `C065E1E9:44` under BQ; `39311352:2`,
+`6BA97DBE:8`, `D78C8F3F:1` under TC). Without them (sensitivity, not a new
+test): BQ skip margin median 8.4 (n 16), image support +1.4, 62% positive;
+TC 4.7 (n 12), +3.1, 58%; controls unchanged. §7 stands.
+
+The other 28 are mostly not lines of running text: compass letters and
+logos (`S`, `SOIL`, `ECO`, `SCAN ME`, `GMP`), chart values and axis units,
+a signature, a URL, a page header, an infographic panel's caption. At most
+of them the model's actual continuation is an image placeholder or the next
+paragraph. The weak image support of §7 therefore describes mostly whether
+Typhoon treats text inside graphics as text to transcribe, not a decoder
+dropping lines of prose. A decoding-time remedy at line boundaries is not
+supported.
