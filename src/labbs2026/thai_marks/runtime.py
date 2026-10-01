@@ -174,7 +174,8 @@ def _full_forward(model, processor, prompt_ids_inputs: dict, full_ids, has_image
     return out, kwargs["position_ids"]
 
 
-def continuation_split(encode, decode, prefix: str, continuations: dict[str, str]
+def continuation_split(encode, decode, prefix: str, continuations: dict[str, str],
+                       own: list[int] | None = None
                        ) -> tuple[list[int], dict[str, list[int]]]:
     """Shared prefix tokens and each continuation's own tokens (T3).
 
@@ -182,9 +183,12 @@ def continuation_split(encode, decode, prefix: str, continuations: dict[str, str
     is tokenized whole and the split point is the longest token prefix that
     all of them share with the prefix's own tokenization and that decodes to
     a prefix of `prefix`. Every continuation is then scored from the same
-    context, and only its own tokens differ.
+    context, and only its own tokens differ. `own` may be given when the
+    prefix's tokens are already fixed by a longer tokenization (T2: the prefix
+    of the whole reference); the split is then also a prefix of those.
     """
-    own = encode(prefix)
+    if own is None:
+        own = encode(prefix)
     joint = {label: encode(prefix + text) for label, text in continuations.items()}
     k = len(own)
     for ids in joint.values():
@@ -312,12 +316,20 @@ def score_item(model, processor, image, prompt: str, reference: str,
                 lambda j: tokenizer.decode(ref_ids[:j], clean_up_tokenization_spaces=False)
                 == reference[: offsets[j][0]], len(reference))
             window_start = offsets[k][0]
-            boundary = prompt_len + k - 1  # re-fed token, whose output predicts the window
-            for label, window in window_variants(reference, site, window_start, window_after):
-                targets = tokenizer(window, add_special_tokens=False)["input_ids"]
-                if not targets:
-                    raise RuntimeError(f"empty scoring window at site {site.index} ({label!r}); "
-                                       "refusing to record scores")
+            # Each variant is tokenized *in context* (prefix + window as one
+            # string), not on its own: standalone tokenization of a window that
+            # starts at a mark gives a token sequence the model never produces
+            # for that text (e.g. ...ต|ั then ้ง), which drove 93% of the
+            # 2026-09-28 run's wrong tone oracles. The shared prefix is then the
+            # longest one every variant's canonical tokenization agrees on.
+            windows = dict(window_variants(reference, site, window_start, window_after))
+            shared, targets_of = continuation_split(
+                lambda t: tokenizer(t, add_special_tokens=False)["input_ids"],
+                lambda ids: tokenizer.decode(ids, clean_up_tokenization_spaces=False),
+                reference[:window_start], windows, own=ref_ids[:k])
+            boundary = prompt_len + len(shared) - 1  # re-fed token predicting the window
+            for label in windows:
+                targets = targets_of[label]
                 feed = torch.tensor([[int(full_ids[0, boundary])] + targets[:-1]],
                                     device=full_ids.device, dtype=full_ids.dtype)
                 branch = copy.deepcopy(cache)

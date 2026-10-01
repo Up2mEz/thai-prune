@@ -87,3 +87,34 @@ def test_oracle_by_convention_counts_sites_per_kind() -> None:
     assert result["sum"]["TONE"]["oracle"] == 0.0
     assert result["first_divergent"]["TONE"]["oracle"] == 1.0
     assert result["first_divergent"]["TONE"]["sites"] == 1
+
+
+# --- in-context tokenization of variants -----------------------------------------
+
+from labbs2026.thai_marks.runtime import continuation_split  # noqa: E402
+
+
+def _merging_tokenizer():
+    """Character tokens, except "้ง" merges -- but only when it starts a chunk."""
+    def encode(text: str) -> list[int]:
+        out, i = [], 0
+        while i < len(text):
+            if i == 0 and text.startswith("้ง"):
+                out.append(9000); i += 2
+            else:
+                out.append(ord(text[i])); i += 1
+        return out
+
+    def decode(ids: list[int]) -> str:
+        return "".join("้ง" if t == 9000 else chr(t) for t in ids)
+    return encode, decode
+
+
+def test_variants_are_scored_with_their_in_context_tokens_not_standalone_ones() -> None:
+    enc, dec = _merging_tokenizer()
+    prefix = "ตั"
+    windows = {"้": "้งแต่", "none": "งแต่"}
+    assert enc(windows["้"])[0] == 9000  # standalone: the never-seen merged token
+    shared, targets = continuation_split(enc, dec, prefix, windows, own=enc(prefix))
+    assert dec(shared) == "ตั"
+    assert targets["้"] == [ord(c) for c in "้งแต่"]  # in context: canonical characters

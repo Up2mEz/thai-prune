@@ -165,6 +165,26 @@ and per-token log-probabilities, so the scoring convention — including the
 first token where variants diverge, the decision greedy decoding actually
 makes — can be compared offline after the next T2 run instead of assumed.
 
+**Update 2026-10-01 — cause of (2) found: windows tokenized standalone.**
+The fp32 rerun (`kaggle-thai-marks-t2-c48b8a3fe9ce`, both models, 178/178,
+guard ≤ 0.00012 nats) reproduced the tone anomaly, and the recorded
+per-token data located it. Of Typhoon's 107 Full-page tone sites where the
+oracle was wrong, 99 are sites its own greedy output reads correctly —
+common words (ตั้งแต่, แล้ว, ทั้ง, เบื้องต้น). There the reference variant's
+first window token scored about −19 nats against ≈ 0 at correctly scored
+sites. `score_item` tokenized each variant's window *on its own*; when the
+window starts at a tone mark after an upper vowel, that yields a merged token
+(`้ง`) that never follows the prefix tokens (`…ต|ั`) in the canonical
+tokenization of the same text, so both the right and wrong variants were
+off-distribution and the comparison was noise. The window starts
+non-canonically on 92.7% (Typhoon) and 86.8% (base) of wrong tone oracles and
+on 4.6% / 2.2% of right ones; vowel and tone-absent sites, 0%. **All T2
+tone-mark oracle and prior numbers to date are invalid**; vowel numbers are
+not affected by this defect. Fix: each variant is tokenized in context
+(prefix + window as one string, `runtime.continuation_split`), so its tokens
+are the text's own; verified with the pinned tokenizer on all 6,958 sites
+(non-canonical tone starts 11.3% → 0.0%). Requires a T2 rerun.
+
 ## 8. Known limitations
 
 - **Anchored scoring rewards more text when output length is the thing that

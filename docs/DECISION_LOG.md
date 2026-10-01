@@ -2,6 +2,27 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-01b — T2 tone oracle was a tokenization artefact; fixed; T2 rerun
+
+**Stage/Gate:** T2 instrument repair, under the 2026-09-28c authorization
+of an fp32 T2 rerun (same run class, same inputs; the instrument was wrong).
+
+**Finding:** the fp32 rerun completed cleanly (both models, 178/178, guard
+≤ 0.00012 nats), and its per-token records showed why tone oracles fell
+below greedy: standalone tokenization of a window starting at a tone mark
+produced non-canonical tokens (scoring doc §7, update 2026-10-01). All T2
+tone-mark oracle/prior figures to date are withdrawn; vowel figures stand.
+
+**Decision:** variants are tokenized in context (`continuation_split`),
+verified on all 6,958 sites; rerun T2 (fp32, both models) after a smoke.
+
+**Also from the fp32 run (vowels, valid):** base's oracle ≈ prior (image adds
+little at the decision); image-contrastive re-scoring at λ = 1.0 lowers
+accuracy sharply for both models, at λ = 0.5 it does not beat the oracle —
+evidence against remedy family §3.A in its plain form.
+
+---
+
 ## 2026-10-01 — R-FUSE fails its development check; outcome rule for length-changing methods
 
 **Stage/Gate:** method development on the calibration split, existing
