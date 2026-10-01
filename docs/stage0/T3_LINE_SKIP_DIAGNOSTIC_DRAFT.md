@@ -78,7 +78,13 @@ first missing line after a line that was read — **26 scorable boundaries on
 outside the control distribution, not to estimate a rate precisely. To widen
 it without new data: (a) score all 178 missing lines, not only marked ones,
 since the skip decision is made before any mark; (b) add `TYPHOON_CARD`
-(§6.2). The locked split stays closed. Cost: under one T4-hour at T2's fp32
+(§6.2). The locked split stays closed.
+
+Built by `line_skip.boundaries` (unit-tested; 12-character continuations,
+2 seeded controls per page): **32 skip boundaries on 15 pages under
+`BENCHMARK_QUESTION`** (17 starting a line with marks) and **30 on 20 pages
+under `TYPHOON_CARD`**, with 129 and 124 control boundaries. All missing
+lines are scored; the marked subset is reported separately. Cost: under one T4-hour at T2's fp32
 rate.
 
 ## 6. Decisions needed
