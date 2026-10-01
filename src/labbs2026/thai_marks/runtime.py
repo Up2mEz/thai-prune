@@ -174,6 +174,88 @@ def _full_forward(model, processor, prompt_ids_inputs: dict, full_ids, has_image
     return out, kwargs["position_ids"]
 
 
+def continuation_split(encode, decode, prefix: str, continuations: dict[str, str]
+                       ) -> tuple[list[int], dict[str, list[int]]]:
+    """Shared prefix tokens and each continuation's own tokens (T3).
+
+    Byte-level BPE can merge across the join, so each `prefix + continuation`
+    is tokenized whole and the split point is the longest token prefix that
+    all of them share with the prefix's own tokenization and that decodes to
+    a prefix of `prefix`. Every continuation is then scored from the same
+    context, and only its own tokens differ.
+    """
+    own = encode(prefix)
+    joint = {label: encode(prefix + text) for label, text in continuations.items()}
+    k = len(own)
+    for ids in joint.values():
+        j = 0
+        while j < min(k, len(ids)) and ids[j] == own[j]:
+            j += 1
+        k = j
+    while k > 0 and not prefix.startswith(decode(own[:k])):
+        k -= 1
+    windows = {label: ids[k:] for label, ids in joint.items()}
+    if any(not w for w in windows.values()):
+        raise RuntimeError("a continuation has no tokens of its own; refusing to score")
+    return own[:k], windows
+
+
+def score_continuations(model, processor, image, prompt: str, prefix: str,
+                        continuations: dict[str, str], *, device: str,
+                        tolerance: float) -> dict[str, dict]:
+    """Log-probabilities of alternative continuations of the model's own prefix.
+
+    Same machinery as `score_item`: one full forward over prompt + prefix with
+    explicit M-RoPE positions, then each continuation from a cropped copy of
+    that cache; the first continuation is re-scored by an uncached forward and
+    the call fails closed if they disagree by more than `tolerance` nats.
+    """
+    import torch
+
+    tokenizer = processor.tokenizer
+    shared, windows = continuation_split(
+        lambda t: tokenizer(t, add_special_tokens=False)["input_ids"],
+        lambda ids: tokenizer.decode(ids, clean_up_tokenization_spaces=False),
+        prefix, continuations)
+    out: dict[str, dict] = {}
+    for condition in ("image", "no_image"):
+        has_image = condition == "image"
+        inputs = prompt_inputs(processor, image if has_image else None, prompt, device)
+        prompt_ids = inputs["input_ids"]
+        context = torch.cat([prompt_ids, torch.tensor([shared], device=prompt_ids.device,
+                                                      dtype=prompt_ids.dtype)], dim=-1)
+        result, positions = _full_forward(model, processor, inputs, context, has_image, 1)
+        cache = result.past_key_values
+        boundary = context.shape[-1] - 1
+        for number, (label, targets) in enumerate(windows.items()):
+            feed = torch.tensor([[int(context[0, boundary])] + targets[:-1]],
+                                device=context.device, dtype=context.dtype)
+            branch = copy.deepcopy(cache)
+            branch.crop(boundary)
+            with torch.inference_mode():
+                logits = model(input_ids=feed,
+                               position_ids=continuation_positions(positions, boundary,
+                                                                   feed.shape[-1]),
+                               past_key_values=branch, use_cache=True).logits
+            logps = _window_logprobs(logits, targets)
+            entry = {"logprob": sum(logps), "tokens": len(targets),
+                     "token_ids": [int(t) for t in targets], "token_logprobs": logps}
+            if number == 0:
+                check = torch.cat([context, torch.tensor([targets], device=context.device,
+                                                         dtype=context.dtype)], dim=-1)
+                fresh, _ = _full_forward(model, processor, inputs, check, has_image,
+                                         len(targets) + 1)
+                worst = max(abs(a - b) for a, b in
+                            zip(logps, _window_logprobs(fresh.logits[:, :-1, :], targets)))
+                if not math.isfinite(worst) or worst > tolerance:
+                    raise RuntimeError(f"cached continuation disagrees with uncached forward "
+                                       f"by {worst:.4f} nats ({condition}); refusing to record")
+                entry["consistency_max_abs_nats"] = worst
+            out.setdefault(label, {})[condition] = entry
+        del cache
+    return out
+
+
 def scoring_window_token(offsets: Sequence[tuple[int, int]], site_index: int,
                          clean_prefix, text_length: int) -> int:
     """Index of the reference token where a site's scoring window starts.

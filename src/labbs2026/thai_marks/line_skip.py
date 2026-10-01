@@ -40,6 +40,28 @@ def _line_status(reference: str, hypothesis: str, lines: list[str]):
     return status
 
 
+def _line_end(hypothesis: str, line: str, aligned_end: int, tail: int = 8,
+              reach: int = 40) -> int | None:
+    """Where the output's copy of `line` ends, near the aligner's estimate.
+
+    At a junction with a missing line the aligner can lend the end of the
+    previous line to the missing one, so its estimate may fall short. The
+    line's last `tail` characters are searched within `reach` of the
+    estimate; the closest occurrence wins. None if the tail is not there,
+    i.e. the previous line was not read cleanly enough to place a boundary.
+    """
+    tail_text = line[-tail:]
+    lo = max(0, aligned_end - reach)
+    best = None
+    start = hypothesis.find(tail_text, lo)
+    while start != -1 and start <= aligned_end + reach:
+        end = start + len(tail_text)
+        if best is None or abs(end - aligned_end) < abs(best - aligned_end):
+            best = end
+        start = hypothesis.find(tail_text, start + 1)
+    return best
+
+
 def raw_position(raw: str, extracted_prefix: str, tail: int = 24) -> int | None:
     """Index in the raw output where `extracted_prefix` ends, or None.
 
@@ -79,12 +101,9 @@ def boundaries(record: dict, *, controls_per_page: int = 2, seed: int = 20261001
         prev, cur = status[k - 1], status[k]
         if prev["missing"] or prev["hyp_end"] is None:
             continue
-        cut = prev["hyp_end"]
-        # A line ends at whitespace; the aligner can hand its last character to
-        # the missing next line, so snap to the next space within a few chars.
-        space = hypothesis.find(" ", cut)
-        if space != -1 and space - cut <= 4:
-            cut = space
+        cut = _line_end(hypothesis, prev["line"], prev["hyp_end"])
+        if cut is None:
+            continue
         prefix = hypothesis[:cut]
         actual = hypothesis[cut:].lstrip()[:chars]
         if len(actual) < chars:
@@ -103,6 +122,9 @@ def boundaries(record: dict, *, controls_per_page: int = 2, seed: int = 20261001
         elif k + 1 < len(status) and actual.startswith(cur["line"][:4]):
             controls.append({**case, "kind": "control",
                              "expected": status[k + 1]["line"][:chars]})
+    # Identical continuations would give a margin of exactly 0 by construction.
+    out = [c for c in out if c["expected"] != c["actual"]]
+    controls = [c for c in controls if c["expected"] != c["actual"]]
     rng = random.Random(f"{seed}:{record['id']}")
     out += rng.sample(controls, min(controls_per_page, len(controls)))
     return out

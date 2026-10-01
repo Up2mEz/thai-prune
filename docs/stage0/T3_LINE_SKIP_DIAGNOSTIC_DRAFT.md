@@ -81,10 +81,15 @@ since the skip decision is made before any mark; (b) add `TYPHOON_CARD`
 (§6.2). The locked split stays closed.
 
 Built by `line_skip.boundaries` (unit-tested; 12-character continuations,
-2 seeded controls per page): **32 skip boundaries on 15 pages under
-`BENCHMARK_QUESTION`** (17 starting a line with marks) and **30 on 20 pages
-under `TYPHOON_CARD`**, with 129 and 124 control boundaries. All missing
-lines are scored; the marked subset is reported separately. Cost: under one T4-hour at T2's fp32
+2 seeded controls per page). A boundary is kept only if the previous line's
+last 8 characters are found in the output near the aligner's estimate (so the
+cut is where that line really ends), its two continuations differ, and its
+prefix maps back into the raw output (the model decided on raw text). That
+leaves **19 skip boundaries on 11 pages under `BENCHMARK_QUESTION`** and
+**15 on 15 pages under `TYPHOON_CARD`** (3 more unplaceable), with 119 and
+103 control boundaries. All missing lines are scored; the marked subset is
+reported separately. With n ≈ 34 skips, T3 can show whether skips sit inside
+or far outside the control distribution; it cannot estimate a rate. Cost: under one T4-hour at T2's fp32
 rate.
 
 ## 6. Decisions needed
