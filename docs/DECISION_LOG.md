@@ -2,6 +2,37 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03 — scope and metric decided under delegation; goal is Typhoon
+
+**Decision owner:** delegated by the researcher in session 2026-10-03
+("ตัดสินใจแทนฉัน"). Made by the assistant; reversible by the researcher at
+any time. No run is authorized by this entry.
+
+**Goal clarified by the researcher:** the next remedies target Typhoon's
+remaining gaps (the open-source Thai SOTA), not the base model.
+
+**1. Metric.** Order-free v2 mark precision/recall/F1
+(`ORDER_FREE_MARK_METRIC_DRAFT.md` §6–§7) becomes the reported metric for any
+remedy that changes what or how much text is output. The anchored CER and
+mark error of `THAI_MARKS_T1_SCORING_V2.md` stay reported unchanged, for
+continuity. Reason: v2 passed every pre-registered check, charges surplus
+text (`CAT` control) and does not charge reading order, which document
+benchmarks score separately (OmniDocBench).
+
+**2. Scope.**
+- Headers, footers, page numbers and similar page furniture are **out of
+  scope** for claims: OmniDocBench excludes them from text metrics and
+  olmOCR-bench tests that they are *absent*. Marks lost there are reported as
+  a separate line, not as reading errors.
+- Text inside infographics and charts is **in scope**, reported as its own
+  subgroup: Typhoon's own report treats infographics as a document category
+  and names it its weakest (arXiv 2601.14722), though OmniDocBench excludes
+  figure-internal text.
+
+**Next proposed (draft, not authorized):** `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`.
+
+---
+
 ## 2026-10-02c — order-free mark metric: draft v1 failed, v2 passed its checks
 
 **Evidence:** `docs/stage0/ORDER_FREE_MARK_METRIC_DRAFT.md` §5–§7. Offline,
