@@ -64,3 +64,23 @@ def test_a_line_far_from_the_output_is_not_matched() -> None:
 def test_unknown_mode_is_rejected() -> None:
     with pytest.raises(ValueError):
         mark_counts(L1, L1, mode="anchored")
+
+
+def test_v1_drops_a_poorly_read_line_v2_keeps_its_right_marks() -> None:
+    # L3 with every consonant misread (CER > 0.4) but its marks right.
+    poor = "".join("ข" if "ก" <= c <= "ฮ" and c != "ข" else c for c in L3)
+    out = f"{L1} {L2} {poor}"
+    v1 = mark_counts(REF, out)
+    assert v1["matched_lines"] == 2
+    v2 = mark_counts(REF, out, residual=True)
+    assert v2["correct"] > v1["correct"]
+    assert prf([v2])["recall"] >= prf([mark_counts(REF, out, mode="global")])["recall"]
+
+
+def test_v2_never_credits_claimed_output_twice() -> None:
+    s = prf([mark_counts(f"{L3}\n{L3}", L3, residual=True)])
+    assert s["recall"] == pytest.approx(0.5)
+
+
+def test_v2_reordered_lines_still_get_full_recall() -> None:
+    assert prf([mark_counts(REF, f"{L3} {L1} {L2}", residual=True)])["recall"] == 1

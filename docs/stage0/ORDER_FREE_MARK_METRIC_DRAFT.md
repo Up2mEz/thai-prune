@@ -58,3 +58,43 @@ the joined reference against the output, as used for the R-FUSE correction.
 Per model × task × prompt cell: recall, precision, F1 under `global` and
 `line_matched`, the matched share of lines and of marks, the short-line mark
 share, and the `CAT` control.
+
+## 5. v1 result: check 3 failed (2026-10-02)
+
+Run `order_free_v1.json` (git `0a3b7b8`). `global` reproduces the R-FUSE
+correction exactly (Typhoon Full-page F1 93.1% BQ, 93.7% TC, `CAT` 64.6%).
+
+| cell | global R / P / F1 | line_matched@0.4 R / P / F1 |
+|---|---|---|
+| typhoon · Full-page · BQ | 94.3 / 91.9 / 93.1 | 95.5 / 93.1 / 94.3 |
+| typhoon · Full-page · TC | 92.9 / 94.5 / 93.7 | 93.8 / 95.5 / 94.6 |
+| typhoon · Full-page · CAT | 97.2 / 48.4 / 64.6 | 97.6 / 48.6 / 64.9 |
+| base · Full-page · BQ | 64.9 / 29.9 / 40.9 | **49.2** / 22.6 / 31.0 |
+| base · Text rec. · BQ | 83.3 / 14.2 / 24.2 | **70.0** / 11.9 / 20.3 |
+
+- Check 2 (`CAT` below the better single read) passes for both models.
+- **Check 3 fails:** base recall falls 15.7 points instead of staying close.
+  A line read at CER ≥ 0.4 loses every mark, including marks read right, so
+  v1 measures "located *and* read well", not location-free reading. Typhoon
+  Text recognition falls too (−2.3 points), for the same reason.
+- v1 is therefore not used. For Typhoon Full-page it is a lower bound on the
+  order effect (lines it drops would only add credit): reading order costs at
+  least ~1.2 points of mark recall and of mark precision.
+
+## 6. v2 (designed after the v1 failure; checks fixed before its run)
+
+`residual=True`: after the v1 line matching, the unmatched reference lines
+(all of them, short lines included, in reference order) are globally aligned
+against the output with the claimed characters removed, and their correct
+marks are credited. A matched line is thus credited order-free; everything
+else is scored as `global` scores it, on the output no line has claimed.
+
+Checks for v2, all on the same run:
+
+1. Unit tests as §3.1, plus: a poorly read line keeps the marks it got right.
+2. `CAT` F1 below the better single read, both models.
+3. Base recall within 2 points of `global` or above, every cell.
+4. Typhoon Full-page recall ≥ `global` recall.
+
+If any fails, v2 is not used either and the order question is reported from
+`attribution_v2b.json` alone.

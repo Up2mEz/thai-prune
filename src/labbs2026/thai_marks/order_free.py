@@ -40,8 +40,13 @@ def _prf(correct: int, reference_marks: int, output_marks: int) -> dict[str, flo
 
 
 def mark_counts(raw_reference: str, raw_output: str, *, mode: str = "line_matched",
-                max_cer: float = LINE_MATCH_CER) -> dict[str, Any]:
-    """Counts behind mark precision/recall for one observation (sum these, then `prf`)."""
+                max_cer: float = LINE_MATCH_CER, residual: bool = False) -> dict[str, Any]:
+    """Counts behind mark precision/recall for one observation (sum these, then `prf`).
+
+    `residual=False` is v1 (draft §2; failed its base check, §5). `residual=True`
+    is v2 (§6): unmatched lines, in reference order, are globally aligned
+    against the output with every claimed character removed.
+    """
     lines = reference_lines(raw_reference)
     hypothesis = extract_text(raw_output)
     reference_marks = sum(_marks(line) for line in lines)
@@ -55,6 +60,7 @@ def mark_counts(raw_reference: str, raw_output: str, *, mode: str = "line_matche
     if mode != "line_matched":
         raise ValueError(mode)
     masked = list(hypothesis)
+    matched: set[int] = set()
     correct = matched_lines = matched_marks = 0
     eligible = sorted((i for i, line in enumerate(lines) if len(line) >= MIN_ELSEWHERE_CHARS),
                       key=lambda i: (-len(lines[i]), i))
@@ -67,10 +73,17 @@ def mark_counts(raw_reference: str, raw_output: str, *, mode: str = "line_matche
         if not hyp:
             continue
         correct += _correct_marks(pairs, line, current)
+        matched.add(i)
         matched_lines += 1
         matched_marks += _marks(line)
         for h in range(min(hyp), max(hyp) + 1):
             masked[h] = MASK
+    if residual:
+        rest_reference = " ".join(line for i, line in enumerate(lines) if i not in matched)
+        rest_output = "".join(c for c in masked if c != MASK)
+        if rest_reference:
+            correct += _correct_marks(align(rest_reference, rest_output),
+                                      rest_reference, rest_output)
     out.update(correct=correct, lines=len(lines), eligible_lines=len(eligible),
                matched_lines=matched_lines, matched_reference_marks=matched_marks)
     return out

@@ -20,6 +20,8 @@ def _variants(job: tuple[str, str]) -> dict[str, dict]:
     out = {"global": mark_counts(reference, output, mode="global")}
     for t in THRESHOLDS:
         out[f"line_matched@{t}"] = mark_counts(reference, output, max_cer=t)
+        out[f"line_matched_residual@{t}"] = mark_counts(reference, output, max_cer=t,
+                                                        residual=True)
     return out
 
 
