@@ -104,3 +104,55 @@ identical share is reported (fp16 GPU kernels may differ slightly).
 (~45 s per page read, ~5 s per crop read) about 6 GPU-hours on one T4, ~3 h
 on 2×T4 with `--shards 2`. Infrastructure change (new test `t5`), so a
 4-item smoke runs first on the secondary account.
+
+## 6. Result (2026-10-03): neither arm passes §4
+
+Run `kaggle-thai-marks-t5-a10ef64c9eb4-typhoon-x2` (git `a10ef64`), 1068 / 1068
+records, 0 failures, checksums verified, fp16. **Two GPUs verified:**
+`SUCCESS.json` `gpus: 2`; two shards on separate Tesla T4s (wall 12,279 s and
+13,323 s); kernel 18:52:13 → 22:37:14Z = 13,501 s, close to the slower shard,
+not the 25,602 s sum. `greedy` reproduces T1 exactly in every cell (identical
+share 1.0). Summary: `runs/kaggle/kaggle-thai-marks-t5-a10ef64c9eb4-typhoon-x2/fetched/t5_summary.json`.
+
+Order-free v2 mark F1, % (Δ vs `greedy`, 95% page-bootstrap CI), loop rate:
+
+| cell | greedy | `ngram_block` | `rep_penalty` |
+|---|---|---|---|
+| Full-page BQ | 94.87, loops 2/69 | 94.19 (−0.68 [−2.09, 0.00]), loops 2/69 | 95.76 (+0.89 [−2.70, +4.81]), loops 2/69 |
+| Full-page TC | 95.30, loops 5/69 | 95.16 (−0.13 [−1.37, +1.02]), loops 2/69 | 94.12 (−1.18 [−4.86, +1.79]), loops 3/69 |
+| Text rec. BQ | 81.73, loops 1/109 | 85.03 (+3.29 [0.00, +9.82]), loops 0 | 76.30 (−5.43 [−18.3, +7.0]), loops 1 |
+| Text rec. TC | 75.80, loops 3/109 | 77.74 (+1.94 [−1.33, +7.00]), loops 1 | 78.16 (+2.36 [−0.59, +7.21]), loops 1 |
+
+On **loop-free pages** (where an arm can only do harm):
+
+| cell | `ngram_block` identical / ΔF1 | `rep_penalty` identical / ΔF1 |
+|---|---|---|
+| Full-page BQ | 98.5% / −0.02 | 0% / −1.30 |
+| Full-page TC | 92.2% / −0.05 | 7.8% / −1.14 |
+| Text rec. BQ | 100% / 0.00 | 36.1% / −8.85 |
+| Text rec. TC | 99.1% / 0.00 | 11.3% / +0.29 |
+
+Text recognition BQ, v2 tone-mark error: greedy 17.1%, `ngram_block` 17.1%,
+`rep_penalty` 22.6%. Full-page BQ `misread_other`: 1.11% → 1.80% of marks
+under `rep_penalty`.
+
+**Readings.**
+
+- `rep_penalty` fails: it changes almost every output and costs 1.1–1.3 F1
+  points on loop-free full pages and 5.5 points of tone-mark error on Text
+  recognition BQ. This supports the stated risk: a global repetition penalty
+  (the vendor's anti-loop setting under greedy) costs Thai marks.
+- `ngram_block` fails §4 (Full-page F1 below greedy in both cells; BQ loop
+  rate not lower), but it is **safe where there is no loop** (≤ 0.05 F1
+  points, 92–100% identical) and ends 6 of 11 loops (`F096D392` TC: 0 → 104
+  marks correct). Where it does not end a loop, raw outputs show the model
+  escaping into **near-repeats** (`ซอยจุฬาภรณ์ → ซอยนวมินทร์ → ซอยนวมนิมิต →
+  ซอยนวบินิต`; `ภควโต → ภวิทํ`) or a block loop longer than the 90-token
+  window; these carry more marks, so surplus rises (`5300A462` BQ: output
+  marks 402 → 680).
+- Mechanism (inference): a loop is an attractor of the decoder, not a single
+  repeated token; banning the exact repeat moves the model to a neighbouring
+  attractor. Redirecting decoding does not recover the page; it would have to
+  be stopped, or the unread part re-read.
+- n = 69 pages with 2–5 loops per cell: every CI includes 0. Mechanism, not
+  rate.

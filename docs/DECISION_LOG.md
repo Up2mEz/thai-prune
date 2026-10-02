@@ -2,6 +2,21 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03d — T5 results: neither anti-loop arm passes
+
+**Evidence:** `docs/stage0/T5_LOOP_DECODING_DRAFT.md` §6, run
+`kaggle-thai-marks-t5-a10ef64c9eb4-typhoon-x2` (2×T4 verified).
+
+**Finding:** the vendor's repetition penalty (1.1, greedy) costs Thai marks on
+pages without loops (F1 −1.1 to −1.3; Text recognition tone error 17.1% →
+22.6%). DeepSeek-OCR's n-gram block leaves loop-free outputs essentially
+unchanged and ends 6 of 11 loops, but where it fails the model escapes into
+near-repeats that add surplus marks, so full-page F1 falls. Neither is
+adopted. Loops behave as decoder attractors: the next candidate is stopping
+at a detected loop (and later re-reading the unread part), not redirecting.
+
+---
+
 ## 2026-10-03c — T5 (loop decoding) authorized
 
 **Stage/Gate:** Stage 0 diagnostic/remedy screen, calibration split only.
