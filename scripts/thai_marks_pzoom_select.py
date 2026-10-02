@@ -43,7 +43,9 @@ def main() -> None:
         "pages": pages,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    # bytes, not write_text: on Windows write_text turns "\n" into CRLF while git stores LF, and
+    # the sha256 pinned in p_zoom.yaml would then differ from the file the Kaggle worker checks out.
+    args.out.write_bytes((json.dumps(payload, ensure_ascii=False, indent=1) + "\n").encode("utf-8"))
     print(json.dumps(payload["totals"]), hashlib.sha256(args.out.read_bytes()).hexdigest())
 
 
