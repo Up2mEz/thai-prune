@@ -25,4 +25,4 @@ tiling:
 # The file stores line indices only, no reference text.
 pages:
   file: configs/thai_marks/p_zoom_pages.json
-  sha256: 1b8bc7a9f210126fd1881e13e085d376206fba80f5439779bb7cdd7242a74055
+  sha256: b488ee0ba75a21324fe044696ba50ea044928367be8867337b0c07d421d58176
