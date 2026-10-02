@@ -7,6 +7,7 @@ from labbs2026.thai_marks.attribution import (
     CAUSES_APPROX,
     attribute_marks,
     elsewhere_cer,
+    find_elsewhere,
     read_elsewhere,
     reference_lines,
 )
@@ -77,3 +78,29 @@ def test_short_lines_are_never_credited_as_read_elsewhere() -> None:
 
 def test_elsewhere_cer_is_zero_for_a_verbatim_stretch() -> None:
     assert elsewhere_cer(L2, f"ก่อน {L2} หลัง") == 0
+
+
+def test_a_stretch_already_credited_is_not_credited_twice() -> None:
+    # L3 appears twice in the reference and once in the output: one copy is
+    # read, the other is missing, not "read elsewhere" from the same text.
+    out = attribute_marks(f"{L3}\n{L1}\n{L3}", f"{L3} {L1}", approximate_reorder=True)
+    assert out["line_missing"] > 0 and not out["line_reordered_approx"]
+
+
+def test_read_elsewhere_respects_used_indices() -> None:
+    hyp = f"ก่อน {L3} หลัง"
+    assert read_elsewhere(L3, hyp)
+    assert not read_elsewhere(L3, hyp, used=set(range(len(hyp))))
+
+
+def test_a_credited_stretch_cannot_be_found_again() -> None:
+    hyp, used = f"ก่อน {L3} หลัง", set()
+    found, stretch = find_elsewhere(L3, hyp, used)
+    assert found == "verbatim"
+    used.update(stretch)  # as attribute_marks does after crediting a line
+    assert find_elsewhere(L3, hyp, used)[0] is None
+    assert find_elsewhere(L3.replace("อีก", "อก"), hyp, used)[0] is None
+
+
+def test_short_verbatim_lines_are_not_credited_under_approx() -> None:
+    assert find_elsewhere("2556", "ปี 2556") == (None, range(0))
