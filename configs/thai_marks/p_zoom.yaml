@@ -1,7 +1,7 @@
 schema_version: 1
-# DRAFT: the researcher has not authorized this run. scripts/thai_marks_kaggle.py
+# APPROVED 2026-10-03 (docs/DECISION_LOG.md 2026-10-03d). scripts/thai_marks_kaggle.py
 # refuses to submit `t4` until this is APPROVED and docs/DECISION_LOG.md records it.
-status: DRAFT
+status: APPROVED
 draft: docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md
 claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
 

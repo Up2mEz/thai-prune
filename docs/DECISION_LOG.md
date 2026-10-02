@@ -2,6 +2,37 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03d — P-ZOOM graphic-text probe authorized (smoke first)
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** Up2mEz, in session 2026-10-03 ("ทำทั้งหมดเลย", answering a
+list that included approving the probe, the offline scorer, and a smoke on the
+secondary account). Recorded by the assistant as an approval given under the
+researcher's standing delegation; reversible at any time.
+
+**Authorized:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` with the choices
+of §6 and the amended reading rule of §7: Typhoon, `TYPHOON_CARD`, 21
+calibration pages x 4 tiles = 84 reads, greedy as T1. First a smoke
+(`--limit 1`) on the secondary account `thanakrit2505`; if it passes, the full
+run on the main account, kernel slug `labbs2026-thai-marks-pzoom`, one T4
+session, under 2 GPU-hours (the session budget is 3 h this week).
+
+**Amendment made before any tile output (§7):** the draft's "tiles recover
+>= 50% of absent marks" would also be met by the whole-page `TYPHOON_CARD`
+read, which already recovers 50.6% with no zoom. The reading now requires a
+gain of >= 15 points over that baseline; otherwise the result is reported as
+`prompt_not_zoom`. The 15 points are a judgement. To reverse: edit the rule
+in `p_zoom_analysis.reading` before the first tile output is read, and log it.
+
+**Not authorized:** any method built on the result (graphic localization,
+re-read, insertion), the locked split, any model but Typhoon, more than 3
+GPU-hours this week.
+
+---
+
 ## 2026-10-03c — T5 (loop decoding) authorized
 
 **Stage/Gate:** Stage 0 diagnostic/remedy screen, calibration split only.

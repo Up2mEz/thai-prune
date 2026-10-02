@@ -1,6 +1,6 @@
 # P-ZOOM — can Typhoon read the text it leaves out of graphics, if it is shown larger?
 
-**Status: `DRAFT`, not authorized.** Written 2026-10-03. A mechanism probe on
+**Status: `APPROVED` 2026-10-03 for smoke then full run (`DECISION_LOG.md` 2026-10-03d), with the amendment of §7.** Written 2026-10-03. A mechanism probe on
 the calibration split, Typhoon only (one new factor per round). It evaluates
 no method and supports no claim beyond "the text is / is not readable by
 Typhoon when enlarged".
