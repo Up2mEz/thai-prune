@@ -65,3 +65,34 @@ def test_shards_partition_the_items_exactly_and_stay_balanced() -> None:
     assert not set(parts[0]) & set(parts[1])
     assert abs(len(parts[0]) - len(parts[1])) <= 1
     assert shard_items(items, 0, 1) == items
+
+
+def test_t5_keys_include_the_arm(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    _write_jsonl(path, [
+        {"id": "A1", "prompt_kind": "TYPHOON_CARD", "arm": "greedy", "raw_output": "x"},
+        {"id": "A1", "prompt_kind": "TYPHOON_CARD", "arm": "ngram_block", "raw_output": "x"},
+    ])
+    assert completed_keys(path, "t5") == {
+        ("A1", "TYPHOON_CARD", "greedy"), ("A1", "TYPHOON_CARD", "ngram_block")}
+
+
+class _Tok:
+    def encode(self, text, add_special_tokens=False):
+        return {"<td>": [11, 29], "</td>": [60, 61, 29]}[text]
+
+
+def test_t5_processors_are_fresh_per_call_and_report_the_whitelist() -> None:
+    from labbs2026.thai_marks.remote import t5_processors
+
+    arm = {"name": "ngram_block", "repetition_penalty": 1.0,
+           "ngram_block": {"ngram_size": 30, "window_size": 90,
+                           "whitelist_texts": ["<td>", "</td>"]}}
+    first, built = t5_processors(arm, _Tok())
+    second, _ = t5_processors(arm, _Tok())
+    assert first[0] is not second[0]
+    assert (first[0].ngram_size, first[0].window_size) == (30, 90)
+    assert first[0].whitelist == {11, 29, 60, 61}
+    assert built == {"whitelist_ids": [11, 29, 60, 61]}
+    assert t5_processors({"name": "greedy", "repetition_penalty": 1.0, "ngram_block": None},
+                         _Tok()) == ([], {})

@@ -25,7 +25,7 @@ import time
 import traceback
 from pathlib import Path
 
-from labbs2026.thai_marks.generation import describe_resolved, generation_kwargs
+from labbs2026.thai_marks.generation import describe_resolved, generation_kwargs, t5_arm_kwargs
 from labbs2026.thai_marks.normalize import collapse_whitespace
 from labbs2026.thai_marks.orthography import find_sites, sample_sites
 from labbs2026.thai_marks.split import calibration_ids
@@ -52,6 +52,8 @@ def completed_keys(records_path: Path, test: str) -> set:
             record = json.loads(line)
             if test == "t1":
                 keys.add((record["id"], record["prompt_kind"]))
+            elif test == "t5":
+                keys.add((record["id"], record["prompt_kind"], record["arm"]))
             elif test == "t3":
                 keys.add(record["case"])
             else:
@@ -141,10 +143,27 @@ def _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model, proc
     return cases
 
 
+def t5_processors(arm: dict, tokenizer) -> tuple[list, dict]:
+    """Fresh logits processors for one T5 call, and what they were built from.
+
+    A processor holds per-call state (prompt length, intervention count), so a
+    new one is built for every generation.
+    """
+    from labbs2026.thai_marks.loop_guard import WindowedNoRepeatNGram, whitelist_ids
+
+    block = arm["ngram_block"]
+    if block is None:
+        return [], {}
+    whitelist = whitelist_ids(tokenizer, block["whitelist_texts"])
+    processor = WindowedNoRepeatNGram(block["ngram_size"], block["window_size"],
+                                      whitelist=whitelist)
+    return [processor], {"whitelist_ids": whitelist}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t5"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
@@ -229,6 +248,15 @@ def main() -> None:
         gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
         generation_record = {"requested": gen_kwargs,
                              **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
+    arm_kwargs = {}
+    if args.test == "t5":
+        generation_record = {}
+        for arm in spec["t5_arms"]:
+            kw = t5_arm_kwargs(spec["generation"], arm, int(spec["max_new_tokens"]))
+            arm_kwargs[arm["name"]] = kw
+            generation_record[arm["name"]] = {
+                "requested": kw, "ngram_block": arm["ngram_block"],
+                **describe_resolved(runtime.resolved_generation(model, kw))}
 
     failures = []
     records_path = out_dir / "records.jsonl"
@@ -244,6 +272,9 @@ def main() -> None:
             if args.test == "t2" and row["Id"] in completed:
                 continue
             if args.test == "t1" and all((row["Id"], p) in completed for p in spec["t1_prompts"]):
+                continue
+            if args.test == "t5" and all((row["Id"], p, a["name"]) in completed
+                                         for p in spec["t1_prompts"] for a in spec["t5_arms"]):
                 continue
             original = row["image"].convert("RGB")
             image = runtime.resize_policy(original)

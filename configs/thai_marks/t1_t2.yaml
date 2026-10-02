@@ -75,3 +75,17 @@ t2:
   consistency_tolerance_nats:
     float16: 0.1
     float32: 0.001
+
+# T5 — repetition loops (docs/stage0/T5_LOOP_DECODING_DRAFT.md; DRAFT, not
+# authorized). Greedy in every arm: t1.generation with only
+# repetition_penalty overridden; ngram_block is DeepSeek-OCR's windowed
+# no-repeat n-gram processor (src/labbs2026/thai_marks/loop_guard.py).
+# Typhoon only; prompts and max_new_tokens as t1.
+t5:
+  roles: [typhoon]
+  arms:
+    - {name: greedy, repetition_penalty: 1.0, ngram_block: null}
+    - {name: rep_penalty, repetition_penalty: 1.1, ngram_block: null}
+    - name: ngram_block
+      repetition_penalty: 1.0
+      ngram_block: {ngram_size: 30, window_size: 90, whitelist_texts: ["<td>", "</td>", "<td></td>"]}

@@ -82,8 +82,12 @@ def resolved_generation(model, kwargs: dict) -> dict:
     return config.to_dict()
 
 
-def generate(model, processor, image, prompt: str, *, generation: dict, device: str) -> dict:
-    """Greedy transcription; `generation` is `generation.generation_kwargs(...)`."""
+def generate(model, processor, image, prompt: str, *, generation: dict, device: str,
+             logits_processors: list | None = None) -> dict:
+    """Greedy transcription; `generation` is `generation.generation_kwargs(...)`.
+
+    `logits_processors` (T5) are applied after the model's own processors.
+    """
     import torch
 
     _sync(device)
@@ -95,8 +99,13 @@ def generate(model, processor, image, prompt: str, *, generation: dict, device: 
     if str(device).startswith("cuda"):
         torch.cuda.reset_peak_memory_stats(device)
     max_new_tokens = generation["max_new_tokens"]
+    extra = {}
+    if logits_processors:
+        from transformers import LogitsProcessorList
+
+        extra["logits_processor"] = LogitsProcessorList(logits_processors)
     with torch.inference_mode():
-        produced = model.generate(**inputs, **generation)
+        produced = model.generate(**inputs, **generation, **extra)
     _sync(device)
     finished = time.perf_counter()
     new = produced[0][inputs["input_ids"].shape[-1]:]

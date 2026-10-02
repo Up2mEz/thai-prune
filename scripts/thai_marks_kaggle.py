@@ -50,6 +50,7 @@ HASHED = (
     "src/labbs2026/thai_marks/__init__.py",
     "src/labbs2026/thai_marks/decompose.py",
     "src/labbs2026/thai_marks/generation.py",
+    "src/labbs2026/thai_marks/loop_guard.py",
     "src/labbs2026/thai_marks/normalize.py",
     "src/labbs2026/thai_marks/orthography.py",
     "src/labbs2026/thai_marks/remote.py",
@@ -175,6 +176,8 @@ def main() -> None:
     roles = [r for r in args.roles.split(",") if r]
     if set(roles) - {"base", "typhoon"} or not roles:
         raise SystemExit(f"unknown roles: {roles}")
+    if "t5" in tests and roles != list(config["t5"]["roles"]):
+        raise SystemExit(f"t5 is registered for roles {config['t5']['roles']} only")
     suffix = "" if roles == ["base", "typhoon"] else "-" + "-".join(roles)
     suffix += f"-x{args.shards}" if args.shards > 1 else ""
     suffix += f"-smoke{args.limit}" if args.limit else ""
@@ -211,6 +214,7 @@ def main() -> None:
         "t1_prompts": config["t1"]["prompts"],
         "max_new_tokens": config["t1"]["max_new_tokens"],
         "generation": config["t1"]["generation"],
+        "t5_arms": config.get("t5", {}).get("arms"),
         "window_after_chars": config["t2"]["window_after_chars"],
         "t2_dtype": config["t2"].get("dtype"),
         "consistency_tolerance": config["t2"]["consistency_tolerance_nats"],
