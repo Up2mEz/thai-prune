@@ -1,6 +1,6 @@
 # T5 — Typhoon's repetition loops: vendor penalty vs DeepSeek-OCR n-gram blocking
 
-**Status: `DRAFT`, not authorized.** Written 2026-10-03 before any T5
+**Status: `APPROVED`** by the researcher 2026-10-03 (`DECISION_LOG.md` 2026-10-03c). Written 2026-10-03 before any T5
 output. Typhoon only (one new factor per round), calibration split, both
 prompts, Full-page OCR and Text recognition. Gap G2/G3 of
 `docs/exec-plans/active/PARALLEL_SESSIONS.md`.

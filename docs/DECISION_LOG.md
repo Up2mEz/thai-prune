@@ -2,6 +2,24 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03c — T5 (loop decoding) authorized
+
+**Stage/Gate:** Stage 0 diagnostic/remedy screen, calibration split only.
+Gate 0 remains `NOT_RUN`; the locked split stays closed.
+
+**Decision owner:** Up2mEz, in session 2026-10-03 ("อนุมัติรันเต็มแบบ2×T4
+ตรวจสอบด้วยว่ารันได้2ตัวจริงๆ").
+
+**Authorized:** `docs/stage0/T5_LOOP_DECODING_DRAFT.md` as written: Typhoon,
+3 greedy arms, 178 calibration items, both prompts, `--shards 2` on 2×T4,
+main account, kernel slug `labbs2026-thai-marks-t1-t2`. Smoke passed on the
+secondary account (`kaggle-thai-marks-t5-d6141d215878-typhoon-smoke2`).
+Verification of two GPUs: `SUCCESS.json` `gpus == 2`, each shard's manifest
+on its own device, and total kernel time close to one shard's wall time, not
+their sum.
+
+---
+
 ## 2026-10-03b — G1 read-then-point fails its dev check; T5 draft ready
 
 **Evidence:** `docs/stage0/G1_READ_THEN_POINT_DRAFT.md` §5 (offline, rule
