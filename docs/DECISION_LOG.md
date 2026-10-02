@@ -2,6 +2,28 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03e — P-ZOOM result: below the registered line; P-ZOOM stops
+
+**Evidence:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9; run
+`kaggle-thai-marks-t4-0b2d191e31c5-typhoon` (0.55 GPU-hours, main account).
+Calibration split, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding:** tiles (2x2, 15% overlap, 1.85x) recover 47.8% of the marks of lines Typhoon left
+out of full pages as text, 12.7% as `<figure>` descriptions, and miss 39.5%. The zoom-free
+`TYPHOON_CARD` whole-page read recovers 50.6%. By the reading fixed before the run
+(`resolution_attention_limit` needs >= 50% and +15 points over that baseline): no. The result
+is `beyond_typhoon_at_this_resolution`. It is 2.2 points under the line, and the control shows
+the grid loses wide ordinary lines (40% found against a 97% ceiling), so it is not a clean
+negative.
+
+**Not decided:** whether to run a variant (non-cutting tiles, such as full-width bands; or
+several reads per condition to separate variability from zoom). That would be a new factor and
+needs its own draft and approval. No claim about other models or about zoom in general.
+
+**Budget:** 0.55 of the 2 GPU-hours authorized in 2026-10-03d.
+
+---
+
 ## 2026-10-03d — P-ZOOM graphic-text probe authorized (smoke first)
 
 **Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains

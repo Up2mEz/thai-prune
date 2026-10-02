@@ -159,3 +159,50 @@ lower bound wherever tiles loop, and the reading must say so.
 **Cost.** At the smoke's rate (about 25 s for an ordinary tile, 120 s for a looped one) the 84
 reads take about 1 to 1.5 GPU-hours on one T4 session, inside the 2-hour limit of
 `DECISION_LOG.md` 2026-10-03d.
+
+## 9. Result (2026-10-03)
+
+Run `kaggle-thai-marks-t4-0b2d191e31c5-typhoon` (git `0b2d191`, main account, kernel
+`labbs2026-thai-marks-pzoom`): 84 reads, no failed read, checksums verified, fp16, greedy as T1,
+33 min wall = 0.55 GPU-hours, 45,609 tokens generated, 3 reads reached `max_new_tokens`, 47
+reads contain a `<figure>`. Scored by `scripts/thai_marks_pzoom_analyze.py` with the thresholds
+of §4 and §7, fixed before the run. Calibration split, Typhoon only,
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Registered measures (absent lines: 71 lines, 387 marks):**
+
+| | lines | marks | share of marks |
+|---|---|---|---|
+| found as text in a tile | 28 | 185 | **47.8%** |
+| found only inside `<figure>` | 14 | 49 | 12.7% |
+| not found | 29 | 153 | 39.5% |
+| whole page, `TYPHOON_CARD`, no zoom (baseline) | 31 text | 196 text | 50.6% text |
+
+Marks of recovered lines read correctly: 100% (absent), 96% (control). Tiles recover 87 marks
+(22.5%) the whole-page read does not, and lose 98 marks (25.3%) it reads. Chance level: 1 of 113
+lines. Scorer check on the `BENCHMARK_QUESTION` page read: 6.7% of absent marks, 98.7% of control.
+
+**Reading by the rule fixed in advance: `beyond_typhoon_at_this_resolution`.** Tiles reach 47.8%,
+under the 50% line; figure-only lines hold 12.7%, far under the policy line. By that rule P-ZOOM
+stops: no graphics-aware re-read is registered.
+
+**What this does and does not show.**
+
+- The 47.8% is 2.2 points under the line, 5 marks less than the whole-page read's 196. One or
+  two lines would flip it. The rule was fixed to be applied as written; it should not be read as
+  a clean "no".
+- Control lines the page read fine are found in a tile only 40.2% of the time (ceiling 96.9%
+  on the whole page). The 2×2 grid cuts wide lines in two, and `find_elsewhere` needs the whole
+  line in one tile. *Post hoc:* control lines not found have median length 96 characters, found
+  ones 32. Absent lines are short and their length does not separate found (median 23) from not
+  found (26), so this cut does not explain the absent misses. The tile step does lose ordinary
+  text, as §3's control was meant to show.
+- Loops do not explain it (3 of 84 reads; absent recovery 48.3% on pages with a looped tile,
+  47.6% on the others).
+- *Post hoc, not registered:* the union of the whole-page read and the tiles holds 73.1% of the
+  absent marks as text (50.6% + 22.5%). Gains and losses are of similar size (22.5% and 25.3%);
+  part of both is read-to-read variability of one greedy decode, which a single read per
+  condition cannot separate from the effect of zoom.
+- Zoom is therefore neither shown to reveal the text nor ruled out as a way to add some of it.
+  What the data support: a single 2×2 re-read does not recover most of what Typhoon leaves out of
+  graphics, and 12.7% of those marks go into `<figure>` descriptions instead of text.

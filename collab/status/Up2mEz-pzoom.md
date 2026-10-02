@@ -1,6 +1,6 @@
 # Status — Up2mEz-pzoom
 
-**Updated:** 2026-10-03 (pzoom, second work block)
+**Updated:** 2026-10-03 (pzoom, third work block)
 
 ## Track
 
@@ -15,14 +15,19 @@ P-ZOOM — `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`. Protocol:
 
 ## Running now
 
-Full probe on the main account: kernel `thanakritsamoena/labbs2026-thai-marks-pzoom`
-(own slug; the default `labbs2026-thai-marks-t1-t2` is not touched), run id
-`kaggle-thai-marks-t4-0b2d191e31c5-typhoon`, 84 reads, one T4 session, expected 1 to 1.5 h.
+Nothing on Kaggle.
+
+## Result
+
+Full probe done (`kaggle-thai-marks-t4-0b2d191e31c5-typhoon`): tiles recover 47.8% of the absent marks as text,
+under the registered 50% line and not above the zoom-free whole-page read (50.6%). Reading:
+`beyond_typhoon_at_this_resolution`, borderline, with a control showing the 2x2 grid loses wide lines.
+`DECISION_LOG.md` 2026-10-03e; details draft §9.
 
 ## GPU-hours used this week (main account)
 
-0 so far; this run expected 1 to 1.5 (limit 2, session budget 3).
+0.55 (the full probe). The smoke ran on the secondary account.
 
 ## Waiting on
 
-The run to finish; then `scripts/thai_marks_pzoom_analyze.py` and a write-up.
+The researcher: whether a variant (non-cutting bands, or repeated reads) is worth a new draft.
