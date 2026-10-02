@@ -98,3 +98,44 @@ The draft left these open; each is fixed here before any output exists.
   `--submit` is refused while `p_zoom.yaml` is not `APPROVED`.
 - **Not built yet.** The offline scorer for the §3 measures. It must be written, with tests,
   before the first output is read, so that the readings in §4 stay fixed in advance.
+
+## 7. Scorer, and a gap in §4 found before any tile output (2026-10-03)
+
+The scorer is `src/labbs2026/thai_marks/p_zoom_analysis.py` (tests included), run by
+`scripts/thai_marks_pzoom_analyze.py`. Per selected line: `text` (found in a tile's extracted
+text by `attribution.find_elsewhere`), `figure_only` (found only in what a tile wrote inside
+`<figure>`), `not_found`. All other reference lines claim their stretch of a tile first, absent
+lines last, so a stretch that reads another line (near-identical captions, repeated lines) is
+not credited twice — the rule `attribution` applies with the page alignment, rebuilt for tiles.
+
+**Checks on real data, run offline on Typhoon's existing full-page outputs scored as one "tile":**
+
+| output scored | absent marks as text | control marks as text |
+|---|---|---|
+| `BENCHMARK_QUESTION` full page (selected them as absent) | 6.7% (2 of 71 lines) | 98.7% (40 of 42) |
+| `TYPHOON_CARD` full page | **50.6%** (24 lines), 16.5% inside `<figure>` | 96.9% |
+
+Chance level (lines scored against another page's reads): 1 of 113 lines. Before the claim
+rule, the first row was 24.8% instead of 6.7%: lines read twice were credited twice.
+
+**The gap.** The tiles use `TYPHOON_CARD`, but the absent lines were selected on the
+`BENCHMARK_QUESTION` read. On the same 21 pages, the whole-page `TYPHOON_CARD` read — no
+zoom — already recovers half of the absent marks as text. §4's "≥ 50% recovered ⇒
+resolution/attention limit" would therefore fire without any zoom, crediting the tile step for
+what the prompt does. This is the draft's reading rule failing its own purpose, caught
+because the baseline exists in T1 and costs no GPU.
+
+**Reading rule, amended before any tile output (the researcher can reverse it):**
+
+- baseline = the same pages read whole with `TYPHOON_CARD` (T1 records, same model revision and
+  generation settings), scored identically;
+- `resolution_attention_limit` needs tiles ≥ 50% of absent marks as text **and** a gain of at
+  least 15 points over that baseline (marks of lines tiles recover and the whole-page read does
+  not, as a share of absent marks); the 15 points are a judgement, not derived from data;
+- tiles ≥ 50% but gain < 15 points ⇒ `prompt_not_zoom`: the prompt, not the zoom, did it;
+- else `policy` if figure-only lines hold ≥ 50% of absent marks, else
+  `beyond_typhoon_at_this_resolution`.
+
+The three measures of §3 are reported unchanged, plus the gain and loss against the baseline and
+the scorer check above. Control lines are lost-or-kept by tiling as §3 says; their ceiling is
+the 96.9–98.7% above, not 100%.
