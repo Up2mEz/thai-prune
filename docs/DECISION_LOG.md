@@ -2,6 +2,20 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03e — T5b: stopping at a detected loop passes its dev check
+
+**Evidence:** `docs/stage0/T5B_STOP_AT_LOOP_DRAFT.md` §5 (rule fixed in
+`92be3f6` before computing; offline on T5 outputs; exploratory).
+
+**Finding:** cutting Typhoon's greedy output where an exact repeat reaches 8
+copies (6 for long units) changes no output that ended on its own, raises
+order-free mark F1 in all four cells (+0.67 to +3.30 points; CIs touch 0)
+and, as a decode-time stop, would save 11.2% of generated tokens. It does not
+recover text skipped by the loop. No remedy is adopted for claims; the
+locked split stays closed.
+
+---
+
 ## 2026-10-03d — T5 results: neither anti-loop arm passes
 
 **Evidence:** `docs/stage0/T5_LOOP_DECODING_DRAFT.md` §6, run
