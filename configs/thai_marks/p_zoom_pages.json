@@ -1,7 +1,7 @@
 {
  "provenance": {
-  "git_sha": "659d0fc6f6967d21b9df72338cd3d7886e3becae",
-  "git_dirty": true,
+  "git_sha": "42507a308e260f62916f3ae95bbf6d6b45d1de46",
+  "git_dirty": false,
   "t1_records_sha256": "96cce30e34bbb129aaa127233bb466156469f8dce239ddc3101216013098a368",
   "task": "Full-page OCR",
   "prompt_kind": "BENCHMARK_QUESTION",
