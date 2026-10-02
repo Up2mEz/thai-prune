@@ -2,6 +2,25 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-02c — order-free mark metric: draft v1 failed, v2 passed its checks
+
+**Evidence:** `docs/stage0/ORDER_FREE_MARK_METRIC_DRAFT.md` §5–§7. Offline,
+calibration split, existing outputs.
+
+**Finding:** v1 (line matching only) failed its pre-registered base check
+(recall −15.7 points: poorly read lines lost all credit) and is not used. v2
+(unmatched lines aligned in order against unclaimed output), checks fixed
+before its run, passes all four: the `CAT` control is far below single
+reads, base is within 0.3 points of global alignment, Typhoon full-page
+recall rises 1.6–1.8 points. Reading order thus costs Typhoon ~1.7 points of
+mark F1 on full pages; base none. Base's full-page mark precision is 30%
+(over-generation).
+
+**Not decided:** adopting v2 as a reported metric (open item 1 of
+2026-10-02b). No primary metric changed.
+
+---
+
 ## 2026-10-02b — Typhoon's "missing lines" re-examined
 
 **Evidence:** `docs/stage0/TYPHOON_FAILURE_PROFILE.md` §2d,

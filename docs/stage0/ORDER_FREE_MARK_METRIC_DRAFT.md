@@ -98,3 +98,39 @@ Checks for v2, all on the same run:
 
 If any fails, v2 is not used either and the order question is reported from
 `attribution_v2b.json` alone.
+
+## 7. v2 result: all four checks pass (2026-10-02)
+
+Run `runs/kaggle/kaggle-thai-marks-t1-t2-a44199c29759/fetched/order_free_v2.json`
+(git `ceacf79`, clean; record hashes inside). Mark recall / precision / F1, %:
+
+| cell | global | v2 @0.4 | Δ recall |
+|---|---|---|---|
+| typhoon · Full-page · BQ | 94.3 / 91.9 / 93.1 | **96.1 / 93.7 / 94.9** | +1.8 |
+| typhoon · Full-page · TC | 92.9 / 94.5 / 93.7 | **94.5 / 96.1 / 95.3** | +1.6 |
+| typhoon · Full-page · CAT | 97.2 / 48.4 / 64.6 | 98.5 / 49.0 / 65.5 | +1.3 |
+| typhoon · Text rec. · BQ | 83.1 / 80.7 / 81.8 | 82.9 / 80.6 / 81.7 | −0.1 |
+| typhoon · Text rec. · TC | 97.4 / 61.9 / 75.7 | 97.6 / 62.0 / 75.8 | +0.1 |
+| base · Full-page · BQ | 64.9 / 29.9 / 40.9 | 65.0 / 29.9 / 41.0 | +0.1 |
+| base · Full-page · TC | 17.9 / 39.2 / 24.5 | 17.8 / 39.0 / 24.4 | −0.1 |
+| base · Full-page · CAT | 67.3 / 25.6 / 37.1 | 67.9 / 25.8 / 37.4 | +0.6 |
+| base · Text rec. · BQ | 83.3 / 14.2 / 24.2 | 83.6 / 14.2 / 24.3 | +0.3 |
+| base · Text rec. · TC | 26.1 / 52.1 / 34.7 | 25.9 / 51.8 / 34.5 | −0.1 |
+
+1. Unit tests pass (12).
+2. `CAT` F1 is far below the better single read for both models.
+3. Base recall stays within 0.3 points of `global` in every cell.
+4. Typhoon Full-page recall rises (+1.8 BQ, +1.6 TC).
+
+Thresholds 0.2 and 0.6 change no cell by more than 0.6 points.
+
+**Reading.** Reading order costs Typhoon about 1.6–1.8 points of mark recall
+and of mark precision on full pages, and nothing on single regions. Base has
+no measurable order effect. Order-free, Typhoon misses 3.9% (BQ) / 5.5% (TC)
+of reference marks. Base's full-page mark precision is 30%: it writes about
+twice as many marks as the reference holds (over-generation, already
+reported separately in T1), which no reading remedy for its misreads would
+touch.
+
+Status stays `DRAFT_DIAGNOSTIC`: whether v2 becomes a reported metric
+alongside the anchored one is the researcher's decision.
