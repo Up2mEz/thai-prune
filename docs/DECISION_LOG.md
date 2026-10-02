@@ -8,17 +8,20 @@
 `T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §8. Offline, calibration split, existing
 outputs; no new model run.
 
-**Finding:** a third of the marks counted as "whole line missing" on
-Full-page OCR were read, in another order and not verbatim. With them set
-aside, Typhoon's whole-line absent marks are 1.7% (BQ) / 2.3% (TC) of all
-marks, and what is absent is mostly text in graphics, inset ads and page
-furniture; 6 of the 34 T3 skips were reorderings. Base is not affected.
-`attribute_marks` keeps the 2026-10-01 rule as default
-(`approximate_reorder=False`).
+**Finding:** a quarter (BQ) / a seventh (TC) of the marks counted as "whole
+line missing" on Full-page OCR were read, in another order and not verbatim.
+With them set aside, Typhoon's whole-line absent marks are 2.3% (BQ) / 2.9%
+(TC) of all marks, and what is absent is mostly text in graphics, inset ads
+and page furniture; 3 of the 34 T3 skips were reorderings. Base is not
+affected. `attribute_marks` keeps the 2026-10-01 rule as default
+(`approximate_reorder=False`). The first version of this entry said "a
+third", 1.7%/2.3% and 6 skips; self-review found one stretch of output
+credited to two near-identical lines, which the 2026-10-01 verbatim rule
+also does. Corrected numbers: `attribution_v2b.json`.
 
 **Open for the researcher:** (1) an order-free full-page measure alongside
 the anchored one (scoring change, not made); (2) whether text inside
-graphics is in scope; (3) given Typhoon's ~4% headroom, whether the next
+graphics is in scope; (3) given Typhoon's ~5–6% headroom, whether the next
 remedy targets base. No remedy is authorized by this entry.
 
 ---

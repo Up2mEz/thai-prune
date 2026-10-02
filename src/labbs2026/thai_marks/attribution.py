@@ -100,6 +100,38 @@ def read_elsewhere(line: str, hypothesis: str, used=frozenset()) -> bool:
     return find_elsewhere(line, hypothesis, used)[0] is not None
 
 
+def _page(raw_reference: str, raw_output: str, approximate_reorder: bool):
+    lines = reference_lines(raw_reference)
+    reference = " ".join(lines)
+    hypothesis = extract_text(raw_output)
+    pairs, _, _ = align_anchored(reference, hypothesis)
+    fates, _ = _fates_from(pairs, reference, hypothesis)
+    used = {h for r, h in pairs if r is not None and h is not None}
+    spans, causes, start = [], [], 0
+    for line in lines:
+        span = range(start, start + len(line))
+        start += len(line) + 1
+        deleted = sum(fates.get(j) == "deleted" for j in span) / len(line)
+        if deleted < WHOLE_LINE:
+            cause = None
+        elif approximate_reorder:
+            found, stretch = find_elsewhere(line, hypothesis, used)
+            used.update(stretch)  # one stretch of output is credited to one line only
+            cause = {"verbatim": "line_reordered", "approx": "line_reordered_approx",
+                     None: "line_missing"}[found]
+        else:  # 2026-10-01 rule, kept as the default
+            cause = "line_reordered" if line in hypothesis else "line_missing"
+        spans.append(span)
+        causes.append(cause)
+    return reference, fates, spans, causes
+
+
+def whole_line_causes(raw_reference: str, raw_output: str, *,
+                      approximate_reorder: bool = True) -> list[str | None]:
+    """Per reference line (`reference_lines`): its whole-line cause, or None if kept."""
+    return _page(raw_reference, raw_output, approximate_reorder)[3]
+
+
 def attribute_marks(raw_reference: str, raw_output: str, *,
                     approximate_reorder: bool = False) -> collections.Counter:
     """Counts of reference marks by outcome: `correct` or one cause.
@@ -110,35 +142,16 @@ def attribute_marks(raw_reference: str, raw_output: str, *,
     `line_reordered_approx`) only in output text the page alignment has not
     credited to other reference text (`MAX_USED_SHARE`).
     """
-    lines = reference_lines(raw_reference)
-    reference = " ".join(lines)
-    hypothesis = extract_text(raw_output)
-    pairs, _, _ = align_anchored(reference, hypothesis)
-    fates, _ = _fates_from(pairs, reference, hypothesis)
-    used = {h for r, h in pairs if r is not None and h is not None}
+    reference, fates, spans, causes = _page(raw_reference, raw_output, approximate_reorder)
     out: collections.Counter = collections.Counter()
-    start = 0
-    for line in lines:
-        span = range(start, start + len(line))
-        start += len(line) + 1
-        deleted = sum(fates.get(j) == "deleted" for j in span) / len(line)
-        whole = deleted >= WHOLE_LINE
-        if whole and approximate_reorder:
-            found, stretch = find_elsewhere(line, hypothesis, used)
-            used.update(stretch)  # one stretch of output is credited to one line only
-            whole_cause = {"verbatim": "line_reordered", "approx": "line_reordered_approx",
-                           None: "line_missing"}[found]
-        elif whole and line in hypothesis:  # 2026-10-01 rule, kept as the default
-            whole_cause = "line_reordered"
-        else:
-            whole_cause = "line_missing"
+    for span, whole_cause in zip(spans, causes):
         for j in span:
             if reference[j] not in MARKS:
                 continue
             fate = fates.get(j, "deleted")
             if fate == "correct":
                 out["correct"] += 1
-            elif whole:
+            elif whole_cause is not None:
                 out[whole_cause] += 1
             else:
                 base = _base_index(reference, j)

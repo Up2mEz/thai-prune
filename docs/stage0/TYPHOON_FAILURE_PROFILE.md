@@ -84,7 +84,7 @@ reads the reference region with 3.5% of marks wrong. On this task the
 remaining errors are about which text to return and in what mode, which a
 reading remedy cannot touch.
 
-## 2d. Correction 2026-10-02 — a third of "missing" marks were read, in another order
+## 2d. Correction 2026-10-02 — some "missing" lines were read, in another order
 
 §2b counted a whole-line deletion as `line_reordered` only if the line
 appears **verbatim** elsewhere in the output. Reading the raw outputs of the
@@ -92,58 +92,82 @@ pages that lose most showed lines that are present but not verbatim: read in
 a different column order, with their line break joined to the next line, or
 with a character wrong (`52A433B2`: two paragraphs, 96 marks, both in the
 output after the next section; `9BBB9DB3`: the sidebar read before the boxes
-below the article). `attribution.py` now has `approximate_reorder`: a
-whole-line deletion of 8+ characters is `line_reordered_approx` if some
-stretch of the output matches the whole line below 20% CER. Lines matched
-against *other* pages' outputs reach a median 5th percentile of 0.63–0.74,
-so 0.2 is far from chance; shorter lines (axis ticks, page numbers) match
-anywhere by chance and are never credited. The §2b rule stays the default,
-so the 2026-10-01 numbers reproduce. Script `scripts/thai_marks_attribution.py`,
-output `runs/kaggle/kaggle-thai-marks-t1-t2-a44199c29759/fetched/attribution_v2.json`.
+below the article).
+
+`attribution.py` now has `approximate_reorder` (opt-in; the §2b rule stays
+the default, so the 2026-10-01 numbers reproduce). A whole-line deletion is
+credited as read elsewhere only if:
+
+- the line has 8+ characters (shorter lines — axis ticks, page numbers, "0"
+  — match anywhere by chance);
+- a stretch of the output matches the whole line verbatim
+  (`line_reordered`) or below 20% CER (`line_reordered_approx`). Matched
+  against *other* pages' outputs, lines reach a median 5th percentile of
+  0.63–0.74, so 0.2 is far from chance;
+- that stretch is mostly output the page alignment has not already paired
+  with other reference text, and no other line has claimed it.
+
+The last condition was added on self-review the same day: without it,
+near-identical captions (`รูปที่ 9` / `รูปที่ 10`) and lines repeated in the
+reference were credited twice from one read. The §2b verbatim rule has the
+same flaw, so its `line_reordered` share (13% of wrong marks under BQ) was
+also overstated. Used shares of matched stretches are ≤0.23 or ≥0.93, so the
+0.5 cut is not tuned. Script `scripts/thai_marks_attribution.py`, output
+`runs/kaggle/kaggle-thai-marks-t1-t2-a44199c29759/fetched/attribution_v2b.json`
+(records git sha, record hashes, thresholds; `attribution_v2.json` is the
+superseded first pass without the last condition).
 
 Typhoon, Full-page OCR, as a share of **all** 16,266 reference marks:
 
 | cause | `BENCHMARK_QUESTION` | `TYPHOON_CARD` |
 |---|---|---|
 | all wrong | 6.2% | 7.1% |
-| read in another order, verbatim | 0.8% | 0.5% |
-| read in another order, approximate (new) | 1.4% | 1.1% |
-| **whole line absent** | **1.7%** (was 3.1%) | **2.3%** (was 3.3%) |
+| read in another order, verbatim | 0.5% (§2b rule: 0.8%) | 0.1% (0.5%) |
+| read in another order, approximate (new) | 1.1% | 0.8% |
+| **whole line absent** | **2.3%** (§2b rule: 3.1%) | **2.9%** (3.4%) |
 | span missing inside a kept line | 0.7% | 0.8% |
 | misread, base right | 0.4% | 0.6% |
 | misread with base | 1.1% | 1.8% |
 
-Base is barely affected (`line_reordered_approx` 0.3% of marks), so the
-RQ-C contrast of §2b stands and is sharper: Typhoon's mark loss is about
-4% of marks once reading order is set aside, base's about 41%.
+A quarter (BQ) and a seventh (TC) of the marks §2b called "whole line
+missing" were read in another order. Base is barely affected (0.2% of marks
+credited as reordered), so the RQ-C contrast of §2b stands: once reading
+order is set aside, Typhoon's mark loss is 4.6% (BQ) / 6.1% (TC) of marks,
+base's about 41%.
 
-**What the absent lines are** (BQ: 48 lines with marks, 281 marks, on 14
-pages; read from the page images, descriptive, not a statistic):
+**What the absent lines are** (BQ: 71 lines with marks, 387 marks, on 21
+pages). Page images checked for the 6 pages that hold 283 of the 387 marks;
+the rest are classified from their text and position only. Descriptive, not a
+statistic:
 
-- text inside infographics and charts: legend entries, axis units, panel
-  captions (`908E11C8`, 14 lines; `8F33EBB9`, 6) — Typhoon wrote an image
-  placeholder there;
-- an advertisement inset in a newspaper page (`AF432B6A`, 10 lines);
-- titles, mastheads and form fields at the top of the page (`8F33EBB9`,
-  `9BBB9DB3`, `048AEF1B`, `6BA97DBE`, `E666F212`, `E6803A95`, `F1D97B10`);
-- two body paragraphs, which hold 96 of the 281 marks (`6BA97DBE` line 4, a
-  newspaper lead; `8F33EBB9` line 60, under a chart).
+- text inside infographics and charts: legend entries, panel captions, axis
+  units, chart source lines (`908E11C8`, 83 marks; `8F33EBB9`, chart and map
+  labels) — Typhoon wrote an image placeholder there;
+- a hand-lettered advertisement inset in a newspaper page (`AF432B6A`,
+  37 marks);
+- titles, mastheads, banner headlines and handwritten form fields at the top
+  of the page (`8F33EBB9`, `9BBB9DB3`, `6BA97DBE`, `048AEF1B`; from text only:
+  `E666F212`, `E6803A95`, `F1D97B10`, `546DFFCD`, `CD4EC446`);
+- two body paragraphs that hold 96 marks: the first paragraph of a narrow
+  newspaper column (`6BA97DBE` line 4) and a paragraph under a chart in an
+  infographic (`8F33EBB9` line 60);
+- figure captions in a report with many charts (`C065E1E9`, 28 marks).
 
 **Consequences.**
 
-1. The reference-anchored metric charges reading order as loss. For
-   full pages with several columns or panels, an order-free measure is
-   needed alongside it (per reference line: best-matching stretch of the
-   output; with a precision guard against surplus text) before any coverage
-   remedy is scored. Proposing one is a scoring change and needs the
-   researcher's approval.
+1. The reference-anchored metric charges reading order as loss. For full
+   pages with several columns or panels, an order-free measure is needed
+   alongside it (per reference line: best-matching stretch of the output;
+   with a precision guard against surplus text) before any coverage remedy
+   is scored. Proposing one is a scoring change and needs the researcher's
+   approval.
 2. Most of what Typhoon truly omits is text inside graphics, inset
    advertising and page furniture. Whether that is in scope is a task
    definition question: ThaiOCRBench references include it, Typhoon's own
    prompt contract (`TYPHOON_CARD`) asks for figures to be described, not
    transcribed.
-3. Typhoon's mark headroom on full pages is small: 1.7% whole lines absent,
-   0.7% spans, 1.5% misreads.
+3. Typhoon's mark headroom on full pages is small: 2.3–2.9% whole lines
+   absent, 0.7–0.8% spans, 1.5–2.4% misreads.
 
 ## 3. Evidence that two reads cover each other's gaps
 

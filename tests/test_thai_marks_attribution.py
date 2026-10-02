@@ -10,6 +10,7 @@ from labbs2026.thai_marks.attribution import (
     find_elsewhere,
     read_elsewhere,
     reference_lines,
+    whole_line_causes,
 )
 
 L1 = "ข้าวราคาแพงขึ้นทุกวัน"
@@ -104,3 +105,10 @@ def test_a_credited_stretch_cannot_be_found_again() -> None:
 
 def test_short_verbatim_lines_are_not_credited_under_approx() -> None:
     assert find_elsewhere("2556", "ปี 2556") == (None, range(0))
+
+
+def test_whole_line_causes_per_line() -> None:
+    ref = f"{L1}\n{L2}\n{L3}"
+    hyp = f"{L2} {L3} " + L1.replace("ทุก", "ทก")
+    assert whole_line_causes(ref, hyp) == ["line_reordered_approx", None, None]
+    assert whole_line_causes(f"{L1}\n{L2}", L1) == [None, "line_missing"]
