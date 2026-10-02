@@ -2,6 +2,19 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-03b — G1 read-then-point fails its dev check; T5 draft ready
+
+**Evidence:** `docs/stage0/G1_READ_THEN_POINT_DRAFT.md` §5 (offline, rule
+fixed in `41112fd` before computing): global mark F1 76.2% vs 81.9% for the
+benchmark-question answer alone; ceiling small even with oracle selection.
+G1 by this route is closed. `docs/stage0/T5_LOOP_DECODING_DRAFT.md`: loops
+hold 76% / 68% of Typhoon's surplus full-page marks; T5 (greedy, vendor
+repetition penalty 1.1, DeepSeek-OCR n-gram block) is implemented and in
+smoke on the secondary account. **Not authorized to run** until the
+researcher approves.
+
+---
+
 ## 2026-10-03 — scope and metric decided under delegation; goal is Typhoon
 
 **Decision owner:** delegated by the researcher in session 2026-10-03
