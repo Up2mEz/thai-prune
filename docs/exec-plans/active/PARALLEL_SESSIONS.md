@@ -61,6 +61,10 @@ folder. The binding ones, in short:
 - **Git:** separate worktrees and branches. Never `checkout` the other
   session's branch in your own folder.
 - **Kaggle kernels:** `scripts/thai_marks_kaggle.py --kernel-slug`.
+  **Needs commit `kernel_title` (2026-10-03) or later**: before it, the kernel
+  title stayed "LabBS2026 Thai Marks T1 T2" and Kaggle pushes to the kernel
+  the *title* resolves to, so a `--kernel-slug` push landed on the default
+  kernel. pzoom: `git merge fix/t1-scoring-v2` before any Kaggle push.
   gaps uses the default `labbs2026-thai-marks-t1-t2`; pzoom uses
   `labbs2026-thai-marks-pzoom`. Fetch with
   `scripts/thai_marks_analyze.py --kernel-id thanakritsamoena/<slug>`.

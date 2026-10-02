@@ -36,6 +36,19 @@ from labbs2026.kaggle import (
 KERNEL_SLUG = "labbs2026-thai-marks-t1-t2"
 
 
+def kernel_title(kernel_slug: str) -> str:
+    """A title Kaggle slugifies back to `kernel_slug`.
+
+    Kaggle pushes to the kernel its *title* resolves to when title and id
+    disagree (seen 2026-10-03: a `--kernel-slug` smoke landed on the default
+    kernel). The default keeps its historical title.
+    """
+    if kernel_slug == KERNEL_SLUG:
+        return "LabBS2026 Thai Marks T1 T2"
+    return " ".join(part.upper() if part.startswith("labbs") else part.capitalize()
+                    for part in kernel_slug.split("-")).replace("LABBS2026", "LabBS2026")
+
+
 def dataset_slugs(kernel_slug: str) -> tuple[str, str]:
     """Resume and T3-cases dataset slugs that belong to one kernel slug.
 
@@ -249,7 +262,7 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, args.kernel_slug), "title": "LabBS2026 Thai Marks T1 T2", "code_file": "worker.py",
+        "id": kernel_id(root, args.kernel_slug), "title": kernel_title(args.kernel_slug), "code_file": "worker.py",
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
         "dataset_sources": dataset_sources, "competition_sources": [], "kernel_sources": [],

@@ -21,3 +21,14 @@ def test_another_kernel_slug_owns_its_own_datasets() -> None:
     a = thai_marks_kaggle.dataset_slugs("labbs2026-thai-marks-t1-t2")
     b = thai_marks_kaggle.dataset_slugs("labbs2026-thai-marks-pzoom")
     assert not set(a) & set(b)
+
+
+def _kaggle_slugify(title: str) -> str:
+    import re
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+
+def test_the_title_resolves_to_the_kernel_slug() -> None:
+    for slug in ("labbs2026-thai-marks-t1-t2", "labbs2026-thai-marks-pzoom",
+                 "labbs2026-thai-marks-t5-smoke"):
+        assert _kaggle_slugify(thai_marks_kaggle.kernel_title(slug)) == slug
