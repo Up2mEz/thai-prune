@@ -34,8 +34,15 @@ from labbs2026.kaggle import (
 # repository every submission clones from regardless of whose fork or account
 # is pushing it.
 KERNEL_SLUG = "labbs2026-thai-marks-t1-t2"
-RESUME_DATASET_SLUG = f"{KERNEL_SLUG}-resume"
-T3_DATASET_SLUG = f"{KERNEL_SLUG}-t3-cases"
+
+
+def dataset_slugs(kernel_slug: str) -> tuple[str, str]:
+    """Resume and T3-cases dataset slugs that belong to one kernel slug.
+
+    Two sessions running in parallel use different kernel slugs (`--kernel-slug`)
+    so that neither push replaces the other's kernel or its input datasets.
+    """
+    return f"{kernel_slug}-resume", f"{kernel_slug}-t3-cases"
 
 HASHED = (
     "configs/thai_marks/t1_t2.yaml",
@@ -121,8 +128,8 @@ def upload_dataset(root: Path, staging: Path, slug: str, title: str,
     raise SystemExit(f"dataset {ref} not ready after {wait_seconds} s")
 
 
-def upload_resume_dataset(root: Path, staging: Path) -> str:
-    ref = dataset_id(root, RESUME_DATASET_SLUG)
+def upload_resume_dataset(root: Path, staging: Path, slug: str) -> str:
+    ref = dataset_id(root, slug)
     atomic_write_json(staging / "dataset-metadata.json",
                       build_dataset_metadata(ref, "LabBS2026 Thai Marks T1 T2 Resume"))
     exists = subprocess.run(["kaggle", "datasets", "status", ref],
@@ -153,10 +160,13 @@ def main() -> None:
     parser.add_argument("--t3-cases", type=Path, default=None,
                         help="T3 cases JSON (scripts/thai_marks_t3_cases.py); attached as a "
                              "private dataset")
+    parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
+                        help="Kaggle kernel slug; give each parallel session its own")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
     root = args.root.resolve()
+    resume_slug, t3_slug = dataset_slugs(args.kernel_slug)
     config = yaml.safe_load((root / "configs/thai_marks/t1_t2.yaml").read_text("utf-8"))
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
@@ -204,6 +214,7 @@ def main() -> None:
         "window_after_chars": config["t2"]["window_after_chars"],
         "t2_dtype": config["t2"].get("dtype"),
         "consistency_tolerance": config["t2"]["consistency_tolerance_nats"],
+        "kernel_slug": args.kernel_slug,
         "created_at_utc": utc_now(),
     }
 
@@ -218,15 +229,15 @@ def main() -> None:
         t3_staging.mkdir(parents=True, exist_ok=False)
         shutil.copyfile(args.t3_cases, t3_staging / "t3_cases.json")
         spec["t3_cases_sha256"] = sha256_file(t3_staging / "t3_cases.json")
-        spec["t3_cases"] = dataset_mount_path(T3_DATASET_SLUG, "t3_cases.json")
-        dataset_sources.append(dataset_id(root, T3_DATASET_SLUG))
+        spec["t3_cases"] = dataset_mount_path(t3_slug, "t3_cases.json")
+        dataset_sources.append(dataset_id(root, t3_slug))
     elif "t3" in tests:
         raise SystemExit("t3 needs --t3-cases")
     if args.resume_from:
         old_run_id, resume_dataset_staging = stage_resume_dataset(
             args.resume_from.resolve(), run_dir)
-        spec["resume_artifact_dir"] = dataset_mount_path(RESUME_DATASET_SLUG, old_run_id)
-        dataset_sources.append(dataset_id(root, RESUME_DATASET_SLUG))
+        spec["resume_artifact_dir"] = dataset_mount_path(resume_slug, old_run_id)
+        dataset_sources.append(dataset_id(root, resume_slug))
 
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
@@ -234,7 +245,7 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, KERNEL_SLUG), "title": "LabBS2026 Thai Marks T1 T2", "code_file": "worker.py",
+        "id": kernel_id(root, args.kernel_slug), "title": "LabBS2026 Thai Marks T1 T2", "code_file": "worker.py",
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
         "dataset_sources": dataset_sources, "competition_sources": [], "kernel_sources": [],
@@ -248,9 +259,9 @@ def main() -> None:
     if args.submit:
         if t3_staging is not None:
             print("t3 cases dataset ready:", upload_dataset(
-                root, t3_staging, T3_DATASET_SLUG, "LabBS2026 Thai Marks T3 Cases"))
+                root, t3_staging, t3_slug, "LabBS2026 Thai Marks T3 Cases"))
         if resume_dataset_staging is not None:
-            uploaded_ref = upload_resume_dataset(root, resume_dataset_staging)
+            uploaded_ref = upload_resume_dataset(root, resume_dataset_staging, resume_slug)
             print(f"resume dataset uploaded: {uploaded_ref}")
         result = subprocess.run(build_submit_command(staging), capture_output=True, text=True)
         print(result.stdout or result.stderr)

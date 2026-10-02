@@ -164,6 +164,7 @@ points you there.**
 |---|---|
 | `AGENTS.md` | research and engineering rules; auto-loaded |
 | `ONBOARDING.md` | this file |
+| `docs/exec-plans/active/PARALLEL_SESSIONS.md` | the owner's two parallel sessions (gaps / pzoom): who owns what, Kaggle slugs, how they talk |
 | `docs/COLLABORATION.md` | branch/PR model, who reviews what, file ownership, Decision Log conflicts |
 | `docs/KAGGLE_SETUP.md` | Kaggle account and first-run steps |
 | `collab/` | AI-to-AI messages and status |

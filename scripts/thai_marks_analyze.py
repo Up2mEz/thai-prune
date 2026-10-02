@@ -29,11 +29,13 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--skip-fetch", action="store_true")
+    parser.add_argument("--kernel-id", default=KERNEL_ID,
+                        help="owner/slug of the kernel to fetch (a parallel session's own slug)")
     args = parser.parse_args()
 
     if not args.skip_fetch:
         args.destination.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["kaggle", "kernels", "output", KERNEL_ID, "-p", str(args.destination)],
+        subprocess.run(["kaggle", "kernels", "output", args.kernel_id, "-p", str(args.destination)],
                        check=True, capture_output=True)
     root = next(args.destination.rglob(args.run_id), None)
     if root is None or not root.is_dir():
