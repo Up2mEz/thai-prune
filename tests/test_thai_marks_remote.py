@@ -96,3 +96,18 @@ def test_t5_processors_are_fresh_per_call_and_report_the_whitelist() -> None:
     assert built == {"whitelist_ids": [11, 29, 60, 61]}
     assert t5_processors({"name": "greedy", "repetition_penalty": 1.0, "ngram_block": None},
                          _Tok()) == ([], {})
+
+
+def test_every_test_choice_has_its_own_item_branch() -> None:
+    # 2026-10-03: a silent edit failure sent t5 into T2's `else:` branch.
+    import re
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parents[1] / "src/labbs2026/thai_marks/remote.py"
+              ).read_text(encoding="utf-8")
+    choices = re.search(r'"--test", choices=\(([^)]*)\)', source).group(1)
+    for test in re.findall(r'"(t\d)"', choices):
+        if test == "t3":  # T3 runs through _run_t3 before the item loop
+            continue
+        assert f'args.test == "{test}":' in source, test
+    assert "no item loop for test" in source

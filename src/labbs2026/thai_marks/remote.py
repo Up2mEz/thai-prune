@@ -299,7 +299,32 @@ def main() -> None:
                     handle.write(json.dumps({**base, "prompt_kind": prompt_kind, **result},
                                             ensure_ascii=False) + "\n")
                     handle.flush()
-            else:
+            elif args.test == "t5":
+                for prompt_kind in spec["t1_prompts"]:
+                    prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]
+                    for arm in spec["t5_arms"]:
+                        if (row["Id"], prompt_kind, arm["name"]) in completed:
+                            continue
+                        processors, built = t5_processors(arm, processor.tokenizer)
+                        try:
+                            result = runtime.generate(model, processor, image, prompt,
+                                                      generation=arm_kwargs[arm["name"]],
+                                                      device=device,
+                                                      logits_processors=processors)
+                        except Exception as exc:  # recorded, never scored as an output
+                            failures.append({"id": row["Id"], "prompt": prompt_kind,
+                                             "arm": arm["name"],
+                                             "error": f"{type(exc).__name__}: {exc}"[:800]})
+                            torch.cuda.empty_cache()
+                            continue
+                        guard = ({"interventions": processors[0].interventions,
+                                  "steps": processors[0].steps, **built} if processors else None)
+                        handle.write(json.dumps({**base, "prompt_kind": prompt_kind,
+                                                 "arm": arm["name"], **result,
+                                                 "ngram_block": guard},
+                                                ensure_ascii=False) + "\n")
+                        handle.flush()
+            elif args.test == "t2":
                 reference = collapse_whitespace(row["answer"])
                 sites = sample_sites(find_sites(reference), row["Id"])
                 if not sites:
@@ -324,6 +349,8 @@ def main() -> None:
                                          "seconds": time.perf_counter() - item_started},
                                         ensure_ascii=False) + "\n")
                 handle.flush()
+            else:  # a test without a branch must never fall into another test's
+                raise SystemExit(f"no item loop for test {args.test!r}")
 
     with io.open(out_dir / "manifest.json", "w", encoding="utf-8") as handle:
         json.dump({
