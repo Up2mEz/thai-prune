@@ -1,30 +1,28 @@
 # Status — Up2mEz-pzoom
 
-**Updated:** 2026-10-03 (pzoom, first work block)
+**Updated:** 2026-10-03 (pzoom, second work block)
 
 ## Track
 
 P-ZOOM — `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`. Protocol:
 `docs/exec-plans/active/PARALLEL_SESSIONS.md`.
 
-## Done this block (offline, no GPU)
+## Done
 
-- `feat/p-zoom` merged from `fix/t1-scoring-v2` (`70c5488`, includes the Kaggle kernel-title fix).
-- `src/labbs2026/thai_marks/tiling.py` (2×2 grid, 15% overlap, zoom factor) and `p_zoom.py` (page and control-line selection), with tests.
-- Page list frozen: `configs/thai_marks/p_zoom_pages.json` — 21 pages, 71 absent lines, 387 marks, 42 control lines; reproduces the draft's counts exactly.
-- `t4` added to `remote.py` and `scripts/thai_marks_kaggle.py` (additive; see message `20261002T1912Z`).
-- `configs/thai_marks/p_zoom.yaml` is `DRAFT`: the submit script refuses `t4` until it is `APPROVED`.
+- Tiling, frozen page list, `t4` in the worker, offline scorer (`p_zoom_analysis.py`), tests (505 pass).
+- Probe authorized under delegation: `DECISION_LOG.md` 2026-10-03d. Reading rule amended before any tile output (draft §7): tiles must beat the zoom-free `TYPHOON_CARD` whole-page read by 15 points.
+- Smoke on the secondary account passed (`kaggle-thai-marks-t4-76165db98ea8-typhoon-smoke1`).
 
 ## Running now
 
-Nothing on Kaggle.
+Full probe on the main account: kernel `thanakritsamoena/labbs2026-thai-marks-pzoom`
+(own slug; the default `labbs2026-thai-marks-t1-t2` is not touched), run id
+`kaggle-thai-marks-t4-0b2d191e31c5-typhoon`, 84 reads, one T4 session, expected 1 to 1.5 h.
 
 ## GPU-hours used this week (main account)
 
-0
+0 so far; this run expected 1 to 1.5 (limit 2, session budget 3).
 
 ## Waiting on
 
-1. The researcher's authorization of the probe (`DECISION_LOG.md` entry, then `status: APPROVED`).
-2. Not yet built: the offline scorer for the three measures (draft §3) — next, no GPU needed.
-3. Before the main-account run: smoke on the secondary account `thanakrit2505` (infrastructure change).
+The run to finish; then `scripts/thai_marks_pzoom_analyze.py` and a write-up.
