@@ -139,3 +139,23 @@ because the baseline exists in T1 and costs no GPU.
 The three measures of §3 are reported unchanged, plus the gain and loss against the baseline and
 the scorer check above. Control lines are lost-or-kept by tiling as §3 says; their ceiling is
 the 96.9–98.7% above, not 100%.
+
+## 8. Smoke result and how loops are handled (2026-10-03, before the full run)
+
+Smoke on the secondary account, `--limit 1` (page `048AEF1B`, 4 tiles), run
+`kaggle-thai-marks-t4-76165db98ea8-typhoon-smoke1`, git `76165db`: SUCCESS, no failed reads,
+checksums verified, fp16, greedy settings as T1 (resolved config in the manifest). Tiles are
+599x799 px read at 1349x1799, `zoom_factor` 1.85, 2,352 visual tokens each. 218 s wall for four
+reads including 24 s setup. Observed, not a result: two tiles wrote graphics as `<figure>`
+descriptions, one tile repeated one word until `max_new_tokens` (3072; 122 s).
+
+**Loops.** A read that reaches `max_new_tokens` is kept as it is and counted
+(`reached_max_new_tokens`, reported with the summary). It is not re-run and no loop guard is
+added: that would be a second factor in this round, and loop decoding is T5's question. Text
+a loop displaces is simply not found; the repeated surplus is not charged because recovery is
+scored per reference line, not per output character. The consequence is that recovery is a
+lower bound wherever tiles loop, and the reading must say so.
+
+**Cost.** At the smoke's rate (about 25 s for an ordinary tile, 120 s for a looped one) the 84
+reads take about 1 to 1.5 GPU-hours on one T4 session, inside the 2-hour limit of
+`DECISION_LOG.md` 2026-10-03d.
