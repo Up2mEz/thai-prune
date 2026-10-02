@@ -73,3 +73,28 @@ settings as T1, recorded in the manifest. 21 × 4 = 84 reads.
 tiling in `src/` with tests; the worker gains a `t4` test reading image
 variants. Infrastructure change, so the smoke runs on the secondary account
 first.
+
+## 6. Implementation choices made while building it (2026-10-03, still DRAFT)
+
+The draft left these open; each is fixed here before any output exists.
+
+- **Tile geometry.** `tiling.tile_boxes`: equal tiles, side `ceil(length / (2 − 0.15))`,
+  neighbours overlapping by 15% of a tile; tiles cut from the source pixels, then
+  read through the unchanged `runtime.resize_policy` (long side 1800 px). A source
+  pixel is therefore about 1.85× larger than at page scale (`tiling.zoom_factor`,
+  recorded on every read), not exactly 2×. The number of visual tokens per read stays
+  about the same: this is an input-resolution change, not a token-count change.
+- **Pages.** `scripts/thai_marks_pzoom_select.py` froze them from Typhoon's T1 records into
+  `configs/thai_marks/p_zoom_pages.json` (sha256 in `p_zoom.yaml`): 21 pages, 71 absent
+  lines, 387 marks — the draft's counts, reproduced. Lines are stored as indices into
+  `attribution.reference_lines`, never as text. The worker refuses a page outside the
+  calibration split.
+- **Control lines (§3).** A line Typhoon's output kept (cause `None`), of 8+ characters
+  (`find_elsewhere` cannot find shorter ones) and carrying at least one Thai mark; two per
+  page, ranked by `sha256("20261003:<id>:<index>")`. 42 lines.
+- **Prompt and generation.** `TYPHOON_CARD`; the generation kwargs of `t1` (greedy,
+  `max_new_tokens` 3072), recorded in the manifest like T1. fp16, as T1.
+- **Guards.** `t4` runs Typhoon only, refuses the other session's default kernel slug, and
+  `--submit` is refused while `p_zoom.yaml` is not `APPROVED`.
+- **Not built yet.** The offline scorer for the §3 measures. It must be written, with tests,
+  before the first output is read, so that the readings in §4 stay fixed in advance.
