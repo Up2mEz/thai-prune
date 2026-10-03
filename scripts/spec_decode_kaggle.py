@@ -90,6 +90,10 @@ def main() -> None:
     parser.add_argument("--calibration-items", type=int)
     parser.add_argument("--t1-seconds-per-item", type=float,
                         help="T1 TYPHOON_CARD mean seconds per item, slower of the two models")
+    parser.add_argument("--diagnostic-ids", default="",
+                        help="registration addendum 3: comma-separated calibration ids, run alone")
+    parser.add_argument("--dtype", choices=("float16", "float32"), default=None,
+                        help="registration addendum 3: force the dtype for a diagnostic")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
@@ -97,12 +101,17 @@ def main() -> None:
     config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
     if config["status"] != "APPROVED":
         raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
-    budget_record, rotation = budget(config, args.limit, args.calibration_items,
+    diagnostic = [i for i in args.diagnostic_ids.split(",") if i]
+    if diagnostic and args.limit:
+        raise SystemExit("--diagnostic-ids and --limit are exclusive")
+    budget_record, rotation = budget(config, args.limit or len(diagnostic), args.calibration_items,
                                      args.t1_seconds_per_item)
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
     suffix = f"-smoke{args.limit}" if args.limit else ""
+    if diagnostic:
+        suffix = f"-diag-{args.dtype or 'fp16'}"
     run_id = f"kaggle-spec-decode-s1-{git_sha[:12]}{suffix}"
     arms = {name: dict(config["arms"][name] or {}) for name in rotation[0]}
 
@@ -130,10 +139,11 @@ def main() -> None:
         "calibration_fraction": config["split"]["calibration_fraction"],
         "typhoon_prompt_file": config["prompt"]["file"],
         "typhoon_prompt_sha256": config["prompt"]["sha256"],
-        "dtype_preferred": config["runtime"]["dtype_preferred"],
+        "dtype_preferred": args.dtype or config["runtime"]["dtype_preferred"],
         "dtype_fallback": config["runtime"]["dtype_fallback"],
         "max_new_tokens": config["runtime"]["max_new_tokens"],
         "warmup_items": config["runtime"]["warmup_items"],
+        "diagnostic_ids": diagnostic or None,
         "arms": arms,
         "arm_rotation": rotation,
         "budget": budget_record,
