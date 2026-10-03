@@ -19,8 +19,9 @@ import collections
 import re
 from typing import Any
 
+from labbs2026.output_diagnostics.distance import levenshtein
 from labbs2026.output_diagnostics.structure import deloop, loop_period, structural_normalize
-from labbs2026.thai_marks.decompose import align, edit_distance_from, is_repetitive, mark_decomposition
+from labbs2026.thai_marks.decompose import align, is_repetitive, mark_decomposition
 from labbs2026.thai_marks.normalize import normalize_text
 
 _THAI = re.compile(r"[฀-๿]")
@@ -33,17 +34,27 @@ OVERGENERATION_PRECISION = 0.70
 ORDER_RECALL = 0.90
 ORDER_CER = 0.30
 
+# full alignments (ins/del/sub split, mark fates) only below this many DP cells;
+# the distance itself is always exact (bit-parallel, `distance.levenshtein`)
+MAX_ALIGN_CELLS = 4_000_000
+
 
 def _thai_count(text: str) -> int:
     return len(_THAI.findall(text))
 
 
-def _cer(reference: str, hypothesis: str) -> tuple[float | None, dict[str, int]]:
-    pairs = align(reference, hypothesis)
-    edits = edit_distance_from(pairs, reference, hypothesis)
-    ins = sum(1 for r, _ in pairs if r is None)
-    dele = sum(1 for _, h in pairs if h is None)
-    counts = {"edits": edits, "insertions": ins, "deletions": dele, "substitutions": edits - ins - dele}
+def _alignable(reference: str, hypothesis: str) -> bool:
+    return (len(reference) + 1) * (len(hypothesis) + 1) <= MAX_ALIGN_CELLS
+
+
+def _cer(reference: str, hypothesis: str) -> tuple[float | None, dict[str, int | None]]:
+    edits = levenshtein(reference, hypothesis)
+    counts: dict[str, int | None] = {"edits": edits, "insertions": None, "deletions": None, "substitutions": None}
+    if _alignable(reference, hypothesis):
+        pairs = align(reference, hypothesis)
+        ins = sum(1 for r, _ in pairs if r is None)
+        dele = sum(1 for _, h in pairs if h is None)
+        counts.update(insertions=ins, deletions=dele, substitutions=edits - ins - dele)
     return (edits / len(reference) if reference else None), counts
 
 
@@ -55,7 +66,7 @@ def bag_overlap(reference: str, hypothesis: str) -> tuple[float, float]:
     return (common / max(1, sum(ref.values())), common / max(1, sum(hyp.values())))
 
 
-def diagnose(reference: str, raw_output: str) -> dict[str, Any]:
+def diagnose(reference: str, raw_output: str, *, with_marks: bool = True) -> dict[str, Any]:
     ref_t1 = normalize_text(reference)
     hyp_t1 = normalize_text(raw_output)
     ref_s = structural_normalize(reference)
@@ -84,7 +95,8 @@ def diagnose(reference: str, raw_output: str) -> dict[str, Any]:
         "loop_period": loop[0] if loop else None,
         "looped_share_of_output": looped_chars / max(1, len(raw_output)),
         "bag_recall": recall, "bag_precision": precision,
-        "marks": mark_decomposition(ref_s, hyp_sd),
+        "marks": (mark_decomposition(ref_s, hyp_sd)
+                  if with_marks and _alignable(ref_s, hyp_sd) else None),
     }
     out["primary_cause"] = primary_cause(out)
     return out

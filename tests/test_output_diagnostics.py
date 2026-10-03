@@ -50,3 +50,20 @@ def test_diagnose_labels():
     ref = "ข้อความหน้าแรกของเอกสาร"
     hyp = ref + " " + " ".join(f"ย่อหน้าซ้ำรอบที่{i} มีรายการยาวมากมาย" for i in range(12))
     assert diagnose(ref, hyp)["primary_cause"] == "overgeneration"
+
+
+def test_levenshtein_matches_t1_alignment_and_handles_long_loops():
+    import random
+
+    from labbs2026.output_diagnostics.distance import levenshtein
+    from labbs2026.thai_marks.decompose import align, edit_distance_from
+
+    rng = random.Random(0)
+    alphabet = "กขคง่้ัิ abc"
+    for _ in range(500):
+        a = "".join(rng.choice(alphabet) for _ in range(rng.randint(0, 30)))
+        b = "".join(rng.choice(alphabet) for _ in range(rng.randint(0, 30)))
+        assert levenshtein(a, b) == edit_distance_from(align(a, b), a, b)
+    long_ref = "".join(rng.choice(alphabet) for _ in range(3000))
+    d = diagnose(long_ref, long_ref + "วนซ้ำ " * 2000)       # ~12k chars: no full table built
+    assert d["cer_t1"] > 3 and d["t1_insertions"] is None and d["cer_structural_delooped"] < 0.01
