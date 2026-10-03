@@ -33,7 +33,14 @@ Guards (reported; E1 is invalid if either fails):
 
 - Outputs that reached `max_new_tokens` are excluded (loops).
 - Full-page OCR: reference lines are matched to the output as in order-free
-  v2 (≥ 8 characters, CER < 0.4, claimed output masked). Text recognition:
+  v2 (≥ 8 characters, CER < 0.4, claimed output masked); only lines read at
+  CER < 0.2 (the "read" threshold of `attribution`) are labelled, each over
+  its own stretch of output. *Amended 2026-10-04 after the 4-case smoke and
+  before the full run:* the first version labelled the whole span from the
+  first to the last matched line (unmatched lines between them counted as
+  inserted marks: 76 of 466 clusters "wrong" on one page), and a loose match
+  of a long line across shuffled label fields (`048AEF1B`) marked correct
+  marks as errors. The gate is unchanged. Text recognition:
   the reference is aligned reference-anchored to the output; items not
   located under the BQ null threshold are excluded.
 - Output **grapheme clusters**: a consonant with its following combining

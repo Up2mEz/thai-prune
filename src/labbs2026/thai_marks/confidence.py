@@ -17,7 +17,12 @@ import random
 import re
 from typing import Any, Sequence
 
-from labbs2026.thai_marks.attribution import MARKS, MIN_ELSEWHERE_CHARS, reference_lines
+from labbs2026.thai_marks.attribution import (
+    MARKS,
+    MIN_ELSEWHERE_CHARS,
+    READ_ELSEWHERE_CER,
+    reference_lines,
+)
 from labbs2026.thai_marks.decompose import align_anchored, edit_distance_from
 from labbs2026.thai_marks.order_free import LINE_MATCH_CER, MASK
 from labbs2026.thai_marks.orthography import COMBINING, CONSONANTS
@@ -67,8 +72,16 @@ def _figure_mask(raw: str) -> set[int]:
     return {i for m in FIGURE.finditer(raw) for i in range(m.start(), m.end())}
 
 
-def aligned_pairs_full_page(reference: str, raw: str) -> list[tuple[str, int, int]]:
-    """(reference line, ref index, raw index) for lines matched as in order-free v2."""
+def aligned_pairs_full_page(reference: str, raw: str,
+                            label_cer: float = READ_ELSEWHERE_CER) -> list[tuple]:
+    """(reference line, ref index, raw index, line number) for lines matched as in order-free v2.
+
+    Lines are matched and their output claimed exactly as order-free v2 does,
+    but only lines read at CER < `label_cer` contribute pairs: E1 concerns
+    misreads inside lines the model read (the threshold `attribution` uses for
+    "read"); a looser match of a long line across shuffled short fields
+    (seen in the smoke, `048AEF1B`) labels correct marks as errors.
+    """
     lines = reference_lines(reference)
     masked = list(raw)
     out: list[tuple[str, int, int]] = []
@@ -77,12 +90,14 @@ def aligned_pairs_full_page(reference: str, raw: str) -> list[tuple[str, int, in
     for i in eligible:
         line, current = lines[i], "".join(masked)
         pairs, _, _ = align_anchored(line, current)
-        if edit_distance_from(pairs, line, current) / len(line) >= LINE_MATCH_CER:
+        cer = edit_distance_from(pairs, line, current) / len(line)
+        if cer >= LINE_MATCH_CER:
             continue
         hyp = [h for _, h in pairs if h is not None]
         if not hyp:
             continue
-        out += [(line, r, h) for r, h in pairs if r is not None and h is not None]
+        if cer < label_cer:
+            out += [(line, r, h, i) for r, h in pairs if r is not None and h is not None]
         for h in range(min(hyp), max(hyp) + 1):
             masked[h] = MASK
     return out
@@ -92,14 +107,20 @@ def label_clusters(raw: str, pairs: list[tuple[str, int, int]],
                    span: tuple[int, int] | None = None) -> list[dict]:
     """Mark-bearing output clusters with their mark-error label.
 
-    `pairs` are (reference text, ref index, raw index). Only clusters whose
+    `pairs` are (reference text, ref index, raw index[, line]). Only clusters whose
     base character is aligned (or lies inside `span` for an anchored read,
     then counted as inserted) are labelled; figure content is skipped.
     """
-    ref_of = {h: (text, r) for text, r, h in pairs}
+    ref_of = {p[2]: (p[0], p[1]) for p in pairs}
+    # Each matched line covers its own stretch of output only (2026-10-04: one
+    # span from the first to the last matched line labelled every unmatched
+    # line between them as inserted marks; seen in the smoke before the run).
+    stretches: dict[Any, list[int]] = {}
+    for p in pairs:
+        stretches.setdefault(p[3] if len(p) > 3 else 0, []).append(p[2])
     covered = set(ref_of)
-    if pairs:
-        covered |= set(range(min(ref_of), max(ref_of) + 1))
+    for hs in stretches.values():
+        covered |= set(range(min(hs), max(hs) + 1))
     if span is not None:
         covered |= set(range(*span))
     figure = _figure_mask(raw)

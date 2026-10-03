@@ -85,3 +85,13 @@ def test_invalid_input_is_rejected_by_the_offsets_guard() -> None:
 
     with pytest.raises(ValueError):
         token_offsets(Tok(), "ab", [1, 3])
+
+
+def test_unmatched_lines_between_matched_ones_are_not_labelled() -> None:
+    l1, l3 = "ข้าวราคาแพงขึ้นทุกวัน", "ไฟฟ้าดับทั้งเมืองเมื่อคืน"
+    extra = "ข้อความที่ไม่มีในต้นฉบับเลยแม้แต่น้อย"
+    raw = f"{l1}\n{extra}\n{l3}"
+    labelled = label_clusters(raw, aligned_pairs_full_page(f"{l1}\n{l3}", raw))
+    lo, hi = raw.index(extra), raw.index(extra) + len(extra)
+    assert labelled and not any(lo <= c["start"] < hi for c in labelled)
+    assert not any(c["error"] for c in labelled)
