@@ -135,3 +135,45 @@ The locked split; Text recognition and Full-page OCR; prompts other than §1;
 any scale other than the two in §3 (a fuller scale sweep is P-ZOOM's and gap
 G3's); patch-phase manipulation (track D, proposed separately); any claim
 beyond these two checkpoints of one architecture family.
+
+---
+
+## Addendum 1, 2026-10-04 — after the smoke, before the full run
+
+No full-run output exists. The only F1 outputs are the engineering smoke
+`kaggle-find-vs-read-f1-ff50c65e3152-smoke2` (first 2 calibration items, both
+models, all four arms): 0 failures, fp16, checksums verified, no image in the
+outputs, geometry recorded (one page-scale crop under the pixel floor and
+padded; magnification of `CROP_RESCALED` over the page 1.28× and 2.69×).
+Engineering observations only, not evidence.
+
+**1. Scoring rule — a mark is scored only where the answer was found.** In the
+smoke, Typhoon's `WHOLE` answered with the image's dimensions
+(`ความยาวของรูปภาพ: 1000.0 …`); the best window (§4.1), searched in that
+unrelated answer, landed on `ามยา` and matched a base consonant by chance, so
+one upper vowel was scored as an error. The base's `WHOLE` on another item gave
+the window `แบบของข้อความ` with two marks scored. In the (a)→(c) contrast such
+marks become "wrong→correct" and bias the finding comparison toward "the crop
+reads better". So, replacing §4.2's scoring condition for the **primary**
+outcome (§5): a mark is scored in an arm only if its base consonant is read
+correctly **and** that arm's answer is found (window CER ≤ 0.5, the threshold
+fixed in §4.4 before any output). Answers not found are localisation failures;
+all their marks are unscored. The rule as first registered (base-correct only)
+is reported beside it as a sensitivity (`rule="base_only"`). Everything else in
+§5–§6 stands.
+
+**2. Reported per arm:** answers not found although the reference has marks
+(`not_found_with_reference_marks`), next to §4.3's localisation failures.
+
+**3. Exploratory, not registered as an outcome: possible reference errors.**
+On one smoke item the reference reads `แยกสำลี บิ๊กซีรามฯ เอดะมอลล์ราม` while
+every Typhoon arm reads `แยกลำสาลี บิ๊กซีรามฯ เดอะมอลล์ราม`. Items where both
+crop arms return the same found window and it differs from the reference are
+listed (`reference_disagreements`) for human inspection. Scores are never
+changed because of this list.
+
+**4. Observed, no change:** with the whole image, the coordinate-system clause
+of the question (`แบ่ง…1000 ส่วน`) was misread as a question about the image —
+Typhoon answered with image dimensions, the base with its own coordinates and
+meta-text. The crop prompt does not carry that clause. This is part of what
+(a)→(c) measures, and is reported with the results.

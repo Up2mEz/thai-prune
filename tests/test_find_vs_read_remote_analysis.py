@@ -124,3 +124,30 @@ def test_config_is_approved_with_its_authorization():
     spec.loader.exec_module(module)
     for path in module.HASHED:
         assert (ROOT / path).is_file(), path
+
+
+def test_addendum1_marks_in_a_not_found_window_are_unscored():
+    """The smoke case: an answer about the image size, where the best window lands on
+    `ามยา` and matches a base consonant by chance."""
+    records = [{"id": "x", "task": "F", "reference": "สถานีวัดเสมียนนารี",
+                "arms": {"WHOLE": _arm("ความยาวของรูปภาพ: 1000.0 ความสูงของรูปภาพ: 800.0"),
+                         "CROP_SAME_SCALE": _arm("สถานีวัดเสมียนนารี"),
+                         "CROP_RESCALED": _arm("สถานีวัดเสมียนนารี"),
+                         "WHOLE_MARKED": _arm("สถานีวัดเสมียนนารี")}}]
+    rows = item_rows(records)
+    assert not rows[0]["arms"]["WHOLE"]["found"]
+    primary = paired_fates(rows, "CROP_SAME_SCALE", "WHOLE")
+    loose = paired_fates(rows, "CROP_SAME_SCALE", "WHOLE", rule="base_only")
+    assert primary["fates"]["UPPER"].get("wrong->correct", 0) == 0          # no chance-scored mark
+    assert loose["fates"]["UPPER"].get("wrong->correct", 0) >= 1             # the bias the rule removes
+    assert summarize(rows)["WHOLE"]["not_found_with_reference_marks"] == 1
+
+
+def test_reference_disagreements_list_items_both_crops_read_alike():
+    records = [{"id": "r", "task": "F", "reference": "แยกสำลี เอดะมอลล์",
+                "arms": {"WHOLE": _arm("x"), "CROP_SAME_SCALE": _arm("แยกลำสาลี เดอะมอลล์"),
+                         "CROP_RESCALED": _arm("แยกลำสาลี เดอะมอลล์"), "WHOLE_MARKED": _arm("x")}}]
+    found = summarize(item_rows(records))["reference_disagreements"]
+    assert found == [{"id": "r", "reference": "แยกสำลี เอดะมอลล์", "both_crops_read": "แยกลำสาลี เดอะมอลล์"}]
+    with pytest.raises(ValueError):
+        paired_fates(item_rows(records), "CROP_SAME_SCALE", "WHOLE", rule="other")
