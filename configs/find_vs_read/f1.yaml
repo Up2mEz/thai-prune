@@ -1,0 +1,44 @@
+schema_version: 1
+status: DRAFT_FOR_REVIEW        # the submit script refuses anything but APPROVED
+registration: docs/stage0/FIND_VS_READ_F1_REGISTRATION.md
+authorization: null             # docs/DECISION_LOG.md entry, once both researchers agree
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+models:
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0   # Apache-2.0-only revision; never main
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Fine-grained text recognition"]
+
+split:
+  source: thai_marks           # T1's seeded rule, applied to this task
+  seed: 20260927
+  calibration_fraction: 0.30
+  strata: [Task, category]
+
+arms: [WHOLE, CROP, WHOLE_MARKED]
+crop_margin: 0.25              # x box height, every side, then snapped outward to the 32-px grid
+crop_prompt: "ช่วยดึงข้อความในรูปภาพออกมาให้หน่อย"   # the benchmark's own wording without the coordinate clause
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  attention: sdpa
+  image_policy: typhoon_card_then_processor_size   # geometry.prepare_page
+  max_new_tokens: 512
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+
+scoring:
+  found_max_window_cer: 0.5
