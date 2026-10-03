@@ -2,6 +2,59 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04 — FIND_VS_READ_F1 (Track C) authorized — `DRAFT, AWAITING UP2MEZ`
+
+> Drafted by PELY334's Claude Code session at Up2mEz's request
+> (`collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`).
+> **PELY334 approved in session on 2026-10-04.** Not in force until Up2mEz
+> approves the pull request that adds it (PR #34); Up2mEz then replaces this
+> note and the heading's status with the date and manner of approval.
+
+**Stage/Gate:** RQ-A / RQ-B, mechanism probe. Opens or passes no gate; Gates
+1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/FIND_VS_READ_F1_REGISTRATION.md`
+with parameters `configs/find_vs_read/f1.yaml`: ThaiOCRBench Fine-grained text
+recognition, the 69 calibration items of T1's seeded rule, both pinned models
+(Typhoon primary), arms `WHOLE`, `CROP_SAME_SCALE`, `CROP_RESCALED`,
+`WHOLE_MARKED`, smoke first, cap 2 T4-hours, PELY334's own Kaggle quota. The
+locked split stays closed. No image or crop is written to outputs or the
+repository.
+
+This **supersedes, for Track C only**, the line of
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §6 that lists
+"Handwriting, Fine-grained tasks" as "later, if the method works on the
+primary tasks" — the same convention 2026-09-28b used for Track B. The plan
+file itself is left unedited.
+
+### Reasoning
+
+- Fine-grained gives the box, so finding and reading can be separated without
+  training; the crop is cut on the same 32-px token grid of the same prepared
+  page, and a second crop isolates magnification (Up2mEz's edit 1).
+- F1 tests direction and mechanism, not magnitude: ~100 tone marks; the
+  primary outcome is exact paired mark-fate counts, with no decision rule on an
+  interval (edit 2).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- No remedy is evaluated; a pattern in F1 can only route which remedy family
+  is worth registering next.
+- Track D is not authorized by this entry.
+
+### Files/configs affected
+
+- `docs/stage0/FIND_VS_READ_F1_REGISTRATION.md`, `configs/find_vs_read/f1.yaml`
+- `src/labbs2026/find_vs_read/`, `scripts/find_vs_read_*.py`,
+  `infra/kaggle/find_vs_read_worker.py`
+
+---
+
 ## 2026-09-28b — Track B (remedies) full evaluation no longer waits on T2
 
 > Drafted by Up2mEz's Claude Code session, at the researcher's explicit
