@@ -2,13 +2,14 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-10-04 — FIND_VS_READ_F1 (Track C) authorized — `DRAFT, AWAITING UP2MEZ`
+## 2026-10-04 — FIND_VS_READ_F1 (Track C) authorized
 
 > Drafted by PELY334's Claude Code session at Up2mEz's request
 > (`collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`).
-> **PELY334 approved in session on 2026-10-04.** Not in force until Up2mEz
-> approves the pull request that adds it (PR #34); Up2mEz then replaces this
-> note and the heading's status with the date and manner of approval.
+> **Approved by both researchers:** PELY334 stated in session on 2026-10-04;
+> Up2mEz by merging PR #34 (2026-10-03T19:22Z), which added this entry. The
+> merge left the status note unchanged; this note was updated from the merge by
+> PELY334's session (PR #38) and is Up2mEz's to amend.
 
 **Stage/Gate:** RQ-A / RQ-B, mechanism probe. Opens or passes no gate; Gates
 1-6 unchanged.
