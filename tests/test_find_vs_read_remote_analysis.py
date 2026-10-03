@@ -110,12 +110,12 @@ def test_paired_fates_exact_counts_and_localisation():
     assert s["WHOLE_MARKED"]["failed"] == 1 and s["WHOLE_MARKED_vs_WHOLE"]["items"] == 1
 
 
-def test_config_is_a_draft_until_both_researchers_agree():
+def test_config_is_approved_with_its_authorization():
     import hashlib
     import importlib.util
 
     config = yaml.safe_load((ROOT / "configs/find_vs_read/f1.yaml").read_text("utf-8"))
-    assert config["status"] == "DRAFT_FOR_REVIEW" and config["authorization"] is None
+    assert config["status"] == "APPROVED" and config["authorization"].startswith("docs/DECISION_LOG.md")
     assert config["arms"] == ["WHOLE", "CROP_SAME_SCALE", "CROP_RESCALED", "WHOLE_MARKED"]
     assert config["runtime"]["generation"]["do_sample"] is False
     assert hashlib.sha256(config["crop_prompt"].encode("utf-8")).hexdigest() == config["crop_prompt_sha256"]

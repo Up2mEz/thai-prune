@@ -1,6 +1,6 @@
 # Track C — finding versus reading
 
-**Status: `AGREED_REGISTRATION_IN_REVIEW`.** Owner `PELY334`. Track agreed by
+**Status: `F1_AUTHORIZED`** (Decision Log 2026-10-04; Up2mEz approved by merging PR #34). Owner `PELY334`. Track agreed by
 Up2mEz in `collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`
 (yes, with five edits, built into the registration). Nothing runs before the
 Decision Log entry (drafted, PR #34) is approved by both researchers;
