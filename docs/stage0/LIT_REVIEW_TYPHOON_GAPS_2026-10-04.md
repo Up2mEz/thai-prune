@@ -93,3 +93,21 @@ standalone share shows the largest drop in (b) and rise in (c) under
 ### E1 — does confidence locate mark errors? (registration in `E1_CONFIDENCE_DRAFT.md`)
 
 ### E2 — backtrack on loop (registration later, after E1)
+
+## 4. D1 result (2026-10-04): not supported
+
+T5 outputs, loop-free items (Full-page 131, Text recognition 214):
+
+| | tone | upper vowel | lower vowel |
+|---|---|---|---|
+| standalone-token share (references, Full-page) | 30.1% | 38.6% | **60.6%** |
+| output/reference count, Full-page: greedy → rep_penalty | 0.986 → 0.973 | 0.978 → 0.981 | 0.987 → **1.000** |
+| deletion rate, Full-page: greedy → rep_penalty | 3.70% → 3.76% | 4.34% → 4.52% | 3.57% → 3.37% |
+| deletion rate, Text rec.: greedy → rep_penalty | 7.11% → 8.72% | 7.98% → 9.68% | 8.87% → 8.12% |
+
+The class most often encoded as a standalone token (lower vowels) is not
+suppressed at all. The T5 tone-error rise is therefore not explained by the
+penalty hitting standalone mark tokens; the penalty changes reading more
+broadly (on Text recognition it raises output length: tone output/reference
+1.229 → 1.340). The mechanism stays unknown; the practical conclusion of T5
+(do not use the penalty) is unchanged.
