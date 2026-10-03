@@ -1,7 +1,7 @@
 schema_version: 1
-status: DRAFT_FOR_REVIEW        # the submit script refuses anything but APPROVED
+status: APPROVED                # the submit script refuses anything but APPROVED
 registration: docs/stage0/FIND_VS_READ_F1_REGISTRATION.md
-authorization: null             # docs/DECISION_LOG.md entry, once both researchers agree
+authorization: docs/DECISION_LOG.md  # entry 2026-10-04 (Up2mEz approved by merging PR #34)
 claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
 
 models:

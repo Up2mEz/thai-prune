@@ -1,10 +1,10 @@
 # FIND_VS_READ_F1 — registration (Track C)
 
-**Status: `DRAFT_FOR_REVIEW`.** Written before any F1 output exists. Track C
+**Status: `APPROVED`**, `docs/DECISION_LOG.md` entry 2026-10-04 (PELY334 in
+session; Up2mEz by merging PR #34). Written before any F1 output exists. Track C
 agreed by Up2mEz in
 `collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`
-(yes, with five edits, all built in below). Authorizes nothing until a
-`docs/DECISION_LOG.md` entry approved by both researchers records it. Plan:
+(yes, with five edits, all built in below). Plan:
 `docs/exec-plans/active/FIND_VS_READ_PLAN.md`. Parameters:
 `configs/find_vs_read/f1.yaml`. Claim level of every result:
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
