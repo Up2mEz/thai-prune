@@ -78,3 +78,58 @@ def zoom_factor(page_size: tuple[int, int], tile_size: tuple[int, int]) -> float
     Both are read through `resize_policy`; the factor is the ratio of their scales.
     """
     return read_scale(tile_size) / read_scale(page_size)
+
+
+def padded(image, margin: float):
+    """`image` on a white canvas with `margin` of its longer side added on every side."""
+    from PIL import Image
+
+    pad = round(margin * max(image.size))
+    canvas = Image.new("RGB", (image.width + 2 * pad, image.height + 2 * pad), "white")
+    canvas.paste(image, (pad, pad))
+    return canvas
+
+
+def _resized(image, factor: float):
+    from PIL import Image
+
+    return image.resize((max(1, round(image.width * factor)), max(1, round(image.height * factor))),
+                        Image.Resampling.LANCZOS)
+
+
+def view_images(original, view: dict) -> list[dict]:
+    """The images one `view` of a page feeds the model, each with the zoom it buys.
+
+    Kinds (P-ZOOM-2, `P_ZOOM2_VIEWS_PROBE_DRAFT.md`):
+
+    - `pad`: the whole page on a white margin, then `runtime.resize_policy`;
+    - `scale`: the whole page through `runtime.resize_policy`, then times `factor`;
+    - `grid`: `rows` x `cols` overlapping tiles cropped from the source pixels, each
+      resized so a source pixel is `zoom` times larger than when the page is read whole
+      (not through `resize_policy`: a full-width band would otherwise be capped at 1800 px).
+
+    `zoom` of a returned image: how much larger a source pixel is than in the whole-page read.
+    """
+    from labbs2026.thai_marks.runtime import resize_policy
+
+    page_scale = read_scale(original.size)
+    kind = view["kind"]
+    if kind == "pad":
+        source = padded(original, float(view["margin"]))
+        image = resize_policy(source)
+        box = (0, 0, *source.size)
+        return [{"tile": Tile(0, 0, 0, box), "image": image,
+                 "zoom": (image.width / source.width) / page_scale}]
+    if kind == "scale":
+        image = _resized(resize_policy(original), float(view["factor"]))
+        return [{"tile": Tile(0, 0, 0, (0, 0, *original.size)), "image": image,
+                 "zoom": (image.width / original.width) / page_scale}]
+    if kind == "grid":
+        out = []
+        for tile, crop in crop_tiles(original, int(view["rows"]), int(view["cols"]),
+                                     float(view["overlap"])):
+            image = _resized(crop, float(view["zoom"]) * page_scale)
+            out.append({"tile": tile, "image": image,
+                        "zoom": (image.width / crop.width) / page_scale})
+        return out
+    raise ValueError(f"unknown view kind {kind!r}")

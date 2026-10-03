@@ -2,6 +2,28 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04 — P-ZOOM-2 (views probe) authorized after a literature review
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** Up2mEz, in session 2026-10-04 ("ลอง lit review research และทำการ
+ทดลองตามคำถามที่เราสงสัย"). The question taken from P-ZOOM's open ends
+(`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9): is what zoom "gained" zoom, or any change of the
+input. Recorded by the assistant as authorization under the researcher's standing
+delegation; reversible at any time.
+
+**Authorized:** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
+21 pages, 105 reads (two whole-page perturbation views and 3 full-width bands at 1.85x),
+readings of §5 fixed in advance. First a smoke (`--limit 2`) on the secondary account; then
+one T4 session on the main account, kernel slug `labbs2026-thai-marks-pzoom`, under 2
+GPU-hours (0.55 of the 3-hour weekly pzoom budget already used).
+
+**Not authorized:** any method built on the result, the locked split, any model but Typhoon.
+
+---
+
 ## 2026-10-03e — P-ZOOM result: below the registered line; P-ZOOM stops
 
 **Evidence:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9; run

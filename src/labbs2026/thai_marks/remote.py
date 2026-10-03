@@ -56,6 +56,8 @@ def completed_keys(records_path: Path, test: str) -> set:
                 keys.add((record["id"], record["prompt_kind"], record["arm"]))
             elif test == "t4":
                 keys.add((record["id"], record["tile"]))
+            elif test == "t6":
+                keys.add((record["id"], record["view"], record["tile"]))
             elif test == "t3":
                 keys.add(record["case"])
             else:
@@ -162,13 +164,13 @@ def t5_processors(arm: dict, tokenizer) -> tuple[list, dict]:
     return [processor], {"whitelist_ids": whitelist}
 
 
-def t4_page_ids(spec: dict, source: Path, calibration) -> list[str]:
+def t4_page_ids(spec: dict, source: Path, calibration, key: str = "t4") -> list[str]:
     """The P-ZOOM probe's pages, from the frozen list the registration hashes.
 
     Refuses any page outside the calibration split: the locked split stays
     closed (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §2).
     """
-    t4 = spec["t4"]
+    t4 = spec[key]
     data = (source / t4["pages_file"]).read_bytes()
     digest = hashlib.sha256(data).hexdigest()
     if digest != t4["pages_sha256"]:
@@ -183,7 +185,7 @@ def t4_page_ids(spec: dict, source: Path, calibration) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
@@ -227,8 +229,8 @@ def main() -> None:
     load_started = time.perf_counter()
     dataset, ordered, calibration, id_col = load_items(spec)
     selected = [i for i in ordered if id_col[i] in calibration]
-    if args.test == "t4":  # P-ZOOM reads only its frozen pages
-        pages = set(t4_page_ids(spec, source, calibration))
+    if args.test in ("t4", "t6"):  # P-ZOOM reads only its frozen pages
+        pages = set(t4_page_ids(spec, source, calibration, args.test))
         selected = [i for i in selected if id_col[i] in pages]
         if len(selected) != len(pages):
             raise RuntimeError("P-ZOOM pages missing from the benchmark")
@@ -269,7 +271,7 @@ def main() -> None:
 
     setup_seconds = time.perf_counter() - load_started  # dataset + model load, before any item
     gen_kwargs = generation_record = None
-    if args.test in ("t1", "t4"):  # T2 teacher-forces and never generates; t4 reads as t1 does
+    if args.test in ("t1", "t4", "t6"):  # T2 teacher-forces and never generates; t4 reads as t1 does
         gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
         generation_record = {"requested": gen_kwargs,
                              **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
@@ -301,6 +303,11 @@ def main() -> None:
             if args.test == "t4" and all((row["Id"], t) in completed
                                          for t in range(int(spec["t4"]["tiling"]["rows"])
                                                         * int(spec["t4"]["tiling"]["cols"]))):
+                continue
+            if args.test == "t6" and all(
+                    (row["Id"], v["name"], t) in completed
+                    for v in spec["t6"]["views"]
+                    for t in range(int(v["rows"]) * int(v["cols"]) if v["kind"] == "grid" else 1)):
                 continue
             if args.test == "t5" and all((row["Id"], p, a["name"]) in completed
                                          for p in spec["t1_prompts"] for a in spec["t5_arms"]):
@@ -352,6 +359,28 @@ def main() -> None:
                          "zoom_factor": tiling.zoom_factor(original.size, tile.size), **result},
                         ensure_ascii=False) + "\n")
                     handle.flush()
+            elif args.test == "t6":
+                from labbs2026.thai_marks import tiling
+
+                for view in spec["t6"]["views"]:
+                    for item in tiling.view_images(original, view):
+                        tile = item["tile"]
+                        if (row["Id"], view["name"], tile.index) in completed:
+                            continue
+                        try:
+                            result = runtime.generate(model, processor, item["image"], typhoon_prompt,
+                                                      generation=gen_kwargs, device=device)
+                        except Exception as exc:  # recorded, never scored as an output
+                            failures.append({"id": row["Id"], "view": view["name"], "tile": tile.index,
+                                             "error": f"{type(exc).__name__}: {exc}"[:800]})
+                            torch.cuda.empty_cache()
+                            continue
+                        handle.write(json.dumps(
+                            {**base, "prompt_kind": spec["t6"]["prompt"], "view": view["name"],
+                             "view_kind": view["kind"], "tile": tile.index,
+                             "tile_box": list(tile.box), "read_size": list(item["image"].size),
+                             "zoom_factor": item["zoom"], **result}, ensure_ascii=False) + "\n")
+                        handle.flush()
             elif args.test == "t5":
                 for prompt_kind in spec["t1_prompts"]:
                     prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]

@@ -78,6 +78,11 @@ HASHED_T4 = (
     "configs/thai_marks/p_zoom_pages.json",
     "src/labbs2026/thai_marks/tiling.py",
 )
+HASHED_T6 = (
+    "configs/thai_marks/p_zoom2.yaml",
+    "configs/thai_marks/p_zoom_pages.json",
+    "src/labbs2026/thai_marks/tiling.py",
+)
 REPOSITORY = "https://github.com/Up2mEz/thai-prune.git"
 
 
@@ -209,6 +214,17 @@ def main() -> None:
         if args.submit and p_zoom["status"] != "APPROVED":
             raise SystemExit(f"p_zoom.yaml status is {p_zoom['status']}; "
                              "the researcher has not authorized this run")
+    p_zoom2 = None
+    if "t6" in tests:
+        p_zoom2 = yaml.safe_load((root / "configs/thai_marks/p_zoom2.yaml").read_text("utf-8"))
+        if roles != list(p_zoom2["roles"]):
+            raise SystemExit(f"t6 is registered for roles {p_zoom2['roles']} only")
+        if args.kernel_slug == KERNEL_SLUG:
+            raise SystemExit("t6 (P-ZOOM-2) must use its own --kernel-slug; "
+                             f"{KERNEL_SLUG} belongs to the other session")
+        if args.submit and p_zoom2["status"] != "APPROVED":
+            raise SystemExit(f"p_zoom2.yaml status is {p_zoom2['status']}; "
+                             "the researcher has not authorized this run")
     suffix = "" if roles == ["base", "typhoon"] else "-" + "-".join(roles)
     suffix += f"-x{args.shards}" if args.shards > 1 else ""
     suffix += f"-smoke{args.limit}" if args.limit else ""
@@ -221,7 +237,8 @@ def main() -> None:
         "remote_ref": remote_ref,
         "git_sha": git_sha,
         "expected_file_hashes": {p: committed_sha256(root, git_sha, p)
-                                 for p in HASHED + (HASHED_T4 if p_zoom else ())},
+                                 for p in HASHED + (HASHED_T4 if p_zoom else ())
+                                 + (HASHED_T6 if p_zoom2 else ())},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
@@ -251,6 +268,11 @@ def main() -> None:
             "prompt": p_zoom["prompt"], "tiling": p_zoom["tiling"],
             "pages_file": p_zoom["pages"]["file"], "pages_sha256": p_zoom["pages"]["sha256"],
             "status": p_zoom["status"],
+        },
+        "t6": None if p_zoom2 is None else {
+            "prompt": p_zoom2["prompt"], "views": p_zoom2["views"],
+            "pages_file": p_zoom2["pages"]["file"], "pages_sha256": p_zoom2["pages"]["sha256"],
+            "status": p_zoom2["status"],
         },
         "window_after_chars": config["t2"]["window_after_chars"],
         "t2_dtype": config["t2"].get("dtype"),
