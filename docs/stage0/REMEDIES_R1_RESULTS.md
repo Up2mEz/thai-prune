@@ -1,5 +1,9 @@
 # REMEDIES_R1 — results (Track B pilot)
 
+**Arm names.** `VCD`, `M3ID` and `PAI` below are this project's implementations
+(`M3ID-form`, `PAI-style`), not checked line by line against the papers
+(registration §2); every claim about them is about these implementations.
+
 **Claim level: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.** 24 calibration items
 (12 per task), paper-default settings, no tuning. Registration:
 `docs/stage0/REMEDIES_R1_REGISTRATION.md`. Authorization: `docs/DECISION_LOG.md`
@@ -68,17 +72,22 @@ both on a handful of marks.
   reading marks better.** Both VCD and M3ID turn most looping base outputs
   into readable ones; consonant error also falls slightly. That is a real
   effect on output quality, but it is not a mark fix.
-- **On readable output they cost tone marks, by deletion.** A plausible
-  mechanism: the contrast subtracts what the language model predicts without
-  (or with degraded) visual evidence. A tone mark after a known syllable is
-  exactly such a prior-predictable token, so its score is pushed down and the
-  unmarked continuation wins. If so, Thai tone marks on these models are
-  carried partly by the language prior — the opposite of the "prior overrides
-  the image" story, at least at these settings. T2's image-gain numbers are
-  the direct test of this; this pilot only suggests it.
-- **PAI at α = 0.5 from layer 2 breaks generation** on both models (no item
-  kept on the base). This says the paper-default strength is wrong for page
-  OCR on this architecture, not that attention amplification cannot work.
+- **On readable output they cost tone marks, by deletion.** Contrast lowers the
+  score of any token the no-image or noised stream also predicts — including a
+  tone mark that is well supported by the image *and* predictable from its
+  syllable. Deletion under contrast therefore shows that tone marks here are
+  **prior-predictable**; it does not show that they rely on the prior instead
+  of the image. T2's image gain at tone sites (after its rerun) is the direct
+  test; mark-aware contrast (§6, direction 2) tests the deletion mechanism.
+  *(Revised 2026-10-04 after Up2mEz's review,
+  `collab/messages/20261003T1810Z_Up2mEz_to_PELY334_review-r1-pilot-and-s1-addendum3.md`;
+  the first version over-read this as "the opposite of the prior-overrides-image
+  story".)*
+- **The PAI-style arm (α = 0.5 from layer 2) breaks generation** on both models
+  (no item kept on the base) while its α = 0 control is exact. With the
+  implementation not yet checked line by line against the paper (registration
+  §2), this points to a setting or implementation mismatch at least as much as
+  to a property of PAI.
 - Latency: VCD/M3ID cost ×1.6–1.9 on Typhoon; on the base they look cheap
   (×1.0–1.2) only because FULL's loops run to `max_new_tokens`.
 
@@ -103,6 +112,12 @@ both on a handful of marks.
    candidates differ in more than Thai combining marks; leave decisions between
    a syllable with and without a mark to the plain greedy score. Tests the
    deletion mechanism of §3 directly.
-3. **PAI at much lower strength or in fewer, later layers**, chosen on a
-   calibration sub-split, if attention amplification is still of interest.
+3. **PAI-style at much lower strength or in fewer, later layers**, chosen on a
+   calibration sub-split, after the line-by-line check against the paper.
+
+Priority, as Up2mEz suggested: direction 2 first, on Typhoon (only 1 of 24
+Typhoon outputs looped, so direction 1 mostly serves the base). Before building
+it, add per-item differences and an item-mean sensitivity to the pooled tone
+result, which weights items by mark count and keeps only items the arm itself
+left readable.
 4. Read §3 against T2's image gain at tone sites once T2 is posted.
