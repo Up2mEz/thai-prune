@@ -54,7 +54,7 @@ def completed_keys(records_path: Path, test: str) -> set:
                 keys.add((record["id"], record["prompt_kind"]))
             elif test == "t5":
                 keys.add((record["id"], record["prompt_kind"], record["arm"]))
-            elif test == "t3":
+            elif test in ("t3", "t6"):
                 keys.add(record["case"])
             else:
                 keys.add(record["id"])
@@ -96,19 +96,53 @@ def load_items(spec: dict):
     return dataset, ordered, calibration, id_col
 
 
-def load_t3_cases(spec: dict) -> list[dict]:
-    """T3 cases from the attached Kaggle dataset (path in spec, else searched)."""
-    path = Path(spec.get("t3_cases") or "")
+def load_cases(spec: dict, test: str, root: Path = Path("/kaggle/input")) -> list[dict]:
+    """`<test>_cases.json` from the attached Kaggle dataset (path in spec, else searched)."""
+    name = f"{test}_cases.json"
+    path = Path(spec.get(f"{test}_cases") or "")
     if not path.is_file():
-        found = sorted(Path("/kaggle/input").rglob("t3_cases.json"))
+        found = sorted(root.rglob(name))
         if len(found) != 1:
-            raise RuntimeError(f"expected one t3_cases.json under /kaggle/input, found {found}")
+            raise RuntimeError(f"expected one {name} under {root}, found {found}")
         path = found[0]
     payload = json.loads(path.read_text(encoding="utf-8"))
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    if spec.get("t3_cases_sha256") and digest != spec["t3_cases_sha256"]:
-        raise RuntimeError(f"t3_cases.json hash {digest} does not match the submission")
+    if spec.get(f"{test}_cases_sha256") and digest != spec[f"{test}_cases_sha256"]:
+        raise RuntimeError(f"{name} hash {digest} does not match the submission")
     return payload["cases"]
+
+
+def load_t3_cases(spec: dict) -> list[dict]:
+    """T3 cases from the attached Kaggle dataset (path in spec, else searched)."""
+    return load_cases(spec, "t3")
+
+
+def _run_t6(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
+            typhoon_prompt, device, failures, runtime, torch) -> list:
+    """E1: teacher-forced confidence of each case's own output; returns the cases run."""
+    cases = shard_items(load_cases(spec, "t6"), args.shard, args.shards)
+    if int(spec.get("limit") or 0):
+        cases = cases[: int(spec["limit"])]
+    index_of = {id_col[i]: i for i in ordered}
+    for case in cases:
+        if case["case"] in completed:
+            continue
+        row = dataset[index_of[case["id"]]]
+        image = runtime.resize_policy(row["image"].convert("RGB"))
+        prompt = typhoon_prompt if case["prompt_kind"] == "TYPHOON_CARD" else row["question"]
+        started = time.perf_counter()
+        try:
+            scored = runtime.score_own_output(model, processor, image, prompt, case["output"],
+                                              device=device)
+        except Exception as exc:  # recorded, never scored
+            failures.append({"case": case["case"], "error": f"{type(exc).__name__}: {exc}"[:800]})
+            torch.cuda.empty_cache()
+            continue
+        handle.write(json.dumps({k: case[k] for k in ("case", "id", "task", "prompt_kind")}
+                                | {"scores": scored, "seconds": time.perf_counter() - started},
+                                ensure_ascii=False) + "\n")
+        handle.flush()
+    return cases
 
 
 def _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
@@ -163,7 +197,7 @@ def t5_processors(arm: dict, tokenizer) -> tuple[list, dict]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3", "t5"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t5", "t6"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
@@ -267,7 +301,10 @@ def main() -> None:
         if args.test == "t3":
             selected = _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model,
                                processor, typhoon_prompt, device, dtype, failures, runtime, torch)
-        for index in ([] if args.test == "t3" else selected):
+        if args.test == "t6":
+            selected = _run_t6(spec, args, handle, dataset, ordered, id_col, completed, model,
+                               processor, typhoon_prompt, device, failures, runtime, torch)
+        for index in ([] if args.test in ("t3", "t6") else selected):
             row = dataset[index]
             if args.test == "t2" and row["Id"] in completed:
                 continue

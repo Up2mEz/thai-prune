@@ -174,6 +174,9 @@ def main() -> None:
     parser.add_argument("--t3-cases", type=Path, default=None,
                         help="T3 cases JSON (scripts/thai_marks_t3_cases.py); attached as a "
                              "private dataset")
+    parser.add_argument("--t6-cases", type=Path, default=None,
+                        help="E1 cases JSON (scripts/thai_marks_t6_cases.py); attached as a "
+                             "private dataset")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
                         help="Kaggle kernel slug; give each parallel session its own")
     parser.add_argument("--submit", action="store_true")
@@ -250,6 +253,19 @@ def main() -> None:
         dataset_sources.append(dataset_id(root, t3_slug))
     elif "t3" in tests:
         raise SystemExit("t3 needs --t3-cases")
+    t6_staging: Path | None = None
+    t6_slug = f"{args.kernel_slug}-t6-cases"
+    if args.t6_cases:
+        if "t6" not in tests:
+            raise SystemExit("--t6-cases given but t6 is not in --tests")
+        t6_staging = run_dir / "t6_dataset"
+        t6_staging.mkdir(parents=True, exist_ok=False)
+        shutil.copyfile(args.t6_cases, t6_staging / "t6_cases.json")
+        spec["t6_cases_sha256"] = sha256_file(t6_staging / "t6_cases.json")
+        spec["t6_cases"] = dataset_mount_path(t6_slug, "t6_cases.json")
+        dataset_sources.append(dataset_id(root, t6_slug))
+    elif "t6" in tests:
+        raise SystemExit("t6 needs --t6-cases")
     if args.resume_from:
         old_run_id, resume_dataset_staging = stage_resume_dataset(
             args.resume_from.resolve(), run_dir)
@@ -277,6 +293,9 @@ def main() -> None:
         if t3_staging is not None:
             print("t3 cases dataset ready:", upload_dataset(
                 root, t3_staging, t3_slug, "LabBS2026 Thai Marks T3 Cases"))
+        if t6_staging is not None:
+            print("t6 cases dataset ready:", upload_dataset(
+                root, t6_staging, t6_slug, kernel_title(t6_slug)))
         if resume_dataset_staging is not None:
             uploaded_ref = upload_resume_dataset(root, resume_dataset_staging, resume_slug)
             print(f"resume dataset uploaded: {uploaded_ref}")

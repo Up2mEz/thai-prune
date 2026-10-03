@@ -183,6 +183,46 @@ def _full_forward(model, processor, prompt_ids_inputs: dict, full_ids, has_image
     return out, kwargs["position_ids"]
 
 
+def score_own_output(model, processor, image, prompt: str, output: str, *, device: str,
+                     top_k: int = 5, chunk: int = 512) -> dict[str, Any]:
+    """Teacher-forced confidence of the model's own output (E1).
+
+    One forward over prompt + image + the re-tokenized output. Per output
+    token: its log-probability, the entropy of the full distribution, the
+    argmax (for the greedy-consistency guard) and the top-k alternatives.
+    Log-softmax runs in fp32 over chunks of positions to bound memory.
+    """
+    import torch
+
+    tokenizer = processor.tokenizer
+    ids = tokenizer(output, add_special_tokens=False)["input_ids"]
+    roundtrip = tokenizer.decode(ids, clean_up_tokenization_spaces=False) == output
+    if not ids:
+        return {"token_ids": [], "roundtrip": roundtrip, "logprob": [], "entropy": [],
+                "argmax": [], "top_ids": [], "top_logprobs": []}
+    inputs = prompt_inputs(processor, image, prompt, device)
+    prompt_ids = inputs["input_ids"]
+    full = torch.cat([prompt_ids, torch.tensor([ids], device=prompt_ids.device,
+                                               dtype=prompt_ids.dtype)], dim=-1)
+    result, _ = _full_forward(model, processor, inputs, full, image is not None, len(ids) + 1)
+    logits = result.logits[0, :-1, :]  # position j predicts ids[j]
+    target = torch.tensor(ids, device=logits.device)
+    out: dict[str, list] = {"logprob": [], "entropy": [], "argmax": [],
+                            "top_ids": [], "top_logprobs": []}
+    for start in range(0, len(ids), chunk):
+        part = torch.log_softmax(logits[start:start + chunk].float(), dim=-1)
+        rows = torch.arange(part.shape[0], device=part.device)
+        out["logprob"] += part[rows, target[start:start + chunk]].tolist()
+        out["entropy"] += (-(part.exp() * part).sum(-1)).tolist()
+        out["argmax"] += part.argmax(-1).tolist()
+        values, indices = part.topk(top_k, dim=-1)
+        out["top_ids"] += indices.tolist()
+        out["top_logprobs"] += values.tolist()
+        del part
+    del result
+    return {"token_ids": [int(t) for t in ids], "roundtrip": roundtrip, **out}
+
+
 def continuation_split(encode, decode, prefix: str, continuations: dict[str, str],
                        own: list[int] | None = None
                        ) -> tuple[list[int], dict[str, list[int]]]:

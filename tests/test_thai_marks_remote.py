@@ -111,3 +111,22 @@ def test_every_test_choice_has_its_own_item_branch() -> None:
             continue
         assert f'args.test == "{test}":' in source, test
     assert "no item loop for test" in source
+
+
+def test_load_cases_finds_and_checks_the_named_file(tmp_path: Path) -> None:
+    import hashlib
+
+    import pytest
+
+    from labbs2026.thai_marks.remote import load_cases
+
+    folder = tmp_path / "ds"
+    folder.mkdir()
+    path = folder / "t6_cases.json"
+    path.write_text('{"cases": [{"case": "a"}]}', encoding="utf-8")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    assert load_cases({"t6_cases_sha256": digest}, "t6", root=tmp_path) == [{"case": "a"}]
+    with pytest.raises(RuntimeError):
+        load_cases({"t6_cases_sha256": "0" * 64}, "t6", root=tmp_path)
+    with pytest.raises(RuntimeError):
+        load_cases({}, "t3", root=tmp_path)
