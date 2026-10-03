@@ -41,14 +41,17 @@ def item_rows(records: Iterable[dict]) -> list[dict]:
             if a.get("failed"):
                 row["arms"][name] = {"failed": True}
                 continue
-            d = diagnose(rec["reference"], a["raw_output"])
+            d = diagnose(rec["reference"], a["raw_output"], with_marks=False)
+            # mark fates need a full alignment; only items that can be kept for
+            # mark rates (readable output) are aligned, which also bounds memory
+            marks = _marks(rec["reference"], a["raw_output"]) if d["primary_cause"] in READABLE else {}
             row["arms"][name] = {
                 "cause": d["primary_cause"], "cer_t1": d["cer_t1"],
                 "cer_structural": d["cer_structural"], "cer_structural_delooped": d["cer_structural_delooped"],
                 "edits_t1": d["t1_edits"], "ref_chars": d["ref_chars"],
                 "seconds": a["seconds_generate"], "generated_tokens": a["generated_tokens"],
                 "reached_max": a["reached_max_new_tokens"],
-                **_marks(rec["reference"], a["raw_output"]),
+                **marks,
             }
         rows.append(row)
     return rows
