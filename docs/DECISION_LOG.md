@@ -2,6 +2,20 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04 — E1: Typhoon's confidence locates its mark errors (gate PASS)
+
+**Evidence:** `docs/stage0/E1_CONFIDENCE_DRAFT.md` §6, run
+`kaggle-thai-marks-t6-7934890c22f6-typhoon-x2`. Run under the researcher's
+instruction of 2026-10-04 to turn the literature review into experiments.
+
+**Finding:** on full pages the lowest token log-probability in a cluster
+separates Typhoon's mark errors from correct marks with AUROC 0.94–0.95;
+flagging 5% of clusters catches 68–74% of mark errors. The confidence family
+of remedies (rescoring, selective re-reading) has a target. Calibration only;
+a reading, not a remedy.
+
+---
+
 ## 2026-10-03e — T5b: stopping at a detected loop passes its dev check
 
 **Evidence:** `docs/stage0/T5B_STOP_AT_LOOP_DRAFT.md` §5 (rule fixed in
