@@ -7,7 +7,11 @@ of the hypothesis (semi-global edit distance: free start and end in the
 hypothesis):
 
 - `found`: window distance / reference length <= `FOUND_MAX`;
-- reading error is measured on the window only (CER, T1's mark decomposition);
+- reading error is measured on the window only: CER, and per reference mark its
+  fate and whether its base consonant was read correctly (`mark_fates`, the
+  same conditioning as T1's `mark_decomposition`). Marks with a misread base
+  are not scored, which already removes wrong-line answers from mark rates;
+  an answer with no base-correct mark at all is a localisation failure.
 - `extra_chars`: hypothesis characters outside the window (over-generation).
 
 A long hypothesis can contain a short reference by chance; `chance_found_rate`
@@ -19,9 +23,46 @@ from __future__ import annotations
 
 from typing import Any, Sequence
 
-from labbs2026.thai_marks.decompose import mark_decomposition
+from labbs2026.thai_marks.decompose import align, mark_decomposition
+from labbs2026.thai_marks.orthography import COMBINING, CONSONANTS, LOWER_VOWELS, TONE_MARKS, UPPER_VOWELS
 
-FOUND_MAX = 0.5   # fixed before any F1 output
+FOUND_MAX = 0.5   # fixed before any F1 output; descriptive only (no decision rule uses it)
+KIND_OF = {**{c: "TONE" for c in TONE_MARKS}, **{c: "UPPER" for c in UPPER_VOWELS},
+           **{c: "LOWER" for c in LOWER_VOWELS}}
+
+
+def mark_fates(reference: str, hypothesis: str) -> list[dict[str, Any]]:
+    """Every reference mark: class, fate against `hypothesis`, and whether its base
+    consonant was read correctly. Mirrors `thai_marks.decompose.mark_decomposition`
+    (same alignment, same base rule), but keeps marks individually so two arms
+    can be paired mark by mark."""
+    fate_of: dict[int, str] = {}
+    sub_of: dict[int, str] = {}
+    for r, h in align(reference, hypothesis):
+        if r is None:
+            continue
+        if h is None:
+            fate_of[r] = "deleted"
+        elif reference[r] == hypothesis[h]:
+            fate_of[r] = "correct"
+        else:
+            fate_of[r] = "substituted"
+            sub_of[r] = hypothesis[h]
+    out = []
+    for i, char in enumerate(reference):
+        kind = KIND_OF.get(char)
+        if kind is None:
+            continue
+        j = i - 1
+        while j >= 0 and reference[j] in COMBINING:
+            j -= 1
+        base = j if j >= 0 and reference[j] in CONSONANTS else None
+        fate = fate_of.get(i, "deleted")
+        if fate == "substituted":
+            fate = "same_class" if KIND_OF.get(sub_of.get(i)) == kind else "other_char"
+        out.append({"index": i, "kind": kind, "fate": fate,
+                    "base_correct": base is not None and fate_of.get(base) == "correct"})
+    return out
 
 
 def best_window(reference: str, hypothesis: str) -> tuple[int, int, int]:
@@ -62,6 +103,8 @@ def score_answer(reference: str, hypothesis: str) -> dict[str, Any]:
         "extra_chars": len(hypothesis) - len(window),
     }
     marks = mark_decomposition(reference, window)
+    out["mark_fates"] = mark_fates(reference, window)
+    out["has_base_correct_mark"] = any(m["base_correct"] for m in out["mark_fates"])
     out["consonant_n"] = marks["CONSONANT"]["n"]
     out["consonant_error"] = marks["CONSONANT"]["error"]
     for kind in ("TONE", "UPPER", "LOWER"):

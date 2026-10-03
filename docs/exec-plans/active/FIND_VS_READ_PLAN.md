@@ -1,11 +1,12 @@
 # Track C — finding versus reading
 
-**Status: `PROPOSED_AWAITING_AGREEMENT`.** Owner `PELY334`. Proposed in
-`collab/messages/20260928T0546Z_PELY334_to_Up2mEz_propose-track-c-find-vs-read.md`;
-Up2mEz asked to see Track A's registration first, which has since landed and
-run (`docs/stage0/SPEC_DECODE_S1_RESULTS.md`). Nothing here authorizes
-inference; `configs/find_vs_read/f1.yaml` is `DRAFT_FOR_REVIEW` and the submit
-script refuses it.
+**Status: `AGREED_REGISTRATION_IN_REVIEW`.** Owner `PELY334`. Track agreed by
+Up2mEz in `collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`
+(yes, with five edits, built into the registration). Nothing runs before the
+Decision Log entry (drafted, PR #34) is approved by both researchers;
+`configs/find_vs_read/f1.yaml` stays `DRAFT_FOR_REVIEW` until then and the
+submit script refuses it. Typhoon is the primary model; the base the cheap
+reference.
 
 | | |
 |---|---|
@@ -26,14 +27,17 @@ decoding/representation side.
 
 ## 2. Design in one paragraph
 
-Each calibration item is run three times per model, all from one prepared
-page: `WHOLE` (whole image + the item's own question), `CROP` (the boxed
-region, cut on the 32-px token grid of the same page so pixels, magnification
-and patch alignment are unchanged, padded with white if below the processor's
-pixel floor, with the benchmark's own wording minus the coordinate clause), and
-`WHOLE_MARKED` (whole image with the box drawn in red + the question). Answers
-are scored against the best-matching window of the output, so a misplaced or
-page-length answer is a *finding* failure and never a reading error.
+Each calibration item is run four times per model: `WHOLE` (prepared page +
+the item's own question), `CROP_SAME_SCALE` (the boxed region cut on the
+32-px token grid of the same prepared page, so pixels, magnification and patch
+alignment are unchanged; padded with white if below the processor's pixel
+floor), `CROP_RESCALED` (the region cut from the original image and prepared
+as if it were a page, usually enlarged — Up2mEz's edit 1) and `WHOLE_MARKED`
+(page with the box drawn + the question). (a)→(c) is finding, (c)→(b) is
+magnification. The crop prompt is the benchmark's single template with its
+coordinate clauses removed. Answers are located inside the output by
+best-window alignment; mark fates are scored only where the base consonant was
+read correctly, and the primary outcome is exact paired mark-fate counts.
 
 ## 3. Why the crop is built this way
 
@@ -57,5 +61,6 @@ page-length answer is a *finding* failure and never a reading error.
 
 ## 5. Waiting on
 
-1. Up2mEz's agreement to Track C, and review of the F1 registration.
-2. A Decision Log entry approved by both researchers.
+1. Up2mEz's review of the F1 registration and approval of the Decision Log
+   entry in PR #34.
+2. Then: smoke (`--smoke 2`), the full 69 items, analysis, results.

@@ -24,9 +24,13 @@ split:
   calibration_fraction: 0.30
   strata: [Task, category]
 
-arms: [WHOLE, CROP, WHOLE_MARKED]
-crop_margin: 0.25              # x box height, every side, then snapped outward to the 32-px grid
-crop_prompt: "ช่วยดึงข้อความในรูปภาพออกมาให้หน่อย"   # the benchmark's own wording without the coordinate clause
+arms: [WHOLE, CROP_SAME_SCALE, CROP_RESCALED, WHOLE_MARKED]
+primary_model: typhoon        # Typhoon is the objective; the base is the cheap reference
+crop_margin: 0.25              # x box height, every side; page-scale crop then snapped outward to the 32-px grid
+# the benchmark's single question template with its two coordinate clauses removed
+# ("แบ่ง…1000 ส่วน แล้ว" and "ที่อยู่ในพิกัด [x1, y1, x2, y2]"), identical for both models
+crop_prompt: "ช่วยดึงข้อความของรูปภาพออกมาให้หน่อย"
+crop_prompt_sha256: 45078cf08e63c50260c2456ee5ced9ccb1af0abae5a3e49ce8c0c78561f558d5
 
 runtime:
   dtype_preferred: float16
@@ -41,4 +45,4 @@ runtime:
     no_repeat_ngram_size: 0
 
 scoring:
-  found_max_window_cer: 0.5
+  found_max_window_cer: 0.5   # descriptive only; no decision rule uses it

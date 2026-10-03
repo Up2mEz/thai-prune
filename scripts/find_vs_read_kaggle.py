@@ -71,6 +71,11 @@ def main() -> None:
     config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
     if config["status"] != "APPROVED":
         raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
+    import hashlib
+
+    prompt_digest = hashlib.sha256(config["crop_prompt"].encode("utf-8")).hexdigest()
+    if prompt_digest != config["crop_prompt_sha256"]:
+        raise SystemExit(f"crop prompt sha256 {prompt_digest} does not match the config")
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
@@ -109,6 +114,7 @@ def main() -> None:
         "arms": config["arms"],
         "crop_margin": config["crop_margin"],
         "crop_prompt": config["crop_prompt"],
+        "crop_prompt_sha256": config["crop_prompt_sha256"],
         "created_at_utc": utc_now(),
     }
 

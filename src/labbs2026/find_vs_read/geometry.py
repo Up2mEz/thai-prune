@@ -9,10 +9,17 @@ page's pixels. The crop rectangle is snapped outward to the 32-px grid, so
 every 16-px patch and every merged token covers the same glyph pixels as in
 the whole page. A crop below the processor's pixel floor is padded with white,
 never enlarged, so magnification never changes (the TEMS lesson).
+
+A second crop (`rescaled_crop`, Up2mEz's arm (b)) is cut from the *original*
+image and then put through the same policy as a page, which usually enlarges
+it several times: page-scale crop -> rescaled crop isolates magnification.
+Images are never written anywhere (CC-BY-SA-4.0); `image_sha256` and the
+geometry are what gets recorded.
 """
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 
@@ -88,3 +95,30 @@ def draw_rect(page: Image.Image, rect: tuple[int, int, int, int], *, width: int 
     marked = page.copy()
     ImageDraw.Draw(marked).rectangle(rect, outline=(255, 0, 0), width=width)
     return marked
+
+
+def native_rect(box: tuple[float, float, float, float], size: tuple[int, int], *,
+                margin: float) -> tuple[int, int, int, int]:
+    """`box` on an image of `size` (original pixels), widened by `margin` x box height,
+    floored/ceiled to whole pixels and clamped; no grid snapping (the crop is rescaled)."""
+    width, height = size
+    x1, y1, x2, y2 = (box[0] * width / 1000, box[1] * height / 1000,
+                      box[2] * width / 1000, box[3] * height / 1000)
+    pad = margin * (y2 - y1)
+    return (max(0, math.floor(x1 - pad)), max(0, math.floor(y1 - pad)),
+            min(width, math.ceil(x2 + pad)), min(height, math.ceil(y2 + pad)))
+
+
+def rescaled_crop(image: Image.Image, box: tuple[float, float, float, float], *,
+                  margin: float) -> tuple[Image.Image, tuple[int, int, int, int]]:
+    """The box cut from the original image, then T1's policy and the processor size
+    rule applied to the crop as if it were a page (usually an enlargement)."""
+    source = image.convert("RGB")
+    rect = native_rect(box, source.size, margin=margin)
+    return prepare_page(source.crop(rect)), rect
+
+
+def image_sha256(image: Image.Image) -> str:
+    """Hash of the exact RGB pixels given to the model (size included)."""
+    rgb = image.convert("RGB")
+    return hashlib.sha256(f"{rgb.width}x{rgb.height}:".encode() + rgb.tobytes()).hexdigest()

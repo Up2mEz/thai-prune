@@ -1,15 +1,27 @@
 # FIND_VS_READ_F1 — registration (Track C)
 
 **Status: `DRAFT_FOR_REVIEW`.** Written before any F1 output exists. Track C
-is proposed, not yet agreed
-(`collab/messages/20260928T0546Z_PELY334_to_Up2mEz_propose-track-c-find-vs-read.md`).
-Authorizes nothing until both researchers agree and a `docs/DECISION_LOG.md`
-entry records it. Plan: `docs/exec-plans/active/FIND_VS_READ_PLAN.md`.
-Parameters: `configs/find_vs_read/f1.yaml`. Claim level of every result:
+agreed by Up2mEz in
+`collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`
+(yes, with five edits, all built in below). Authorizes nothing until a
+`docs/DECISION_LOG.md` entry approved by both researchers records it. Plan:
+`docs/exec-plans/active/FIND_VS_READ_PLAN.md`. Parameters:
+`configs/find_vs_read/f1.yaml`. Claim level of every result:
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
 
-**Question.** When a Thai mark is wrong in a boxed-region answer, did the model
-fail to **find** the boxed text, or fail to **read** it once found?
+**Question.** When a Thai mark is wrong in a boxed-region answer, is it lost
+because the model had to **find** the boxed text in the whole image, because
+of the **scale** at which the text reached it, or does the model fail to
+**read** it even when handed exactly the region?
+
+**Primary model: Typhoon OCR 1.5** (the objective is its remaining mark gaps);
+the base is reported as a cheap reference.
+
+**What F1 can and cannot do.** The calibration items hold 105 tone marks,
+131 upper and 39 lower vowels in total; error counts per arm will be single
+digits. F1 tests **direction and mechanism, not magnitude**: the primary
+outcome is exact counts, and no conclusion below depends on an interval
+excluding zero.
 
 ## 1. Fixed inputs
 
@@ -17,99 +29,109 @@ fail to **find** the boxed text, or fail to **read** it once found?
 |---|---|
 | models | `Qwen/Qwen3-VL-2B-Instruct@89644892e4d85e24eaac8bacfd4f463576704203`, `typhoon-ai/typhoon-ocr1.5-2b@9c8a8fa14905041d793f1e4e922312147956dcc0` |
 | benchmark | `typhoon-ai/ThaiOCRBench@ca610d1ab330` (CC-BY-SA-4.0), task `Fine-grained text recognition` (206 items) |
-| items | T1's seeded rule (`labbs2026.thai_marks.split`, seed 20260927, 30% per (task, category) stratum) applied to this task → **69 calibration items**; locked 137, never touched |
-| references | median 18 characters (max 64); 105 tone marks, 131 upper vowels, 39 lower vowels in total |
-| question | every item uses one template: `แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้วช่วยดึงข้อความที่อยู่ในพิกัด [x1, y1, x2, y2] ของรูปภาพออกมาให้หน่อย`; the order `[x1, y1, x2, y2]` was checked by cropping real items |
+| items | T1's seeded rule (`labbs2026.thai_marks.split.calibration_ids`, seed 20260927, 30% per (task, category) stratum; the subset does not depend on other tasks) → **69 calibration items**, run in `Id` order; locked 137, never touched |
+| references | median 18 characters (max 64) |
+| question | **one** template for all 206 items: `แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้วช่วยดึงข้อความที่อยู่ในพิกัด [x1, y1, x2, y2] ของรูปภาพออกมาให้หน่อย` |
+| crop prompt | `ช่วยดึงข้อความของรูปภาพออกมาให้หน่อย`, SHA-256 `45078cf08e63c50260c2456ee5ced9ccb1af0abae5a3e49ce8c0c78561f558d5`, both models: the same template with its two coordinate clauses (`แบ่ง…1000 ส่วน แล้ว`, `ที่อยู่ในพิกัด [ … ]`) removed, so whole-image and crop prompts differ only in the box clauses. Checked by the submit script and the worker |
 | precision | fp16; fp32 only if the first item's logits are non-finite; recorded |
-| decoding | greedy, passed explicitly (`do_sample=false`, `num_beams=1`, `repetition_penalty=1.0`, `no_repeat_ngram_size=0`); `max_new_tokens=512` — far above any reference, so an answer that dumps the page is visible as such |
+| decoding | greedy, passed explicitly (`do_sample=false`, `num_beams=1`, `repetition_penalty=1.0`, `no_repeat_ngram_size=0`); `max_new_tokens=512`, far above any reference, so an answer that dumps the page shows as such |
 | hardware | Kaggle 2×T4, one model per GPU |
 
-## 2. Page and crop
+## 2. Geometry (pinned; `labbs2026.find_vs_read.geometry`)
 
-1. **Prepared page** (`find_vs_read.geometry.prepare_page`): T1's image policy
-   (long side to 1,800 px if either side exceeds 300 px, LANCZOS), then the
-   processors' size rule (`smart_resize`, factor 32, 65,536 ≤ pixels ≤
-   16,777,216, bicubic) applied once. The processor then leaves it unchanged.
-2. **Crop rectangle** (`crop_rect`): the box mapped to the prepared page,
-   widened by **0.25 × box height** on every side, snapped outward to the
-   32-px grid, clipped to the page.
-3. **Crop image** (`crop_padded`): exactly those page pixels; if below 65,536
-   pixels, padded right and bottom with white to at least 256 × 256. Never
-   resized.
+- **Coordinates.** `[x1, y1, x2, y2]` (order checked by cropping real items),
+  0–1000 of the image width and height; pixel position `x · W / 1000`,
+  `y · H / 1000` as floats.
+- **Prepared page** (`prepare_page`): T1's `resize_policy` (long side to
+  1,800 px if either side exceeds 300 px, LANCZOS — up or down), then the
+  processors' own size rule (`smart_resize`, factor 32, 65,536 ≤ pixels ≤
+  16,777,216, bicubic), applied once; the processor then leaves it unchanged
+  (tested).
+- **Margin.** 0.25 × box height, on every side (boxes are tight; Thai marks sit
+  above and below; checked on real items).
+- **Page-scale crop rectangle** (`crop_rect`): box on the prepared page, plus
+  margin, snapped **outward** to the 32-px grid (floor for left/top, ceil for
+  right/bottom), clamped to the page.
+- **Rescaled-crop rectangle** (`native_rect`): box on the **original** image,
+  plus margin, floored/ceiled to whole pixels, clamped; no grid snapping.
 
-Hence `CROP` and `WHOLE` share pixels, magnification and patch/token grid
-alignment (unit-tested); they differ in the surrounding page, the token count,
-and the prompt (below).
+## 3. Arms (every item, both models, same loaded model, this order)
 
-## 3. Arms (every item, both models, same loaded model, fixed order)
+| arm | image | prompt | role |
+|---|---|---|---|
+| `WHOLE` (a) | prepared page | item question | reference |
+| `CROP_SAME_SCALE` (c) | page-scale rectangle cut from the prepared page; below 65,536 px padded right/bottom with white to ≥ 256 × 256, **never resized** | crop prompt | same pixels, magnification and patch/token alignment as (a) |
+| `CROP_RESCALED` (b) | rescaled-crop rectangle cut from the **original** image, then `prepare_page` applied to it as if it were a page (usually an enlargement) | crop prompt | the crop as a plain OCR request would see it |
+| `WHOLE_MARKED` | prepared page with the page-scale rectangle outlined in red (3 px on its border) | item question | secondary: does a drawn box help following |
 
-| arm | image | prompt |
-|---|---|---|
-| `WHOLE` | prepared page | the item's question (box in coordinates) |
-| `CROP` | crop image | `ช่วยดึงข้อความในรูปภาพออกมาให้หน่อย` — the benchmark's wording without the coordinate clause |
-| `WHOLE_MARKED` | prepared page with the crop rectangle outlined in red (3 px, drawn on the rectangle's border, outside the box) | the item's question |
+Contrasts: **(a)→(c) finding** (same pixels, the page context and the need to
+find removed); **(c)→(b) magnification** (same region, larger); (a)→(b) both;
+`WHOLE_MARKED` vs (a) secondary.
+
+**Recorded geometry per item** (no image is ever written — CC-BY-SA-4.0):
+source size, page size, page scale, both rectangles, whether the page-scale
+crop fell under the pixel floor (padded), the rescaled crop's size and scale,
+the magnification of (b) relative to (a), and per arm the SHA-256 of the exact
+pixels given to the model.
 
 ## 4. Scoring
 
 Both strings normalized with T1's registered `normalize_text` (primary);
 `output_diagnostics.structure.structural_normalize` as a sensitivity.
 
-- **Best window** (`find_vs_read.scoring.best_window`): the substring of the
-  output with minimum edit distance to the reference.
-- **Found**: window distance ÷ reference length ≤ **0.5**. **Chance found
-  rate**: the same rule with each reference scored against the next item's
-  output; reported next to every found rate.
-- **Exact**: window distance 0. **Extra characters**: output outside the
-  window (over-generation).
-- **Reading error**, on the window only: window CER, and T1's mark
-  decomposition (`thai_marks.decompose.mark_decomposition`) — mark-specific
-  error per class (marks whose base consonant was read correctly), consonant
-  error.
+1. **Best window** (`find_vs_read.scoring.best_window`): the substring of the
+   output with minimum edit distance to the reference (semi-global
+   alignment), so the answer is located inside a longer output.
+2. **Mark fates** (`mark_fates`) on the window: per reference mark, its class
+   (TONE, UPPER, LOWER), fate (correct / deleted / same-class / other) and
+   whether its base consonant was read correctly — the same alignment and base
+   rule as T1's `mark_decomposition` (tested to agree). **Only marks with a
+   correctly read base are scored**; this is what removes wrong-line answers
+   from mark rates. No cause-label filter is used (Up2mEz edit 3).
+3. **Localisation failure**: an output with no base-correct mark although the
+   reference has marks. Reported per arm and model.
+4. **Descriptive only**: found rate (window CER ≤ 0.5) with its chance
+   baseline (each reference against the next item's output), exact rate,
+   characters outside the window, `max_new_tokens` hits, seconds, visual
+   tokens.
 
-## 5. Comparisons (paired by item)
+## 5. Primary outcome — paired mark-level fates, exact counts
 
-Primary `CROP` vs `WHOLE`; secondary `WHOLE_MARKED` vs `WHOLE`.
+For each model (Typhoon first), each contrast in §3 and each mark class: over
+the reference marks whose base is read correctly **in both arms**, the counts
+correct→correct, **correct→wrong**, **wrong→correct**, wrong→wrong; plus the
+marks scored in only one arm and in neither. Counts, not rates; no bootstrap.
 
-1. Found transitions (found/missed → found/missed) and the found-rate
-   difference.
-2. On items **found in both arms**: mark-specific error per class, consonant
-   error and window CER, each arm − `WHOLE`.
-3. Over-generation and `max_new_tokens` hits per arm.
+## 6. What each pattern would mean, stated in advance
 
-Intervals: item-level bootstrap, 10,000 resamples, seed 20260927. With 69
-items and ~100 tone marks the mark intervals will be wide; they are reported,
-never called significant.
+Read on Typhoon first, tone marks first; "more" means a clear majority of the
+changed marks, judged on the exact counts.
 
-## 6. What each outcome would mean, stated in advance
+| pattern | reading |
+|---|---|
+| (a)→(c): many localisation failures in (a) disappear, and among marks scored in both, wrong→correct ≈ correct→wrong | finding, not reading, is what loses marks in the whole image; remedies should target localization (prompting, marking, region routing) |
+| (a)→(c): wrong→correct clearly exceeds correct→wrong on marks scored in both | the same pixels are read better without the page: context or attention costs marks even when the text is found; points to input-side or attention-level remedies, not decoding |
+| (a)→(c): correct→wrong clearly exceeds wrong→correct | page context **helps** the marks (F1 cannot separate context from finding; reported as such) |
+| (a)→(c): few changes either way and few localisation failures | at this resolution, reading itself is the bottleneck |
+| (c)→(b): wrong→correct clearly exceeds correct→wrong | magnification recovers marks that are present at page scale but under-resolved; relevant to P-ZOOM and gap G3 |
+| (c)→(b): no change | scale is not the limit for these regions |
+| `WHOLE_MARKED` vs (a): fewer localisation failures | a drawn box helps coordinate following — a cheap prompt-side lever (cf. Up2mEz's G1) |
 
-- **`CROP` finds many items `WHOLE` misses, and on items found by both the
-  mark error is similar** → in `WHOLE`, mark errors come mostly with finding
-  failures; the reading itself is not the bottleneck. Remedies should target
-  localization (prompting, marking, region routing).
-- **On items found by both, `CROP` has lower mark error than `WHOLE`** → the
-  same pixels are read worse inside the page: context or attention costs marks
-  even when the text is found. Points to input-side or attention-level
-  remedies rather than decoding.
-- **No difference in either** → reading at this resolution is the bottleneck;
-  finding is not. Points away from localization fixes.
-- **`WHOLE_MARKED` finds more than `WHOLE`** → a drawn box helps the model
-  follow coordinates: a cheap, training-free prompt-side lever (relevant to
-  Up2mEz's G1 on Text recognition).
-- `CROP` loses the page's language context as well as the need to find; F1
-  cannot separate those two. If `CROP` reads marks **worse** on items found by
-  both, page context was helping the marks — reported as such.
+Base results are read the same way and reported beside Typhoon's, never
+pooled with them.
 
 ## 7. Budget, smoke, stopping
 
-Smoke first: `--smoke 2` (first two calibration items, both models, all arms),
-inspected for dtype, failures, crop sizes, output format and time per item.
-Cap: **2 T4-hours** for the full 69 items (short answers; estimate from the
-smoke before submitting; if over, the cap stands and only the first items in the
-run's order (calibration items sorted by `Id`) that fit are run — decided
-before any full-run output, recorded).
+Smoke first: `--smoke 2` (the first two calibration items, both models, all
+four arms), inspected for dtype, failures, geometry records (pixel-floor
+padding, magnification), output format and time per item. Cap: **2
+T4-hours** for the 69 items (four short-answer arms); the smoke gives the
+estimate. If over, only the first items in `Id` order that fit are run —
+decided before any full-run output, recorded.
 
 ## 8. Not in scope
 
-The locked split; enlargement or any change of scale (P-ZOOM's and track D's
-question); prompts other than those in §3; Text recognition and Full-page OCR;
-any claim beyond these two checkpoints of one architecture family.
+The locked split; Text recognition and Full-page OCR; prompts other than §1;
+any scale other than the two in §3 (a fuller scale sweep is P-ZOOM's and gap
+G3's); patch-phase manipulation (track D, proposed separately); any claim
+beyond these two checkpoints of one architecture family.

@@ -16,18 +16,45 @@ import time
 import traceback
 from pathlib import Path
 
-from labbs2026.find_vs_read.geometry import crop_padded, crop_rect, draw_rect, parse_box, prepare_page
+from labbs2026.find_vs_read.geometry import (
+    MIN_PIXELS,
+    crop_padded,
+    crop_rect,
+    draw_rect,
+    image_sha256,
+    parse_box,
+    prepare_page,
+    rescaled_crop,
+)
 
 
-def arm_input(arm: str, page, question: str, rect, crop_prompt: str):
-    """(image, prompt) for one arm, all from the same prepared page."""
+def arm_input(arm: str, source, page, question: str, rect, box, *, crop_prompt: str, margin: float):
+    """(image, prompt) for one arm. All but CROP_RESCALED come from the same prepared page."""
     if arm == "WHOLE":
         return page, question
     if arm == "WHOLE_MARKED":
         return draw_rect(page, rect), question
-    if arm == "CROP":
+    if arm == "CROP_SAME_SCALE":
         return crop_padded(page, rect), crop_prompt
+    if arm == "CROP_RESCALED":
+        return rescaled_crop(source, box, margin=margin)[0], crop_prompt
     raise ValueError(f"unknown arm {arm!r}")
+
+
+def geometry_record(source, page, box, rect, *, margin: float) -> dict:
+    """Everything needed to reproduce the inputs, without storing any image."""
+    rescaled, native = rescaled_crop(source, box, margin=margin)
+    page_scale = page.width / source.width
+    native_w = native[2] - native[0]
+    return {
+        "source_size": list(source.size), "page_size": list(page.size), "box": list(box),
+        "page_scale": page_scale,
+        "crop_rect_page": list(rect),
+        "crop_same_scale_under_floor": (rect[2] - rect[0]) * (rect[3] - rect[1]) < MIN_PIXELS,
+        "crop_rect_native": list(native), "crop_rescaled_size": list(rescaled.size),
+        "crop_rescaled_scale": rescaled.width / native_w,
+        "magnification_rescaled_vs_page": (rescaled.width / native_w) / page_scale,
+    }
 
 
 def generate(model, processor, image, prompt: str, *, generation: dict, max_new_tokens: int,
@@ -53,6 +80,7 @@ def generate(model, processor, image, prompt: str, *, generation: dict, max_new_
         "prompt_tokens": prompt_len,
         "visual_tokens": int((inputs["input_ids"] == model.config.image_token_id).sum().item()),
         "image_size": list(image.size),
+        "image_sha256": image_sha256(image),
         "seconds_generate": time.perf_counter() - started,
     }
 
@@ -70,6 +98,10 @@ def main() -> None:
     from labbs2026.thai_marks import runtime as t1_runtime
     from labbs2026.thai_marks.remote import load_items
 
+    import hashlib
+
+    if hashlib.sha256(spec["crop_prompt"].encode("utf-8")).hexdigest() != spec["crop_prompt_sha256"]:
+        raise RuntimeError("crop prompt does not match its registered sha256")
     out_dir = Path(spec["artifact_dir"]) / "f1" / args.role
     out_dir.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
@@ -101,16 +133,18 @@ def main() -> None:
     with io.open(out_dir / "records.jsonl", "w", encoding="utf-8", newline="\n") as handle:
         for index in selected:
             row = dataset[index]
-            page = prepare_page(row["image"])
+            source = row["image"].convert("RGB")
+            page = prepare_page(source)
             box = parse_box(row["question"])
-            rect = crop_rect(box, page.size, margin=float(spec["crop_margin"]))
+            margin = float(spec["crop_margin"])
+            rect = crop_rect(box, page.size, margin=margin)
             record = {"id": row["Id"], "task": row["Task"], "category": row["category"],
                       "reference": row["answer"], "question": row["question"], "dtype": dtype,
-                      "source_size": list(row["image"].size), "page_size": list(page.size),
-                      "box": list(box), "crop_rect": list(rect), "arms": {}}
+                      "geometry": geometry_record(source, page, box, rect, margin=margin), "arms": {}}
             for arm in spec["arms"]:
                 try:
-                    image, prompt = arm_input(arm, page, row["question"], rect, spec["crop_prompt"])
+                    image, prompt = arm_input(arm, source, page, row["question"], rect, box,
+                                              crop_prompt=spec["crop_prompt"], margin=margin)
                     record["arms"][arm] = generate(model, processor, image, prompt,
                                                    generation=spec["generation"],
                                                    max_new_tokens=int(spec["max_new_tokens"]), device=device)
