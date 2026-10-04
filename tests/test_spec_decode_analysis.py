@@ -43,3 +43,23 @@ def test_populations_identity_and_speed():
     assert s["PLD5"]["mismatch_classes"] == {"near_tie": 1, "large_margin": 0, "length_only": 0}
     assert s["PLD5"]["headline_loop_aware"]["geomean_speedup"]["estimate"] == pytest.approx((2.0 * 1.0) ** 0.5)
     assert s["PLD5"]["degenerate"]["geomean_speedup"]["estimate"] == pytest.approx(10.0)
+
+
+def test_t1_cross_check_counts_textual_identity_on_timed_items():
+    from labbs2026.spec_decode.analysis import t1_cross_check
+    records = [
+        _rec("w", "A", [1], [1], 1.0, 1.0, warmup=True, text="x"),
+        _rec("a", "A", [1, 2], [1, 2], 1.0, 1.0, text="<td>ก</td>"),
+        _rec("b", "A", [1, 2], [1, 2], 1.0, 1.0, text="ข้อความ"),
+        _rec("c", "A", [1, 2], [1, 2], 1.0, 1.0, text="ไม่มีใน T1"),
+    ]
+    t1 = [
+        {"id": "w", "prompt_kind": "TYPHOON_CARD", "raw_output": "y", "generated_tokens": 1},
+        {"id": "a", "prompt_kind": "TYPHOON_CARD", "raw_output": "<td>ก</td>", "generated_tokens": 2},
+        {"id": "b", "prompt_kind": "TYPHOON_CARD", "raw_output": "ข้อความ ", "generated_tokens": 3},
+        {"id": "b", "prompt_kind": "BENCHMARK_QUESTION", "raw_output": "ข้อความ", "generated_tokens": 2},
+    ]
+    out = t1_cross_check(records, t1)
+    assert (out["matched"], out["identical"], out["same_generated_tokens"]) == (2, 1, 1)
+    assert out["differing"] == ["b"] and out["missing"] == ["c"]
+    assert out["identity_rate"] == 0.5

@@ -102,3 +102,28 @@ def summarize(rows: Sequence[dict], *, resamples: int = 10_000) -> dict[str, Any
             }
         out[arm] = entry
     return out
+
+
+def t1_cross_check(records: Iterable[dict], t1_records: Iterable[dict]) -> dict[str, Any]:
+    """Registration §6: share of `REF` outputs textually identical to T1's raw
+    `TYPHOON_CARD` output for the same item and model (timed items only)."""
+    t1 = {r["id"]: r for r in t1_records if r.get("prompt_kind") == "TYPHOON_CARD"}
+    matched = identical = same_tokens = 0
+    missing, differing = [], []
+    for rec in records:
+        if rec["warmup"]:
+            continue
+        other = t1.get(rec["id"])
+        if other is None:
+            missing.append(rec["id"])
+            continue
+        ref = rec["arms"]["REF"]
+        matched += 1
+        same_tokens += ref["generated_tokens"] == other["generated_tokens"]
+        if ref["text"] == other["raw_output"]:
+            identical += 1
+        else:
+            differing.append(rec["id"])
+    return {"matched": matched, "identical": identical,
+            "identity_rate": identical / matched if matched else None,
+            "same_generated_tokens": same_tokens, "missing": missing, "differing": differing}

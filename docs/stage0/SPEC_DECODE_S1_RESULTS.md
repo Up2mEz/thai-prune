@@ -86,6 +86,30 @@ lossless. The much larger speedups are confined to the degenerate population
 (loops, outputs that reach `max_new_tokens`), where n-gram drafting accepts
 repeated text; they are reported as that, not as a speedup of OCR.
 
+## 3b. Cross-check against T1 (§6, added 2026-10-05)
+
+T1's outputs were posted by Up2mEz on 2026-10-04 (PR #60,
+`docs/stage0/data/T1_OUTPUTS_a44199c29759.json.gz`, run
+`kaggle-thai-marks-t1-t2-a44199c29759`: same pinned revisions, greedy,
+`max_new_tokens` 3072, fp16, Kaggle T4, batch 1). Comparison as registered:
+S1's `REF` text against T1's `raw_output` for the same item, model and
+`TYPHOON_CARD`, on the 177 timed items (`analysis.t1_cross_check`, run with
+`scripts/spec_decode_analyze.py --t1-outputs`).
+
+| model | items matched | `REF` textually identical to T1 | same generated token count |
+|---|---|---|---|
+| base | 177 / 177 | **177 (100%)** | 177 |
+| typhoon | 177 / 177 | **177 (100%)** | 177 |
+
+`REF` reproduces T1 character for character on every item, in a different
+Kaggle session and run, for both models. §6 expected a small non-zero
+disagreement; there is none. This also means the identity results in §1 hold
+against T1's outputs, not only against S1's own `REF`. The comparison is on raw
+text, markup included; with every string identical, markup cannot affect it.
+Up2mEz reports the same stack reproduced Typhoon's T1 outputs byte-identically
+in a later run (T5), consistent with this. A reproducibility observation, not
+a gate (§6).
+
 ## 4. Exploratory, not registered
 
 - **How far diverged outputs drift.** On mismatched items, the character edit
@@ -94,7 +118,9 @@ repeated text; they are reported as that, not as a speedup of OCR.
   0.23 (typhoon `PLD10`); 90th percentiles 0.25–0.68; one base `PLD5` item
   reaches 16.9 (the two decodes part ways and one enters a loop). Divergence
   happens at a median 22–55% of the way through `REF`. A near-tie at one token
-  can therefore change much of the rest of a page.
+  can therefore change much of the rest of a page. *(Corrected 2026-10-05,
+  §4b: on text rather than raw HTML the median drift is 0.01–0.03 on Typhoon;
+  the large values come from a few items.)*
 - **What kind of token diverges** (added 2026-10-04 at Up2mEz's request,
   `collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`;
   CPU only, from the stored token ids; a token "has a mark" if its decoded
@@ -111,9 +137,88 @@ repeated text; they are reported as that, not as a speedup of OCR.
   project cares about. On Typhoon — the primary model — divergences are almost
   never about marks; most are alternative Thai token boundaries (`ธร` vs `ธ`,
   `โอกาส` vs `โอกา`). Counts are a handful of events; direction only.
+  *(Corrected 2026-10-05, §4b: the 12.1% base rate counts HTML tags; among
+  Thai tokens alone the base's mark-bearing tokens are **not** over-represented
+  at divergences. The tone-mark swaps remain.)*
 - **Base with `TYPHOON_CARD` degenerates on half the pages** (89 / 177 reach
   `max_new_tokens` or repeat), Typhoon on 9 / 177. This matches the format and
-  loop findings in `docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`.
+  loop findings in `docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`. *(Corrected
+  2026-10-05, §4b: 83 base and 8 Typhoon outputs reach `max_new_tokens`; the
+  other 6 + 1 are normal HTML tables flagged by T1's repetition rule.)*
+
+## 4b. Markup check (added 2026-10-05, exploratory, not registered)
+
+Audit first (`scripts/audit_markup.py`, run 2026-10-04 — this run was posted
+before the audit tool existed, PR #53). `TYPHOON_CARD` asks for Markdown with
+HTML `<table>`s, Thai picture descriptions in `<figure>` and `<page_number>`
+tags; 163/178 base and 136/178 Typhoon outputs per arm carry tags, and T1's
+normalization removes 20–22% (base) and 27–28% (Typhoon) of Thai characters
+(structure-aware: 12% / 27–28%; on Typhoon the removed Thai is in blocks both
+rules drop, e.g. picture descriptions). S1 makes no CER claim, identity is on
+token ids and speed is per token, so §1–§3 are not affected by normalization.
+Three parts of the analysis do read raw text. Code:
+`src/labbs2026/spec_decode/markup_check.py` (tests
+`tests/test_spec_decode_markup_check.py`), script
+`scripts/spec_decode_markup_check.py`.
+
+**1. The registered population split (§5).** T1's `is_repetitive` (a
+20-character span 3 times in the last 200 characters) is applied to raw text,
+so a normal table ending in repeated `</td></tr><tr><td>` counts as
+repetitive. All items made degenerate by the rule rather than by the token
+budget — base 6 (`2981C9B5`, `48F7EF29`, `B990A466`, `839D694C`, `35C470EE`,
+`E317CF05`), Typhoon 1 (`60D954B1`) — are such tables: none reaches the
+budget, `loop_period` finds no loop in raw or structure-aware text, and every
+table row is distinct. The same rule on text:
+
+| | registered (raw) | structure-aware text | tags stripped |
+|---|---|---|---|
+| base headline / degenerate n | 88 / 89 | 93 / 84 | 91 / 86 |
+| base `PLD5` headline speedup | 1.16 [1.10, 1.21] | 1.16 [1.10, 1.21] | 1.16 [1.10, 1.21] |
+| base `PLD10` headline speedup | 1.21 [1.17, 1.26] | 1.21 [1.17, 1.26] | 1.21 [1.17, 1.25] |
+| base degenerate `PLD5` / `PLD10` | 2.81 / 3.90 | 2.95 / 4.18 | 2.89 / 4.07 |
+| typhoon headline / degenerate n | 168 / 9 | 169 / 8 | 169 / 8 |
+| typhoon headline `PLD5` / `PLD10` | 1.14 [1.13, 1.16] / 1.15 [1.12, 1.17] | same | same |
+| typhoon degenerate `PLD5` / `PLD10` | 2.52 / 3.29 | 2.77 / 3.75 | 2.77 / 3.75 |
+
+**The headline speedups do not change.** The text rules have their own false
+positives (a company name three times in one row, `C652EC9B`; repeated cell
+values), so the 200-character rule is fragile on tables in any form. Of the
+outputs at the budget (base 83, Typhoon 8), `loop_period` finds a loop in 76 / 7
+on raw text but only 38 / 6 on structure-aware text; mostly a detection
+artifact: a cut-off tag at the end (e.g. `<page`) is not removed by
+normalization and breaks the run-to-the-end test — dropping it gives 53 / 6.
+Calling these items degenerate stands.
+
+**2. Divergence-kind base rate (§4).** The 12.1% base rate is over all `REF`
+tokens, 65.9% of which are not Thai (HTML tags, ASCII, digits, whitespace),
+and 86.8% of the base's `REF` tokens come from the 83 outputs at the budget.
+Among Thai tokens only:
+
+| model | mark share among Thai `REF` tokens | at divergence, Thai tokens only: `PLD5` / `PLD10` |
+|---|---|---|
+| base | 35.6% (34–36% headline-only or item-mean) | 4/14 (29%) / 4/11 (36%) |
+| typhoon | 31.3% (31–34%) | 0/12 / 1/16 (6%) |
+
+Mark-bearing tokens are not over-represented at the base's divergences; some
+divergences are still tone-mark swaps, so near-ties can change marks, but not
+disproportionately. Typhoon's reading is unchanged.
+
+**3. Drift (§4).** Edit distance over `REF` length, linear-interpolation p90:
+
+| model, arm | n | raw median (p90) | structure-aware median (p90) |
+|---|---|---|---|
+| base `PLD5` | 21 | 0.06 (0.68) | 0.06 (1.00) |
+| base `PLD10` | 14 | 0.13 (0.74) | 0.15 (1.00) |
+| typhoon `PLD5` | 12 | 0.20 (0.39) | 0.01 (0.40) |
+| typhoon `PLD10` | 20 | 0.23 (0.59) | 0.03 (0.33) |
+
+The p90 values above differ from the "0.25–0.68" earlier in §4, which used
+another quantile rule; with n = 12–21 a p90 rests on one or two items. On
+Typhoon the median diverged output differs from `REF` by 1–3% of its text;
+the tail is `0159AF30` (the paragraph-loop page, 0.41 / 0.60) and one ratio
+inflated by a very short normalized `REF` per arm (`A3407ABE` 2.72,
+`839D694C` 24.1). Inference: most of the raw-text drift on Typhoon is in
+markup and picture descriptions, not in page text.
 
 ## 5. What this result does not show
 
@@ -123,7 +228,8 @@ repeated text; they are reported as that, not as a speedup of OCR.
   diagnostic item; fp32 speed was not measured.
 - Only `TYPHOON_CARD`, Kaggle T4, batch 1, these two checkpoints of one
   architecture family; nothing about other prompts, GPUs or models.
-- §6's cross-check of `REF` against T1's outputs is still pending: T1 has not
+- *(Superseded 2026-10-05 by §3b: T1 posted and the cross-check is done.)*
+  §6's cross-check of `REF` against T1's outputs is still pending: T1 has not
   posted. It will be added when it does.
 - The degenerate-population speedups describe loops, not reading.
 
