@@ -1,9 +1,9 @@
-"""Kaggle bootstrap for the SPEC_DECODE_S1 submission (Track A).
+"""Kaggle bootstrap for the FIND_VS_READ_F1 submission (Track C).
 
 Pins the environment, proves the checkout is the registered commit, downloads
 the benchmark once, then runs one process per model — the base on GPU 0 and
 Typhoon on GPU 1 when two are present, one after the other otherwise. All
-scientific logic lives in `labbs2026.spec_decode`. Copied from
+scientific logic lives in `labbs2026.find_vs_read`. Copied from
 `infra/kaggle/thai_marks_worker.py`; only the entry module and phase names differ.
 """
 
@@ -120,7 +120,7 @@ def main() -> None:
 
         remote_spec = dict(spec)
         remote_spec["artifact_dir"] = str(artifact_dir)
-        spec_path = Path("/tmp/labbs2026-spec-decode-spec.json")
+        spec_path = Path("/tmp/labbs2026-find-vs-read-spec.json")
         _atomic_json(spec_path, remote_spec)
 
         gpus = _gpu_count()
@@ -130,7 +130,7 @@ def main() -> None:
             for position, role in enumerate(("base", "typhoon")):
                 role_env = dict(env)
                 role_env["CUDA_VISIBLE_DEVICES"] = str(position if gpus >= 2 else 0)
-                commands.append(([python, "-m", "labbs2026.spec_decode.remote",
+                commands.append(([python, "-m", "labbs2026.find_vs_read.remote",
                                   "--remote-spec", str(spec_path),
                                   "--role", role], role_env, role))
             if gpus >= 2:

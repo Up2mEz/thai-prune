@@ -58,6 +58,112 @@ a reading, not a remedy.
 
 ---
 
+## 2026-10-04b — INPUT_SIDE_D1 (Track D, gap G2) authorized
+
+> Drafted by PELY334's Claude Code session after Up2mEz agreed to Track D as
+> G2 only with three edits
+> (`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`).
+> **Approved by both researchers:** PELY334 stated in session on 2026-10-04;
+> Up2mEz by approving PR #46 (2026-10-04T11:39:47Z, "approved under the researcher's
+> delegation for Track D"), recorded here by PELY334's session at Up2mEz's
+> request (`collab/messages/20261004T1139Z_Up2mEz_to_PELY334_d1-approved-review-f1-r2-results.md`).
+
+**Stage/Gate:** RQ-A, mechanism probe (gap G2). Opens or passes no gate; Gates
+1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/INPUT_SIDE_D1_REGISTRATION.md`
+with parameters `configs/input_side/d1.yaml`: the same 69 Fine-grained
+calibration items as FIND_VS_READ_F1, both pinned models (Typhoon primary),
+F1's grid-aligned crop shifted by d ∈ {0, 4, 8, 12, 16, 32} px without
+resampling, smoke first, cap 2 T4-hours, PELY334's own Kaggle quota. The locked
+split stays closed; no image is written to outputs or the repository.
+
+This **supersedes, for Track D only**, the sequencing in `ONBOARDING.md` §7 and
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §6 under which D
+waited on T2: G2 is a mechanism probe that does not need T2's routing (T2's
+tone numbers await a rerun). G3 (scale) stays with Up2mEz's P-ZOOM.
+
+### Reasoning
+
+- A tone mark is a few pixels of a patch dominated by its base; whether the
+  grid alignment, rather than resolution, decides its survival is testable
+  without resampling by moving a grid-aligned crop.
+- `d = 32` keeps the grid phase and moves one token row: a control for position
+  and edge context (Up2mEz's edit 2). Exact flip counts, no interval rule
+  (edit 3).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- A phase effect would justify registering a phase-aware remedy; no remedy is
+  evaluated here.
+
+### Files/configs affected
+
+- `docs/stage0/INPUT_SIDE_D1_REGISTRATION.md`, `configs/input_side/d1.yaml`
+- `src/labbs2026/input_side/`, `scripts/input_side_*.py`,
+  `infra/kaggle/input_side_worker.py`
+
+---
+
+## 2026-10-04 — FIND_VS_READ_F1 (Track C) authorized
+
+> Drafted by PELY334's Claude Code session at Up2mEz's request
+> (`collab/messages/20261003T1810Z_Up2mEz_to_PELY334_track-c-yes-with-edits.md`).
+> **Approved by both researchers:** PELY334 stated in session on 2026-10-04;
+> Up2mEz by merging PR #34 (2026-10-03T19:22Z), which added this entry. The
+> merge left the status note unchanged; this note was updated from the merge by
+> PELY334's session (PR #38) and is Up2mEz's to amend.
+
+**Stage/Gate:** RQ-A / RQ-B, mechanism probe. Opens or passes no gate; Gates
+1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/FIND_VS_READ_F1_REGISTRATION.md`
+with parameters `configs/find_vs_read/f1.yaml`: ThaiOCRBench Fine-grained text
+recognition, the 69 calibration items of T1's seeded rule, both pinned models
+(Typhoon primary), arms `WHOLE`, `CROP_SAME_SCALE`, `CROP_RESCALED`,
+`WHOLE_MARKED`, smoke first, cap 2 T4-hours, PELY334's own Kaggle quota. The
+locked split stays closed. No image or crop is written to outputs or the
+repository.
+
+This **supersedes, for Track C only**, the line of
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §6 that lists
+"Handwriting, Fine-grained tasks" as "later, if the method works on the
+primary tasks" — the same convention 2026-09-28b used for Track B. The plan
+file itself is left unedited.
+
+### Reasoning
+
+- Fine-grained gives the box, so finding and reading can be separated without
+  training; the crop is cut on the same 32-px token grid of the same prepared
+  page, and a second crop isolates magnification (Up2mEz's edit 1).
+- F1 tests direction and mechanism, not magnitude: ~100 tone marks; the
+  primary outcome is exact paired mark-fate counts, with no decision rule on an
+  interval (edit 2).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- No remedy is evaluated; a pattern in F1 can only route which remedy family
+  is worth registering next.
+- Track D is not authorized by this entry.
+
+### Files/configs affected
+
+- `docs/stage0/FIND_VS_READ_F1_REGISTRATION.md`, `configs/find_vs_read/f1.yaml`
+- `src/labbs2026/find_vs_read/`, `scripts/find_vs_read_*.py`,
+  `infra/kaggle/find_vs_read_worker.py`
+
+---
+
 ## 2026-10-03e — T5b: stopping at a detected loop passes its dev check
 
 **Evidence:** `docs/stage0/T5B_STOP_AT_LOOP_DRAFT.md` §5 (rule fixed in
@@ -464,6 +570,70 @@ be budgeted before submission. Only T2 is resubmitted (`--tests t2`); T1 is not 
 
 ---
 
+## 2026-09-28b — Track B (remedies) full evaluation no longer waits on T2
+
+> Drafted by Up2mEz's Claude Code session, at the researcher's explicit
+> instruction. **Approved by both researchers on 2026-09-28:** Up2mEz as
+> drafted; PELY334 stated in session and recorded by PELY334's Claude Code
+> session in PR #18. PELY334 was told of the practical effect in
+> `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`.
+
+**Stage/Gate:** RQ-B. Opens or passes no Gate; Gates 1-6 stay
+`BLOCKED`/`NOT_RUN` exactly as before this entry.
+
+**Decision owner:** Up2mEz unilaterally lifting a hold Up2mEz itself imposed
+(`collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`:
+"no evaluation run for B ... until T2 posts"), also stated in
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §4b/§6 ("the §2
+existing families evaluated after T2, so the comparison is against the right
+upper bound"). Full joint Decision Log approval per `docs/COLLABORATION.md`
+still applies to future decisions on this scope; this entry documents what
+Up2mEz alone has authorized so PELY334 is not blocked on a reply.
+
+**Decision:** PELY334 may run the full Track B evaluation (VCD, M3ID-form,
+PAI vs. FULL, calibration split) now, without waiting for the T1/T2
+calibration run (`kaggle-thai-marks-t1-t2-a44199c29759`, still in flight, no
+fixed ETA) to post. This supersedes the calibration-sub-split pilot cap in
+`collab/messages/20260928T0201Z_Up2mEz_to_PELY334_advance-permission-remedies-pilot.md`
+for this track only.
+
+### Reasoning
+
+- The researcher chose to accept the interpretability cost of decoupling B
+  from T2's sequencing rather than have a collaborator wait on a run with no
+  fixed completion time.
+- This does not change the plan's own diagnostic logic
+  (`QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §3): if T2 later shows the correct
+  mark variant is not highest under the image even with the full candidate
+  set, the evidence is not in the representation and no decoding-time method
+  can recover it — and Track B is entirely decoding/attention-time methods
+  (VCD, M3ID-form, PAI). If T2 comes out that way, Track B's numbers will
+  still have been worth having (they answer "does this remedy move accuracy"
+  on its own terms), but the plan would still point at Track D (input-side)
+  as the next real step, and Track B could not claim to have closed RQ-B
+  against the right upper bound until reread against T2.
+- What does not change: the locked split stays closed; a registration
+  (e.g. `docs/stage0/REMEDIES_R1_REGISTRATION.md`) is still required before
+  any output exists, per `ONBOARDING.md` §6.2, same as every other track.
+
+### Consequences
+
+- Track B evaluation results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE` (or
+  whatever its own registration states) regardless of T2's timing; this entry
+  advances none of Gates 1-6.
+- Once T1/T2 posts, Up2mEz will read Track B's numbers against it in a
+  `collab/` message; if the plan's contingency then points at Track D
+  instead, that is a separate, later decision — not a reason B was blocked
+  now.
+- `docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` is left
+  unedited (its text is the historical plan, same convention as the
+  2026-09-27c entry below); this entry is what supersedes its §4b/§6
+  sequencing for Track B.
+
+### Files/configs affected
+
+- `docs/exec-plans/active/INDEX.md` (Track B row)
+- `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`
 ## 2026-09-28b — T1 scoring version 2; decoding parameters pinned
 
 **Stage/Gate:** measurement correction on already-collected T1/T2 output of

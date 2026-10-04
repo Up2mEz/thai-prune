@@ -190,3 +190,74 @@ step, i.e. an ordinary greedy step.
 on acceptance and speed: drafts that would have started at a placeholder are
 not tried, which could only be rejected anyway because a greedy OCR output
 never emits image placeholders.
+
+---
+
+## Addendum 2, 2026-09-28 — written before the full run was submitted
+
+No full-run output exists when this is written; the only S1 outputs are the
+engineering smoke `kaggle-spec-decode-s1-be7333b19b85-smoke2` (2 timed items
+per model, reported to Up2mEz).
+
+**1. §7 budget input.** T1 has not posted. As proposed by Up2mEz in
+`collab/messages/20260928T0221Z_Up2mEz_to_PELY334_spec-decode-full-run-no-t1-wait.md`,
+"T1's measured mean seconds per item" is replaced, for this run only, by the
+same quantity measured in the smoke under the identical condition (`REF`,
+`TYPHOON_CARD`, same 2×T4 harness), timed items only, slower model:
+
+| model | REF seconds per timed item | mean |
+|---|---|---|
+| base | 6.55, 111.21 | 58.88 |
+| typhoon | 113.96, 61.42 | **87.69** |
+
+Estimate = 178 × 87.69 × 3 ÷ 2 ÷ 3600 = **6.50 T4-hours ≤ 12** → all three arms
+run; `PLD10` is not dropped. The formula and the 12-hour cap are unchanged.
+§6's cross-check against T1's outputs is done later, once T1 posts.
+
+**2. Added sensitivity analysis for §5 (headline population).** T1's
+repetition rule (a 20-character substring three times in the last 200
+characters) misses loops whose period exceeds 200 characters; a smoke output
+repeated a whole paragraph to `max_new_tokens` without being flagged
+(`docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`, F4). The headline population stays
+exactly as registered. In addition, and reported next to it, a **sensitivity
+headline** further excludes items whose `REF` output has a trailing loop by
+`labbs2026.output_diagnostics.structure.loop_period` (default arguments:
+period 20–4000 characters, at least two back-to-back copies). If the two
+headlines disagree on whether the interval lies above 1.0, both are reported
+and the registered one is not preferred silently.
+
+**3. Worker.** `infra/kaggle/spec_decode_worker.py` now writes each model's
+process output to its log file instead of a pipe (the fix Up2mEz made to the
+`thai_marks` worker in PR #16), so the two GPUs cannot silently serialize. No
+change to what is computed.
+
+---
+
+## Addendum 3, 2026-10-04 — diagnostic for the one large-margin mismatch
+
+Written after the full run (`kaggle-spec-decode-s1-46e16782627b`) and before
+any diagnostic output. The registered analysis found, for the base model and
+`PLD10`, one mismatch above the §4 near-tie line: item `149C5D04`, first
+divergence at generated token 205, `REF` margin **0.125 logit** (all other 66
+mismatches across both models and arms have margins ≤ 0.047). §4 says the speed
+result is withheld until such a mismatch is explained; this addendum registers
+how it is explained, nothing else.
+
+What is already known from the records: `PLD5` on the same item is identical
+to `REF`; the teacher-forced argmax at the divergence equals `REF`'s token;
+every observed margin is a multiple of 2⁻⁷ or 2⁻⁶, i.e. fp16's resolution at
+logits of magnitude 16–64, so 0.125 is 8 such steps.
+
+**Diagnostic.** The same item alone (`--diagnostic-ids`, first rotation
+entry `REF, PLD5, PLD10`, one warm-up item as registered), both models, twice:
+(1) fp16 again — does the divergence reproduce at the same position; (2) fp32
+(`--dtype float32`) — does it disappear.
+
+**Reading, stated in advance.** Reproduces in fp16 and vanishes in fp32 → an
+fp16 batched-verification effect; the §4 classification is reported as "1
+mismatch at 0.125 logit, explained as fp16 numerics", base `PLD10` speed is
+reported, and "identical except at N positions" stays the claim. Persists in
+fp32 → treated as a pipeline bug; base `PLD10` speed stays withheld and the
+cause is investigated before any further S1 claim. Does not reproduce in fp16
+→ reported as nondeterministic fp16 kernels, base `PLD10` speed reported with
+that caveat.

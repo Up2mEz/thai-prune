@@ -1,6 +1,6 @@
 # Track B — existing training-free remedies on Thai marks
 
-**Status: `IMPLEMENTATION_ONLY`.** Owner `PELY334`. Scope agreed in
+**Status: `R2_DONE`** — R1 pilot (`docs/stage0/REMEDIES_R1_RESULTS.md`) and R2 mark-protected contrast (`docs/stage0/REMEDIES_R2_RESULTS.md`) done; evaluation authorized by `docs/DECISION_LOG.md` 2026-09-28b. Owner `PELY334`. Scope agreed in
 `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`:
 implementation and unit tests may proceed; **no evaluation run until T2
 results are posted**, and who runs the evaluation (PELY334 or Up2mEz) is not
@@ -11,7 +11,7 @@ decided yet. Nothing here authorizes inference with the pinned models.
 | package | `src/labbs2026/remedies/` |
 | configs | `configs/remedies/` (with the registration) |
 | scripts / worker | `scripts/remedies_*.py`, `infra/kaggle/remedies_worker.py` (after registration) |
-| registration | `docs/stage0/REMEDIES_R1_REGISTRATION.md` — written only after T2 lands |
+| registration | `docs/stage0/REMEDIES_R1_REGISTRATION.md` (pilot, 24 items) |
 | branch | `PELY334/remedies` |
 
 ## 1. Question

@@ -1,4 +1,4 @@
-"""Prepare (and optionally submit) the SPEC_DECODE_S1 Kaggle run (Track A)."""
+"""Prepare (and optionally submit) the FIND_VS_READ_F1 Kaggle run (Track C)."""
 
 from __future__ import annotations
 
@@ -21,19 +21,18 @@ from labbs2026.kaggle import (
     sha256_file,
     utc_now,
 )
-from labbs2026.spec_decode.design import drop_arm, estimated_t4_hours
 
-KERNEL_SLUG = "labbs2026-spec-decode-s1"
-CONFIG = "configs/spec_decode/s1.yaml"
+KERNEL_SLUG = "labbs2026-find-vs-read-f1"
+CONFIG = "configs/find_vs_read/f1.yaml"
+PROMPT_FILE = "configs/thai_marks/typhoon_card_prompt.txt"  # required by thai_marks.remote's loader
 
 HASHED = (
     CONFIG,
-    "configs/thai_marks/typhoon_card_prompt.txt",
-    "src/labbs2026/spec_decode/__init__.py",
-    "src/labbs2026/spec_decode/design.py",
-    "src/labbs2026/spec_decode/identity.py",
-    "src/labbs2026/spec_decode/remote.py",
-    "src/labbs2026/spec_decode/runtime.py",
+    PROMPT_FILE,
+    "src/labbs2026/find_vs_read/__init__.py",
+    "src/labbs2026/find_vs_read/geometry.py",
+    "src/labbs2026/find_vs_read/remote.py",
+    "src/labbs2026/find_vs_read/scoring.py",
     "src/labbs2026/thai_marks/__init__.py",
     "src/labbs2026/thai_marks/normalize.py",
     "src/labbs2026/thai_marks/orthography.py",
@@ -60,40 +59,11 @@ def preflight(root: Path, remote_ref: str) -> str:
     return head
 
 
-def budget(config: dict, limit: int, calibration_items: int | None,
-           t1_seconds_per_item: float | None) -> tuple[dict, list[list[str]]]:
-    """Registration §7. Smoke runs (`limit`) are exempt; a full run must supply T1's timing."""
-    rule = config["budget"]
-    rotation = [list(order) for order in config["arm_rotation"]]
-    if limit:
-        return {"rule": "smoke_exempt", "limit": limit}, rotation
-    if calibration_items is None or t1_seconds_per_item is None:
-        raise SystemExit("a full run needs --calibration-items and --t1-seconds-per-item "
-                         "(registration §7)")
-    hours = estimated_t4_hours(calibration_items, t1_seconds_per_item, len(rotation[0]))
-    record = {"rule": "registration_s7", "calibration_items": calibration_items,
-              "t1_seconds_per_item": t1_seconds_per_item, "estimated_t4_hours": hours,
-              "max_t4_hours": rule["max_t4_hours"], "dropped": None}
-    if hours > float(rule["max_t4_hours"]):
-        rotation = drop_arm(rotation, rule["drop_if_over"])
-        record["dropped"] = rule["drop_if_over"]
-        record["estimated_t4_hours_after_drop"] = estimated_t4_hours(
-            calibration_items, t1_seconds_per_item, len(rotation[0]))
-    return record, rotation
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
-    parser.add_argument("--limit", type=int, default=0,
-                        help="engineering smoke only: run the first N timed calibration items")
-    parser.add_argument("--calibration-items", type=int)
-    parser.add_argument("--t1-seconds-per-item", type=float,
-                        help="T1 TYPHOON_CARD mean seconds per item, slower of the two models")
-    parser.add_argument("--diagnostic-ids", default="",
-                        help="registration addendum 3: comma-separated calibration ids, run alone")
-    parser.add_argument("--dtype", choices=("float16", "float32"), default=None,
-                        help="registration addendum 3: force the dtype for a diagnostic")
+    parser.add_argument("--smoke", type=int, default=0,
+                        help="engineering smoke: the first N calibration items")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
@@ -101,19 +71,19 @@ def main() -> None:
     config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
     if config["status"] != "APPROVED":
         raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
-    diagnostic = [i for i in args.diagnostic_ids.split(",") if i]
-    if diagnostic and args.limit:
-        raise SystemExit("--diagnostic-ids and --limit are exclusive")
-    budget_record, rotation = budget(config, args.limit or len(diagnostic), args.calibration_items,
-                                     args.t1_seconds_per_item)
+    import hashlib
+
+    prompt_digest = hashlib.sha256(config["crop_prompt"].encode("utf-8")).hexdigest()
+    if prompt_digest != config["crop_prompt_sha256"]:
+        raise SystemExit(f"crop prompt sha256 {prompt_digest} does not match the config")
+    if hashlib.sha256(config["question_clause"].encode("utf-8")).hexdigest() != config["question_clause_sha256"]:
+        raise SystemExit("question clause sha256 does not match the config")
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
-    suffix = f"-smoke{args.limit}" if args.limit else ""
-    if diagnostic:
-        suffix = f"-diag-{args.dtype or 'fp16'}"
-    run_id = f"kaggle-spec-decode-s1-{git_sha[:12]}{suffix}"
-    arms = {name: dict(config["arms"][name] or {}) for name in rotation[0]}
+    suffix = f"-smoke{args.smoke}" if args.smoke else ""
+    run_id = f"kaggle-find-vs-read-f1-{git_sha[:12]}{suffix}"
+    prompt_sha = sha256_file(root / PROMPT_FILE)
 
     spec = {
         "schema_version": 1,
@@ -128,8 +98,8 @@ def main() -> None:
         "python_version": "3.12",
         "source_dir": "/tmp/labbs2026-source",
         "output_root": "/kaggle/working/artifacts",
-        "tests": ["s1"],
-        "limit": args.limit,
+        "tests": ["f1"],
+        "limit": args.smoke,
         "models": config["models"],
         "benchmark_repo": config["benchmark"]["repo"],
         "benchmark_revision": config["benchmark"]["revision"],
@@ -137,27 +107,29 @@ def main() -> None:
         "tasks": config["benchmark"]["tasks"],
         "split_seed": config["split"]["seed"],
         "calibration_fraction": config["split"]["calibration_fraction"],
-        "typhoon_prompt_file": config["prompt"]["file"],
-        "typhoon_prompt_sha256": config["prompt"]["sha256"],
-        "dtype_preferred": args.dtype or config["runtime"]["dtype_preferred"],
+        "typhoon_prompt_file": PROMPT_FILE,
+        "typhoon_prompt_sha256": prompt_sha,
+        "dtype_preferred": config["runtime"]["dtype_preferred"],
         "dtype_fallback": config["runtime"]["dtype_fallback"],
         "max_new_tokens": config["runtime"]["max_new_tokens"],
-        "warmup_items": config["runtime"]["warmup_items"],
-        "diagnostic_ids": diagnostic or None,
-        "arms": arms,
-        "arm_rotation": rotation,
-        "budget": budget_record,
+        "generation": config["runtime"]["generation"],
+        "arms": config["arms"],
+        "crop_margin": config["crop_margin"],
+        "crop_prompt": config["crop_prompt"],
+        "crop_prompt_sha256": config["crop_prompt_sha256"],
+        "question_clause": config["question_clause"],
+        "question_clause_sha256": config["question_clause_sha256"],
         "created_at_utc": utc_now(),
     }
 
     run_dir = root / "runs" / "kaggle" / run_id
     staging = run_dir / "staging"
     staging.mkdir(parents=True, exist_ok=False)
-    template = root / "infra/kaggle/spec_decode_worker.py"
+    template = root / "infra/kaggle/find_vs_read_worker.py"
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, KERNEL_SLUG), "title": "LabBS2026 Spec Decode S1", "code_file": "worker.py",
+        "id": kernel_id(root, KERNEL_SLUG), "title": "LabBS2026 Find Vs Read F1", "code_file": "worker.py",
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
         "dataset_sources": [], "competition_sources": [], "kernel_sources": [],
@@ -165,9 +137,8 @@ def main() -> None:
     })
     spec["generated_worker_sha256"] = sha256_file(staging / "worker.py")
     atomic_write_json(run_dir / "submission.json", spec)
-    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "limit": args.limit,
-                      "arms": rotation[0], "budget": budget_record, "staging": str(staging)},
-                     indent=1))
+    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "limit": args.smoke,
+                      "staging": str(staging)}, indent=1))
     if args.submit:
         result = subprocess.run(build_submit_command(staging), capture_output=True, text=True)
         print(result.stdout or result.stderr)

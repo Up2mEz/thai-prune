@@ -44,6 +44,12 @@ def main() -> None:
     row_of = {id_col[i]: i for i in ordered if id_col[i] in calibration}
     warmup, timed = schedule(sorted(row_of), int(spec["split_seed"]), spec["arm_rotation"],
                              int(spec["warmup_items"]), int(spec.get("limit") or 0))
+    only = spec.get("diagnostic_ids")
+    if only:  # registration addendum 3: named items only, first rotation entry
+        missing = [i for i in only if i not in row_of]
+        if missing:
+            raise RuntimeError(f"diagnostic ids not in the calibration split: {missing}")
+        timed = [(i, list(spec["arm_rotation"][0])) for i in only]
     arms = spec["arms"]
     max_new = int(spec["max_new_tokens"])
     with io.open(out_dir / "schedule.json", "w", encoding="utf-8") as handle:
@@ -55,7 +61,7 @@ def main() -> None:
     dtype = spec["dtype_preferred"]
     model, processor = t1_runtime.load(model_spec["model_id"], model_spec["revision"], dtype, device)
     probe = t1_runtime.resize_policy(dataset[row_of[(warmup or [timed[0][0]])[0]]]["image"].convert("RGB"))
-    if not t1_runtime.logits_are_finite(model, processor, probe, prompt, device):
+    if dtype != spec["dtype_fallback"] and not t1_runtime.logits_are_finite(model, processor, probe, prompt, device):
         del model
         torch.cuda.empty_cache()
         dtype = spec["dtype_fallback"]

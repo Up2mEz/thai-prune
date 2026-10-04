@@ -1,0 +1,44 @@
+schema_version: 1
+status: APPROVED                # the submit script refuses anything but APPROVED
+registration: docs/stage0/INPUT_SIDE_D1_REGISTRATION.md
+authorization: docs/DECISION_LOG.md  # entry 2026-10-04b (Up2mEz approved PR #46)
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+models:
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0   # Apache-2.0-only revision; never main
+primary_model: typhoon
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Fine-grained text recognition"]
+
+split:
+  source: thai_marks           # T1's seeded rule; the same 69 items as FIND_VS_READ_F1
+  seed: 20260927
+  calibration_fraction: 0.30
+  strata: [Task, category]
+
+shifts: [0, 4, 8, 12, 16, 32, 64]  # px; window moved up, glyphs move down relative to the grid; 32 and 64 are controls
+crop_margin: 0.25              # as F1
+window_extra_below: 64         # addendum 1: the window extends 64 px below the F1 rectangle, so no shift clips the box
+crop_prompt: "ช่วยดึงข้อความของรูปภาพออกมาให้หน่อย"     # F1's crop prompt
+crop_prompt_sha256: 45078cf08e63c50260c2456ee5ced9ccb1af0abae5a3e49ce8c0c78561f558d5
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  attention: sdpa
+  image_policy: typhoon_card_then_processor_size   # find_vs_read.geometry.prepare_page
+  max_new_tokens: 512
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0

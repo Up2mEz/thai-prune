@@ -126,8 +126,13 @@ class _Stream:
 
 def contrastive_greedy(model, real_inputs: dict[str, Any], contrast_inputs: dict[str, Any], *,
                        weight: Callable[[int], float], beta: float, max_new_tokens: int,
-                       eos_token_ids: list[int]) -> dict:
-    """Greedy decoding on contrastive scores. Returns generated ids and per-step records."""
+                       eos_token_ids: list[int],
+                       protect: Callable[[int, int], bool] | None = None) -> dict:
+    """Greedy decoding on contrastive scores. Returns generated ids and per-step records.
+
+    `protect(greedy_token, contrast_token)`: when it returns True at a step where
+    the two differ, the greedy token is kept (REMEDIES_R2's mark protection).
+    """
     import torch
 
     if max_new_tokens < 1:
@@ -136,11 +141,16 @@ def contrastive_greedy(model, real_inputs: dict[str, Any], contrast_inputs: dict
     contrast = _Stream(model, contrast_inputs)
     generated: list[int] = []
     changed_steps: list[int] = []  # steps where the remedy picked a different token than greedy
+    protected_steps: list[int] = []  # steps where `protect` kept the greedy token
     for step in range(max_new_tokens):
         w = float(weight(step))
         scores = contrastive_scores(real.logits, contrast.logits, w, beta)
         token = int(torch.argmax(scores).item())
-        if token != int(torch.argmax(real.logits).item()):
+        greedy = int(torch.argmax(real.logits).item())
+        if token != greedy and protect is not None and protect(greedy, token):
+            protected_steps.append(step)
+            token = greedy
+        if token != greedy:
             changed_steps.append(step)
         generated.append(token)
         if token in eos_token_ids:
@@ -149,7 +159,7 @@ def contrastive_greedy(model, real_inputs: dict[str, Any], contrast_inputs: dict
         contrast.advance(token)
     return {"new_token_ids": generated, "generated_tokens": len(generated),
             "reached_max_new_tokens": len(generated) >= max_new_tokens,
-            "changed_steps": changed_steps}
+            "changed_steps": changed_steps, "protected_steps": protected_steps}
 
 
 def noised_image(image, *, step: int, total_steps: int = 1000, seed: int = 0):
@@ -170,3 +180,19 @@ def noised_image(image, *, step: int, total_steps: int = 1000, seed: int = 0):
     xt = math.sqrt(abar) * x0 + math.sqrt(1.0 - abar) * eps
     pixels = np.clip((xt + 1.0) * 127.5, 0, 255).round().astype(np.uint8)
     return Image.fromarray(pixels, mode="RGB")
+
+
+def mark_protector(decode: Callable[[list[int]], str]) -> Callable[[int, int], bool]:
+    """REMEDIES_R2: protect a step if either candidate token's text contains a Thai
+    tone mark or upper/lower vowel — decisions about marks stay with plain greedy."""
+    from labbs2026.thai_marks.orthography import LOWER_VOWELS, TONE_MARKS, UPPER_VOWELS
+
+    marks = set(TONE_MARKS) | set(UPPER_VOWELS) | set(LOWER_VOWELS)
+    cache: dict[int, bool] = {}
+
+    def has_mark(token: int) -> bool:
+        if token not in cache:
+            cache[token] = any(c in marks for c in decode([token]))
+        return cache[token]
+
+    return lambda greedy, contrast: has_mark(greedy) or has_mark(contrast)

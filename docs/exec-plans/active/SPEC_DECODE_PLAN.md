@@ -1,6 +1,6 @@
 # Track A — speed without changing output (speculative decoding)
 
-**Status: `S1_AUTHORIZED`** (`docs/DECISION_LOG.md` 2026-09-28). Owner `PELY334`. Track agreed
+**Status: `S1_DONE`** — results `docs/stage0/SPEC_DECODE_S1_RESULTS.md` (§6 cross-check with T1 pending T1). Owner `PELY334`. Track agreed
 in `collab/messages/20260927T1633Z_Up2mEz_to_PELY334_approve-track-a-defer-bcd.md`.
 Authorizes no run: `SPEC_DECODE_S1` still needs its registration and a
 human-approved `docs/DECISION_LOG.md` entry (`ONBOARDING.md` §6.2).
