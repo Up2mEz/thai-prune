@@ -7,6 +7,7 @@ import collections
 import hashlib
 import json
 import subprocess
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from labbs2026.thai_marks.confidence import (
@@ -23,6 +24,10 @@ TOKENIZER = ("Qwen/Qwen3-VL-2B-Instruct", "89644892e4d85e24eaac8bacfd4f463576704
 PROMPT, CELL = "TYPHOON_CARD", "Full-page OCR"
 THRESHOLD = 0.043  # E1's 5% s_min threshold, fixed in the E2b draft
 VARIANTS = {"V5": ("bands", "tiles", "pad", "scale90"), "V3": ("bands", "pad")}
+
+
+def _edits(job):
+    return flagged_edits(*job)
 
 
 def _jsonl(path: Path) -> list[dict]:
@@ -58,18 +63,26 @@ def main() -> None:
                                    "inputs_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
                                                      for p in (args.tiles, args.views)}},
                     "threshold": THRESHOLD, "variants": {}}
+    jobs = {}
+    for pid in sorted(reads):
+        r = t5[pid]
+        raw, s = r["raw_output"], scores[f"{CELL}|{PROMPT}|{pid}"]
+        offs = token_offsets(tok, raw, s["token_ids"])
+        scored = []
+        for start, end in clusters(raw):
+            hits = [s["logprob"][k] for k, (a, b) in enumerate(offs) if a < end and b > start]
+            if hits:
+                scored.append((start, end, -min(hits)))
+        for name, views in VARIANTS.items():
+            jobs[(name, pid)] = (raw, scored, {v: reads[pid][v] for v in views}, THRESHOLD)
+    with ProcessPoolExecutor(6) as pool:
+        done = dict(zip(jobs, pool.map(_edits, jobs.values())))
     for name, views in VARIANTS.items():
         base, new, tally, examples = [], [], collections.Counter(), []
         for pid in sorted(reads):
             r = t5[pid]
-            raw, s = r["raw_output"], scores[f"{CELL}|{PROMPT}|{pid}"]
-            offs = token_offsets(tok, raw, s["token_ids"])
-            scored = []
-            for start, end in clusters(raw):
-                hits = [s["logprob"][k] for k, (a, b) in enumerate(offs) if a < end and b > start]
-                if hits:
-                    scored.append((start, end, -min(hits)))
-            edits = flagged_edits(raw, scored, {v: reads[pid][v] for v in views}, THRESHOLD)
+            raw = r["raw_output"]
+            edits = done[(name, pid)]
             edited = apply_edits(raw, edits)
             base.append(mark_counts(r["reference"], raw, residual=True))
             new.append(mark_counts(r["reference"], edited, residual=True))
