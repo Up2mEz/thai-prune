@@ -58,6 +58,16 @@ Comparisons paired by item; mark rates on items both arms leave
   syllable tokenized differently). Token-level protection is too narrow to stop
   that.
 
+## 2b. Markup audit of the raw outputs (`scripts/audit_markup.py`)
+
+Checked before reporting (24 outputs per model and arm): no HTML tag in any
+output; Markdown list markers in 8–9 outputs per arm, bold in ≤ 4, one
+heading — identical across a model's arms. Thai characters removed by
+normalization: 0.0% (T1) and ≤ 0.1% (structure-aware). One Typhoon page
+carries an HTML entity (`&amp;` for `&`) in all three arms, which T1's
+normalization does not decode — a few characters of CER, identical in every
+arm, no effect on marks or on any paired comparison.
+
 ## 3. What this result does not show
 
 - Not magnitudes: 24 items; Typhoon's tone changes are a handful of marks.
