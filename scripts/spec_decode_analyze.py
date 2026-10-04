@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 from pathlib import Path
 
-from labbs2026.spec_decode.analysis import item_rows, summarize
+from labbs2026.spec_decode.analysis import item_rows, summarize, t1_cross_check
 
 
 def verify(run: Path) -> None:
@@ -23,8 +24,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("run", type=Path, help="fetched artifacts/<run_id> directory")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--t1-outputs", type=Path, help="T1 outputs (json.gz) for the §6 cross-check")
     args = parser.parse_args()
     verify(args.run)
+    t1 = json.load(gzip.open(args.t1_outputs, "rt", encoding="utf-8"))["records"] if args.t1_outputs else None
     result = {"run_id": args.run.name}
     for role in ("base", "typhoon"):
         d = args.run / "s1" / role
@@ -33,6 +36,8 @@ def main() -> None:
         rows = item_rows(records, int(manifest["max_new_tokens"]))
         result[role] = {"manifest": {k: manifest[k] for k in ("dtype_used", "timed_items", "revision", "git_sha")},
                         "summary": summarize(rows)}
+        if t1 is not None:
+            result[role]["t1_cross_check"] = t1_cross_check(records, t1[role])
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"wrote {args.out}")
