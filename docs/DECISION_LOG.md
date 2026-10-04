@@ -2,7 +2,7 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-10-04c — E2/E2b: zoomed re-reads at flagged places help a little
+## 2026-10-04c (gaps) — E2/E2b: zoomed re-reads at flagged places help a little
 
 **Evidence:** `docs/stage0/E2_REREAD_FIXES_MISREADS_DRAFT.md` §5–§6,
 `E2B_FLAGGED_VOTE_DRAFT.md` §5 (offline, session pzoom's re-reads, 21
@@ -18,7 +18,7 @@ the locked split stays closed.
 
 ---
 
-## 2026-10-04b — E1-B1 fails; token-level correction ceiling is low
+## 2026-10-04b (gaps) — E1-B1 fails; token-level correction ceiling is low
 
 **Evidence:** `docs/stage0/E1B_LEXICON_GATED_SWAP_DRAFT.md` §5 (offline, rule
 fixed before computing). The lexicon-gated swap changes F1 by ±0.01 points
@@ -30,7 +30,7 @@ to be designed with session pzoom (tiling). No remedy adopted.
 
 ---
 
-## 2026-10-04 — E1: Typhoon's confidence locates its mark errors (gate PASS)
+## 2026-10-04 (gaps) — E1: Typhoon's confidence locates its mark errors (gate PASS)
 
 **Evidence:** `docs/stage0/E1_CONFIDENCE_DRAFT.md` §6, run
 `kaggle-thai-marks-t6-7934890c22f6-typhoon-x2`. Run under the researcher's
@@ -70,6 +70,153 @@ unchanged and ends 6 of 11 loops, but where it fails the model escapes into
 near-repeats that add surplus marks, so full-page F1 falls. Neither is
 adopted. Loops behave as decoder attractors: the next candidate is stopping
 at a detected loop (and later re-reading the unread part), not redirecting.
+## 2026-10-04d — P-ZOOM-2 and P-ZOOM-3 result: zoom adds nothing, cropping into bands recovers about 8 points
+
+**Evidence:** `docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md` §9; runs
+`kaggle-thai-marks-t6-6a7840fe40d4-typhoon` and `kaggle-thai-marks-t6-deea2ee8846f-typhoon` (1.75
+GPU-hours together; pzoom budget used this week 2.30 of 3). Calibration split, Typhoon only,
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Rules fixed in `e6b1c93` before any output was opened.
+
+**Finding:** (1) Typhoon's reads are reproducible on the pinned stack: the same image gives the same
+output on 21 of 21 pages. (2) Changing the image, even a little, flips 11 to 19% of the marks it left
+out across the text / not-text line. (3) Zoom: enlarging the same three full-width crops by 1.85× changes
+text recovery by 0.0 points (`zoom_not_distinguishable`; sensitivity −0.8 to +3.6). (4) Cropping:
+reading the page as three bands at page scale recovers 58.7% of the left-out marks against 50.6% for
+the whole page (+8.0 points, interval +0.6 to +22.8), loses no ordinary lines, and costs about 50%
+more decode time. P-ZOOM-2's own rule gives `no_gain_from_views` and is not a zoom result.
+
+**Supersedes in part:** P-ZOOM's first-run label (2026-10-03e). That label was an artifact of the 2x2
+grid's seam (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10b); "P-ZOOM stops" is withdrawn as a finding.
+
+**Not decided (needs the researcher; I will not run it without a yes):** whether to pilot a band
+re-read as a method. It would be scored with order-free v2 mark precision/recall/F1 so the surplus
+from overlapping bands is charged, on the Full-page items of the calibration split, about 207 band
+reads at the measured rates. It exceeds this week's remaining pzoom budget (0.7 of 3 hours) or needs
+next week's. No claim about other models, other pages, or zoom in general.
+
+---
+
+## 2026-10-04c — controlled reading amended before any P-ZOOM-2/-3 output was opened
+
+**Evidence:** the second review of `wf_9f91ee64-a6b` (verification agents again stopped by a
+session limit), `P_ZOOM3_CONTROLS_DRAFT.md` §6 and §8, my own re-checks listed there.
+
+**Decided (assistant, reversible), before scoring:** `controlled_reading` gains a stack condition
+(`stack_differs` when the P-ZOOM-2 and P-ZOOM-3 sessions' model revision, dtype, torch,
+transformers, device or resolved generation config differ), its inconclusive outcome is worded as
+inconclusive, `D` is co-reported on text-or-figure and on figure share with a markup-shift flag,
+every `D` is quoted with its interval half-width, the token count is checked against the size
+read, and sensitivity at three cutoffs and without other-line claiming is reported. The P-ZOOM-2
+rule is kept, reported under `p_zoom2_as_registered_NOT_A_ZOOM_RESULT`. The scorer is unchanged.
+
+**Not changed, on purpose:** thresholds (10 points, 80%, 18 of 21), the scorer, the registered
+cutoff 0.2. **Disclosure:** `P_ZOOM3_CONTROLS_DRAFT.md` §6 lists exactly what was seen.
+
+---
+
+## 2026-10-04b — P-ZOOM-2 cannot be read as a test of zoom; P-ZOOM-3 controls registered
+
+**Evidence:** an independent review (`wf_9f91ee64-a6b`: scorer review and all verification
+agents did not finish, a session limit stopped them; the analysis, worker and claims reviews did)
+and `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10, `P_ZOOM3_CONTROLS_DRAFT.md` §1. I reproduced the
+cutoff sensitivity myself on P-ZOOM's records (tiles 47.0 / 47.8 / 50.4 / 66.4% at cutoffs
+0.15 / 0.20 / 0.25 / 0.30; the registered label flips at 0.25).
+
+**Finding:** P-ZOOM's registered label (`beyond_typhoon_at_this_resolution`) rests on one 49-mark
+line near the cutoff and overstates what the data show; three numbers in its write-up were wrong
+and are corrected in place, marked. P-ZOOM-2's `bands` differ from its controls in crop, scale and
+width, so its rule measures decorrelation, not zoom.
+
+**Decided (assistant, reversible):** the P-ZOOM-2 run (complete, 105 reads, 1.02 GPU-hours, not
+opened) is kept and its registered `analyze()` is reported as written. Two controls are added before
+any output is read: `repeat` (the T1 input unchanged: the noise floor) and `bands100` (the same
+crops at zoom 1.0), 84 reads, readings in `P_ZOOM3_CONTROLS_DRAFT.md` §4. The pzoom GPU budget used
+becomes about 2.2 of 3 hours. Smoke on the secondary account first.
+
+**Not decided:** anything about methods; whether zoom is a lever (that is what P-ZOOM-3 reads).
+
+---
+
+## 2026-10-04 — P-ZOOM-2 (views probe) authorized after a literature review
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** the assistant, acting on the researcher's instruction in session 2026-10-04
+("ลอง lit review research และทำการทดลองตามคำถามที่เราสงสัย", then "ทำไปเรื่อยๆเลย"). The
+researcher did not name this probe, its reads, its GPU budget or its thresholds; the choice of the
+question taken from P-ZOOM's open ends (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9: is what zoom
+"gained" zoom, or any change of the input), the design, the 10-point and 80% thresholds and the
+GPU spend are the assistant's judgements within the pzoom budget of `PARALLEL_SESSIONS.md` §3
+(3 GPU-hours this week). [Wording corrected 2026-10-04 after an independent review: this entry
+first said "Decision owner: Up2mEz" and "standing delegation".] Reversible at any time by the
+researcher.
+
+**Authorized (by the assistant, see the decision owner above):** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
+21 pages, 105 reads (two whole-page perturbation views and 3 full-width bands at 1.85x),
+readings of §5 fixed in advance. First a smoke (`--limit 2`) on the secondary account; then
+one T4 session on the main account, kernel slug `labbs2026-thai-marks-pzoom`, under 2
+GPU-hours (0.55 of the 3-hour weekly pzoom budget already used).
+
+**Not authorized:** any method built on the result, the locked split, any model but Typhoon.
+
+---
+
+## 2026-10-03e — P-ZOOM result: below the registered line; P-ZOOM stops
+
+**Evidence:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9; run
+`kaggle-thai-marks-t4-0b2d191e31c5-typhoon` (0.55 GPU-hours, main account).
+Calibration split, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding:** tiles (2x2, 15% overlap, 1.85x) recover 47.8% of the marks of lines Typhoon left
+out of full pages as text, 12.7% as `<figure>` descriptions, and miss 39.5%. The zoom-free
+`TYPHOON_CARD` whole-page read recovers 50.6%. By the reading fixed before the run
+(`resolution_attention_limit` needs >= 50% as text and a *gross* gain of >= 15 points: marks of
+lines tiles recover and the whole-page read does not, ignoring the marks tiles lose): no. The result
+is `beyond_typhoon_at_this_resolution`. It is 2.2 points under the line, and the control shows
+the grid loses wide ordinary lines (40% found against a 97% ceiling), so it is not a clean
+negative.
+
+**Not decided:** whether to run a variant (non-cutting tiles, such as full-width bands; or
+several reads per condition to separate variability from zoom). That would be a new factor and
+needs its own draft and approval. No claim about other models or about zoom in general.
+
+**Budget:** 0.55 of the 2 GPU-hours authorized in 2026-10-03d.
+
+---
+
+## 2026-10-03d — P-ZOOM graphic-text probe authorized (smoke first)
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** Up2mEz, in session 2026-10-03 ("ทำทั้งหมดเลย", answering a
+list that included approving the probe, the offline scorer, and a smoke on the
+secondary account). The reading rule's 15-point threshold and its amendment (§7) are the
+assistant's judgements, not the researcher's. [Wording corrected 2026-10-04: it first said
+"approval given under the researcher's standing delegation"; the delegation in force is
+`DECISION_LOG.md` 2026-10-03 for scope and metric only.] Reversible at any time.
+
+**Authorized:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` with the choices
+of §6 and the amended reading rule of §7: Typhoon, `TYPHOON_CARD`, 21
+calibration pages x 4 tiles = 84 reads, greedy as T1. First a smoke
+(`--limit 1`) on the secondary account `thanakrit2505`; if it passes, the full
+run on the main account, kernel slug `labbs2026-thai-marks-pzoom`, one T4
+session, under 2 GPU-hours (the session budget is 3 h this week).
+
+**Amendment made before any tile output (§7):** the draft's "tiles recover
+>= 50% of absent marks" would also be met by the whole-page `TYPHOON_CARD`
+read, which already recovers 50.6% with no zoom. The reading now requires a
+gross gain of >= 15 points (marks of lines tiles recover and the whole-page read does not; lost
+marks are not subtracted) over that baseline; otherwise the result is reported as
+`prompt_not_zoom`. The 15 points are a judgement. To reverse: edit the rule
+in `p_zoom_analysis.reading` before the first tile output is read, and log it.
+
+**Not authorized:** any method built on the result (graphic localization,
+re-read, insertion), the locked split, any model but Typhoon, more than 3
+GPU-hours this week.
 
 ---
 
@@ -2714,3 +2861,4 @@ Copy this block whenever a substantive scientific decision is made.
 
 ### Files/configs affected
 ```
+

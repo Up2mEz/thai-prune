@@ -71,6 +71,18 @@ HASHED = (
     "src/labbs2026/thai_marks/split.py",
     "uv.lock",
 )
+# Hashed only when the run includes `t4` (P-ZOOM), so other sessions' runs keep
+# the file set they were registered with.
+HASHED_T4 = (
+    "configs/thai_marks/p_zoom.yaml",
+    "configs/thai_marks/p_zoom_pages.json",
+    "src/labbs2026/thai_marks/tiling.py",
+)
+HASHED_T6 = (
+    "configs/thai_marks/p_zoom2.yaml",
+    "configs/thai_marks/p_zoom_pages.json",
+    "src/labbs2026/thai_marks/tiling.py",
+)
 REPOSITORY = "https://github.com/Up2mEz/thai-prune.git"
 
 
@@ -177,6 +189,8 @@ def main() -> None:
     parser.add_argument("--e1-cases", type=Path, default=None,
                         help="E1 cases JSON (scripts/thai_marks_e1_cases.py); attached as a "
                              "private dataset")
+    parser.add_argument("--views-config", default="configs/thai_marks/p_zoom2.yaml",
+                        help="t6 only: the registered views config (P-ZOOM-2 or P-ZOOM-3)")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
                         help="Kaggle kernel slug; give each parallel session its own")
     parser.add_argument("--submit", action="store_true")
@@ -194,6 +208,28 @@ def main() -> None:
         raise SystemExit(f"unknown roles: {roles}")
     if "t5" in tests and roles != list(config["t5"]["roles"]):
         raise SystemExit(f"t5 is registered for roles {config['t5']['roles']} only")
+    p_zoom = None
+    if "t4" in tests:
+        p_zoom = yaml.safe_load((root / "configs/thai_marks/p_zoom.yaml").read_text("utf-8"))
+        if roles != list(p_zoom["roles"]):
+            raise SystemExit(f"t4 is registered for roles {p_zoom['roles']} only")
+        if args.kernel_slug == KERNEL_SLUG:
+            raise SystemExit("t4 (P-ZOOM) must use its own --kernel-slug; "
+                             f"{KERNEL_SLUG} belongs to the other session")
+        if args.submit and p_zoom["status"] != "APPROVED":
+            raise SystemExit(f"p_zoom.yaml status is {p_zoom['status']}; "
+                             "the researcher has not authorized this run")
+    p_zoom2 = None
+    if "t6" in tests:
+        p_zoom2 = yaml.safe_load((root / args.views_config).read_text("utf-8"))
+        if roles != list(p_zoom2["roles"]):
+            raise SystemExit(f"t6 is registered for roles {p_zoom2['roles']} only")
+        if args.kernel_slug == KERNEL_SLUG:
+            raise SystemExit("t6 (P-ZOOM-2) must use its own --kernel-slug; "
+                             f"{KERNEL_SLUG} belongs to the other session")
+        if args.submit and p_zoom2["status"] != "APPROVED":
+            raise SystemExit(f"{args.views_config} status is {p_zoom2['status']}; "
+                             "the researcher has not authorized this run")
     suffix = "" if roles == ["base", "typhoon"] else "-" + "-".join(roles)
     suffix += f"-x{args.shards}" if args.shards > 1 else ""
     suffix += f"-smoke{args.limit}" if args.limit else ""
@@ -205,7 +241,10 @@ def main() -> None:
         "repository_url": REPOSITORY,
         "remote_ref": remote_ref,
         "git_sha": git_sha,
-        "expected_file_hashes": {p: committed_sha256(root, git_sha, p) for p in HASHED},
+        "expected_file_hashes": {p: committed_sha256(root, git_sha, p)
+                                 for p in HASHED + (HASHED_T4 if p_zoom else ())
+                                 + ((tuple(args.views_config if h == "configs/thai_marks/p_zoom2.yaml" else h
+                                           for h in HASHED_T6)) if p_zoom2 else ())},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
@@ -231,6 +270,16 @@ def main() -> None:
         "max_new_tokens": config["t1"]["max_new_tokens"],
         "generation": config["t1"]["generation"],
         "t5_arms": config.get("t5", {}).get("arms"),
+        "t4": None if p_zoom is None else {
+            "prompt": p_zoom["prompt"], "tiling": p_zoom["tiling"],
+            "pages_file": p_zoom["pages"]["file"], "pages_sha256": p_zoom["pages"]["sha256"],
+            "status": p_zoom["status"],
+        },
+        "t6": None if p_zoom2 is None else {
+            "prompt": p_zoom2["prompt"], "views": p_zoom2["views"],
+            "pages_file": p_zoom2["pages"]["file"], "pages_sha256": p_zoom2["pages"]["sha256"],
+            "status": p_zoom2["status"],
+        },
         "window_after_chars": config["t2"]["window_after_chars"],
         "t2_dtype": config["t2"].get("dtype"),
         "consistency_tolerance": config["t2"]["consistency_tolerance_nats"],

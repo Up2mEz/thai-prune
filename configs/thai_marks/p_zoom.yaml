@@ -1,0 +1,28 @@
+schema_version: 1
+# APPROVED 2026-10-03 (docs/DECISION_LOG.md 2026-10-03d). scripts/thai_marks_kaggle.py
+# refuses to submit `t4` until this is APPROVED and docs/DECISION_LOG.md records it.
+status: APPROVED
+draft: docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only (one new factor per round); models, benchmark revision, split,
+# image policy, max_new_tokens and greedy generation are those of t1_t2.yaml,
+# unchanged. The probe adds the page-to-tile step and nothing else.
+roles: [typhoon]
+prompt: TYPHOON_CARD   # Typhoon's own contract (configs/thai_marks/t1_t2.yaml prompts)
+
+# Each tile is cropped from the source pixels, then read through the same
+# resize_policy as a page (long side to 1800 px): text is ~1.85x larger in
+# visual tokens than at page scale (tiling.zoom_factor, recorded per read).
+tiling:
+  rows: 2
+  cols: 2
+  overlap: 0.15
+
+# Frozen by scripts/thai_marks_pzoom_select.py from Typhoon's T1 records
+# (BENCHMARK_QUESTION, Full-page OCR): 21 calibration pages, 71 absent lines
+# with Thai marks (387 marks), 42 control lines (2 per page, seed 20261003).
+# The file stores line indices only, no reference text.
+pages:
+  file: configs/thai_marks/p_zoom_pages.json
+  sha256: 59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999
