@@ -9,7 +9,7 @@ from PIL import Image
 
 from labbs2026.find_vs_read.geometry import FACTOR, MIN_PIXELS, crop_rect, prepare_page, processor_size
 from labbs2026.input_side.analysis import item_rows, phase_variable_marks, summarize
-from labbs2026.input_side.phase import SHIFTS, shifted_crop, shifted_window
+from labbs2026.input_side.phase import EXTRA_BELOW, SHIFTS, shifted_crop, shifted_window
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -20,7 +20,7 @@ def _page():
 
 
 @pytest.mark.parametrize("d", SHIFTS)
-def test_shifted_crop_is_never_resized_and_keeps_pixels(d):
+def test_shifted_crop_is_never_resized_and_never_clips_the_box(d):
     page = _page()
     rect = crop_rect((274, 385, 573, 501), page.size, margin=0.25)
     crop = shifted_crop(page, rect, d)
@@ -29,8 +29,9 @@ def test_shifted_crop_is_never_resized_and_keeps_pixels(d):
     window = np.asarray(shifted_window(page, rect, d))
     left, top, right, bottom = rect
     src = np.asarray(page)
-    # rows d.. of the window are the page rows top..bottom-d: content moved down by d, untouched
-    assert np.array_equal(window[d:], src[top:bottom - d, left:right])
+    # the whole rectangle is inside the window, moved down by d: nothing of the box is cut
+    assert np.array_equal(window[d: d + bottom - top], src[top:bottom, left:right])
+    assert window.shape[0] == bottom - top + EXTRA_BELOW          # one size for every d
 
 
 def test_rows_outside_the_page_are_white():
@@ -38,7 +39,7 @@ def test_rows_outside_the_page_are_white():
     rect = (0, 0, 256, 64)
     window = np.asarray(shifted_window(page, rect, 12))
     assert np.all(window[:12] == 255)
-    assert np.array_equal(window[12:], np.asarray(page)[0:52, 0:256])
+    assert np.array_equal(window[12:12 + 64], np.asarray(page)[0:64, 0:256])
 
 
 def test_d32_moves_content_one_token_row():
@@ -54,6 +55,8 @@ def test_bad_inputs():
         shifted_window(page, (0, 0, 100, 64), 0)               # not a multiple of the grid
     with pytest.raises(ValueError):
         shifted_window(page, (0, 0, 64, 64), -4)
+    with pytest.raises(ValueError):
+        shifted_window(page, (0, 0, 64, 64), EXTRA_BELOW + 4)  # would clip the box
 
 
 def _arm(raw):
