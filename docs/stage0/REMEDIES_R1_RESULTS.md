@@ -66,6 +66,27 @@ confusions between tone marks barely move. On Typhoon the unconditional tone
 counts improve slightly while the base-conditioned rate worsens slightly —
 both on a handful of marks.
 
+## 3b. Per-item differences and item-mean (added 2026-10-04 at Up2mEz's request)
+
+The pooled ratio in §2 weights items by their number of marks and keeps only
+items both arms left readable. Per item, on the same kept items, tone
+mark-specific error (base-correct marks), arm vs FULL:
+
+| model, arm | items | worse / better / same | item-mean diff | item-median diff | pooled diff | net extra tone errors | share from the top 3 items |
+|---|---|---|---|---|---|---|---|
+| typhoon VCD | 19 | 4 / 0 / 15 | +0.004 | **0.000** | +0.006 | +10 | 0.90 (one page, `0159AF30`, +7) |
+| typhoon M3ID | 19 | 4 / 0 / 15 | +0.004 | **0.000** | +0.006 | +10 | 0.90 (`0159AF30`, +7) |
+| base VCD | 10 | 6 / 1 / 3 | +0.043 | +0.012 | +0.026 | +17 | 0.71 |
+| base M3ID | 12 | **9 / 0 / 3** | +0.041 | +0.036 | +0.039 | +33 | 0.48 |
+
+Reading: on the **base** the tone cost of contrast is broad — most items lose
+tone marks, none gain. On **Typhoon** it is concentrated: the median item is
+unchanged and one long page (the one that repeats paragraphs under
+`TYPHOON_CARD`) carries 7 of the 10 extra tone errors. For Typhoon the open
+question is therefore whether contrast can end loops without costing marks on
+such pages, rather than a general deletion effect. Exact per-item counts:
+`runs/exports/r1_per_item_tone.json` (local, not committed).
+
 ## 4. Interpretation (inference, not established)
 
 - **Contrastive decoding's large CER gains come from ending loops, not from
