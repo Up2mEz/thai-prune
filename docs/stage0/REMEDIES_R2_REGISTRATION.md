@@ -80,3 +80,17 @@ decided before any pilot output, recorded.
 PAI-style arms (next round, at low strength, after the line-by-line check),
 VCD, other λ/β, other prompts, the locked split, any claim beyond these two
 checkpoints.
+
+---
+
+## Addendum, 2026-10-04 — §6 budget from the smoke, before any pilot output
+
+Smoke `kaggle-remedies-r2-ed4c81a0bb67-smoke1` (1 item per task, both models,
+plus `MP_ALPHA0`): 0 failures, fp16, checksums verified. `FULL` and `M3ID`
+reproduced R1's token ids exactly on both items and both models; `MP_ALPHA0`
+reproduced `FULL` in all four cases; protection fired on 8 and 4 steps (base)
+and 0 and 1 (Typhoon). Engineering observations only.
+
+Estimate, slower model (Typhoon), seconds per item over `FULL` + `M3ID` +
+`M3ID_MP`: mean 112.5 s → 24 items = **0.75 T4-hours ≤ 4**. Items per task stay
+12. No other change.
