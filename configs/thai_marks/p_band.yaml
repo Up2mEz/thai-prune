@@ -1,0 +1,19 @@
+schema_version: 1
+# APPROVED 2026-10-04 (docs/DECISION_LOG.md 2026-10-04e); scripts/thai_marks_kaggle.py refuses to
+# submit it unless APPROVED. Use: --tests t6 --views-config configs/thai_marks/p_band.yaml
+status: APPROVED
+draft: docs/stage0/P_BAND_PILOT_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only; the same prompt, model revision, split, fp16 and greedy generation as P-ZOOM. The
+# 48 Full-page OCR calibration items that P-ZOOM did not read as bands. Together with P-ZOOM-3's
+# 63 band reads of the other 21 pages they make the 69 Full-page calibration items.
+roles: [typhoon]
+prompt: TYPHOON_CARD
+pages:
+  file: configs/thai_marks/p_band_pages.json
+  sha256: 077a269bcabd5a092e40dd6acfff5e8803e0b3b201e7f74c4fc18536dfadd221
+
+# bands100 is defined exactly as in P-ZOOM-3 (configs/thai_marks/p_zoom3.yaml).
+views:
+  - {name: bands100, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.0}

@@ -98,10 +98,11 @@ def reading(delta: float, ci_low: float, ci_high: float, delta_precision: float)
     return "not_distinguishable"
 
 
-def analyze(pages: Sequence[dict]) -> dict[str, Any]:
+def analyze(pages: Sequence[dict], subgroups: dict[str, set] | None = None) -> dict[str, Any]:
     """Every registered number. `pages`: dicts with `id`, `category`, `reference`, `whole_raw`,
     `band_raws` (in band order), and the cost fields `whole_tokens`, `whole_seconds`,
-    `band_tokens`, `band_seconds`, `whole_looped`, `band_looped`."""
+    `band_tokens`, `band_seconds`, `whole_looped`, `band_looped`. `subgroups` (name -> page ids) are
+    reported as micro precision/recall/F1 per variant, without a label."""
     counts: dict[str, list[dict]] = {v: [] for v in VARIANTS}
     for page in pages:
         texts = variant_texts(page["whole_raw"], page["band_raws"])
@@ -136,6 +137,13 @@ def analyze(pages: Sequence[dict]) -> dict[str, Any]:
             "pages": len(idx),
             **{v: {k: prf([counts[v][i] for i in idx])[k] for k in ("recall", "precision", "f1")}
                for v in VARIANTS}}
+    group_report = {}
+    for name, members in (subgroups or {}).items():
+        idx = [i for i, p in enumerate(pages) if p["id"] in members]
+        if idx:
+            group_report[name] = {"pages": len(idx), **{
+                v: {k: prf([counts[v][i] for i in idx])[k] for k in ("recall", "precision", "f1")}
+                for v in VARIANTS}}
     whole_tokens = sum(p["whole_tokens"] for p in pages)
     band_tokens = sum(p["band_tokens"] for p in pages)
     whole_seconds = sum(p["whole_seconds"] for p in pages)
@@ -156,7 +164,7 @@ def analyze(pages: Sequence[dict]) -> dict[str, Any]:
                                         "ratio": band_seconds / whole_seconds if whole_seconds else None},
                  "looped_reads": {"whole": sum(p["whole_looped"] for p in pages),
                                   "bands": sum(p["band_looped"] for p in pages)}},
-        "by_category": by_category,
+        "by_category": by_category, "subgroups": group_report,
         "per_page": per_page,
         "thresholds": {"help_delta": HELP_DELTA, "precision_floor": PRECISION_FLOOR,
                        "overlap_share": OVERLAP_SHARE, "min_overlap_lines": MIN_OVERLAP_LINES,

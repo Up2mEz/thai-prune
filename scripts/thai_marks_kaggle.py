@@ -240,7 +240,9 @@ def main() -> None:
         "git_sha": git_sha,
         "expected_file_hashes": {p: committed_sha256(root, git_sha, p)
                                  for p in HASHED + (HASHED_T4 if p_zoom else ())
-                                 + ((tuple(args.views_config if h == "configs/thai_marks/p_zoom2.yaml" else h
+                                 + ((tuple({"configs/thai_marks/p_zoom2.yaml": args.views_config,
+                                            "configs/thai_marks/p_zoom_pages.json":
+                                                p_zoom2["pages"]["file"]}.get(h, h)
                                            for h in HASHED_T6)) if p_zoom2 else ())},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",

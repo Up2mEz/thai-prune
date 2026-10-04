@@ -2,6 +2,30 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04e — P-BAND pilot authorized by the researcher
+
+**Stage/Gate:** Stage 0 remedy screen, calibration split only. Gate 0 remains `NOT_RUN`; the locked
+split stays closed. Typhoon only; `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision owner:** Up2mEz, in session 2026-10-04: "รันเลย", answering the assistant's closing
+proposal of 2026-10-04 (this entry's predecessor, 2026-10-04d, "Not decided"): pilot a band re-read
+as a method, scored with order-free v2 precision charged, on the Full-page items of the calibration
+split, about 207 band reads, which exceeds the pzoom budget left this week (0.7 of 3 GPU-hours) or
+needs next week's. The researcher heard that and said run. The design, thresholds and dedup rule
+below are the assistant's judgements.
+
+**Authorized:** `docs/stage0/P_BAND_PILOT_DRAFT.md` as written: 144 new band reads (48 pages x 3)
+plus P-ZOOM-3's 63, scored on 69 pages; first a smoke (`--limit 2 --shards 2`) on the secondary
+account, then one session on the main account, two shards on two T4s, kernel slug
+`labbs2026-thai-marks-pzoom`. Expected 0.5 to 1.0 GPU-hours, taking the pzoom total to 2.8 to 3.3 of the
+3-hour budget; the excess, if any, is covered by this entry. Readings fixed in the draft before
+any new read; the ceiling arithmetic (+0.19 points of recall for P-ZOOM-3's gain) is stated there.
+
+**Not authorized:** adopting the method, any other model, the locked split, further GPU runs after
+this one.
+
+---
+
 ## 2026-10-04d — P-ZOOM-2 and P-ZOOM-3 result: zoom adds nothing, cropping into bands recovers about 8 points
 
 **Evidence:** `docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md` §9; runs

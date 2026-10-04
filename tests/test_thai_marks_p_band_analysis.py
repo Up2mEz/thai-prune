@@ -100,3 +100,13 @@ def test_assemble_pages_requires_every_band_of_every_page() -> None:
         pb.assemble_pages(whole, reads + [rec(0)], ["A"])
     with pytest.raises(ValueError, match="outside"):
         pb.assemble_pages(whole, reads + [{**rec(0), "id": "Z"}], ["A"])
+
+
+def test_subgroups_are_reported_per_variant_without_a_label() -> None:
+    reference = "\n".join([L1, L2, L3, L4])
+    pages = [_page(f"P{i}", reference, "\n".join([L1, L2, L3]), [f"{L1}\n{L2}\n{L3}", f"{L3}\n{L4}", "\n"])
+             for i in range(4)]
+    out = pb.analyze(pages, subgroups={"left": {"P0", "P1"}, "right": {"P2", "P3"}, "none": {"X"}})
+    assert set(out["subgroups"]) == {"left", "right"}
+    assert out["subgroups"]["left"]["pages"] == 2
+    assert out["subgroups"]["left"]["bands_dedup"]["recall"] > out["subgroups"]["left"]["whole"]["recall"]

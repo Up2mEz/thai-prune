@@ -1,0 +1,160 @@
+{
+ "provenance": {
+  "git_sha": "ba6245a5fc2277bc50496e87d48661d1b7fcbdf8",
+  "git_dirty": false,
+  "t1_records_sha256": "96cce30e34bbb129aaa127233bb466156469f8dce239ddc3101216013098a368",
+  "pzoom_pages_sha256": "59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999",
+  "rule": "Full-page OCR, TYPHOON_CARD, calibration items minus the P-ZOOM pages; sorted by id"
+ },
+ "totals": {
+  "full_page_items": 69,
+  "pzoom_pages": 21,
+  "pages": 48
+ },
+ "pages": [
+  {
+   "id": "0159AF30"
+  },
+  {
+   "id": "038EB8BB"
+  },
+  {
+   "id": "08A1628F"
+  },
+  {
+   "id": "0B5CA667"
+  },
+  {
+   "id": "149C5D04"
+  },
+  {
+   "id": "1576920D"
+  },
+  {
+   "id": "28987CC6"
+  },
+  {
+   "id": "2CF4F9FD"
+  },
+  {
+   "id": "322DB7DB"
+  },
+  {
+   "id": "33067A35"
+  },
+  {
+   "id": "39311352"
+  },
+  {
+   "id": "40D39B61"
+  },
+  {
+   "id": "42271868"
+  },
+  {
+   "id": "52A433B2"
+  },
+  {
+   "id": "5300A462"
+  },
+  {
+   "id": "567B6499"
+  },
+  {
+   "id": "58711248"
+  },
+  {
+   "id": "5DBA81A8"
+  },
+  {
+   "id": "5EB4426D"
+  },
+  {
+   "id": "627EB4F3"
+  },
+  {
+   "id": "69A67416"
+  },
+  {
+   "id": "77009AF9"
+  },
+  {
+   "id": "79216F4C"
+  },
+  {
+   "id": "84AE897C"
+  },
+  {
+   "id": "85252C85"
+  },
+  {
+   "id": "8F424A1D"
+  },
+  {
+   "id": "90D5C5FA"
+  },
+  {
+   "id": "972A5D1E"
+  },
+  {
+   "id": "994B0E2F"
+  },
+  {
+   "id": "9CD60110"
+  },
+  {
+   "id": "9DA41D6D"
+  },
+  {
+   "id": "9F68AAB1"
+  },
+  {
+   "id": "A2A35822"
+  },
+  {
+   "id": "A3407ABE"
+  },
+  {
+   "id": "AF5F42D4"
+  },
+  {
+   "id": "B2DEDBA0"
+  },
+  {
+   "id": "B2EF6E79"
+  },
+  {
+   "id": "B3FABE4F"
+  },
+  {
+   "id": "BCF5F036"
+  },
+  {
+   "id": "C4D1389C"
+  },
+  {
+   "id": "C7EBD957"
+  },
+  {
+   "id": "D78C8F3F"
+  },
+  {
+   "id": "DF82A0C7"
+  },
+  {
+   "id": "E7BFA0C6"
+  },
+  {
+   "id": "F096D392"
+  },
+  {
+   "id": "F267DB2B"
+  },
+  {
+   "id": "F320D8FF"
+  },
+  {
+   "id": "F704EBB4"
+  }
+ ]
+}

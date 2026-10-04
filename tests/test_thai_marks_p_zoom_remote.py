@@ -89,3 +89,18 @@ def test_p_zoom2_config_shares_the_probes_frozen_pages_and_defines_three_views()
     assert [v["name"] for v in two["views"]] == ["pad", "scale90", "bands"]
     assert two["roles"] == ["typhoon"] and two["prompt"] == "TYPHOON_CARD"
     assert two["status"] in {"DRAFT", "APPROVED"}
+
+
+def test_p_band_config_is_a_disjoint_complement_of_the_p_zoom_pages() -> None:
+    band = yaml.safe_load((ROOT / "configs/thai_marks/p_band.yaml").read_text(encoding="utf-8"))
+    data = (ROOT / band["pages"]["file"]).read_bytes()
+    assert hashlib.sha256(data).hexdigest() == band["pages"]["sha256"]
+    ids = {p["id"] for p in json.loads(data.decode("utf-8"))["pages"]}
+    zoom = json.loads((ROOT / "configs/thai_marks/p_zoom_pages.json").read_text(encoding="utf-8"))
+    zoom_ids = {p["id"] for p in zoom["pages"]}
+    assert len(ids) == 48 and not ids & zoom_ids  # 48 + 21 = the 69 Full-page calibration items
+    assert [v["name"] for v in band["views"]] == ["bands100"]
+    one = yaml.safe_load((ROOT / "configs/thai_marks/p_zoom3.yaml").read_text(encoding="utf-8"))
+    assert band["views"][0] == next(v for v in one["views"] if v["name"] == "bands100")
+    assert band["roles"] == ["typhoon"] and band["prompt"] == "TYPHOON_CARD"
+    assert band["status"] in {"DRAFT", "APPROVED"}
