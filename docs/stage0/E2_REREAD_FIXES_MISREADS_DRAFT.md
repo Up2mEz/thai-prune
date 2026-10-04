@@ -104,3 +104,21 @@ Reading under the corrected measurement: `zoom_fixes_misreads (bands)` (20 >
 18, +22.5 points over the no-zoom controls). It is **borderline**: the
 registered computation read `any_reread_fixes`, the margin is two clusters,
 and it moved only through a measurement correction. Both are reported.
+
+## 7. Zoom versus cropping, for misreads (2026-10-04, with P-ZOOM-3 reads)
+
+`runs/e2/e2_reread_dev_fix2_with_pzoom3.json`: same flagged set (40 errors,
+280 correct), adding P-ZOOM-3's `bands100` (the same crops at page scale) and
+`repeat` (the identical input re-read).
+
+| view | fixed | broken |
+|---|---|---|
+| `bands` 1.85× | 20 (50%) | 18 (6.4%) |
+| `bands100` 1.0× | 12 (30%) | 46 (16.4%) |
+| `repeat` (identical input) | 0 | 11 (3.9%) |
+
+`repeat` reproduces the page read, so its 11 "broken" are the measurement's
+noise floor (line matching in labels versus in the probe). For misread marks
+the zoom matters: the same crop without zoom fixes fewer and breaks more.
+Session pzoom found the opposite for omitted text (cropping, not zoom). E3
+uses 1.85×.

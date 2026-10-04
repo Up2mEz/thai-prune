@@ -31,7 +31,8 @@ def main() -> None:
     parser.add_argument("--e1-run-dir", type=Path, required=True)
     parser.add_argument("--t5-run-dir", type=Path, required=True)
     parser.add_argument("--tiles", type=Path, required=True, help="P-ZOOM t4 records.jsonl")
-    parser.add_argument("--views", type=Path, required=True, help="P-ZOOM-2 records.jsonl")
+    parser.add_argument("--views", type=Path, required=True, nargs="+",
+                        help="P-ZOOM-2 (and optionally P-ZOOM-3) records.jsonl")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.out.exists():
@@ -47,9 +48,10 @@ def main() -> None:
     reads: dict[str, dict[str, list[str]]] = collections.defaultdict(lambda: collections.defaultdict(list))
     for r in _jsonl(args.tiles):
         reads[r["id"]]["tiles"].append(r["raw_output"])
-    for r in _jsonl(args.views):
+    for r in (r for path in args.views for r in _jsonl(path)):
         reads[r["id"]][r["view"]].append(r["raw_output"])
     pages = sorted(reads)
+    view_names = ["tiles"] + sorted({v for page in reads.values() for v in page} - {"tiles"})
 
     # Flag threshold: the E1 gate's 5%, over every labelled cluster of the cell (all 69 pages).
     clusters_by_page: dict[str, list[dict]] = {}
@@ -76,15 +78,15 @@ def main() -> None:
             if line is None:
                 continue
             kind = "error" if c["error"] else "correct"
-            for view in ("tiles", "bands", "pad", "scale90"):
+            for view in view_names:
                 status = view_status(line, ref_index, reads[pid][view])
                 table[f"{kind}|{view}"][status] += 1
             if c["error"] and len(examples) < 30:
                 examples.append({"id": pid, "ref": line[max(0, ref_index - 5):ref_index + 6],
                                  "status": {v: view_status(line, ref_index, reads[pid][v])
-                                            for v in ("tiles", "bands", "pad", "scale90")}})
+                                            for v in view_names}})
     summary = {}
-    for view in ("tiles", "bands", "pad", "scale90"):
+    for view in view_names:
         e, k = table[f"error|{view}"], table[f"correct|{view}"]
         summary[view] = {"flagged_errors": sum(e.values()), "fixed": e["right"],
                          "fix_rate": e["right"] / max(1, sum(e.values())), "errors_not_found": e["not_found"],
@@ -104,7 +106,7 @@ def main() -> None:
                                                     text=True, check=True).stdout.strip(),
                           "rule": "docs/stage0/E2_REREAD_FIXES_MISREADS_DRAFT.md",
                           "inputs_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
-                                            for p in (args.tiles, args.views)}},
+                                            for p in (args.tiles, *args.views)}},
            "pages": len(pages), "flag_threshold_s_min": threshold, "summary": summary,
            "control_fix_rate": control, "reading": reading(), "examples": examples}
     args.out.parent.mkdir(parents=True, exist_ok=True)

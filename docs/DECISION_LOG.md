@@ -2,6 +2,20 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04e (gaps) — E3 (flagged band re-read, full calibration) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-04 ("ทำfull เลย1-2 เพราะต้อง
+อัปเดต approach แล้ว"): word-level choice and re-reading only the bands that
+hold flagged lines, run in full on the calibration split.
+
+**Authorized:** `docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md` as written:
+207 band reads at 1.85× plus their confidence forwards, Typhoon, calibration
+Full-page items, 2×T4, smoke first on the secondary account. Locked split
+closed. The run also answers session pzoom's band-pilot question (its
+2026-10-04d entry); pzoom is told so.
+
+---
+
 ## 2026-10-04c (gaps) — E2/E2b: zoomed re-reads at flagged places help a little
 
 **Evidence:** `docs/stage0/E2_REREAD_FIXES_MISREADS_DRAFT.md` §5–§6,
