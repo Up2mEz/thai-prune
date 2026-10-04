@@ -128,6 +128,7 @@ Read, in order (nothing else is needed to start):
 6. Code you will reuse: `src/labbs2026/thai_marks/{attribution,order_free,extract,remote,runtime}.py`,
    `scripts/thai_marks_kaggle.py`, `infra/kaggle/thai_marks_worker.py`.
 
-Verification before declaring anything done: `uv run pytest` (only the 8
-Docker tests in `tests/test_glmm_failure_contract.py` may fail) and
+Verification before declaring anything done: `uv run pytest` (nothing may
+fail; the Docker tests in `tests/test_glmm_failure_contract.py` skip when the
+Docker daemon is not running — start Docker Desktop to run them) and
 `uv run python scripts/preflight.py`.
