@@ -30,7 +30,7 @@ def run_one(model, processor, image, prompt: str, item_id: str, arm: dict, *, se
             generation: dict, max_new_tokens: int, eos_ids: list[int], device: str) -> dict:
     import torch
 
-    from labbs2026.remedies.contrastive import Weight, contrastive_greedy, noised_image
+    from labbs2026.remedies.contrastive import Weight, contrastive_greedy, mark_protector, noised_image
     from labbs2026.remedies.pai import amplified_image_attention
     from labbs2026.thai_marks import runtime as t1_runtime
 
@@ -62,10 +62,12 @@ def run_one(model, processor, image, prompt: str, item_id: str, arm: dict, *, se
             raise ValueError(f"unknown contrast {arm['contrast']!r}")
         weight = Weight(arm["weight"], alpha=float(arm.get("alpha", 0.0)), lam=float(arm.get("lam", 0.0)),
                         max_weight=float(arm.get("max_weight", 10.0)))
+        protect = mark_protector(processor.decode) if arm.get("protect_marks") else None
         result = contrastive_greedy(model, inputs, contrast, weight=weight, beta=float(arm["beta"]),
-                                    max_new_tokens=max_new_tokens, eos_token_ids=eos_ids)
+                                    max_new_tokens=max_new_tokens, eos_token_ids=eos_ids, protect=protect)
         new_ids = result["new_token_ids"]
         out["changed_steps"] = len(result["changed_steps"])
+        out["protected_steps"] = len(result["protected_steps"])
         out["first_changed_step"] = result["changed_steps"][0] if result["changed_steps"] else None
     else:
         raise ValueError(f"unknown arm kind {arm['kind']!r}")
@@ -91,7 +93,7 @@ def main() -> None:
     from labbs2026.thai_marks import runtime as t1_runtime
     from labbs2026.thai_marks.remote import load_items
 
-    out_dir = Path(spec["artifact_dir"]) / "r1" / args.role
+    out_dir = Path(spec["artifact_dir"]) / spec["tests"][0] / args.role
     out_dir.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
     seed = int(spec["split_seed"])
@@ -148,7 +150,7 @@ def main() -> None:
 
     with io.open(out_dir / "manifest.json", "w", encoding="utf-8") as handle:
         json.dump({
-            "test": "r1", "role": args.role, "smoke": bool(spec.get("smoke")),
+            "test": spec["tests"][0], "role": args.role, "smoke": bool(spec.get("smoke")),
             "model_id": model_spec["model_id"], "revision": model_spec["revision"],
             "dtype_used": dtype, "items": len(ids), "arms": names, "failures": failures,
             "eos_token_ids": eos_ids, "generation": spec["generation"],
@@ -157,7 +159,7 @@ def main() -> None:
             "torch": torch.__version__, "transformers": transformers.__version__,
             "cuda": torch.version.cuda, "cuda_device": torch.cuda.get_device_name(0),
             "platform": platform.platform(), "git_sha": spec["git_sha"], "run_id": spec["run_id"],
-            "config_sha256": spec["expected_file_hashes"]["configs/remedies/r1.yaml"],
+            "config_sha256": spec["expected_file_hashes"][spec["config_path"]],
         }, handle, ensure_ascii=False, indent=1)
 
 
