@@ -6,7 +6,8 @@ model (Typhoon first) and mark class, exact counts:
 
 - **flips(d)**: marks scored in both `D0` and `Dd` whose status differs
   (correct<->wrong), for d in 4, 8, 12 (patch phase) and 16 (merge pairing);
-- **flips(32)**: the same between `D0` and `D32` — the phase-neutral control;
+- **flips(32)**, **flips(64)**: the same between `D0` and `D32` / `D64` — the
+  phase-neutral controls;
 - the full paired table for each shift, and the marks whose status is not
   constant across D0, D4, D8, D12 among marks scored in all four.
 
@@ -22,7 +23,7 @@ from labbs2026.find_vs_read.analysis import NORMALIZERS, item_rows, paired_fates
 KINDS = ("TONE", "UPPER", "LOWER")
 PHASE = (4, 8, 12)
 MERGE = 16
-CONTROL = 32
+CONTROLS = (32, 64)
 
 
 def _flips(table: dict) -> int:
@@ -51,7 +52,7 @@ def phase_variable_marks(rows: Sequence[dict], shifts=(0,) + PHASE) -> dict[str,
 def summarize(rows: Sequence[dict]) -> dict[str, Any]:
     rows = [r for r in rows if r["reference"]]
     out: dict[str, Any] = {"items": len(rows), "per_shift": {}, "flips_vs_D0": {}}
-    for d in PHASE + (MERGE, CONTROL):
+    for d in PHASE + (MERGE,) + CONTROLS:
         table = paired_fates(rows, f"D{d}", "D0")
         out["per_shift"][f"D{d}"] = table
         out["flips_vs_D0"][f"D{d}"] = {
@@ -60,5 +61,5 @@ def summarize(rows: Sequence[dict]) -> dict[str, Any]:
             for k in KINDS}
     out["phase_variable_marks"] = phase_variable_marks(rows)
     out["found_per_shift"] = {
-        f"D{d}": sum(1 for r in rows if r["arms"].get(f"D{d}", {}).get("found")) for d in (0,) + PHASE + (MERGE, CONTROL)}
+        f"D{d}": sum(1 for r in rows if r["arms"].get(f"D{d}", {}).get("found")) for d in (0,) + PHASE + (MERGE,) + CONTROLS}
     return out

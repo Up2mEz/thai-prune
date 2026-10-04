@@ -64,11 +64,12 @@ def test_flips_and_phase_variable_marks():
     ref = "ทองเนื้อเก้า"
     records = [{"id": "a", "task": "F", "reference": ref, "arms": {
         "D0": _arm(ref), "D4": _arm("ทองเนือเก้า"), "D8": _arm(ref), "D12": _arm(ref),
-        "D16": _arm(ref), "D32": _arm(ref)}}]
+        "D16": _arm(ref), "D32": _arm(ref), "D64": _arm(ref)}}]
     rows = item_rows(records)
     s = summarize(rows)
     assert s["flips_vs_D0"]["D4"]["TONE"]["flips"] == 1        # the first tone mark lost at d = 4
-    assert s["flips_vs_D0"]["D32"]["TONE"]["flips"] == 0       # control: no change
+    assert s["flips_vs_D0"]["D32"]["TONE"]["flips"] == 0       # controls: no change
+    assert s["flips_vs_D0"]["D64"]["TONE"]["flips"] == 0
     assert s["flips_vs_D0"]["D8"]["TONE"] == {"flips": 0, "scored_in_both": 2}
     assert phase_variable_marks(rows)["TONE"] == {"scored_in_all": 2, "not_constant": 1}
     assert s["found_per_shift"]["D0"] == 1
@@ -79,7 +80,7 @@ def test_config_draft_and_hashed_files():
     import importlib.util
 
     config = yaml.safe_load((ROOT / "configs/input_side/d1.yaml").read_text("utf-8"))
-    assert config["status"] == "DRAFT_FOR_REVIEW" and config["authorization"] is None
+    assert config["status"] == "APPROVED" and config["authorization"].startswith("docs/DECISION_LOG.md")
     assert tuple(config["shifts"]) == SHIFTS
     f1 = yaml.safe_load((ROOT / "configs/find_vs_read/f1.yaml").read_text("utf-8"))
     assert config["crop_prompt"] == f1["crop_prompt"] and config["crop_margin"] == f1["crop_margin"]

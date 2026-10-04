@@ -1,4 +1,4 @@
-"""Analyse a fetched REMEDIES_R1 run with the registered analysis only."""
+"""Analyse a fetched REMEDIES_R1 or R2 run with the registered analysis only."""
 
 from __future__ import annotations
 
@@ -8,6 +8,9 @@ import json
 from pathlib import Path
 
 from labbs2026.remedies.analysis import item_rows, summarize
+
+# registered pairs beyond arm-vs-FULL, per test
+EXTRA_PAIRS = {"r1": (), "r2": (("M3ID_MP", "M3ID"),)}
 
 
 def verify(run: Path) -> None:
@@ -26,13 +29,16 @@ def main() -> None:
     args = parser.parse_args()
     verify(args.run)
     result = {"run_id": args.run.name}
+    test = next(p.name for p in sorted(args.run.iterdir()) if p.is_dir() and p.name in EXTRA_PAIRS)
+    result["test"] = test
     for role in ("base", "typhoon"):
-        d = args.run / "r1" / role
+        d = args.run / test / role
         manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
         records = [json.loads(l) for l in (d / "records.jsonl").read_text(encoding="utf-8").splitlines()]
         rows = item_rows(records)
         result[role] = {"manifest": {k: manifest[k] for k in ("dtype_used", "items", "revision", "git_sha", "smoke")},
-                        "failures": manifest["failures"], "rows": rows, "summary": summarize(rows)}
+                        "failures": manifest["failures"], "rows": rows,
+                        "summary": summarize(rows, extra_pairs=EXTRA_PAIRS[test])}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"wrote {args.out}")

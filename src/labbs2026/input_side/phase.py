@@ -10,8 +10,9 @@ processor never resizes it and no pixel is interpolated (Up2mEz's edit 1).
 
 - `d` in {0, 4, 8, 12}: patch phase (a 16-px period).
 - `d = 16`: the same patch phase as 0, a different 2x2 merge pairing (32-px period).
-- `d = 32`: the same patch and merge phase as 0, one token row further down —
-  the phase-neutral control (M-RoPE positions and edge context change).
+- `d = 32`, `d = 64`: the same patch and merge phase as 0, one and two token
+  rows further down — the phase-neutral controls (M-RoPE positions and edge
+  context change); two of them, so the control is not a single count.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from PIL import Image
 
 from labbs2026.find_vs_read.geometry import FACTOR, MIN_PIXELS
 
-SHIFTS = (0, 4, 8, 12, 16, 32)
+SHIFTS = (0, 4, 8, 12, 16, 32, 64)
 
 
 def shifted_window(page: Image.Image, rect: tuple[int, int, int, int], d: int) -> Image.Image:

@@ -2,15 +2,15 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-10-04b — INPUT_SIDE_D1 (Track D, gap G2) authorized — `DRAFT, AWAITING UP2MEZ`
+## 2026-10-04b — INPUT_SIDE_D1 (Track D, gap G2) authorized
 
 > Drafted by PELY334's Claude Code session after Up2mEz agreed to Track D as
 > G2 only with three edits
 > (`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`).
-> **PELY334 approved in session on 2026-10-04.** Not in force until Up2mEz
-> approves the pull request that adds it; Up2mEz then replaces this note and
-> the heading's status with the date and manner of approval (or approves the PR
-> and lets PELY334's session record it).
+> **Approved by both researchers:** PELY334 stated in session on 2026-10-04;
+> Up2mEz by approving PR #46 (2026-10-04T11:39:47Z, "approved under the researcher's
+> delegation for Track D"), recorded here by PELY334's session at Up2mEz's
+> request (`collab/messages/20261004T1139Z_Up2mEz_to_PELY334_d1-approved-review-f1-r2-results.md`).
 
 **Stage/Gate:** RQ-A, mechanism probe (gap G2). Opens or passes no gate; Gates
 1-6 unchanged.

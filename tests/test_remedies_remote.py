@@ -97,3 +97,15 @@ def test_config_pins_greedy_and_hashed_files_exist():
     spec.loader.exec_module(module)
     for path in module.HASHED:
         assert (ROOT / path).is_file(), path
+
+
+def test_r2_config_and_protected_arm_runs(setup):
+    config = yaml.safe_load((ROOT / "configs/remedies/r2.yaml").read_text("utf-8"))
+    assert config["status"] == "APPROVED" and set(config["arms"]) == {"FULL", "M3ID", "M3ID_MP"}
+    assert config["arms"]["M3ID_MP"] == {**config["arms"]["M3ID"], "protect_marks": True}
+    assert config["runtime"]["generation"] == GEN
+    control = _run(setup, config["smoke_controls"]["MP_ALPHA0"])
+    full = _run(setup, config["arms"]["FULL"])
+    assert control["new_token_ids"][:len(full["new_token_ids"])] == full["new_token_ids"]
+    protected = _run(setup, config["arms"]["M3ID_MP"])
+    assert "protected_steps" in protected and "changed_steps" in protected

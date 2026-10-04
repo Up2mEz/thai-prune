@@ -1,10 +1,11 @@
 # INPUT_SIDE_D1 — registration (Track D, gap G2: patch phase)
 
-**Status: `DRAFT_FOR_REVIEW`.** Written before any D1 output exists. Scope
-(G2 only) agreed by Up2mEz with three edits, all built in below
-(`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`).
-Authorizes nothing until a `docs/DECISION_LOG.md` entry approved by both
-researchers records it. Plan: `docs/exec-plans/active/INPUT_SIDE_PLAN.md`.
+**Status: `APPROVED`**, `docs/DECISION_LOG.md` 2026-10-04b (PELY334 in session;
+Up2mEz in PR #46). Written before any D1 output exists. Scope (G2 only) agreed
+by Up2mEz with three edits, all built in below
+(`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`);
+the second control `d = 64` and the last row of §6 were added at Up2mEz's
+suggestion in the approval, still before any output. Plan: `docs/exec-plans/active/INPUT_SIDE_PLAN.md`.
 Parameters: `configs/input_side/d1.yaml`. Claim level of every result:
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
 
@@ -45,6 +46,7 @@ pixels is recorded.
 | `D4`, `D8`, `D12` | 4, 8, 12 | **patch phase** (16-px period) |
 | `D16` | 16 | same patch phase; different **2×2 merge pairing** into tokens (32-px period) |
 | `D32` | 32 | same patch and merge phase, one token row lower: the **phase-neutral control** (M-RoPE positions shift; 32 px of edge context change) — Up2mEz's edit 2 |
+| `D64` | 64 | same, two token rows lower: a **second phase-neutral control**, so the control is not a single count |
 
 ## 4. Scoring
 
@@ -60,7 +62,8 @@ Per model (Typhoon first) and mark class (TONE first):
 - **flips(d)** for `d` ∈ {4, 8, 12, 16}: marks scored in both `D0` and `Dd` whose
   status differs (correct→wrong plus wrong→correct), with the number scored in
   both;
-- **flips(32)**: the same between `D0` and `D32` — the control count;
+- **flips(32)** and **flips(64)**: the same between `D0` and `D32` / `D64` — the
+  control counts; "the control" below means the larger of the two;
 - the paired table per shift, and the number of marks scored in all of `D0`,
   `D4`, `D8`, `D12` whose status is not constant across them.
 
@@ -71,7 +74,8 @@ Per model (Typhoon first) and mark class (TONE first):
 | flips(4/8/12) **no larger than** flips(32) | grid phase does not decide marks; differences between page positions are position/context noise of the same size |
 | flips(4/8/12) clearly larger than flips(32), and flips(16) ≈ flips(32) | sub-patch phase decides marks: patch embedding, not merging, is where a mark can be lost; reading at two phases is worth registering as a remedy |
 | flips(16) clearly larger than flips(32) | the 2×2 merge pairing decides marks (which patches share a token) |
-| all shifts including 32 flip many marks | readings are unstable to any small input change; phase cannot be singled out (cf. P-ZOOM-2's perturbation control) |
+| flips(4/8/12) **and** flips(16) both clearly larger than the control | both the sub-patch phase and the merge pairing matter; the grid decides marks at both levels |
+| all shifts including 32 and 64 flip many marks | readings are unstable to any small input change; phase cannot be singled out (cf. P-ZOOM-2's perturbation control) |
 
 "Clearly larger" is judged on the exact counts and reported with them; with
 about 105 tone marks a difference of a few marks is not read as an effect.
@@ -81,7 +85,7 @@ should not appear equally on consonants.
 ## 7. Budget, smoke, stopping
 
 Smoke first: `--smoke 2` (two items, both models, all six arms), checked for
-dtype, failures, crop sizes, output format and time. Six short-answer arms on
+dtype, failures, crop sizes, output format and time. Seven short-answer arms on
 69 items: F1's smoke timing implies well under **1 T4-hour**; cap 2 T4-hours.
 If over, only the first items in `Id` order that fit are run — decided before
 any full-run output, recorded.
