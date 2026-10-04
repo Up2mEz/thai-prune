@@ -130,3 +130,10 @@ def test_load_cases_finds_and_checks_the_named_file(tmp_path: Path) -> None:
         load_cases({"e1_cases_sha256": "0" * 64}, "e1", root=tmp_path)
     with pytest.raises(RuntimeError):
         load_cases({}, "t3", root=tmp_path)
+
+
+def test_e3_keys_are_id_and_band(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    _write_jsonl(path, [{"id": "A1", "tile": 0, "raw_output": "x"},
+                        {"id": "A1", "tile": 2, "raw_output": "y"}])
+    assert completed_keys(path, "e3") == {("A1", 0), ("A1", 2)}

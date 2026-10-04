@@ -58,6 +58,8 @@ def completed_keys(records_path: Path, test: str) -> set:
                 keys.add((record["id"], record["tile"]))
             elif test == "t6":
                 keys.add((record["id"], record["view"], record["tile"]))
+            elif test == "e3":
+                keys.add((record["id"], record["tile"]))
             elif test in ("t3", "e1"):
                 keys.add(record["case"])
             else:
@@ -219,7 +221,7 @@ def t4_page_ids(spec: dict, source: Path, calibration, key: str = "t4") -> list[
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6", "e1"),
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6", "e1", "e3"),
                         required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
@@ -306,7 +308,7 @@ def main() -> None:
 
     setup_seconds = time.perf_counter() - load_started  # dataset + model load, before any item
     gen_kwargs = generation_record = None
-    if args.test in ("t1", "t4", "t6"):  # T2 teacher-forces and never generates; t4 reads as t1 does
+    if args.test in ("t1", "t4", "t6", "e3"):  # T2 teacher-forces and never generates; t4 reads as t1 does
         gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
         generation_record = {"requested": gen_kwargs,
                              **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
@@ -346,6 +348,11 @@ def main() -> None:
                     (row["Id"], v["name"], t) in completed
                     for v in spec["t6"]["views"]
                     for t in range(int(v["rows"]) * int(v["cols"]) if v["kind"] == "grid" else 1)):
+                continue
+            if args.test == "e3" and (
+                    row["Task"] != spec["e3"]["task"]
+                    or all((row["Id"], t) in completed for t in range(
+                        int(spec["e3"]["view"]["rows"]) * int(spec["e3"]["view"]["cols"])))):
                 continue
             if args.test == "t5" and all((row["Id"], p, a["name"]) in completed
                                          for p in spec["t1_prompts"] for a in spec["t5_arms"]):
@@ -395,6 +402,33 @@ def main() -> None:
                          "tile_row": tile.row, "tile_col": tile.col, "tile_box": list(tile.box),
                          "tile_size": list(tile.size), "tile_resized_size": list(tile_image.size),
                          "zoom_factor": tiling.zoom_factor(original.size, tile.size), **result},
+                        ensure_ascii=False) + "\n")
+                    handle.flush()
+            elif args.test == "e3":
+                from labbs2026.thai_marks import tiling
+
+                for item in tiling.view_images(original, spec["e3"]["view"]):
+                    tile = item["tile"]
+                    if (row["Id"], tile.index) in completed:
+                        continue
+                    try:
+                        result = runtime.generate(model, processor, item["image"], typhoon_prompt,
+                                                  generation=gen_kwargs, device=device)
+                        scored_at = time.perf_counter()
+                        scored = runtime.score_own_output(model, processor, item["image"],
+                                                          typhoon_prompt, result["raw_output"],
+                                                          device=device)
+                        seconds_score = time.perf_counter() - scored_at
+                    except Exception as exc:  # recorded, never scored as an output
+                        failures.append({"id": row["Id"], "tile": tile.index,
+                                         "error": f"{type(exc).__name__}: {exc}"[:800]})
+                        torch.cuda.empty_cache()
+                        continue
+                    handle.write(json.dumps(
+                        {**base, "prompt_kind": spec["e3"]["prompt"], "view": spec["e3"]["view"]["name"],
+                         "tile": tile.index, "tile_box": list(tile.box),
+                         "read_size": list(item["image"].size), "zoom_factor": item["zoom"],
+                         **result, "scores": scored, "seconds_score": seconds_score},
                         ensure_ascii=False) + "\n")
                     handle.flush()
             elif args.test == "t6":

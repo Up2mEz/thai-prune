@@ -208,6 +208,11 @@ def main() -> None:
         raise SystemExit(f"unknown roles: {roles}")
     if "t5" in tests and roles != list(config["t5"]["roles"]):
         raise SystemExit(f"t5 is registered for roles {config['t5']['roles']} only")
+    if "e3" in tests:
+        if roles != list(config["e3"]["roles"]):
+            raise SystemExit(f"e3 is registered for roles {config['e3']['roles']} only")
+        if args.submit and config["e3"]["status"] != "APPROVED":
+            raise SystemExit("e3 is not APPROVED in configs/thai_marks/t1_t2.yaml")
     p_zoom = None
     if "t4" in tests:
         p_zoom = yaml.safe_load((root / "configs/thai_marks/p_zoom.yaml").read_text("utf-8"))
@@ -243,6 +248,7 @@ def main() -> None:
         "git_sha": git_sha,
         "expected_file_hashes": {p: committed_sha256(root, git_sha, p)
                                  for p in HASHED + (HASHED_T4 if p_zoom else ())
+                                 + (("src/labbs2026/thai_marks/tiling.py",) if "e3" in tests else ())
                                  + ((tuple(args.views_config if h == "configs/thai_marks/p_zoom2.yaml" else h
                                            for h in HASHED_T6)) if p_zoom2 else ())},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
@@ -270,6 +276,7 @@ def main() -> None:
         "max_new_tokens": config["t1"]["max_new_tokens"],
         "generation": config["t1"]["generation"],
         "t5_arms": config.get("t5", {}).get("arms"),
+        "e3": config.get("e3") if "e3" in tests else None,
         "t4": None if p_zoom is None else {
             "prompt": p_zoom["prompt"], "tiling": p_zoom["tiling"],
             "pages_file": p_zoom["pages"]["file"], "pages_sha256": p_zoom["pages"]["sha256"],

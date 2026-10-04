@@ -89,3 +89,14 @@ t5:
     - name: ngram_block
       repetition_penalty: 1.0
       ngram_block: {ngram_size: 30, window_size: 90, whitelist_texts: ["<td>", "</td>", "<td></td>"]}
+
+# E3 — confidence-flagged band re-read (docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md;
+# APPROVED 2026-10-04, DECISION_LOG 2026-10-04e (gaps)). Every calibration
+# Full-page item: the 3 bands of P-ZOOM-2's `bands` view, read greedy as t1 with
+# the Typhoon card prompt, then scored by one teacher-forced forward.
+e3:
+  status: APPROVED
+  roles: [typhoon]
+  prompt: TYPHOON_CARD
+  task: Full-page OCR
+  view: {name: bands, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.85}
