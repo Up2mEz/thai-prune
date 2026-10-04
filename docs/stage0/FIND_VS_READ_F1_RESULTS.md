@@ -81,11 +81,17 @@ Marks scored only in the crop arm vs `WHOLE` (TONE / UPPER / LOWER): 83 / 106 /
 
 **Typhoon.**
 
-- **Finding, not reading, is what loses marks in the whole image.** In `WHOLE`,
-  60 of 65 answers never give the boxed text; in the crop, 1. Where Typhoon did
-  answer with the boxed text in the whole image, its marks are already right
-  (TONE 29 of 30 scored-in-both marks correct in both arms; the crop broke one,
-  fixed none). §6 row 1.
+- **On boxed-region questions Typhoon mostly fails to answer from the whole
+  page; among answers found in both arms, no mark is lost.** In `WHOLE`, 60 of
+  65 answers never give the boxed text; in the crop, 1. Where Typhoon did
+  answer with the boxed text from the whole page, its marks were already right
+  (`WHOLE_NOCLAUSE`→crop, TONE 29 of 30 scored-in-both marks correct in both;
+  the crop broke one, fixed none). **That subset is selected**: the items found
+  from the whole page have larger boxes (median 1.22% of the image area vs
+  0.85% for items not found), so they are likely the easier ones. The test says
+  nothing about marks on the ~67% of items no whole-page arm answered.
+  *(Wording revised 2026-10-04 after Up2mEz's review,
+  `collab/messages/20261004T1139Z_Up2mEz_to_PELY334_d1-approved-review-f1-r2-results.md`.)*
 - **The coordinate clause explains part of the finding failure, not most.**
   Removing `แบ่ง…1000 ส่วน แล้ว` raises Typhoon's found rate from 7% to 33%
   (smoke: the clause made it answer with image dimensions); the rest of the
@@ -106,6 +112,24 @@ Marks scored only in the crop arm vs `WHOLE` (TONE / UPPER / LOWER): 83 / 106 /
   from finding here, and the counts are small.
 - Magnification changes nothing net (6 vs 6 tone marks) and makes 6 answers
   run to the token limit.
+
+## 3b. The reading ceiling — marks still wrong when the region is handed over
+
+Added at Up2mEz's request (same review). In the crop arms the text is given to
+the model directly, so what remains wrong there is the gap finding cannot
+explain — and D1 starts from `CROP_SAME_SCALE`. Marks scored (answer found,
+base read correctly):
+
+| model, arm | TONE wrong | UPPER wrong | LOWER wrong | marks not scored (answer not found or base misread): TONE / UPPER / LOWER |
+|---|---|---|---|---|
+| **typhoon `CROP_SAME_SCALE`** | **7 / 93 (7.5%)** — 4 other char, 2 deleted, 1 tone↔tone | 4 / 121 (3.3%) | 0 / 35 | 12 / 10 / 4 |
+| typhoon `CROP_RESCALED` | 3 / 96 (3.1%) | 4 / 125 (3.2%) | 0 / 35 | 9 / 6 / 4 |
+| base `CROP_SAME_SCALE` | 21 / 77 (27%) | 14 / 88 (16%) | 3 / 23 (13%) | 28 / 43 / 16 |
+| base `CROP_RESCALED` | 20 / 79 (25%) | 13 / 95 (14%) | 3 / 26 (12%) | 26 / 36 / 13 |
+
+Typhoon's remaining tone errors at page scale include the rarer tone marks
+(`อี๊` read `อี`, `ตั๋ว` read `ตัว`) and `้`→`่` (`แต้` read `แต่`). Counts are
+small; this is the starting point for D1, not a rate to quote.
 
 ## 4. Exploratory, not registered
 
