@@ -95,6 +95,22 @@ repeated text; they are reported as that, not as a speedup of OCR.
   reaches 16.9 (the two decodes part ways and one enters a loop). Divergence
   happens at a median 22–55% of the way through `REF`. A near-tie at one token
   can therefore change much of the rest of a page.
+- **What kind of token diverges** (added 2026-10-04 at Up2mEz's request,
+  `collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`;
+  CPU only, from the stored token ids; a token "has a mark" if its decoded
+  text contains a Thai tone mark or upper/lower vowel):
+
+  | model | `REF` tokens with a mark (base rate) | `REF` token at divergence has a mark: `PLD5` / `PLD10` | pairs differing only in marks | pairs involving a tone mark |
+  |---|---|---|---|---|
+  | base | 12.1% of 293,705 | 4/21 (19%) / 4/14 (29%) | 1 / 2 (e.g. `่า`→`้า`, `ี้`→`ี่`) | 3/21 / 5/14 |
+  | typhoon | 22.4% of 123,736 | 0/12 (0%) / 1/20 (5%) | 0 / 0 | 0/12 / 1/20 |
+
+  On the base, mark-bearing tokens are over-represented at near-tie
+  divergences and some divergences are tone-mark swaps (`่`↔`้`): there,
+  "identical except at fp16 near-ties" is **not neutral** for the errors this
+  project cares about. On Typhoon — the primary model — divergences are almost
+  never about marks; most are alternative Thai token boundaries (`ธร` vs `ธ`,
+  `โอกาส` vs `โอกา`). Counts are a handful of events; direction only.
 - **Base with `TYPHOON_CARD` degenerates on half the pages** (89 / 177 reach
   `max_new_tokens` or repeat), Typhoon on 9 / 177. This matches the format and
   loop findings in `docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`.
