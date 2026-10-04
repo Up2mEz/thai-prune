@@ -2,6 +2,21 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04f (gaps) — E3 fails: band re-reads at flagged lines gain little and cost 1.3–2× time
+
+**Evidence:** `docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md` §6, run
+`kaggle-thai-marks-e3-a652d47535cf-typhoon-x2`.
+
+**Finding:** confidence-flagged band re-reads with word-level choice raise
+order-free mark F1 by +0.08 to +0.15 points (CIs touch 0; same direction on
+the 48 pages not used in design), fixing 35 and breaking 17 labelled
+clusters, but add 127–207% decode time (fail) and leave CER flat (TC +0.00005,
+fail). The registered method is not adopted. The useful parts stand:
+confidence locates misreads (E1), and zoomed re-reads carry evidence for
+them (E2). A viable remedy must re-read far less than whole bands.
+
+---
+
 ## 2026-10-04e (gaps) — E3 (flagged band re-read, full calibration) authorized
 
 **Decision owner:** Up2mEz, in session 2026-10-04 ("ทำfull เลย1-2 เพราะต้อง
