@@ -102,3 +102,53 @@ T4s of one Kaggle session it should take about half the wall time. This week's p
 2.30 of 3 hours; the run takes it to about 2.8 to 3.3 hours depending on how the quota counts two
 GPUs, which the researcher's "รันเลย" accepts. Smoke on the secondary account first (infrastructure:
 a new config and the two-shard path for `t6`).
+
+## 8. Result (2026-10-04)
+
+Runs: P-BAND `kaggle-thai-marks-t6-f08158c5044f-typhoon-x2` (144 reads, two shards on two T4s, 23.1 and
+19.4 minutes wall, no failed read, checksums verified, fp16, same stack signature as P-ZOOM-3) and
+P-ZOOM-3's 63 band reads of the other 21 pages. Scored by `scripts/thai_marks_pband_analyze.py` at git
+`f08158c`, the rules of §3-§4 fixed before the 144 reads existed. Visual tokens match the size read on
+all 207 band reads. GPU: 0.39 hours (longest leg) to 0.71 (sum of legs); pzoom total this week 2.7 to
+3.0 of 3. Calibration split, Typhoon only, 69 Full-page items, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Registered result (order-free v2, micro, 69 pages):**
+
+| variant | recall | precision | F1 | ΔF1 vs `whole` [95% paired bootstrap over pages] | ΔR | ΔP | label |
+|---|---|---|---|---|---|---|---|
+| `whole` | 94.47% | 96.14% | 95.30% | | | | |
+| `bands_concat` | 92.21% | 78.94% | 85.06% | −10.23 [−14.29, −6.31] | −2.26 | −17.20 | `hurts` |
+| **`bands_dedup`** (headline) | 92.16% | 85.10% | 88.49% | **−6.81 [−11.59, −2.54]** | −2.31 | −11.04 | **`hurts`** |
+
+By the rule fixed in advance the band method as defined is **`hurts`**: it lowers recall as well as
+precision. Page by page (`bands_dedup`, correct marks): 19 better, 18 equal, 32 worse; 458 marks gained
+on the better pages, 834 lost on the worse. Cost: generated tokens ×1.24 (99,321 vs 80,033),
+generation time ×1.22 (4,027 s vs 3,289 s), reads reaching `max_new_tokens` 5 vs 5. The 21 pages chosen
+for omissions: recall 93.93% → 90.81%, precision 98.29% → 90.25%; the other 48: 94.73% → 92.80%,
+precision 95.15% → 82.88%. Worst pages: `0B5CA667` (−148 marks), `52A433B2` (−99), `69A67416` (−74),
+`AF432B6A` (−66), `E6803A95` (−66); best: `0159AF30` (+125), `F096D392` (+97), `5300A462` (+66).
+
+**What this means.** P-ZOOM-3's +8.0 points on the lines Typhoon left out (+31 marks) did not carry to
+the whole page: those pages lose far more elsewhere. The naive band method is not a remedy for these
+pages and is not adopted. This answers the question it was built to answer; it does not say bands
+cannot help in any form (below).
+
+**Exploratory, after seeing the result, not registered.** The splits below were chosen after the fact;
+treat them as hypotheses, not findings.
+
+- *Where it loses.* 7 landscape pages: recall 98.92% → 89.30%. 62 portrait pages: 94.11% → 92.38%.
+  Portrait pages with a source height under 1,200 px (20 pages): 97.06% → 89.81% (−7.25 points);
+  1,200 px or more (42 pages): 92.75% → 93.57% (+0.83 points, precision still lower).
+- *Mechanisms visible in the raw outputs.* (1) A paragraph that straddles a band edge is held in
+  pieces by two bands, not whole by either (`33067A35`: a 557-character, 100-mark paragraph sits at CER
+  0.29 in band 1 and 0.34 in band 2); the order-free metric credits a reference line only if it is
+  found as one stretch, and charges the overlap copy as surplus. (2) Typhoon merges a paragraph into one
+  long output line, so the line-level overlap rule cannot remove its duplicate (`0B5CA667`: two paragraph
+  lines, 319 marks, found whole by the page read and by no band). (3) Full-width bands of a landscape
+  page are flat strips (`52A433B2`, 4032×3024: 1800×500 px, aspect 3.6:1) and 12 of its 23 lines are
+  missing from all three bands. (4) Overlap duplicates cost 11 points of precision with the dedup rule
+  and 17 without.
+- *Not tested and not testable here without tuning to these pages:* a cut that follows the layout
+  (white-space gaps) or adapts the number of bands to the page, with text-level stitching of the
+  overlap. Any such variant tuned on these 69 pages would be scored on its own tuning data; an honest
+  test needs pages not used here, and the locked split is closed.

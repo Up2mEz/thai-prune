@@ -2,6 +2,29 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04f — P-BAND result: the band method, as registered, hurts; the P-ZOOM line closes
+
+**Evidence:** `docs/stage0/P_BAND_PILOT_DRAFT.md` §8; runs `kaggle-thai-marks-t6-f08158c5044f-typhoon-x2`
+(0.39 to 0.71 GPU-hours) and P-ZOOM-3's band reads. 69 Full-page calibration items, Typhoon only,
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Rules fixed in `f08158c` before the 144 new reads.
+
+**Finding:** reading a page as three full-width bands and stitching the text lowers order-free v2
+mark F1 from 95.30% to 88.49% (−6.81 points, interval −11.59 to −2.54), recall by 2.3 points and
+precision by 11.0, at about 22% more decode time: label `hurts`. P-ZOOM-3's +8 points on the lines
+Typhoon left out did not carry to whole pages. Exploratory (not registered): the loss concentrates in
+small, near-square and landscape pages and comes from paragraphs straddling band edges, merged
+output lines the overlap rule cannot remove, and flat strips on landscape pages.
+
+**Not adopted:** the band method. **Closes:** the P-ZOOM question set. Zoom adds nothing (P-ZOOM-3),
+and the one lead from cropping did not survive a whole-page, surplus-charged test.
+
+**Not decided (needs the researcher):** whether to try a geometry-aware cut with text-level stitching.
+It cannot be tuned and scored on these 69 pages without optimism, and the locked split is closed; it
+would need the researcher's decision on data. No claim about other models or about reading in pieces
+in general. GPU budget: 2.7 to 3.0 of the pzoom 3 hours used; nothing further will run without a yes.
+
+---
+
 ## 2026-10-04e — P-BAND pilot authorized by the researcher
 
 **Stage/Gate:** Stage 0 remedy screen, calibration split only. Gate 0 remains `NOT_RUN`; the locked
