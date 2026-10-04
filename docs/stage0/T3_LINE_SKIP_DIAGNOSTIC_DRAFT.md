@@ -1,0 +1,156 @@
+# T3 — why does Typhoon skip lines? A line-boundary oracle
+
+**Status: `APPROVED`** by the researcher 2026-10-01 (`DECISION_LOG.md` 2026-10-01d), both prompts. Diagnostic only; it
+evaluates no remedy. Calibration split, existing T1 outputs as context.
+
+## 1. Question
+
+Half of Typhoon's wrong marks on Full-page OCR are marks in reference lines
+its output lacks entirely (`line_missing`: 50% under `BENCHMARK_QUESTION`, 48%
+under `TYPHOON_CARD`, `attribution.py`); a further 7–13% are lines read in
+another order. A misread mark with its base consonant correct is only 7–8%.
+Before choosing a remedy, T3 asks **at the moment Typhoon skipped a line, how
+close was it to reading that line?**
+
+- **Near-tie** (the skipped line's start was almost as probable as what the
+  model wrote instead): the evidence is in the model and the decision slipped.
+  A decoding-time remedy at line boundaries has headroom, at small cost.
+- **Not considered** (the skipped line's start was far less probable): the
+  line did not reach the decision. The remedy must act on the input (e.g.
+  re-reading a crop), which costs more reads.
+
+The image/no-image contrast of T2 is reused to tell whether the image
+supports the skipped line at all.
+
+## 2. Population
+
+Typhoon, Full-page OCR, `BENCHMARK_QUESTION` (the primary prompt), the 69
+calibration pages. A **skip boundary** is a point in Typhoon's own greedy
+output where the reference line `L_k` is `line_missing` and the output text
+aligned just before the skip is the end of an earlier line. Only lines
+containing at least one Thai mark are scored (mark relevance), with all
+missing lines reported as a count.
+
+**Control boundaries:** points where the output moves correctly from a line
+to the next reference line, sampled on the same pages (seeded), so "close"
+is judged against the model's ordinary line transitions rather than an
+assumed threshold.
+
+## 3. Measurement
+
+Teacher-force the prompt plus Typhoon's **own** output up to the boundary
+(its context when it decided), with explicit M-RoPE positions as in T2, then
+score two continuations from the same cache, each over the same number of
+characters:
+
+- `ACTUAL` — what the model wrote next;
+- `SKIPPED` — the start of the missing line `L_k`.
+
+Per boundary, under the first-divergent-token convention (the decision greedy
+makes) and the summed convention (sensitivity): the margin
+`log P(ACTUAL) − log P(SKIPPED)`, and, without the image, the same margin, so
+image support for `L_k` is its margin change.
+
+At control boundaries, the same margin between the correct next line and the
+line after it (the skip the model did *not* make).
+
+Precision fp32, as T2 since 2026-09-28; consistency guard as T2.
+
+## 4. Readings fixed in advance
+
+- Skip margins overlapping control margins, with image support for `L_k`:
+  a decision slip; next candidate is coverage-aware decoding at line
+  boundaries (e.g. checking a few alternatives when a newline is emitted).
+- Skip margins far larger than control margins: the line was not a
+  candidate; next candidate is input-side re-reading of uncovered regions.
+- No image support for `L_k`: the line's evidence does not reach the decoder
+  under this input; resolution and crop choices become the question.
+
+Whatever the result, T3 changes no number of T1 or T2.
+
+## 5. Size and cost — counted, not estimated
+
+On the 69 calibration pages under `BENCHMARK_QUESTION`, 178 reference lines
+are missing from Typhoon's output (verbatim absent, ≥80% deleted); 60 contain
+Thai marks (514 marks). Missing lines come in blocks, so only **26** are the
+first missing line after a line that was read — **26 scorable boundaries on
+13 pages.** That is enough to see whether skip margins sit inside or far
+outside the control distribution, not to estimate a rate precisely. To widen
+it without new data: (a) score all 178 missing lines, not only marked ones,
+since the skip decision is made before any mark; (b) add `TYPHOON_CARD`
+(§6.2). The locked split stays closed.
+
+Built by `line_skip.boundaries` (unit-tested; 12-character continuations,
+2 seeded controls per page). A boundary is kept only if the previous line's
+last 8 characters are found in the output near the aligner's estimate (so the
+cut is where that line really ends), its two continuations differ, and its
+prefix maps back into the raw output (the model decided on raw text). That
+leaves **19 skip boundaries on 11 pages under `BENCHMARK_QUESTION`** and
+**15 on 15 pages under `TYPHOON_CARD`** (3 more unplaceable), with 119 and
+103 control boundaries. All missing lines are scored; the marked subset is
+reported separately. With n ≈ 34 skips, T3 can show whether skips sit inside
+or far outside the control distribution; it cannot estimate a rate. Cost: under one T4-hour at T2's fp32
+rate.
+
+## 6. Decisions needed
+
+1. Approve T3 as drafted, or change it.
+2. Whether `TYPHOON_CARD` is scored too (its 48% share is similar).
+
+## 7. Results (2026-10-02)
+
+Run `kaggle-thai-marks-t3-e5dd45e9d341-typhoon-x2`: 256/256 cases, fp32, no
+failures, guard ≤ 0.00004 nats, checksums verified. Calibration only;
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Margin = log P(what the model wrote) −
+log P(the alternative), over 12 characters; image support = no-image margin −
+image margin (positive: the image favours the alternative).
+
+| prompt | case | n | margin median | 10th–90th pct | image support median | image support > 0 |
+|---|---|---|---|---|---|---|
+| BQ | skip | 19 | 7.5 | −4.6 to 36.9 | **+1.3** | 58% |
+| BQ | control | 119 | 13.0 | −3.3 to 27.5 | −9.4 | 14% |
+| TC | skip | 15 | 7.8 | −8.9 to 23.3 | **+2.0** | 60% |
+| TC | control | 103 | 16.5 | 0.2 to 29.2 | −10.2 | 24% |
+
+Skip vs control margins: Mann–Whitney p = 0.14 (BQ), 0.018 (TC); 89% and
+100% of skip margins lie at or below the control 90th percentile. Per-token
+mean convention: same direction, BQ difference vanishes (p = 0.60), TC
+p = 0.034.
+
+**Reading against §4, fixed in advance.**
+- Skip margins are *not* far larger than controls (if anything smaller), so
+  "the line was not a candidate" does not fit.
+- Skips are not near-ties either: the median skip is preferred by ~7.5 nats
+  over 12 characters; only the lower tail (≈10% of skips, margin < 0) is one.
+- The clearest contrast is image support. At an ordinary line transition the
+  image strongly favours reading the next line (support −9 to −10 nats: without
+  the image the model would be far readier to jump). At a skip it barely
+  favours the skipped line (+1.3 to +2.0, positive 58–60% of the time). The
+  evidence for the skipped line reaches the decision weakly.
+
+Closest pre-registered reading: between "decision slip" and "no image
+support": the skipped line competes like a normal alternative, but without
+the image backing that normal next lines get. A decoding-time fix would have
+to overturn ~7.5 nats with little image evidence behind it; the observation
+points more to how the skipped lines are seen than to how the decoder
+chooses. n = 34 skips: direction, not rate.
+
+## 8. What the skips are (added 2026-10-02, after reading the raw outputs)
+
+Three of the 34 skip cases are not skips: the "missing" line is in the
+output elsewhere, read in another column order (`TYPHOON_FAILURE_PROFILE.md`
+§2d, `whole_line_causes`; `52A433B2:19`, `79216F4C:19` under BQ,
+`6BA97DBE:8` under TC). A first pass counted six; three of those were
+stretches already credited to a near-identical line, corrected on
+self-review. Without the three (sensitivity, not a new test): BQ skip margin
+median 9.3 (n 17), image support +1.3, 59% positive, Mann–Whitney p 0.27;
+TC 6.4 (n 14), +3.1, 64%, p 0.028; controls unchanged. §7 stands.
+
+The other 31 are mostly not lines of running text: compass letters and
+logos (`S`, `SOIL`, `ECO`, `SCAN ME`, `GMP`), chart values and axis units,
+a signature, a URL, a page header, an infographic panel's caption. At most
+of them the model's actual continuation is an image placeholder or the next
+paragraph. The weak image support of §7 therefore describes mostly whether
+Typhoon treats text inside graphics as text to transcribe, not a decoder
+dropping lines of prose. A decoding-time remedy at line boundaries is not
+supported.

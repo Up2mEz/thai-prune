@@ -2,6 +2,77 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04f (gaps) — E3 fails: band re-reads at flagged lines gain little and cost 1.3–2× time
+
+**Evidence:** `docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md` §6, run
+`kaggle-thai-marks-e3-a652d47535cf-typhoon-x2`.
+
+**Finding:** confidence-flagged band re-reads with word-level choice raise
+order-free mark F1 by +0.08 to +0.15 points (CIs touch 0; same direction on
+the 48 pages not used in design), fixing 35 and breaking 17 labelled
+clusters, but add 127–207% decode time (fail) and leave CER flat (TC +0.00005,
+fail). The registered method is not adopted. The useful parts stand:
+confidence locates misreads (E1), and zoomed re-reads carry evidence for
+them (E2). A viable remedy must re-read far less than whole bands.
+
+---
+
+## 2026-10-04e (gaps) — E3 (flagged band re-read, full calibration) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-04 ("ทำfull เลย1-2 เพราะต้อง
+อัปเดต approach แล้ว"): word-level choice and re-reading only the bands that
+hold flagged lines, run in full on the calibration split.
+
+**Authorized:** `docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md` as written:
+207 band reads at 1.85× plus their confidence forwards, Typhoon, calibration
+Full-page items, 2×T4, smoke first on the secondary account. Locked split
+closed. The run also answers session pzoom's band-pilot question (its
+2026-10-04d entry); pzoom is told so.
+
+---
+
+## 2026-10-04c (gaps) — E2/E2b: zoomed re-reads at flagged places help a little
+
+**Evidence:** `docs/stage0/E2_REREAD_FIXES_MISREADS_DRAFT.md` §5–§6,
+`E2B_FLAGGED_VOTE_DRAFT.md` §5 (offline, session pzoom's re-reads, 21
+calibration pages). A measurement bug (alignment window starting on a mark)
+was found and fixed before E2b; E1 still passes after the fix.
+
+**Finding:** at places E1 flags, a full-width band re-read at 1.85× is right
+on half of the page read's mark errors (no-zoom re-reads: 25–30%). Majority
+voting of page + re-reads at flagged places raises mark F1 by +0.17 points
+(CI +0.05 to +0.29) with character CER slightly better; 8 fixes, 1 broken.
+Small, on design data, with crude cluster-level edits. No remedy adopted;
+the locked split stays closed.
+
+---
+
+## 2026-10-04b (gaps) — E1-B1 fails; token-level correction ceiling is low
+
+**Evidence:** `docs/stage0/E1B_LEXICON_GATED_SWAP_DRAFT.md` §5 (offline, rule
+fixed before computing). The lexicon-gated swap changes F1 by ±0.01 points
+and fixes no labelled error. Even a perfect choice among the model's top-5
+alternatives fixes only 17–29% of mark-error clusters, because most are
+multi-token or involve a consonant. Lookahead rescoring is not run. Next
+candidate: confidence-triggered re-reading of the flagged line from the image,
+to be designed with session pzoom (tiling). No remedy adopted.
+
+---
+
+## 2026-10-04 (gaps) — E1: Typhoon's confidence locates its mark errors (gate PASS)
+
+**Evidence:** `docs/stage0/E1_CONFIDENCE_DRAFT.md` §6, run
+`kaggle-thai-marks-t6-7934890c22f6-typhoon-x2`. Run under the researcher's
+instruction of 2026-10-04 to turn the literature review into experiments.
+
+**Finding:** on full pages the lowest token log-probability in a cluster
+separates Typhoon's mark errors from correct marks with AUROC 0.94–0.95;
+flagging 5% of clusters catches 68–74% of mark errors. The confidence family
+of remedies (rescoring, selective re-reading) has a target. Calibration only;
+a reading, not a remedy.
+
+---
+
 ## 2026-10-04b — INPUT_SIDE_D1 (Track D, gap G2) authorized
 
 > Drafted by PELY334's Claude Code session after Up2mEz agreed to Track D as
@@ -108,6 +179,412 @@ file itself is left unedited.
 
 ---
 
+## 2026-10-03e — T5b: stopping at a detected loop passes its dev check
+
+**Evidence:** `docs/stage0/T5B_STOP_AT_LOOP_DRAFT.md` §5 (rule fixed in
+`92be3f6` before computing; offline on T5 outputs; exploratory).
+
+**Finding:** cutting Typhoon's greedy output where an exact repeat reaches 8
+copies (6 for long units) changes no output that ended on its own, raises
+order-free mark F1 in all four cells (+0.67 to +3.30 points; CIs touch 0)
+and, as a decode-time stop, would save 11.2% of generated tokens. It does not
+recover text skipped by the loop. No remedy is adopted for claims; the
+locked split stays closed.
+
+---
+
+## 2026-10-03d — T5 results: neither anti-loop arm passes
+
+**Evidence:** `docs/stage0/T5_LOOP_DECODING_DRAFT.md` §6, run
+`kaggle-thai-marks-t5-a10ef64c9eb4-typhoon-x2` (2×T4 verified).
+
+**Finding:** the vendor's repetition penalty (1.1, greedy) costs Thai marks on
+pages without loops (F1 −1.1 to −1.3; Text recognition tone error 17.1% →
+22.6%). DeepSeek-OCR's n-gram block leaves loop-free outputs essentially
+unchanged and ends 6 of 11 loops, but where it fails the model escapes into
+near-repeats that add surplus marks, so full-page F1 falls. Neither is
+adopted. Loops behave as decoder attractors: the next candidate is stopping
+at a detected loop (and later re-reading the unread part), not redirecting.
+## 2026-10-04d — P-ZOOM-2 and P-ZOOM-3 result: zoom adds nothing, cropping into bands recovers about 8 points
+
+**Evidence:** `docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md` §9; runs
+`kaggle-thai-marks-t6-6a7840fe40d4-typhoon` and `kaggle-thai-marks-t6-deea2ee8846f-typhoon` (1.75
+GPU-hours together; pzoom budget used this week 2.30 of 3). Calibration split, Typhoon only,
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Rules fixed in `e6b1c93` before any output was opened.
+
+**Finding:** (1) Typhoon's reads are reproducible on the pinned stack: the same image gives the same
+output on 21 of 21 pages. (2) Changing the image, even a little, flips 11 to 19% of the marks it left
+out across the text / not-text line. (3) Zoom: enlarging the same three full-width crops by 1.85× changes
+text recovery by 0.0 points (`zoom_not_distinguishable`; sensitivity −0.8 to +3.6). (4) Cropping:
+reading the page as three bands at page scale recovers 58.7% of the left-out marks against 50.6% for
+the whole page (+8.0 points, interval +0.6 to +22.8), loses no ordinary lines, and costs about 50%
+more decode time. P-ZOOM-2's own rule gives `no_gain_from_views` and is not a zoom result.
+
+**Supersedes in part:** P-ZOOM's first-run label (2026-10-03e). That label was an artifact of the 2x2
+grid's seam (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10b); "P-ZOOM stops" is withdrawn as a finding.
+
+**Not decided (needs the researcher; I will not run it without a yes):** whether to pilot a band
+re-read as a method. It would be scored with order-free v2 mark precision/recall/F1 so the surplus
+from overlapping bands is charged, on the Full-page items of the calibration split, about 207 band
+reads at the measured rates. It exceeds this week's remaining pzoom budget (0.7 of 3 hours) or needs
+next week's. No claim about other models, other pages, or zoom in general.
+
+---
+
+## 2026-10-04c — controlled reading amended before any P-ZOOM-2/-3 output was opened
+
+**Evidence:** the second review of `wf_9f91ee64-a6b` (verification agents again stopped by a
+session limit), `P_ZOOM3_CONTROLS_DRAFT.md` §6 and §8, my own re-checks listed there.
+
+**Decided (assistant, reversible), before scoring:** `controlled_reading` gains a stack condition
+(`stack_differs` when the P-ZOOM-2 and P-ZOOM-3 sessions' model revision, dtype, torch,
+transformers, device or resolved generation config differ), its inconclusive outcome is worded as
+inconclusive, `D` is co-reported on text-or-figure and on figure share with a markup-shift flag,
+every `D` is quoted with its interval half-width, the token count is checked against the size
+read, and sensitivity at three cutoffs and without other-line claiming is reported. The P-ZOOM-2
+rule is kept, reported under `p_zoom2_as_registered_NOT_A_ZOOM_RESULT`. The scorer is unchanged.
+
+**Not changed, on purpose:** thresholds (10 points, 80%, 18 of 21), the scorer, the registered
+cutoff 0.2. **Disclosure:** `P_ZOOM3_CONTROLS_DRAFT.md` §6 lists exactly what was seen.
+
+---
+
+## 2026-10-04b — P-ZOOM-2 cannot be read as a test of zoom; P-ZOOM-3 controls registered
+
+**Evidence:** an independent review (`wf_9f91ee64-a6b`: scorer review and all verification
+agents did not finish, a session limit stopped them; the analysis, worker and claims reviews did)
+and `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10, `P_ZOOM3_CONTROLS_DRAFT.md` §1. I reproduced the
+cutoff sensitivity myself on P-ZOOM's records (tiles 47.0 / 47.8 / 50.4 / 66.4% at cutoffs
+0.15 / 0.20 / 0.25 / 0.30; the registered label flips at 0.25).
+
+**Finding:** P-ZOOM's registered label (`beyond_typhoon_at_this_resolution`) rests on one 49-mark
+line near the cutoff and overstates what the data show; three numbers in its write-up were wrong
+and are corrected in place, marked. P-ZOOM-2's `bands` differ from its controls in crop, scale and
+width, so its rule measures decorrelation, not zoom.
+
+**Decided (assistant, reversible):** the P-ZOOM-2 run (complete, 105 reads, 1.02 GPU-hours, not
+opened) is kept and its registered `analyze()` is reported as written. Two controls are added before
+any output is read: `repeat` (the T1 input unchanged: the noise floor) and `bands100` (the same
+crops at zoom 1.0), 84 reads, readings in `P_ZOOM3_CONTROLS_DRAFT.md` §4. The pzoom GPU budget used
+becomes about 2.2 of 3 hours. Smoke on the secondary account first.
+
+**Not decided:** anything about methods; whether zoom is a lever (that is what P-ZOOM-3 reads).
+
+---
+
+## 2026-10-04 — P-ZOOM-2 (views probe) authorized after a literature review
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** the assistant, acting on the researcher's instruction in session 2026-10-04
+("ลอง lit review research และทำการทดลองตามคำถามที่เราสงสัย", then "ทำไปเรื่อยๆเลย"). The
+researcher did not name this probe, its reads, its GPU budget or its thresholds; the choice of the
+question taken from P-ZOOM's open ends (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9: is what zoom
+"gained" zoom, or any change of the input), the design, the 10-point and 80% thresholds and the
+GPU spend are the assistant's judgements within the pzoom budget of `PARALLEL_SESSIONS.md` §3
+(3 GPU-hours this week). [Wording corrected 2026-10-04 after an independent review: this entry
+first said "Decision owner: Up2mEz" and "standing delegation".] Reversible at any time by the
+researcher.
+
+**Authorized (by the assistant, see the decision owner above):** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
+21 pages, 105 reads (two whole-page perturbation views and 3 full-width bands at 1.85x),
+readings of §5 fixed in advance. First a smoke (`--limit 2`) on the secondary account; then
+one T4 session on the main account, kernel slug `labbs2026-thai-marks-pzoom`, under 2
+GPU-hours (0.55 of the 3-hour weekly pzoom budget already used).
+
+**Not authorized:** any method built on the result, the locked split, any model but Typhoon.
+
+---
+
+## 2026-10-03e — P-ZOOM result: below the registered line; P-ZOOM stops
+
+**Evidence:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9; run
+`kaggle-thai-marks-t4-0b2d191e31c5-typhoon` (0.55 GPU-hours, main account).
+Calibration split, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding:** tiles (2x2, 15% overlap, 1.85x) recover 47.8% of the marks of lines Typhoon left
+out of full pages as text, 12.7% as `<figure>` descriptions, and miss 39.5%. The zoom-free
+`TYPHOON_CARD` whole-page read recovers 50.6%. By the reading fixed before the run
+(`resolution_attention_limit` needs >= 50% as text and a *gross* gain of >= 15 points: marks of
+lines tiles recover and the whole-page read does not, ignoring the marks tiles lose): no. The result
+is `beyond_typhoon_at_this_resolution`. It is 2.2 points under the line, and the control shows
+the grid loses wide ordinary lines (40% found against a 97% ceiling), so it is not a clean
+negative.
+
+**Not decided:** whether to run a variant (non-cutting tiles, such as full-width bands; or
+several reads per condition to separate variability from zoom). That would be a new factor and
+needs its own draft and approval. No claim about other models or about zoom in general.
+
+**Budget:** 0.55 of the 2 GPU-hours authorized in 2026-10-03d.
+
+---
+
+## 2026-10-03d — P-ZOOM graphic-text probe authorized (smoke first)
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
+`NOT_RUN`; the locked split stays closed. Claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
+
+**Decision owner:** Up2mEz, in session 2026-10-03 ("ทำทั้งหมดเลย", answering a
+list that included approving the probe, the offline scorer, and a smoke on the
+secondary account). The reading rule's 15-point threshold and its amendment (§7) are the
+assistant's judgements, not the researcher's. [Wording corrected 2026-10-04: it first said
+"approval given under the researcher's standing delegation"; the delegation in force is
+`DECISION_LOG.md` 2026-10-03 for scope and metric only.] Reversible at any time.
+
+**Authorized:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` with the choices
+of §6 and the amended reading rule of §7: Typhoon, `TYPHOON_CARD`, 21
+calibration pages x 4 tiles = 84 reads, greedy as T1. First a smoke
+(`--limit 1`) on the secondary account `thanakrit2505`; if it passes, the full
+run on the main account, kernel slug `labbs2026-thai-marks-pzoom`, one T4
+session, under 2 GPU-hours (the session budget is 3 h this week).
+
+**Amendment made before any tile output (§7):** the draft's "tiles recover
+>= 50% of absent marks" would also be met by the whole-page `TYPHOON_CARD`
+read, which already recovers 50.6% with no zoom. The reading now requires a
+gross gain of >= 15 points (marks of lines tiles recover and the whole-page read does not; lost
+marks are not subtracted) over that baseline; otherwise the result is reported as
+`prompt_not_zoom`. The 15 points are a judgement. To reverse: edit the rule
+in `p_zoom_analysis.reading` before the first tile output is read, and log it.
+
+**Not authorized:** any method built on the result (graphic localization,
+re-read, insertion), the locked split, any model but Typhoon, more than 3
+GPU-hours this week.
+
+---
+
+## 2026-10-03c — T5 (loop decoding) authorized
+
+**Stage/Gate:** Stage 0 diagnostic/remedy screen, calibration split only.
+Gate 0 remains `NOT_RUN`; the locked split stays closed.
+
+**Decision owner:** Up2mEz, in session 2026-10-03 ("อนุมัติรันเต็มแบบ2×T4
+ตรวจสอบด้วยว่ารันได้2ตัวจริงๆ").
+
+**Authorized:** `docs/stage0/T5_LOOP_DECODING_DRAFT.md` as written: Typhoon,
+3 greedy arms, 178 calibration items, both prompts, `--shards 2` on 2×T4,
+main account, kernel slug `labbs2026-thai-marks-t1-t2`. Smoke passed on the
+secondary account (`kaggle-thai-marks-t5-d6141d215878-typhoon-smoke2`).
+Verification of two GPUs: `SUCCESS.json` `gpus == 2`, each shard's manifest
+on its own device, and total kernel time close to one shard's wall time, not
+their sum.
+
+---
+
+## 2026-10-03b — G1 read-then-point fails its dev check; T5 draft ready
+
+**Evidence:** `docs/stage0/G1_READ_THEN_POINT_DRAFT.md` §5 (offline, rule
+fixed in `41112fd` before computing): global mark F1 76.2% vs 81.9% for the
+benchmark-question answer alone; ceiling small even with oracle selection.
+G1 by this route is closed. `docs/stage0/T5_LOOP_DECODING_DRAFT.md`: loops
+hold 76% / 68% of Typhoon's surplus full-page marks; T5 (greedy, vendor
+repetition penalty 1.1, DeepSeek-OCR n-gram block) is implemented and in
+smoke on the secondary account. **Not authorized to run** until the
+researcher approves.
+
+---
+
+## 2026-10-03 — scope and metric decided under delegation; goal is Typhoon
+
+**Decision owner:** delegated by the researcher in session 2026-10-03
+("ตัดสินใจแทนฉัน"). Made by the assistant; reversible by the researcher at
+any time. No run is authorized by this entry.
+
+**Goal clarified by the researcher:** the next remedies target Typhoon's
+remaining gaps (the open-source Thai SOTA), not the base model.
+
+**1. Metric.** Order-free v2 mark precision/recall/F1
+(`ORDER_FREE_MARK_METRIC_DRAFT.md` §6–§7) becomes the reported metric for any
+remedy that changes what or how much text is output. The anchored CER and
+mark error of `THAI_MARKS_T1_SCORING_V2.md` stay reported unchanged, for
+continuity. Reason: v2 passed every pre-registered check, charges surplus
+text (`CAT` control) and does not charge reading order, which document
+benchmarks score separately (OmniDocBench).
+
+**2. Scope.**
+- Headers, footers, page numbers and similar page furniture are **out of
+  scope** for claims: OmniDocBench excludes them from text metrics and
+  olmOCR-bench tests that they are *absent*. Marks lost there are reported as
+  a separate line, not as reading errors.
+- Text inside infographics and charts is **in scope**, reported as its own
+  subgroup: Typhoon's own report treats infographics as a document category
+  and names it its weakest (arXiv 2601.14722), though OmniDocBench excludes
+  figure-internal text.
+
+**Next proposed (draft, not authorized):** `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`.
+
+---
+
+## 2026-10-02c — order-free mark metric: draft v1 failed, v2 passed its checks
+
+**Evidence:** `docs/stage0/ORDER_FREE_MARK_METRIC_DRAFT.md` §5–§7. Offline,
+calibration split, existing outputs.
+
+**Finding:** v1 (line matching only) failed its pre-registered base check
+(recall −15.7 points: poorly read lines lost all credit) and is not used. v2
+(unmatched lines aligned in order against unclaimed output), checks fixed
+before its run, passes all four: the `CAT` control is far below single
+reads, base is within 0.3 points of global alignment, Typhoon full-page
+recall rises 1.6–1.8 points. Reading order thus costs Typhoon ~1.7 points of
+mark F1 on full pages; base none. Base's full-page mark precision is 30%
+(over-generation).
+
+**Not decided:** adopting v2 as a reported metric (open item 1 of
+2026-10-02b). No primary metric changed.
+
+---
+
+## 2026-10-02b — Typhoon's "missing lines" re-examined
+
+**Evidence:** `docs/stage0/TYPHOON_FAILURE_PROFILE.md` §2d,
+`T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §8. Offline, calibration split, existing
+outputs; no new model run.
+
+**Finding:** a quarter (BQ) / a seventh (TC) of the marks counted as "whole
+line missing" on Full-page OCR were read, in another order and not verbatim.
+With them set aside, Typhoon's whole-line absent marks are 2.3% (BQ) / 2.9%
+(TC) of all marks, and what is absent is mostly text in graphics, inset ads
+and page furniture; 3 of the 34 T3 skips were reorderings. Base is not
+affected. `attribute_marks` keeps the 2026-10-01 rule as default
+(`approximate_reorder=False`). The first version of this entry said "a
+third", 1.7%/2.3% and 6 skips; self-review found one stretch of output
+credited to two near-identical lines, which the 2026-10-01 verbatim rule
+also does. Corrected numbers: `attribution_v2b.json`.
+
+**Open for the researcher:** (1) an order-free full-page measure alongside
+the anchored one (scoring change, not made); (2) whether text inside
+graphics is in scope; (3) given Typhoon's ~5–6% headroom, whether the next
+remedy targets base. No remedy is authorized by this entry.
+
+---
+
+## 2026-10-02 — T3 results
+
+**Evidence:** `docs/stage0/T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md` §7 (run
+`kaggle-thai-marks-t3-e5dd45e9d341-typhoon-x2`, 256/256, clean).
+
+**Finding (pilot, n = 34 skips):** when Typhoon skips a line, the skipped
+line is neither a near-tie (median margin ~7.5 nats over 12 characters) nor
+out of contention (skip margins are no larger than ordinary transitions).
+What distinguishes it is weak image support (+1.3 to +2.0 nats) where an
+ordinary next line gets strong support (−9 to −10). The evidence for skipped
+lines reaches the decision weakly; this points to input-side causes more than
+to the decoder's choice. No remedy is authorized by this entry.
+
+---
+
+## 2026-10-01d — T3 (line-skip diagnostic) authorized
+
+**Stage/Gate:** Stage 0 diagnostic, calibration split only. No remedy is
+evaluated; Gate 0 remains `NOT_RUN`; the locked split stays closed.
+
+**Decision owner:** Up2mEz, in session 2026-10-01 ("อนุมัติ รันต่อเลย").
+
+**Decision:** run T3 exactly as `docs/stage0/T3_LINE_SKIP_DIAGNOSTIC_DRAFT.md`
+specifies, Typhoon only, Full-page OCR, both prompts (§6.2 taken as yes, since
+it only widens n), fp32, consistency tolerance 0.001 nats, cases built
+offline from T1 run `kaggle-thai-marks-t1-t2-a44199c29759` by
+`line_skip.boundaries` (seed 20261001, 2 controls per page) and shipped as a
+private Kaggle dataset. A 2-case smoke precedes the full run.
+
+---
+
+## 2026-10-01c — T2 valid; registered routing applied
+
+**Stage/Gate:** Stage 0, calibration only. Gate 0 remains `NOT_RUN`.
+
+**Evidence:** `docs/stage0/THAI_MARKS_T1_T2_RESULTS.md` (T2 run
+`kaggle-thai-marks-t2-09cfb2da2307`, fp32, in-context tokenization, clean).
+
+**Routing, as the 2026-09-27 contingent plan prescribes, for the researcher's
+review:** Typhoon — "oracle high, both do well" at the sites it reads; no
+mark-level remedy indicated; residual errors are mostly skipped lines, so the
+next diagnostic is T3 (draft, not authorized). Base — "headroom large,
+image_gain small, prior ≈ oracle": a mark-constrained re-scoring could only
+claim prior-driven gains, its realisable share is unknown because the oracle
+is given correct context, and the image-contrastive form lowers accuracy.
+RQ-C (specialization increases prior reliance) is not supported by
+image_gain; reported as a finding.
+
+No remedy, gate or locked-split run is authorized by this entry.
+
+---
+
+## 2026-10-01b — T2 tone oracle was a tokenization artefact; fixed; T2 rerun
+
+**Stage/Gate:** T2 instrument repair, under the 2026-09-28c authorization
+of an fp32 T2 rerun (same run class, same inputs; the instrument was wrong).
+
+**Finding:** the fp32 rerun completed cleanly (both models, 178/178, guard
+≤ 0.00012 nats), and its per-token records showed why tone oracles fell
+below greedy: standalone tokenization of a window starting at a tone mark
+produced non-canonical tokens (scoring doc §7, update 2026-10-01). All T2
+tone-mark oracle/prior figures to date are withdrawn; vowel figures stand.
+
+**Decision:** variants are tokenized in context (`continuation_split`),
+verified on all 6,958 sites; rerun T2 (fp32, both models) after a smoke.
+
+**Also from the fp32 run (vowels, valid):** base's oracle ≈ prior (image adds
+little at the decision); image-contrastive re-scoring at λ = 1.0 lowers
+accuracy sharply for both models, at λ = 0.5 it does not beat the oracle —
+evidence against remedy family §3.A in its plain form.
+
+---
+
+## 2026-10-01 — R-FUSE fails its development check; outcome rule for length-changing methods
+
+**Stage/Gate:** method development on the calibration split, existing
+outputs only. No inference; the locked split stays closed.
+
+**Decision owner:** Up2mEz (researcher); the finding and the rule were
+produced by Claude Code and are recorded for the researcher's review.
+
+**Finding:** R-FUSE (`fusion.py`, two-read merge, Typhoon, Full-page OCR) was
+implemented and run with its registered negative control. Concatenating both
+reads (`CAT`) beat `FUSE` on reference-side outcomes (96.4% marks correct),
+which exposed those outcomes as rewarding extra text. Under global alignment:
+mark F1 `FUSE` 92.5% versus 93.1% (`BENCHMARK_QUESTION`) and 93.7%
+(`TYPHOON_CARD`); global CER +9.5 points. The exploratory gain reported on
+2026-09-28 (marks correct 93.8% → 95.6%) is withdrawn as an artefact.
+
+**Rule (in effect):** a method that changes output length is evaluated on
+Full-page OCR by mark precision, recall and F1 and by CER under global
+alignment; reference-side accuracy and anchored CER are secondary only.
+`R_FUSE_REGISTRATION_DRAFT.md` is marked not to be run on the locked split.
+
+---
+
+## 2026-09-28c — T2 empty-window defect fixed; T2 rerun in fp32 authorized
+
+**Stage/Gate:** T2 instrument repair and rerun authorization (calibration split).
+
+**Decision owner:** Up2mEz directed the fix and, on 2026-09-28, authorized the
+fp32 T2 rerun below, to be preceded by a timing smoke.
+
+**Decision (code, effective):** `runtime.scoring_window_token` steps back one
+token only when a site is the last character and starts its own token (the
+10 empty-window sites; 0 of the other 6,948 change); `score_item` fails
+closed on an empty window and now records per-variant token ids and
+per-token log-probabilities. Evidence: `THAI_MARKS_T1_SCORING_V2.md` §7.
+
+**Authorized:** `t2.dtype: float32` for both roles, calibration split only. The fp16
+base leg stopped at item 4 because the registered guard found cached and
+uncached forwards disagreeing by 0.1358 nats (> 0.1); fp32 keeps the guard at
+0.001 instead of loosening it. Cost: fp32 on T4 is several times slower than
+fp16 (Typhoon's fp16 T2 leg took 4,563 s), so the rerun of both T2 legs must
+be budgeted before submission. Only T2 is resubmitted (`--tests t2`); T1 is not rerun.
+
+### Consequences
+
+- The 2026-09-27 Typhoon T2 leg stays as recorded (fp16, 10 defective sites);
+  it is not merged with a new run, and the new run's numbers supersede it.
+- T2 tone-mark headroom still may not route a remedy until the scoring
+  convention question (§7 item 2) is answered with the recorded per-token data.
+
+---
+
 ## 2026-09-28b — Track B (remedies) full evaluation no longer waits on T2
 
 > Drafted by Up2mEz's Claude Code session, at the researcher's explicit
@@ -172,6 +649,60 @@ for this track only.
 
 - `docs/exec-plans/active/INDEX.md` (Track B row)
 - `collab/messages/20260928T0214Z_Up2mEz_to_PELY334_remedies-b-full-eval-no-t2-wait.md`
+## 2026-09-28b — T1 scoring version 2; decoding parameters pinned
+
+**Stage/Gate:** measurement correction on already-collected T1/T2 output of
+`kaggle-thai-marks-t1-t2-a44199c29759` (calibration split). No inference is
+re-run; no model, prompt, seed or raw record changes. Post-hoc: designed
+after T1 output was seen. Gate 0 remains `NOT_RUN`. Full rules and evidence:
+`docs/stage0/THAI_MARKS_T1_SCORING_V2.md`.
+
+**Decision owner:** Up2mEz, who rejected the version-1 CER (values above
+100%) as a comparison of structured output against plain-text references,
+and directed: split by task, use `BENCHMARK_QUESTION` for Text recognition,
+redesign the measurement cleanly, and pin decoding parameters.
+
+**Decision:**
+
+1. Scoring version 2 — parser-based extraction following `TYPHOON_CARD`'s own
+   `<figure>` contract; reference-anchored alignment with over-generation
+   reported separately; a chance-calibrated located rule (permutation null,
+   5th percentile, per cell) so chance character matches earn no credit;
+   results always per (model, task, prompt), never pooled.
+2. Primary prompt: `BENCHMARK_QUESTION` for Text recognition (researcher's
+   decision); `BENCHMARK_QUESTION` for Full-page OCR (**confirmed by the researcher
+   2026-09-28**). `TYPHOON_CARD` stays secondary, with the
+   contract diagnostic `ref_in_figure_share`.
+3. `t1.generation` pinned in `configs/thai_marks/t1_t2.yaml` (greedy:
+   `do_sample` false, `num_beams` 1, `repetition_penalty` 1.0,
+   `no_repeat_ngram_size` 0), validated in code, resolved config written to
+   every T1 manifest. These are the values the 2026-09-27 run used implicitly;
+   that is established from code and the checkpoints' configs, not from a
+   runtime record.
+
+### Consequences
+
+- Version 1 stays in code and is reported alongside for continuity; no
+  version-1 number is to be quoted as a reading measurement.
+- Base under `TYPHOON_CARD` is a format-following failure (reference located
+  on 18/69 Full-page and 17/109 Text recognition items), so that cell cannot
+  carry a base-versus-Typhoon reading comparison.
+- The same scope and contract questions apply to any other track that scores
+  `TYPHOON_CARD` output against these references (e.g. `SPEC_DECODE_S1`
+  output-identity is unaffected, but any accuracy claim would be).
+- T2 findings (scoring doc §7): a zero-token-window defect on 10 sites, and
+  tone-mark oracle accuracy that moves 88.9-96.3% with the scoring
+  convention while vowels do not. T2 tone headroom is not to be used for
+  remedy routing until both are resolved.
+
+### Files affected
+
+- `src/labbs2026/thai_marks/extract.py`, `generation.py` (new);
+  `decompose.py` (`align_anchored`), `analysis.py` (version-2 functions),
+  `runtime.py`, `remote.py`; `configs/thai_marks/t1_t2.yaml`;
+  `scripts/thai_marks_score_v2.py` (new), `scripts/thai_marks_kaggle.py`
+- `tests/test_thai_marks_scoring_v2.py`, `tests/test_thai_marks_generation.py`
+- `docs/stage0/THAI_MARKS_T1_SCORING_V2.md` (new)
 
 ---
 
@@ -2529,3 +3060,4 @@ Copy this block whenever a substantive scientific decision is made.
 
 ### Files/configs affected
 ```
+

@@ -63,6 +63,66 @@ def align(reference: str, hypothesis: str) -> list[tuple[int | None, int | None]
     return pairs
 
 
+_DIAG, _DEL, _INS = 0, 1, 2
+
+
+def align_anchored(reference: str, hypothesis: str
+                   ) -> tuple[list[tuple[int | None, int | None]], int, int]:
+    """Reference-anchored (semi-global) alignment and the matched window.
+
+    Every reference character is aligned; hypothesis text before and after the
+    best-matching window costs nothing. This scores *reading* the reference
+    without charging for text the model produced outside it (a whole page when
+    the reference is one region, or a runaway repetition after the answer);
+    that surplus is reported separately as over-generation. Within the window,
+    insertions, deletions and substitutions count as usual, so the distance is
+    at most `len(reference)`.
+
+    Returns (pairs, window_start, window_end) with pairs covering only the
+    window. Ties prefer a diagonal step, then a deletion, then an insertion,
+    and the earliest window end, so the result is deterministic.
+    """
+    n, m = len(reference), len(hypothesis)
+    if n == 0:
+        return [], 0, 0
+    previous = [0] * (m + 1)          # free hypothesis prefix
+    moves: list[bytearray] = [bytearray(m + 1)]
+    for i in range(1, n + 1):
+        a = reference[i - 1]
+        current = [i] + [0] * m
+        row = bytearray(m + 1)
+        row[0] = _DEL
+        for j in range(1, m + 1):
+            diagonal = previous[j - 1] + (a != hypothesis[j - 1])
+            deletion = previous[j] + 1
+            insertion = current[j - 1] + 1
+            best, move = diagonal, _DIAG
+            if deletion < best:
+                best, move = deletion, _DEL
+            if insertion < best:
+                best, move = insertion, _INS
+            current[j] = best
+            row[j] = move
+        moves.append(row)
+        previous = current
+    end = min(range(m + 1), key=lambda j: (previous[j], j))  # free suffix
+    pairs: list[tuple[int | None, int | None]] = []
+    i, j = n, end
+    while i > 0:
+        move = moves[i][j] if j > 0 else _DEL
+        if move == _DIAG:
+            pairs.append((i - 1, j - 1))
+            i, j = i - 1, j - 1
+        elif move == _DEL:
+            pairs.append((i - 1, None))
+            i -= 1
+        else:
+            pairs.append((None, j - 1))
+            j -= 1
+    pairs.reverse()
+    return pairs, j, end
+
+
 def _fates_from(pairs, reference: str, hypothesis: str):
     fates: dict[int, str] = {}
     substitute: dict[int, str] = {}

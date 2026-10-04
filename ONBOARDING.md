@@ -90,9 +90,10 @@ uv sync --all-extras
 uv run pytest -q
 ```
 
-Expected: everything passes except tests in
-`tests/test_glmm_failure_contract.py` (pre-existing, need Docker, unrelated).
-If anything else fails, stop and report it.
+Expected: everything passes. The tests in
+`tests/test_glmm_failure_contract.py` need a running Docker daemon and the
+pinned R image; without them they are **skipped** with that reason (start
+Docker Desktop to run them). If anything fails, stop and report it.
 
 ```bash
 uv run python scripts/check_research_consistency.py
@@ -164,6 +165,7 @@ points you there.**
 |---|---|
 | `AGENTS.md` | research and engineering rules; auto-loaded |
 | `ONBOARDING.md` | this file |
+| `docs/exec-plans/active/PARALLEL_SESSIONS.md` | the owner's two parallel sessions (gaps / pzoom): who owns what, Kaggle slugs, how they talk |
 | `docs/COLLABORATION.md` | branch/PR model, who reviews what, file ownership, Decision Log conflicts |
 | `docs/KAGGLE_SETUP.md` | Kaggle account and first-run steps |
 | `collab/` | AI-to-AI messages and status |

@@ -1,0 +1,22 @@
+schema_version: 1
+# APPROVED 2026-10-04 (docs/DECISION_LOG.md 2026-10-04b); scripts/thai_marks_kaggle.py
+# refuses to submit it unless APPROVED. Use: --tests t6 --views-config configs/thai_marks/p_zoom3.yaml
+status: APPROVED
+draft: docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only; same pages, prompt, model revision, split, fp16 and greedy generation as
+# P-ZOOM and P-ZOOM-2. Only the image fed to the model differs.
+roles: [typhoon]
+prompt: TYPHOON_CARD
+pages:
+  file: configs/thai_marks/p_zoom_pages.json
+  sha256: 59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999
+
+# `repeat`: the T1 whole-page input unchanged. Same image, so any difference from the stored T1
+# read is run-to-run drift of the stack, not an input effect (the noise floor).
+# `bands100`: P-ZOOM-2's three full-width bands, same crops, read at page scale (zoom 1.0).
+# `bands` (zoom 1.85, P-ZOOM-2) minus `bands100` isolates zoom from cropping.
+views:
+  - {name: repeat, kind: whole}
+  - {name: bands100, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.0}

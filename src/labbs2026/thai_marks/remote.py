@@ -25,6 +25,7 @@ import time
 import traceback
 from pathlib import Path
 
+from labbs2026.thai_marks.generation import describe_resolved, generation_kwargs, t5_arm_kwargs
 from labbs2026.thai_marks.normalize import collapse_whitespace
 from labbs2026.thai_marks.orthography import find_sites, sample_sites
 from labbs2026.thai_marks.split import calibration_ids
@@ -51,9 +52,24 @@ def completed_keys(records_path: Path, test: str) -> set:
             record = json.loads(line)
             if test == "t1":
                 keys.add((record["id"], record["prompt_kind"]))
+            elif test == "t5":
+                keys.add((record["id"], record["prompt_kind"], record["arm"]))
+            elif test == "t4":
+                keys.add((record["id"], record["tile"]))
+            elif test == "t6":
+                keys.add((record["id"], record["view"], record["tile"]))
+            elif test == "e3":
+                keys.add((record["id"], record["tile"]))
+            elif test in ("t3", "e1"):
+                keys.add(record["case"])
             else:
                 keys.add(record["id"])
     return keys
+
+
+def shard_items(items: list, shard: int, shards: int) -> list:
+    """Every `shards`-th item from `shard`: interleaved, so shards stay balanced."""
+    return items[shard::shards]
 
 
 def _prompt(spec: dict, source: Path) -> str:
@@ -86,19 +102,143 @@ def load_items(spec: dict):
     return dataset, ordered, calibration, id_col
 
 
+def load_cases(spec: dict, test: str, root: Path = Path("/kaggle/input")) -> list[dict]:
+    """`<test>_cases.json` from the attached Kaggle dataset (path in spec, else searched)."""
+    name = f"{test}_cases.json"
+    path = Path(spec.get(f"{test}_cases") or "")
+    if not path.is_file():
+        found = sorted(root.rglob(name))
+        if len(found) != 1:
+            raise RuntimeError(f"expected one {name} under {root}, found {found}")
+        path = found[0]
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if spec.get(f"{test}_cases_sha256") and digest != spec[f"{test}_cases_sha256"]:
+        raise RuntimeError(f"{name} hash {digest} does not match the submission")
+    return payload["cases"]
+
+
+def load_t3_cases(spec: dict) -> list[dict]:
+    """T3 cases from the attached Kaggle dataset (path in spec, else searched)."""
+    return load_cases(spec, "t3")
+
+
+def _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
+            typhoon_prompt, device, failures, runtime, torch) -> list:
+    """E1: teacher-forced confidence of each case's own output; returns the cases run."""
+    cases = shard_items(load_cases(spec, "e1"), args.shard, args.shards)
+    if int(spec.get("limit") or 0):
+        cases = cases[: int(spec["limit"])]
+    index_of = {id_col[i]: i for i in ordered}
+    for case in cases:
+        if case["case"] in completed:
+            continue
+        row = dataset[index_of[case["id"]]]
+        image = runtime.resize_policy(row["image"].convert("RGB"))
+        prompt = typhoon_prompt if case["prompt_kind"] == "TYPHOON_CARD" else row["question"]
+        started = time.perf_counter()
+        try:
+            scored = runtime.score_own_output(model, processor, image, prompt, case["output"],
+                                              device=device)
+        except Exception as exc:  # recorded, never scored
+            failures.append({"case": case["case"], "error": f"{type(exc).__name__}: {exc}"[:800]})
+            torch.cuda.empty_cache()
+            continue
+        handle.write(json.dumps({k: case[k] for k in ("case", "id", "task", "prompt_kind")}
+                                | {"scores": scored, "seconds": time.perf_counter() - started},
+                                ensure_ascii=False) + "\n")
+        handle.flush()
+    return cases
+
+
+def _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
+            typhoon_prompt, device, dtype, failures, runtime, torch) -> list:
+    """Score every T3 case of this shard; returns the cases run (for the manifest)."""
+    cases = shard_items(load_t3_cases(spec), args.shard, args.shards)
+    if int(spec.get("limit") or 0):
+        cases = cases[: int(spec["limit"])]
+    index_of = {id_col[i]: i for i in ordered}
+    for case in cases:
+        if case["case"] in completed:
+            continue
+        row = dataset[index_of[case["id"]]]
+        image = runtime.resize_policy(row["image"].convert("RGB"))
+        prompt = typhoon_prompt if case["prompt_kind"] == "TYPHOON_CARD" else row["question"]
+        started = time.perf_counter()
+        try:
+            scores = runtime.score_continuations(
+                model, processor, image, prompt, case["prefix"], case["continuations"],
+                device=device, tolerance=float(spec["consistency_tolerance"][dtype]))
+        except RuntimeError as exc:
+            if "refusing to record" in str(exc):
+                raise ConsistencyFailure(str(exc)) from exc
+            failures.append({"case": case["case"], "error": f"{type(exc).__name__}: {exc}"[:800]})
+            torch.cuda.empty_cache()
+            continue
+        handle.write(json.dumps({k: case[k] for k in ("case", "id", "prompt_kind", "kind",
+                                                       "line", "marked")}
+                                | {"scores": scores, "seconds": time.perf_counter() - started},
+                                ensure_ascii=False) + "\n")
+        handle.flush()
+    return cases
+
+
+def t5_processors(arm: dict, tokenizer) -> tuple[list, dict]:
+    """Fresh logits processors for one T5 call, and what they were built from.
+
+    A processor holds per-call state (prompt length, intervention count), so a
+    new one is built for every generation.
+    """
+    from labbs2026.thai_marks.loop_guard import WindowedNoRepeatNGram, whitelist_ids
+
+    block = arm["ngram_block"]
+    if block is None:
+        return [], {}
+    whitelist = whitelist_ids(tokenizer, block["whitelist_texts"])
+    processor = WindowedNoRepeatNGram(block["ngram_size"], block["window_size"],
+                                      whitelist=whitelist)
+    return [processor], {"whitelist_ids": whitelist}
+
+
+def t4_page_ids(spec: dict, source: Path, calibration, key: str = "t4") -> list[str]:
+    """The P-ZOOM probe's pages, from the frozen list the registration hashes.
+
+    Refuses any page outside the calibration split: the locked split stays
+    closed (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §2).
+    """
+    t4 = spec[key]
+    data = (source / t4["pages_file"]).read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != t4["pages_sha256"]:
+        raise RuntimeError(f"P-ZOOM page list hash {digest} does not match the registration")
+    ids = [page["id"] for page in json.loads(data.decode("utf-8"))["pages"]]
+    outside = sorted(set(ids) - set(calibration))
+    if outside:
+        raise RuntimeError(f"P-ZOOM pages outside the calibration split: {outside}")
+    return ids
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6", "e1", "e3"),
+                        required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
                              "for this same (test, role) leg")
+    parser.add_argument("--shard", type=int, default=0,
+                        help="this process's share of the items: selected[shard::shards]")
+    parser.add_argument("--shards", type=int, default=1)
     args = parser.parse_args()
+    if not 0 <= args.shard < args.shards:
+        raise SystemExit("--shard must be in [0, --shards)")
     spec = json.loads(args.remote_spec.read_text(encoding="utf-8"))
     source = Path(spec["source_dir"])
 
     out_dir = Path(spec["artifact_dir"]) / args.test / args.role
+    if args.shards > 1:
+        out_dir = out_dir / f"shard-{args.shard}-of-{args.shards}"
     out_dir.mkdir(parents=True, exist_ok=False)
 
     resume_dir = args.resume_dir
@@ -123,11 +263,18 @@ def main() -> None:
     typhoon_prompt = _prompt(spec, source)
     started = time.perf_counter()
 
+    load_started = time.perf_counter()
     dataset, ordered, calibration, id_col = load_items(spec)
     selected = [i for i in ordered if id_col[i] in calibration]
+    if args.test in ("t4", "t6"):  # P-ZOOM reads only its frozen pages
+        pages = set(t4_page_ids(spec, source, calibration, args.test))
+        selected = [i for i in selected if id_col[i] in pages]
+        if len(selected) != len(pages):
+            raise RuntimeError("P-ZOOM pages missing from the benchmark")
     limit = int(spec.get("limit") or 0)
     if limit:
         selected = selected[:limit]
+    selected = shard_items(selected, args.shard, args.shards)
     with io.open(out_dir / "split.json", "w", encoding="utf-8") as handle:
         json.dump({
             "calibration": sorted(calibration),
@@ -143,7 +290,11 @@ def main() -> None:
 
     model_spec = spec["models"][args.role]
     device = "cuda"
-    dtype = spec["dtype_preferred"]
+    # T2 may pin its own precision: its consistency guard compares a cached
+    # continuation with an uncached forward, and fp16 kernels disagreed by
+    # 0.1358 nats on base (2026-09-27); fp32 keeps the guard strict (0.001).
+    # T3 reuses T2's scoring machinery and therefore its precision.
+    dtype = (spec.get("t2_dtype") if args.test in ("t2", "t3") else None) or spec["dtype_preferred"]
     model, processor = runtime.load(model_spec["model_id"], model_spec["revision"], dtype, device)
     probe = runtime.resize_policy(dataset[selected[0]]["image"].convert("RGB"))
     if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):
@@ -155,17 +306,56 @@ def main() -> None:
         if not runtime.logits_are_finite(model, processor, probe, typhoon_prompt, device):
             raise RuntimeError("non-finite logits in both fp16 and fp32")
 
+    setup_seconds = time.perf_counter() - load_started  # dataset + model load, before any item
+    gen_kwargs = generation_record = None
+    if args.test in ("t1", "t4", "t6", "e3"):  # T2 teacher-forces and never generates; t4 reads as t1 does
+        gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
+        generation_record = {"requested": gen_kwargs,
+                             **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
+    arm_kwargs = {}
+    if args.test == "t5":
+        generation_record = {}
+        for arm in spec["t5_arms"]:
+            kw = t5_arm_kwargs(spec["generation"], arm, int(spec["max_new_tokens"]))
+            arm_kwargs[arm["name"]] = kw
+            generation_record[arm["name"]] = {
+                "requested": kw, "ngram_block": arm["ngram_block"],
+                **describe_resolved(runtime.resolved_generation(model, kw))}
+
     failures = []
     records_path = out_dir / "records.jsonl"
     with io.open(records_path, "w", encoding="utf-8", newline="\n") as handle:
         if carried_forward:
             handle.write(carried_forward)
             handle.flush()
-        for index in selected:
+        if args.test == "t3":
+            selected = _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model,
+                               processor, typhoon_prompt, device, dtype, failures, runtime, torch)
+        if args.test == "e1":
+            selected = _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model,
+                               processor, typhoon_prompt, device, failures, runtime, torch)
+        for index in ([] if args.test in ("t3", "e1") else selected):
             row = dataset[index]
             if args.test == "t2" and row["Id"] in completed:
                 continue
             if args.test == "t1" and all((row["Id"], p) in completed for p in spec["t1_prompts"]):
+                continue
+            if args.test == "t4" and all((row["Id"], t) in completed
+                                         for t in range(int(spec["t4"]["tiling"]["rows"])
+                                                        * int(spec["t4"]["tiling"]["cols"]))):
+                continue
+            if args.test == "t6" and all(
+                    (row["Id"], v["name"], t) in completed
+                    for v in spec["t6"]["views"]
+                    for t in range(int(v["rows"]) * int(v["cols"]) if v["kind"] == "grid" else 1)):
+                continue
+            if args.test == "e3" and (
+                    row["Task"] != spec["e3"]["task"]
+                    or all((row["Id"], t) in completed for t in range(
+                        int(spec["e3"]["view"]["rows"]) * int(spec["e3"]["view"]["cols"])))):
+                continue
+            if args.test == "t5" and all((row["Id"], p, a["name"]) in completed
+                                         for p in spec["t1_prompts"] for a in spec["t5_arms"]):
                 continue
             original = row["image"].convert("RGB")
             image = runtime.resize_policy(original)
@@ -181,8 +371,7 @@ def main() -> None:
                     prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]
                     try:
                         result = runtime.generate(model, processor, image, prompt,
-                                                  max_new_tokens=int(spec["max_new_tokens"]),
-                                                  device=device)
+                                                  generation=gen_kwargs, device=device)
                     except Exception as exc:  # recorded, never scored as an output
                         failures.append({"id": row["Id"], "prompt": prompt_kind,
                                          "error": f"{type(exc).__name__}: {exc}"[:800]})
@@ -191,11 +380,110 @@ def main() -> None:
                     handle.write(json.dumps({**base, "prompt_kind": prompt_kind, **result},
                                             ensure_ascii=False) + "\n")
                     handle.flush()
-            else:
+            elif args.test == "t4":
+                from labbs2026.thai_marks import tiling
+
+                grid = spec["t4"]["tiling"]
+                for tile, crop in tiling.crop_tiles(original, int(grid["rows"]), int(grid["cols"]),
+                                                    float(grid["overlap"])):
+                    if (row["Id"], tile.index) in completed:
+                        continue
+                    tile_image = runtime.resize_policy(crop)
+                    try:
+                        result = runtime.generate(model, processor, tile_image, typhoon_prompt,
+                                                  generation=gen_kwargs, device=device)
+                    except Exception as exc:  # recorded, never scored as an output
+                        failures.append({"id": row["Id"], "tile": tile.index,
+                                         "error": f"{type(exc).__name__}: {exc}"[:800]})
+                        torch.cuda.empty_cache()
+                        continue
+                    handle.write(json.dumps(
+                        {**base, "prompt_kind": spec["t4"]["prompt"], "tile": tile.index,
+                         "tile_row": tile.row, "tile_col": tile.col, "tile_box": list(tile.box),
+                         "tile_size": list(tile.size), "tile_resized_size": list(tile_image.size),
+                         "zoom_factor": tiling.zoom_factor(original.size, tile.size), **result},
+                        ensure_ascii=False) + "\n")
+                    handle.flush()
+            elif args.test == "e3":
+                from labbs2026.thai_marks import tiling
+
+                for item in tiling.view_images(original, spec["e3"]["view"]):
+                    tile = item["tile"]
+                    if (row["Id"], tile.index) in completed:
+                        continue
+                    try:
+                        result = runtime.generate(model, processor, item["image"], typhoon_prompt,
+                                                  generation=gen_kwargs, device=device)
+                        scored_at = time.perf_counter()
+                        scored = runtime.score_own_output(model, processor, item["image"],
+                                                          typhoon_prompt, result["raw_output"],
+                                                          device=device)
+                        seconds_score = time.perf_counter() - scored_at
+                    except Exception as exc:  # recorded, never scored as an output
+                        failures.append({"id": row["Id"], "tile": tile.index,
+                                         "error": f"{type(exc).__name__}: {exc}"[:800]})
+                        torch.cuda.empty_cache()
+                        continue
+                    handle.write(json.dumps(
+                        {**base, "prompt_kind": spec["e3"]["prompt"], "view": spec["e3"]["view"]["name"],
+                         "tile": tile.index, "tile_box": list(tile.box),
+                         "read_size": list(item["image"].size), "zoom_factor": item["zoom"],
+                         **result, "scores": scored, "seconds_score": seconds_score},
+                        ensure_ascii=False) + "\n")
+                    handle.flush()
+            elif args.test == "t6":
+                from labbs2026.thai_marks import tiling
+
+                for view in spec["t6"]["views"]:
+                    for item in tiling.view_images(original, view):
+                        tile = item["tile"]
+                        if (row["Id"], view["name"], tile.index) in completed:
+                            continue
+                        try:
+                            result = runtime.generate(model, processor, item["image"], typhoon_prompt,
+                                                      generation=gen_kwargs, device=device)
+                        except Exception as exc:  # recorded, never scored as an output
+                            failures.append({"id": row["Id"], "view": view["name"], "tile": tile.index,
+                                             "error": f"{type(exc).__name__}: {exc}"[:800]})
+                            torch.cuda.empty_cache()
+                            continue
+                        handle.write(json.dumps(
+                            {**base, "prompt_kind": spec["t6"]["prompt"], "view": view["name"],
+                             "view_kind": view["kind"], "tile": tile.index,
+                             "tile_box": list(tile.box), "read_size": list(item["image"].size),
+                             "zoom_factor": item["zoom"], **result}, ensure_ascii=False) + "\n")
+                        handle.flush()
+            elif args.test == "t5":
+                for prompt_kind in spec["t1_prompts"]:
+                    prompt = typhoon_prompt if prompt_kind == "TYPHOON_CARD" else row["question"]
+                    for arm in spec["t5_arms"]:
+                        if (row["Id"], prompt_kind, arm["name"]) in completed:
+                            continue
+                        processors, built = t5_processors(arm, processor.tokenizer)
+                        try:
+                            result = runtime.generate(model, processor, image, prompt,
+                                                      generation=arm_kwargs[arm["name"]],
+                                                      device=device,
+                                                      logits_processors=processors)
+                        except Exception as exc:  # recorded, never scored as an output
+                            failures.append({"id": row["Id"], "prompt": prompt_kind,
+                                             "arm": arm["name"],
+                                             "error": f"{type(exc).__name__}: {exc}"[:800]})
+                            torch.cuda.empty_cache()
+                            continue
+                        guard = ({"interventions": processors[0].interventions,
+                                  "steps": processors[0].steps, **built} if processors else None)
+                        handle.write(json.dumps({**base, "prompt_kind": prompt_kind,
+                                                 "arm": arm["name"], **result,
+                                                 "ngram_block": guard},
+                                                ensure_ascii=False) + "\n")
+                        handle.flush()
+            elif args.test == "t2":
                 reference = collapse_whitespace(row["answer"])
                 sites = sample_sites(find_sites(reference), row["Id"])
                 if not sites:
                     continue
+                item_started = time.perf_counter()
                 try:
                     scored = runtime.score_item(
                         model, processor, image, typhoon_prompt, reference, sites,
@@ -211,14 +499,20 @@ def main() -> None:
                     torch.cuda.empty_cache()
                     continue
                 handle.write(json.dumps({**base, "reference_collapsed": reference,
-                                         "sites": scored}, ensure_ascii=False) + "\n")
+                                         "sites": scored,
+                                         "seconds": time.perf_counter() - item_started},
+                                        ensure_ascii=False) + "\n")
                 handle.flush()
+            else:  # a test without a branch must never fall into another test's
+                raise SystemExit(f"no item loop for test {args.test!r}")
 
     with io.open(out_dir / "manifest.json", "w", encoding="utf-8") as handle:
         json.dump({
             "test": args.test, "role": args.role,
             "model_id": model_spec["model_id"], "revision": model_spec["revision"],
             "dtype_used": dtype, "items": len(selected), "failures": failures,
+            "setup_seconds": setup_seconds,
+            "generation": generation_record,
             "wall_seconds": time.perf_counter() - started,
             "torch": torch.__version__, "transformers": transformers.__version__,
             "cuda_device": torch.cuda.get_device_name(0), "platform": platform.platform(),

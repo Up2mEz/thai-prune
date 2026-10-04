@@ -1,35 +1,27 @@
 # Status — Up2mEz
 
-**Updated:** 2026-09-27
+**Updated:** 2026-10-03
 
 ## Tracks I own
 
 | track | package | state |
 |---|---|---|
-| region-OCR (PaddleOCR-VL / TEMS, rounds 1–3) | `src/labbs2026/region_ocr/` | **complete**; results in `docs/stage0/REGION_OCR_ROUND3_RESULTS.md` |
-| Thai-marks T1/T2 (Qwen3-VL-2B / Typhoon OCR 1.5 on ThaiOCRBench) | `src/labbs2026/thai_marks/` | **running** on Kaggle |
+| region-OCR (PaddleOCR-VL / TEMS, rounds 1–3) | `src/labbs2026/region_ocr/` | **complete**; `docs/stage0/REGION_OCR_ROUND3_RESULTS.md` |
+| Thai-marks T1/T2/T3 (Qwen3-VL-2B / Typhoon OCR 1.5, ThaiOCRBench calibration) | `src/labbs2026/thai_marks/` | T1/T2/T3 done; branch `fix/t1-scoring-v2` (PR #23) |
+| Typhoon non-graphic gaps G1–G4 (session gaps) | `src/labbs2026/thai_marks/` | G1 closed (read-then-point fails); G2/G3 T5 done, T5b stop-at-loop passes dev check |
+| P-ZOOM (session pzoom, `collab/status/Up2mEz-pzoom.md`) | new files | draft |
+
+The owner runs two parallel sessions: `docs/exec-plans/active/PARALLEL_SESSIONS.md`.
 
 ## Running now
 
-- Kaggle kernel `thanakritsamoena/labbs2026-thai-marks-t1-t2`, run id
-  `kaggle-thai-marks-t1-t2-a44199c29759`, commit `a44199c`. T1 (FULL baseline,
-  2 models × 2 prompts) and T2 (oracle mark-variant scoring) on the 178-item
-  calibration split. Registration:
-  `docs/stage0/THAI_MARKS_T1_T2_REGISTRATION.md`. Results will be posted as a
-  `result` message.
+Nothing on Kaggle.
 
-## Waiting on
+## GPU-hours used this week (main account)
 
-- T1/T2 calibration run (`kaggle-thai-marks-t1-t2-a44199c29759`) to finish.
-- `SPEC_DECODE_S1` registration reviewed and approved (`TYPHOON_CARD` prompt
-  confirmed), in `collab/messages/20260927T1712Z_Up2mEz_to_PELY334_approve-s1-registration.md`.
-  Waiting on PELY334's `docs/DECISION_LOG.md` entry draft; final approval of
-  that entry is a human decision, not automatic once opened.
-  Tracks C, B (evaluation), and D are still on hold — not yet agreed to start.
-- My own decision on whether to keep Track B or D myself: deferred until T2
-  results are posted; will answer as its own message then.
+~3.8 h since 2026-10-03 (T5, 2×T4, `kaggle-thai-marks-t5-a10ef64c9eb4-typhoon-x2`).
 
 ## Do not touch without asking
 
-- `src/labbs2026/thai_marks/`, `configs/thai_marks/`,
-  `docs/stage0/THAI_MARKS_*` — a registered run is in flight against them.
+- `src/labbs2026/thai_marks/` existing modules, `configs/thai_marks/t1_t2.yaml`,
+  `docs/stage0/THAI_MARKS_*`.

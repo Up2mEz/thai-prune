@@ -94,6 +94,17 @@ def main() -> None:
               f"load_dataset({spec['benchmark_repo']!r}, split={spec['benchmark_split']!r},"
               f" revision={spec['benchmark_revision']!r})"], source, env)
 
+        # Download each model once, before any process starts. Two shards of
+        # one role would otherwise fetch the same weights concurrently, and the
+        # download time would be charged to their timing.
+        phase = "model_download"
+        for role in spec.get("roles") or ["base", "typhoon"]:
+            model = spec["models"][role]
+            _run([python, "-c",
+                  "from huggingface_hub import snapshot_download;"
+                  f"snapshot_download({model['model_id']!r}, revision={model['revision']!r})"],
+                 source, env)
+
         remote_spec = dict(spec)
         remote_spec["artifact_dir"] = str(artifact_dir)
         spec_path = Path("/tmp/labbs2026-thai-marks-spec.json")
@@ -102,19 +113,26 @@ def main() -> None:
         resume_root = spec.get("resume_artifact_dir")
 
         gpus = _gpu_count()
+        roles = spec.get("roles") or ["base", "typhoon"]
+        shards = int(spec.get("shards") or 1)
+        units = [(role, shard) for role in roles for shard in range(shards)]
+        if gpus >= 2 and len(units) > gpus:
+            raise RuntimeError(f"{len(units)} processes for {gpus} GPUs; one process per GPU")
         for test in spec["tests"]:
             phase = f"{test}_inference"
             commands = []
-            for position, role in enumerate(("base", "typhoon")):
+            for position, (role, shard) in enumerate(units):
                 role_env = dict(env)
                 role_env["CUDA_VISIBLE_DEVICES"] = str(position if gpus >= 2 else 0)
                 command = [python, "-m", "labbs2026.thai_marks.remote",
-                          "--remote-spec", str(spec_path), "--test", test, "--role", role]
+                          "--remote-spec", str(spec_path), "--test", test, "--role", role,
+                          "--shard", str(shard), "--shards", str(shards)]
+                leg = f"{role}/shard-{shard}-of-{shards}" if shards > 1 else role
                 if resume_root:
-                    leg_resume_dir = Path(resume_root) / test / role
+                    leg_resume_dir = Path(resume_root) / test / leg
                     if leg_resume_dir.is_dir():
                         command += ["--resume-dir", str(leg_resume_dir)]
-                commands.append((command, role_env, role))
+                commands.append((command, role_env, leg.replace("/", "_")))
             if gpus >= 2:
                 # Redirect each subprocess's stdout straight to its own log file
                 # instead of subprocess.PIPE. A PIPE has a fixed OS buffer (~64KB

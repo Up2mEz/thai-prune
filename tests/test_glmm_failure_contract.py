@@ -13,6 +13,28 @@ CONTRACT = ROOT / "infra/analysis/paddle_wayu_locked_panel/glmm_failure_contract
 RUN_GLMM = ROOT / "infra/analysis/paddle_wayu_locked_panel/run_glmm.R"
 
 
+def _docker_unavailable() -> str | None:
+    """Why these tests cannot run here, or None. They need a running Docker
+    daemon and the pinned R image; without them every test would fail on the
+    connection, not on the contract, so they are skipped with the reason."""
+    try:
+        info = subprocess.run(["docker", "info", "--format", "{{.ServerVersion}}"],
+                              capture_output=True, text=True, check=False, timeout=60)
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        return f"docker not usable: {exc}"
+    if info.returncode != 0:
+        return "Docker daemon not running (start Docker Desktop to run the GLMM contract tests)"
+    image = subprocess.run(["docker", "image", "inspect", IMAGE], capture_output=True,
+                           text=True, check=False)
+    if image.returncode != 0:
+        return f"pinned R image {IMAGE} not present locally"
+    return None
+
+
+_REASON = _docker_unavailable()
+pytestmark = pytest.mark.skipif(_REASON is not None, reason=_REASON or "")
+
+
 def _run_r(expression: str) -> subprocess.CompletedProcess[str]:
     mount = f"{CONTRACT.resolve()}:/contract.R:ro"
     return subprocess.run(

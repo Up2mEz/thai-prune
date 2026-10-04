@@ -39,10 +39,64 @@ runtime:
 t1:
   prompts: [TYPHOON_CARD, BENCHMARK_QUESTION]
   max_new_tokens: 3072
+  # Pinned 2026-09-28 (docs/DECISION_LOG.md 2026-09-28b). Both checkpoints'
+  # generation_config.json default to sampling (do_sample true, T 0.7, top_p 0.8,
+  # top_k 20); these explicit values override them. Greedy is the temperature->0
+  # limit, so temperature/top_p/top_k have no effect and are not set here. These
+  # are the values the 2026-09-27 run already used implicitly (do_sample=False,
+  # num_beams=1 in code; repetition_penalty 1.0 from both checkpoints); every run
+  # now records the resolved config in its manifest.
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+
+# Scoring version 2 (docs/stage0/THAI_MARKS_T1_SCORING_V2.md). Offline only;
+# changes no inference input.
+scoring:
+  version: 2
+  cells_split_by: [task, prompt]        # never pooled across either
+  primary_prompt:
+    Full-page OCR: BENCHMARK_QUESTION
+    Text recognition: BENCHMARK_QUESTION
+  secondary_prompt: TYPHOON_CARD
+  alignment: reference_anchored
+  located_rule: permutation_null_q05    # see scoring doc §4
+  null_seed: 20260928
 
 t2:
   prompt: TYPHOON_CARD
+  # Added 2026-09-28 (DECISION_LOG 2026-09-28c). Both roles, so the pair stays
+  # comparable. The 2026-09-27 fp16 run stopped at base item 4: cached vs
+  # uncached disagreed by 0.1358 nats > 0.1. The tolerance is not loosened.
+  dtype: float32
   window_after_chars: 8
   consistency_tolerance_nats:
     float16: 0.1
     float32: 0.001
+
+# T5 — repetition loops (docs/stage0/T5_LOOP_DECODING_DRAFT.md; DRAFT, not
+# authorized). Greedy in every arm: t1.generation with only
+# repetition_penalty overridden; ngram_block is DeepSeek-OCR's windowed
+# no-repeat n-gram processor (src/labbs2026/thai_marks/loop_guard.py).
+# Typhoon only; prompts and max_new_tokens as t1.
+t5:
+  roles: [typhoon]
+  arms:
+    - {name: greedy, repetition_penalty: 1.0, ngram_block: null}
+    - {name: rep_penalty, repetition_penalty: 1.1, ngram_block: null}
+    - name: ngram_block
+      repetition_penalty: 1.0
+      ngram_block: {ngram_size: 30, window_size: 90, whitelist_texts: ["<td>", "</td>", "<td></td>"]}
+
+# E3 — confidence-flagged band re-read (docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md;
+# APPROVED 2026-10-04, DECISION_LOG 2026-10-04e (gaps)). Every calibration
+# Full-page item: the 3 bands of P-ZOOM-2's `bands` view, read greedy as t1 with
+# the Typhoon card prompt, then scored by one teacher-forced forward.
+e3:
+  status: APPROVED
+  roles: [typhoon]
+  prompt: TYPHOON_CARD
+  task: Full-page OCR
+  view: {name: bands, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.85}

@@ -55,3 +55,85 @@ def test_completed_keys_skips_blank_lines(tmp_path: Path) -> None:
     path = tmp_path / "records.jsonl"
     path.write_text('{"id": "A1", "sites": []}\n\n\n', encoding="utf-8")
     assert completed_keys(path, "t2") == {"A1"}
+
+
+def test_shards_partition_the_items_exactly_and_stay_balanced() -> None:
+    from labbs2026.thai_marks.remote import shard_items
+    items = list(range(178))
+    parts = [shard_items(items, s, 2) for s in range(2)]
+    assert sorted(parts[0] + parts[1]) == items
+    assert not set(parts[0]) & set(parts[1])
+    assert abs(len(parts[0]) - len(parts[1])) <= 1
+    assert shard_items(items, 0, 1) == items
+
+
+def test_t5_keys_include_the_arm(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    _write_jsonl(path, [
+        {"id": "A1", "prompt_kind": "TYPHOON_CARD", "arm": "greedy", "raw_output": "x"},
+        {"id": "A1", "prompt_kind": "TYPHOON_CARD", "arm": "ngram_block", "raw_output": "x"},
+    ])
+    assert completed_keys(path, "t5") == {
+        ("A1", "TYPHOON_CARD", "greedy"), ("A1", "TYPHOON_CARD", "ngram_block")}
+
+
+class _Tok:
+    def encode(self, text, add_special_tokens=False):
+        return {"<td>": [11, 29], "</td>": [60, 61, 29]}[text]
+
+
+def test_t5_processors_are_fresh_per_call_and_report_the_whitelist() -> None:
+    from labbs2026.thai_marks.remote import t5_processors
+
+    arm = {"name": "ngram_block", "repetition_penalty": 1.0,
+           "ngram_block": {"ngram_size": 30, "window_size": 90,
+                           "whitelist_texts": ["<td>", "</td>"]}}
+    first, built = t5_processors(arm, _Tok())
+    second, _ = t5_processors(arm, _Tok())
+    assert first[0] is not second[0]
+    assert (first[0].ngram_size, first[0].window_size) == (30, 90)
+    assert first[0].whitelist == {11, 29, 60, 61}
+    assert built == {"whitelist_ids": [11, 29, 60, 61]}
+    assert t5_processors({"name": "greedy", "repetition_penalty": 1.0, "ngram_block": None},
+                         _Tok()) == ([], {})
+
+
+def test_every_test_choice_has_its_own_item_branch() -> None:
+    # 2026-10-03: a silent edit failure sent t5 into T2's `else:` branch.
+    import re
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parents[1] / "src/labbs2026/thai_marks/remote.py"
+              ).read_text(encoding="utf-8")
+    choices = re.search(r'"--test", choices=\(([^)]*)\)', source).group(1)
+    for test in re.findall(r'"(t\d)"', choices):
+        if test == "t3":  # T3 runs through _run_t3 before the item loop
+            continue
+        assert f'args.test == "{test}":' in source, test
+    assert "no item loop for test" in source
+
+
+def test_load_cases_finds_and_checks_the_named_file(tmp_path: Path) -> None:
+    import hashlib
+
+    import pytest
+
+    from labbs2026.thai_marks.remote import load_cases
+
+    folder = tmp_path / "ds"
+    folder.mkdir()
+    path = folder / "e1_cases.json"
+    path.write_text('{"cases": [{"case": "a"}]}', encoding="utf-8")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    assert load_cases({"e1_cases_sha256": digest}, "e1", root=tmp_path) == [{"case": "a"}]
+    with pytest.raises(RuntimeError):
+        load_cases({"e1_cases_sha256": "0" * 64}, "e1", root=tmp_path)
+    with pytest.raises(RuntimeError):
+        load_cases({}, "t3", root=tmp_path)
+
+
+def test_e3_keys_are_id_and_band(tmp_path: Path) -> None:
+    path = tmp_path / "records.jsonl"
+    _write_jsonl(path, [{"id": "A1", "tile": 0, "raw_output": "x"},
+                        {"id": "A1", "tile": 2, "raw_output": "y"}])
+    assert completed_keys(path, "e3") == {("A1", 0), ("A1", 2)}

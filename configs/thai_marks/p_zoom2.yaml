@@ -1,0 +1,22 @@
+schema_version: 1
+# APPROVED 2026-10-04 (docs/DECISION_LOG.md 2026-10-04); scripts/thai_marks_kaggle.py
+# refuses to submit `t6` unless this is APPROVED.
+status: APPROVED
+draft: docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only; same 21 calibration pages, prompt, model revision, split, fp16 and
+# greedy generation (t1_t2.yaml) as P-ZOOM. Only the image fed to the model changes.
+roles: [typhoon]
+prompt: TYPHOON_CARD
+pages:
+  file: configs/thai_marks/p_zoom_pages.json
+  sha256: 59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999
+
+# `pad` and `scale90` are perturbation controls: whole-page reads whose content is not
+# zoomed (about 0.93x and 0.9x of the page read). `bands` is the one new factor: the same
+# 1.85x zoom as P-ZOOM's 2x2 grid, with full-width tiles so no text line is cut vertically.
+views:
+  - {name: pad, kind: pad, margin: 0.04}
+  - {name: scale90, kind: scale, factor: 0.9}
+  - {name: bands, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.85}
