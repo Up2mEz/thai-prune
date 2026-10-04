@@ -76,6 +76,7 @@ def test_flips_and_phase_variable_marks():
     assert s["flips_vs_D0"]["D8"]["TONE"] == {"flips": 0, "scored_in_both": 2}
     assert phase_variable_marks(rows)["TONE"] == {"scored_in_all": 2, "not_constant": 1}
     assert s["found_per_shift"]["D0"] == 1
+    assert s["consonant_flips_vs_D0"]["D4"] == {"flips": 0, "scored_in_both": 6}   # only the mark changed
 
 
 def test_config_draft_and_hashed_files():
