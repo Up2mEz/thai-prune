@@ -2,6 +2,22 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04c — E2/E2b: zoomed re-reads at flagged places help a little
+
+**Evidence:** `docs/stage0/E2_REREAD_FIXES_MISREADS_DRAFT.md` §5–§6,
+`E2B_FLAGGED_VOTE_DRAFT.md` §5 (offline, session pzoom's re-reads, 21
+calibration pages). A measurement bug (alignment window starting on a mark)
+was found and fixed before E2b; E1 still passes after the fix.
+
+**Finding:** at places E1 flags, a full-width band re-read at 1.85× is right
+on half of the page read's mark errors (no-zoom re-reads: 25–30%). Majority
+voting of page + re-reads at flagged places raises mark F1 by +0.17 points
+(CI +0.05 to +0.29) with character CER slightly better; 8 fixes, 1 broken.
+Small, on design data, with crude cluster-level edits. No remedy adopted;
+the locked split stays closed.
+
+---
+
 ## 2026-10-04b — E1-B1 fails; token-level correction ceiling is low
 
 **Evidence:** `docs/stage0/E1B_LEXICON_GATED_SWAP_DRAFT.md` §5 (offline, rule

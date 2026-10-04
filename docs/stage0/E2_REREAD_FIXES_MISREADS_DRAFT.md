@@ -75,3 +75,32 @@ many correct clusters, but `zoom_fixes_misreads` also asks it to break
 `any_reread_fixes`. Inference: zoom without cutting lines carries real extra
 evidence for flagged misreads, but replacing flagged places wholesale with
 the re-read would fix as many as it breaks. A selection rule is needed: E2b.
+
+## 6. Measurement corrections (2026-10-04, found while testing E2b, before E2b was computed)
+
+1. `fix1`: the anchored window can start on a combining mark, pairing a
+   consonant with the read's mark. Re-reads are now compared at the mark's
+   consonant (`runs/e2/e2_reread_dev_fix1.json`).
+2. `fix2`: the same tie occurs on the reference side: 19 of 232 E1
+   mark-error labels sat on a reference mark. `confidence.label_clusters` and
+   the probe now use the mark's consonant (`base_of`). Inspected: the changed
+   labels are mostly real errors that the old version called correct
+   (`สถานี → สถาบัน`, `แท้ → ท่าน`).
+
+E1 recomputed with `fix2` (`.../e1_summary_fix1.json`) still passes: AUROC
+0.918 (BQ) / 0.935 (TC), recall@5% 0.672 / 0.718.
+
+E2 with `fix2` (`runs/e2/e2_reread_dev_fix2.json`), 40 flagged errors, 280
+flagged correct:
+
+| view | fixed | broken |
+|---|---|---|
+| `bands` | **20 (50%)** | **18 (6.4%)** |
+| `tiles` | 12 (30%) | 36 |
+| `pad` | 12 (30%) | 32 |
+| `scale90` | 10 (25%) | 32 |
+
+Reading under the corrected measurement: `zoom_fixes_misreads (bands)` (20 >
+18, +22.5 points over the no-zoom controls). It is **borderline**: the
+registered computation read `any_reread_fixes`, the margin is two clusters,
+and it moved only through a measurement correction. Both are reported.
