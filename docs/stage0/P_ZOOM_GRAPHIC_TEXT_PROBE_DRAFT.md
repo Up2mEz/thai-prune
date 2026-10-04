@@ -252,16 +252,45 @@ resolved by the data in hand; each is carried into `P_ZOOM3_CONTROLS_DRAFT.md`.
 - **Scope.** 21 pages, 71 lines. Mark-weighted pooling lets a few long lines dominate; the sign of
   the net effect changes with the unit.
 
-### 10b. Findings of the second review (2026-10-04), after the first §10
+### 10b. Findings of the second review (2026-10-04), each re-checked by a skeptic
 
-- **The 2x2 grid's seam makes the registered label an artifact.** `find_elsewhere` credits a line
-  only if it sits whole in one tile; a wide line cut by the vertical seam is read correctly in two
-  adjacent tiles and scored `not_found` (reviewer's finding; consistent with the line-60 case in
-  §10, which I re-scored). P-ZOOM-3 uses full-width bands, which have no vertical seam.
-- **Other scorer limits** (reviewers' findings, each moves a share by 1 to 6 points, none re-checked
-  by me): greedy claim order, overlap strips crediting one physical line twice, short lines never
-  findable (8 of 71, re-checked: 9 marks), figure claims not competed for by non-selected lines.
+The second review's findings were then each given to one skeptic told to reproduce or refute it
+(`wf_6607262d-c34`, eight verdicts, all confirmed; the skeptics were barred from the P-ZOOM-2/-3 full
+runs). On the first P-ZOOM run's data, exploratory and not registered:
+
+- **The 2x2 grid's vertical seam makes the registered label an artifact (high).** `find_elsewhere`
+  credits a line only if it sits whole in one tile. Four absent lines (26 marks) read exactly or
+  almost exactly in two adjacent tiles, each half in one, are scored `not_found`
+  (`8F33EBB9`:0, `F1D97B10`:1, `6BA97DBE`:0, `9BBB9DB3`:4; the last needs a CER of 0.065, not 0.06).
+  Crediting them: tiles 47.8% → 54.5% as text (52.5% on the three strictest), gain 22.5% → 24.0%,
+  loss 98 → 78 marks, and the rule returns `resolution_attention_limit`. The margin is 9 marks;
+  `8F33EBB9`:0 alone supplies 12. The same seam search finds 0 of 113 lines on other pages (not
+  chance). It recovers only 72 of the 324 missing control marks (a quarter of that gap; the rest
+  are long multi-row paragraphs). The 2x2 geometry itself leaves an overlap strip of about 8% of the
+  page width, not 15%, so a line spanning the strip is whole in neither tile.
+  **Net: P-ZOOM's first run supports neither label. The registered
+  `beyond_typhoon_at_this_resolution` and the seam-credited `resolution_attention_limit` both
+  depend on an instrument choice, and "P-ZOOM stops" rested on the first.** The full-width bands
+  of P-ZOOM-2/-3 have no vertical seam, so this does not reach them.
+- **Claim order (low).** The mechanism is real (a kept near-twin line can claim an absent line's
+  stretch) but moved 0 marks net on the first run; at most 4 marks were claim-blocked, both
+  legitimate twin blocks. The review's "187 vs 185" is an artifact of its alternative ordering. A
+  latent exposure for P-ZOOM-2 is one 22-mark line (`C065E1E9`:44, "รูปที่ 10" next to "รูปที่ 9"),
+  about 28 marks (7.2 points) with a second pair.
+- **Overlap strips crediting one physical line twice (low).** 1 mark (0.26 points) on the first
+  run, not the 5 first claimed.
+- **Short verbatim lines credited from running text no other line claimed (low).** Inflates tile
+  text by 4 to 7 marks (1.0 to 1.8 points) on the first run; the registered reading is unchanged.
+- **Figure claims (low).** Non-selected lines do not compete for `<figure>` stretches: figure-only
+  falls 49 → 34 marks, 12.7% → 8.8%, one line (`95979273`:11); text outcomes unchanged.
+- **Nested `<figure>` (low).** Real nested figures: 0 of 440 reads; latent only.
+- **fp16 on the bands (low).** No non-finite or degenerate read in any unblinded fp16 run; the
+  worst case is a ceiling on a risk with no support. The review's remark that the 80% floor would
+  catch it is wrong for the controlled reading: the floor there is computed on `bands100`.
+- **Decode noise (low).** Identical inputs reproduced the stored output on 4 of 4 (smoke replicate)
+  and 2 of 2 reads (the P-ZOOM-3 repeat-vs-T1 smoke), so run-to-run noise looks near zero; drift of
+  the stack since T1 is unmeasured, not observed.
 - **The log's wording of the amended rule was loose.** `DECISION_LOG.md` 2026-10-03d and -e said
   "+15 points over that baseline". The rule is gross: tiles ≥ 50% as text **and** a gain of ≥ 15
-  points, where gain ignores lost marks. Tiles could meet it with no net advantage; the log entries
-  now say so.
+  points, where gain ignores lost marks. Tiles could meet it with no net advantage; the entries now
+  say so.

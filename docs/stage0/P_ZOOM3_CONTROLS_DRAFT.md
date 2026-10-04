@@ -123,20 +123,19 @@ secondary account first.
 
 ## 8. Review findings that shaped this draft, and what was left alone
 
-From the second review (`wf_9f91ee64-a6b`; the verification agents failed on a session limit again,
-so each finding below is a reviewer's claim unless I say I re-checked it):
+From the second review (`wf_9f91ee64-a6b`), each then given to one skeptic (`wf_6607262d-c34`;
+eight verdicts, all confirmed, the skeptics barred from the two full runs). Numbers and details are
+in `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10b. In short, for the contrast `D` of this round:
 
-- *Re-checked by me:* 8 of the 71 absent lines (9 marks) are shorter than the 8 characters
-  `find_elsewhere` needs, so they are always `not_found` and sit in the denominator; every share
-  is capped below 100% (97.7% by marks) in every view alike. Marks per line are very skewed (above).
-  Visual tokens equal `round(h/32) × round(w/32)` on all reads of P-ZOOM-2 and P-ZOOM-3.
-  The "3 placeholder pages are a subset of the 21" statement of P-ZOOM §2 is wrong: of 3
-  matching outputs, 2 are in the frozen list.
-- *Reported by the reviewers, not re-checked:* a line is credited only if it sits whole in one tile,
-  so lines cut by the vertical seam of the 2x2 grid are `not_found` (this alone makes P-ZOOM's label
-  an artifact; it does not touch full-width bands); claim order can move a 22-mark line (5.7 points)
-  in either direction; overlap strips can credit one physical line twice; non-selected lines do not
-  compete for `<figure>` stretches (figure-only share 12.7% would be about 8.8%); `_FIGURE` and
-  `extract` disagree on nested figures. The first review's verified-by-recomputation items stand.
+- The seam artifact (high) hits P-ZOOM's 2x2 grid only; `bands` and `bands100` are full width and
+  share their crops, so a vertical seam is in neither.
+- Claim order, overlap double credit, short verbatim credit, figure claims and nested figures are
+  low: each moves a share by at most a few points on the first run, and affects `bands` and
+  `bands100` alike, so they largely cancel in `D`. They are why `D` is quoted with an interval and
+  why the sensitivity variants are reported.
+- Re-checked by me: 8 of the 71 absent lines (9 marks) are shorter than the 8 characters
+  `find_elsewhere` needs, so they are always `not_found`; marks per line are very skewed; visual
+  tokens equal `round(h/32) × round(w/32)` on all reads of P-ZOOM-2 and P-ZOOM-3; the "3 placeholder
+  pages are a subset of the 21" statement of P-ZOOM §2 is wrong (2 of 3).
 - *Left as registered:* the scorer (changing it now would split P-ZOOM's registered numbers from
   these); the sensitivity variants above are reported instead.
