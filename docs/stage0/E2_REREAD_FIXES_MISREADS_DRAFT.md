@@ -55,3 +55,23 @@ view − mean fix rate of `pad` and `scale90`.
   Typhoon reads from these pixels.
 - Counts are small (about 20–30 flagged errors on 21 pages): direction, not a
   rate. Reported with every count.
+
+## 5. Result (2026-10-04): `any_reread_fixes` (zoom one tie short)
+
+`runs/e2/e2_reread_dev.json` (rule `3ce5734`, computed once). 21 pages; flag
+threshold `s_min` ≥ 0.043 (E1's 5% over the whole cell); 36 flagged mark
+errors and 281 flagged correct clusters.
+
+| view | fixed / 36 flagged errors | broken / 281 flagged correct | not found (errors / correct) |
+|---|---|---|---|
+| `bands` (1.85×, full width) | **18 (50%)** | **18 (6.4%)** | 5 / 21 |
+| `tiles` (2×2) | 10 (28%) | 37 (13.2%) | 8 / 24 |
+| `pad` (no zoom) | 10 (28%) | 32 (11.4%) | 0 / 3 |
+| `scale90` (no zoom) | 10 (28%) | 32 (11.4%) | 11 / 66 |
+
+`bands` beats the no-zoom controls by 22 points and breaks about half as
+many correct clusters, but `zoom_fixes_misreads` also asks it to break
+*fewer* than it fixes; 18 = 18, so the registered reading is
+`any_reread_fixes`. Inference: zoom without cutting lines carries real extra
+evidence for flagged misreads, but replacing flagged places wholesale with
+the re-read would fix as many as it breaks. A selection rule is needed: E2b.
