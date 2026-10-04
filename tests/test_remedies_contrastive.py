@@ -112,3 +112,23 @@ def test_noised_image_is_deterministic_and_follows_the_schedule():
     assert abs(np.corrcoef(x0, late)[0, 1]) < 0.1
     with pytest.raises(ValueError):
         noised_image(img, step=1000)
+
+
+def test_protect_keeps_greedy_and_records_steps():
+    from labbs2026.remedies.contrastive import mark_protector
+
+    model = _toy_qwen3vl()
+    real = _image_inputs(2)
+    contrast = _text_only(real)
+    free = contrastive_greedy(model, real, contrast, weight=Weight("constant", alpha=3.0), beta=0.0,
+                              max_new_tokens=MAX_NEW, eos_token_ids=[511])
+    always = contrastive_greedy(model, real, contrast, weight=Weight("constant", alpha=3.0), beta=0.0,
+                                max_new_tokens=MAX_NEW, eos_token_ids=[511], protect=lambda g, c: True)
+    assert always["new_token_ids"] == _greedy(model, real)      # every change vetoed -> plain greedy
+    assert always["changed_steps"] == [] and len(always["protected_steps"]) >= len(free["changed_steps"][:1])
+    assert free["protected_steps"] == []
+    # the R2 protector: either candidate containing a Thai mark protects the step
+    texts = {1: "่า", 2: "า", 3: "ก", 4: "ข", 5: "ิ"}
+    protect = mark_protector(lambda ids: "".join(texts[i] for i in ids))
+    assert protect(1, 2) and protect(2, 1) and protect(5, 3)
+    assert not protect(2, 3) and not protect(3, 4)

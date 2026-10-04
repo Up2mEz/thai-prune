@@ -1,4 +1,4 @@
-"""Prepare (and optionally submit) the REMEDIES_R1 Kaggle run (Track B)."""
+"""Prepare (and optionally submit) a REMEDIES_R* Kaggle run (Track B): `--config` picks R1 or R2."""
 
 from __future__ import annotations
 
@@ -22,12 +22,10 @@ from labbs2026.kaggle import (
     utc_now,
 )
 
-KERNEL_SLUG = "labbs2026-remedies-r1"
-CONFIG = "configs/remedies/r1.yaml"
+DEFAULT_CONFIG = "configs/remedies/r1.yaml"
 PROMPT_FILE = "configs/thai_marks/typhoon_card_prompt.txt"  # required by thai_marks.remote's loader
 
 HASHED = (
-    CONFIG,
     PROMPT_FILE,
     "src/labbs2026/remedies/__init__.py",
     "src/labbs2026/remedies/contrastive.py",
@@ -65,19 +63,23 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--smoke", type=int, default=0,
                         help="engineering smoke: N items per task, plus the smoke controls")
+    parser.add_argument("--config", default=DEFAULT_CONFIG, help="configs/remedies/r1.yaml or r2.yaml")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
     root = args.root.resolve()
-    config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
+    config_path = args.config.replace("\\", "/")
+    config = yaml.safe_load((root / config_path).read_text("utf-8"))
     if config["status"] != "APPROVED":
-        raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
+        raise SystemExit(f"{config_path} status is {config['status']!r}, not APPROVED")
+    test = Path(config_path).stem  # r1, r2
+    kernel_slug = f"labbs2026-remedies-{test}"
     per_task = args.smoke or int(config["split"]["pilot_items_per_task"])
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
     suffix = f"-smoke{args.smoke}" if args.smoke else ""
-    run_id = f"kaggle-remedies-r1-{git_sha[:12]}{suffix}"
+    run_id = f"kaggle-remedies-{test}-{git_sha[:12]}{suffix}"
     prompt_sha = sha256_file(root / PROMPT_FILE)
 
     spec = {
@@ -86,14 +88,15 @@ def main() -> None:
         "repository_url": REPOSITORY,
         "remote_ref": remote_ref,
         "git_sha": git_sha,
-        "expected_file_hashes": {p: sha256_file(root / p) for p in HASHED},
+        "expected_file_hashes": {p: sha256_file(root / p) for p in (config_path,) + HASHED},
+        "config_path": config_path,
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
         "python_version": "3.12",
         "source_dir": "/tmp/labbs2026-source",
         "output_root": "/kaggle/working/artifacts",
-        "tests": ["r1"],
+        "tests": [test],
         "smoke": bool(args.smoke),
         "items_per_task": per_task,
         "models": config["models"],
@@ -121,7 +124,7 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, KERNEL_SLUG), "title": "LabBS2026 Remedies R1", "code_file": "worker.py",
+        "id": kernel_id(root, kernel_slug), "title": f"LabBS2026 Remedies {test.upper()}", "code_file": "worker.py",
         "language": "python", "kernel_type": "script", "is_private": True,
         "enable_gpu": True, "enable_internet": True, "machine_shape": "NvidiaTeslaT4",
         "dataset_sources": [], "competition_sources": [], "kernel_sources": [],
