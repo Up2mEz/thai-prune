@@ -10,7 +10,7 @@
 | Track B — existing training-free remedies | `src/labbs2026/remedies/` | **R1 + R2 pilots done**: contrast (M3ID-form) ends loops but deletes tone marks; mark protection (R2) keeps the loop fixes on Typhoon and halves the tone cost (`docs/stage0/REMEDIES_R2_RESULTS.md`) |
 | shared tooling — output diagnostics | `src/labbs2026/output_diagnostics/` | structure-aware normalization, loop detection, per-item cause; exact bit-parallel distance (no full DP table) |
 | Track C — finding versus reading | `src/labbs2026/find_vs_read/` | **F1 done**: `docs/stage0/FIND_VS_READ_F1_RESULTS.md` — Typhoon loses boxed-text marks to finding, not reading (found 7% whole vs 99% crop) |
-| Track D — input side, G2 only | `src/labbs2026/input_side/` | D1 registration + Decision Log entry in review (PR #46); nothing run |
+| Track D — input side, G2 only | `src/labbs2026/input_side/` | **D1 done**: `docs/stage0/INPUT_SIDE_D1_RESULTS.md` — grid phase does not decide Typhoon's marks; base unstable to any small shift |
 
 ## Running now
 
@@ -18,7 +18,6 @@
 
 ## Waiting on
 
-- Up2mEz's review of D1 (PR #46).
 - T1 posting, for S1 §6's cross-check; T2's rerun, to read R1's tone-deletion
   finding against image gain.
 

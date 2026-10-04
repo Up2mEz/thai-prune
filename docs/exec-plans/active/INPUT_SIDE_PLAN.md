@@ -1,6 +1,6 @@
 # Track D — input-side probes on Thai marks
 
-**Status: `D1_AUTHORIZED`** (Decision Log 2026-10-04b; Up2mEz approved PR #46). Owner `PELY334`. Scope agreed by Up2mEz as **G2
+**Status: `D1_DONE`** — results `docs/stage0/INPUT_SIDE_D1_RESULTS.md` (Decision Log 2026-10-04b). Owner `PELY334`. Scope agreed by Up2mEz as **G2
 (patch phase) only**, with three edits built in
 (`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`);
 G3 (scale) stays with P-ZOOM on Up2mEz's side. Nothing runs before the D1
