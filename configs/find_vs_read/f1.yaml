@@ -24,12 +24,15 @@ split:
   calibration_fraction: 0.30
   strata: [Task, category]
 
-arms: [WHOLE, CROP_SAME_SCALE, CROP_RESCALED, WHOLE_MARKED]
+arms: [WHOLE, CROP_SAME_SCALE, CROP_RESCALED, WHOLE_MARKED, WHOLE_NOCLAUSE]   # WHOLE_NOCLAUSE: addendum 2
 primary_model: typhoon        # Typhoon is the objective; the base is the cheap reference
 crop_margin: 0.25              # x box height, every side; page-scale crop then snapped outward to the 32-px grid
 # the benchmark's single question template with its two coordinate clauses removed
 # ("แบ่ง…1000 ส่วน แล้ว" and "ที่อยู่ในพิกัด [x1, y1, x2, y2]"), identical for both models
 crop_prompt: "ช่วยดึงข้อความของรูปภาพออกมาให้หน่อย"
+# addendum 2: WHOLE_NOCLAUSE = the item question minus only this leading clause
+question_clause: "แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้ว"
+question_clause_sha256: c6380cc6a8819b9df4ff63edbc8ffbd39f67a299eb6ced180f6e517bd9dd4f40
 crop_prompt_sha256: 45078cf08e63c50260c2456ee5ced9ccb1af0abae5a3e49ce8c0c78561f558d5
 
 runtime:

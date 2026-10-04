@@ -9,7 +9,7 @@ from PIL import Image
 
 from labbs2026.find_vs_read.analysis import item_rows, paired_fates, summarize
 from labbs2026.find_vs_read.geometry import crop_rect, image_sha256, prepare_page
-from labbs2026.find_vs_read.remote import arm_input, generate, geometry_record
+from labbs2026.find_vs_read.remote import arm_input, generate, geometry_record, question_without_clause
 from labbs2026.find_vs_read.scoring import mark_fates
 from labbs2026.thai_marks.decompose import mark_decomposition
 
@@ -116,7 +116,8 @@ def test_config_is_approved_with_its_authorization():
 
     config = yaml.safe_load((ROOT / "configs/find_vs_read/f1.yaml").read_text("utf-8"))
     assert config["status"] == "APPROVED" and config["authorization"].startswith("docs/DECISION_LOG.md")
-    assert config["arms"] == ["WHOLE", "CROP_SAME_SCALE", "CROP_RESCALED", "WHOLE_MARKED"]
+    assert config["arms"] == ["WHOLE", "CROP_SAME_SCALE", "CROP_RESCALED", "WHOLE_MARKED", "WHOLE_NOCLAUSE"]
+    assert hashlib.sha256(config["question_clause"].encode("utf-8")).hexdigest() == config["question_clause_sha256"]
     assert config["runtime"]["generation"]["do_sample"] is False
     assert hashlib.sha256(config["crop_prompt"].encode("utf-8")).hexdigest() == config["crop_prompt_sha256"]
     spec = importlib.util.spec_from_file_location("fk", ROOT / "scripts/find_vs_read_kaggle.py")
@@ -151,3 +152,18 @@ def test_reference_disagreements_list_items_both_crops_read_alike():
     assert found == [{"id": "r", "reference": "แยกสำลี เอดะมอลล์", "both_crops_read": "แยกลำสาลี เดอะมอลล์"}]
     with pytest.raises(ValueError):
         paired_fates(item_rows(records), "CROP_SAME_SCALE", "WHOLE", rule="other")
+
+
+def test_whole_noclause_differs_from_the_crop_prompt_only_in_the_box_clause():
+    config = yaml.safe_load((ROOT / "configs/find_vs_read/f1.yaml").read_text("utf-8"))
+    clause = config["question_clause"]
+    noclause = question_without_clause(QUESTION, clause)
+    assert noclause == "ช่วยดึงข้อความที่อยู่ในพิกัด [274, 385, 573, 501] ของรูปภาพออกมาให้หน่อย"
+    assert noclause.replace("ที่อยู่ในพิกัด [274, 385, 573, 501] ", "") == config["crop_prompt"]
+    page = prepare_page(_source(1080, 810))
+    rect = crop_rect(BOX, page.size, margin=0.25)
+    image, prompt = arm_input("WHOLE_NOCLAUSE", _source(1080, 810), page, QUESTION, rect, BOX,
+                              crop_prompt="อ่าน", margin=0.25, clause=clause)
+    assert image is page and prompt == noclause
+    with pytest.raises(ValueError):
+        question_without_clause("คำถามอื่น", clause)

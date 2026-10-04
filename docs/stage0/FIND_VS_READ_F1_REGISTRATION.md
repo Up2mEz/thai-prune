@@ -177,3 +177,34 @@ of the question (`แบ่ง…1000 ส่วน`) was misread as a question a
 Typhoon answered with image dimensions, the base with its own coordinates and
 meta-text. The crop prompt does not carry that clause. This is part of what
 (a)→(c) measures, and is reported with the results.
+
+---
+
+## Addendum 2, 2026-10-04 — a fifth arm, before the full run
+
+Suggested by Up2mEz
+(`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`).
+No full-run output exists.
+
+The smoke showed the question's leading coordinate-system clause
+`แบ่งความยาวและความสูงของรูปภาพออกเป็น 1000 ส่วน แล้ว` (SHA-256
+`c6380cc6a8819b9df4ff63edbc8ffbd39f67a299eb6ced180f6e517bd9dd4f40`, present at
+the start of all 206 questions) derailing both models in `WHOLE`, while the
+crop prompt lacks it. So (a)→(c) as first registered mixes **finding** with
+**following that clause**.
+
+**Added arm `WHOLE_NOCLAUSE`:** the prepared page with the item question minus
+only that clause — `ช่วยดึงข้อความที่อยู่ในพิกัด [x1, y1, x2, y2] ของรูปภาพออกมาให้หน่อย`.
+It differs from the crop prompt only in the box clause `ที่อยู่ในพิกัด [ … ]`
+(tested), and from `WHOLE` only in the coordinate-system clause.
+
+**Added contrasts** (same primary outcome and rule as §5 and addendum 1):
+`WHOLE_NOCLAUSE` vs `WHOLE` — the cost of the coordinate-system clause;
+`CROP_SAME_SCALE` vs `WHOLE_NOCLAUSE` — finding, with that clause removed.
+
+**Reading, stated in advance.** If (a)→(c)'s gains largely vanish in
+`WHOLE_NOCLAUSE`→(c), the whole-image losses came from the clause, not from
+finding. §6 row 1 is read on `WHOLE_NOCLAUSE`→(c) as well as on (a)→(c), and
+any difference between the two is reported. Budget unchanged in practice
+(one more short-answer arm; the smoke timing leaves ample room under 2
+T4-hours).
