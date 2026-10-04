@@ -76,6 +76,8 @@ def main() -> None:
     prompt_digest = hashlib.sha256(config["crop_prompt"].encode("utf-8")).hexdigest()
     if prompt_digest != config["crop_prompt_sha256"]:
         raise SystemExit(f"crop prompt sha256 {prompt_digest} does not match the config")
+    if hashlib.sha256(config["question_clause"].encode("utf-8")).hexdigest() != config["question_clause_sha256"]:
+        raise SystemExit("question clause sha256 does not match the config")
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
@@ -115,6 +117,8 @@ def main() -> None:
         "crop_margin": config["crop_margin"],
         "crop_prompt": config["crop_prompt"],
         "crop_prompt_sha256": config["crop_prompt_sha256"],
+        "question_clause": config["question_clause"],
+        "question_clause_sha256": config["question_clause_sha256"],
         "created_at_utc": utc_now(),
     }
 

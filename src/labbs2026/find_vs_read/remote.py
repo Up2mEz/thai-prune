@@ -28,12 +28,22 @@ from labbs2026.find_vs_read.geometry import (
 )
 
 
-def arm_input(arm: str, source, page, question: str, rect, box, *, crop_prompt: str, margin: float):
+def question_without_clause(question: str, clause: str) -> str:
+    """The item question minus its leading coordinate-system clause (addendum 2)."""
+    if not question.startswith(clause):
+        raise ValueError("question does not start with the registered clause")
+    return question[len(clause):]
+
+
+def arm_input(arm: str, source, page, question: str, rect, box, *, crop_prompt: str, margin: float,
+              clause: str = ""):
     """(image, prompt) for one arm. All but CROP_RESCALED come from the same prepared page."""
     if arm == "WHOLE":
         return page, question
     if arm == "WHOLE_MARKED":
         return draw_rect(page, rect), question
+    if arm == "WHOLE_NOCLAUSE":
+        return page, question_without_clause(question, clause)
     if arm == "CROP_SAME_SCALE":
         return crop_padded(page, rect), crop_prompt
     if arm == "CROP_RESCALED":
@@ -102,6 +112,8 @@ def main() -> None:
 
     if hashlib.sha256(spec["crop_prompt"].encode("utf-8")).hexdigest() != spec["crop_prompt_sha256"]:
         raise RuntimeError("crop prompt does not match its registered sha256")
+    if hashlib.sha256(spec["question_clause"].encode("utf-8")).hexdigest() != spec["question_clause_sha256"]:
+        raise RuntimeError("question clause does not match its registered sha256")
     out_dir = Path(spec["artifact_dir"]) / "f1" / args.role
     out_dir.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
@@ -144,7 +156,8 @@ def main() -> None:
             for arm in spec["arms"]:
                 try:
                     image, prompt = arm_input(arm, source, page, row["question"], rect, box,
-                                              crop_prompt=spec["crop_prompt"], margin=margin)
+                                              crop_prompt=spec["crop_prompt"], margin=margin,
+                                              clause=spec["question_clause"])
                     record["arms"][arm] = generate(model, processor, image, prompt,
                                                    generation=spec["generation"],
                                                    max_new_tokens=int(spec["max_new_tokens"]), device=device)

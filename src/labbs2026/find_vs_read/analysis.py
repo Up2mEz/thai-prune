@@ -33,12 +33,14 @@ from labbs2026.find_vs_read.scoring import best_window, chance_found_rate, score
 from labbs2026.output_diagnostics.structure import structural_normalize
 from labbs2026.thai_marks.normalize import normalize_text
 
-ARMS = ("WHOLE", "CROP_SAME_SCALE", "CROP_RESCALED", "WHOLE_MARKED")
+ARMS = ("WHOLE", "CROP_SAME_SCALE", "CROP_RESCALED", "WHOLE_MARKED", "WHOLE_NOCLAUSE")
 CONTRASTS = (
     ("CROP_SAME_SCALE", "WHOLE"),        # finding
     ("CROP_RESCALED", "CROP_SAME_SCALE"),  # magnification
     ("CROP_RESCALED", "WHOLE"),           # both
     ("WHOLE_MARKED", "WHOLE"),            # secondary: a drawn box
+    ("WHOLE_NOCLAUSE", "WHOLE"),          # addendum 2: following the coordinate-system clause
+    ("CROP_SAME_SCALE", "WHOLE_NOCLAUSE"),  # addendum 2: finding, with that clause removed from both
 )
 KINDS = ("TONE", "UPPER", "LOWER")
 NORMALIZERS: dict[str, Callable[[str], str]] = {"t1": normalize_text, "structural": structural_normalize}
