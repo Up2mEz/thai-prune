@@ -86,6 +86,30 @@ lossless. The much larger speedups are confined to the degenerate population
 (loops, outputs that reach `max_new_tokens`), where n-gram drafting accepts
 repeated text; they are reported as that, not as a speedup of OCR.
 
+## 3b. Cross-check against T1 (§6, added 2026-10-05)
+
+T1's outputs were posted by Up2mEz on 2026-10-04 (PR #60,
+`docs/stage0/data/T1_OUTPUTS_a44199c29759.json.gz`, run
+`kaggle-thai-marks-t1-t2-a44199c29759`: same pinned revisions, greedy,
+`max_new_tokens` 3072, fp16, Kaggle T4, batch 1). Comparison as registered:
+S1's `REF` text against T1's `raw_output` for the same item, model and
+`TYPHOON_CARD`, on the 177 timed items (`analysis.t1_cross_check`, run with
+`scripts/spec_decode_analyze.py --t1-outputs`).
+
+| model | items matched | `REF` textually identical to T1 | same generated token count |
+|---|---|---|---|
+| base | 177 / 177 | **177 (100%)** | 177 |
+| typhoon | 177 / 177 | **177 (100%)** | 177 |
+
+`REF` reproduces T1 character for character on every item, in a different
+Kaggle session and run, for both models. §6 expected a small non-zero
+disagreement; there is none. This also means the identity results in §1 hold
+against T1's outputs, not only against S1's own `REF`. The comparison is on raw
+text, markup included; with every string identical, markup cannot affect it.
+Up2mEz reports the same stack reproduced Typhoon's T1 outputs byte-identically
+in a later run (T5), consistent with this. A reproducibility observation, not
+a gate (§6).
+
 ## 4. Exploratory, not registered
 
 - **How far diverged outputs drift.** On mismatched items, the character edit
@@ -204,7 +228,8 @@ markup and picture descriptions, not in page text.
   diagnostic item; fp32 speed was not measured.
 - Only `TYPHOON_CARD`, Kaggle T4, batch 1, these two checkpoints of one
   architecture family; nothing about other prompts, GPUs or models.
-- §6's cross-check of `REF` against T1's outputs is still pending: T1 has not
+- *(Superseded 2026-10-05 by §3b: T1 posted and the cross-check is done.)*
+  §6's cross-check of `REF` against T1's outputs is still pending: T1 has not
   posted. It will be added when it does.
 - The degenerate-population speedups describe loops, not reading.
 
