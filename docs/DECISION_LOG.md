@@ -2,6 +2,18 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04b — E1-B1 fails; token-level correction ceiling is low
+
+**Evidence:** `docs/stage0/E1B_LEXICON_GATED_SWAP_DRAFT.md` §5 (offline, rule
+fixed before computing). The lexicon-gated swap changes F1 by ±0.01 points
+and fixes no labelled error. Even a perfect choice among the model's top-5
+alternatives fixes only 17–29% of mark-error clusters, because most are
+multi-token or involve a consonant. Lookahead rescoring is not run. Next
+candidate: confidence-triggered re-reading of the flagged line from the image,
+to be designed with session pzoom (tiling). No remedy adopted.
+
+---
+
 ## 2026-10-04 — E1: Typhoon's confidence locates its mark errors (gate PASS)
 
 **Evidence:** `docs/stage0/E1_CONFIDENCE_DRAFT.md` §6, run
