@@ -38,7 +38,8 @@ Two explanations remain, with different consequences:
 
 Pages: the calibration Full-page pages on which Typhoon (BQ) left a line with
 Thai marks absent (`whole_line_causes == "line_missing"`; 21 pages, 71 lines,
-387 marks; the 3 placeholder pages are a subset). No locked-split page.
+387 marks; the 3 placeholder pages are a subset [wrong, found 2026-10-04: 2 of the 3 matching
+outputs are in this list]). No locked-split page.
 
 Inputs per page, fixed before the run: the page split into a 2×2 grid of
 tiles with 15% overlap, each tile read at the processor's normal pixel budget
@@ -204,8 +205,11 @@ overstates what the data show.]
   47.6% on the others).
 - *Post hoc, not registered:* the union of the whole-page read and the tiles holds 73.1% of the
   absent marks as text (50.6% + 22.5%). Gains and losses are of similar size (22.5% and 25.3%);
-  part of both is read-to-read variability of one greedy decode, which a single read per
-  condition cannot separate from the effect of zoom.
+  part of both is sensitivity of the read to any change of the image, which one read per
+  condition cannot separate from the effect of zoom. [Corrected 2026-10-04: this said
+  "read-to-read variability of one greedy decode". Repeating an identical input reproduced the
+  stored output byte for byte on the 2 pages of the P-ZOOM-3 smoke (I checked) and, a reviewer says,
+  on an earlier replicate (4 of 4, not re-checked), so decode noise may be near zero; P-ZOOM-3's `repeat` view measures it on 21 pages.]
 - Zoom is therefore neither shown to reveal the text nor ruled out as a way to add some of it.
   What the data support is narrower than first written (§10): the pooled tile share of the lines
   Typhoon left out of the page read is 47.8%, 12.7% of those marks go into `<figure>` descriptions
@@ -247,3 +251,17 @@ resolved by the data in hand; each is carried into `P_ZOOM3_CONTROLS_DRAFT.md`.
   change of run".
 - **Scope.** 21 pages, 71 lines. Mark-weighted pooling lets a few long lines dominate; the sign of
   the net effect changes with the unit.
+
+### 10b. Findings of the second review (2026-10-04), after the first §10
+
+- **The 2x2 grid's seam makes the registered label an artifact.** `find_elsewhere` credits a line
+  only if it sits whole in one tile; a wide line cut by the vertical seam is read correctly in two
+  adjacent tiles and scored `not_found` (reviewer's finding; consistent with the line-60 case in
+  §10, which I re-scored). P-ZOOM-3 uses full-width bands, which have no vertical seam.
+- **Other scorer limits** (reviewers' findings, each moves a share by 1 to 6 points, none re-checked
+  by me): greedy claim order, overlap strips crediting one physical line twice, short lines never
+  findable (8 of 71, re-checked: 9 marks), figure claims not competed for by non-selected lines.
+- **The log's wording of the amended rule was loose.** `DECISION_LOG.md` 2026-10-03d and -e said
+  "+15 points over that baseline". The rule is gross: tiles ≥ 50% as text **and** a gain of ≥ 15
+  points, where gain ignores lost marks. Tiles could meet it with no net advantage; the log entries
+  now say so.

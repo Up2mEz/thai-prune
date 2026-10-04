@@ -4,6 +4,15 @@
 Written 2026-10-04. A mechanism probe on the calibration split, Typhoon only. It evaluates
 no method and supports no claim beyond what §5 states.
 
+**Superseded in part, 2026-10-04 (after an independent review).** The `bands` view is *not* "the
+one new factor" that §3 calls it: it differs from the whole-page controls in crop geometry
+(full-width tiles, not a grid), in scale (1.85×: input resolution is increased, source pixels
+enlarged; nothing is pruned or merged after the encoder), in width (1,536 to 3,087 px, median
+2,366, beyond the 1,800 px the model was trained at on 19 of 21 pages) and in visual tokens per
+read (1,872 to 3,744, against about 2,250 for the whole page). The rule of §5 therefore measures
+how far the band read departs from the baseline, not zoom. It is still computed and reported as
+registered, under the key `p_zoom2_as_registered_NOT_A_ZOOM_RESULT`; any statement about zoom
+uses `P_ZOOM3_CONTROLS_DRAFT.md` §4 (`bands` against `bands100`, same crops).
 ## 1. Why a second round
 
 P-ZOOM (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9) ended below its registered line (tiles recover
@@ -19,7 +28,9 @@ it left two things open:
 ## 2. Literature, and what it changes
 
 Read 2026-10-04 by fetching each paper's arXiv abstract page; unless stated, only the abstract
-was seen, so nothing below rests on a result table I read. No paper found by these searches
+was seen. The Typhoon row also uses the paper's HTML page (its ROUGE-L figures come from a results
+table, and the 1,800 px and figure-limitation statements from its text) and the model card, so that
+row rests on more than an abstract. No paper found by these searches
 tests Thai or text-in-infographic omission directly.
 
 | source | what it says (abstract level) | what it bears on here |
@@ -28,7 +39,7 @@ tests Thai or text-in-infographic omission directly.
 | Typhoon OCR, [arXiv:2601.14722](https://arxiv.org/abs/2601.14722) and the [model card](https://huggingface.co/typhoon-ai/typhoon-ocr1.5-2b) | outputs `<figure>` tags for visual elements; the card's prompt tells the model to describe the image, "mention visible text and its meaning"; trained at a fixed 1,800 px; the paper lists figure understanding as a limitation; infographics are its weakest category (ROUGE-L 0.527 vs 0.677 for Gemini 2.5 Pro) | a `<figure>` holding a description of the text is the contract working, not a failure; this is why §3 of P-ZOOM counted `figure_only` apart |
 | *Improving MLLM Historical Record Extraction with Test-Time Image Augmentations*, [arXiv:2509.09722](https://arxiv.org/abs/2509.09722) | transcribing several augmented variants of one image (padding and blur helped most) and fusing the transcripts with a sequence alignment gave +4 points over one unmodified read; Gemini 2.0 Flash, 622 death records | different views of one image give complementary transcripts; supports a perturbation control and, if perturbation explains the gain, multi-view fusion as the lever. One model, one document type |
 | *How Much Information Can a Vision Token Hold?*, [arXiv:2602.02539](https://arxiv.org/abs/2602.02539) | as text density per vision token rises, accuracy goes from stable, to an unstable phase of "increased error variance", to failure; DeepSeek-OCR the example | if dense graphics sit in the unstable phase at page scale, read-to-read variance is large there, which is what a perturbation control measures |
-| *Image Tiling for High-Resolution Reasoning*, [arXiv:2512.11167](https://arxiv.org/abs/2512.11167) (Monkey replication) | tiling recovers local detail; the effect varies with task and tile granularity | tiling is not uniformly beneficial: tile geometry is a variable, as P-ZOOM's control showed |
+| *Image Tiling for High-Resolution Reasoning*, [arXiv:2512.11167](https://arxiv.org/abs/2512.11167) (Monkey replication) | tiling recovers local detail; the effect varies with task and tile granularity | tiling is not uniformly beneficial: tile geometry is a variable (P-ZOOM's control suggested it, though part of that was a scorer limit, `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10) |
 | MinerU2.5, [arXiv:2509.22186](https://arxiv.org/abs/2509.22186) | layout analysis on a downsampled page, then content recognition on native-resolution crops | the route a graphics-aware remedy would take; no abstract-level comparison with full-page decoding |
 | PaddleOCR-VL, [arXiv:2510.14528](https://arxiv.org/abs/2510.14528) | two-stage layout then element recognition (abstract: element-level state of the art); its claims about hallucination reduction came from a search snippet and were **not** confirmed | same |
 
@@ -46,11 +57,12 @@ Everything but the image is as in P-ZOOM. 105 reads.
 | baseline | whole page, `resize_policy` (T1 `TYPHOON_CARD`, exists) | zoom-free reference |
 | `pad` | whole page on a white margin of 4% of the longer side, then `resize_policy` (content ≈0.93×) | perturbation control |
 | `scale90` | whole page, `resize_policy`, then ×0.9 (content 0.9×) | perturbation control |
-| `bands` | 3 full-width horizontal bands, 15% overlap, each cropped from source pixels and resized to **1.85×** page scale (the P-ZOOM zoom), *not* capped at 1800 px | the one new factor: same zoom, no vertical cut |
+| `bands` | 3 full-width horizontal bands, 15% overlap, each cropped from source pixels and resized to **1.85×** page scale (the P-ZOOM zoom), *not* capped at 1800 px | intended as one new factor (same zoom, no vertical cut); in fact also a crop, a width beyond the trained size and more visual tokens (note at the top) |
 
 The perturbation views move the content by a few percent without zooming. The bands carry
-more pixels per read than the grid did (width about 3,300 px for a portrait page); the
-visual-token count of every read is recorded.
+more pixels per read than the grid did (width 1,536 to 3,087 px, median 2,366, on these pages;
+3,330 px is reached only by a landscape page); the visual-token count of every read is recorded
+and checked against the size read (`visual_token_check` in the analysis output).
 
 ## 4. Measures, fixed before the run
 
@@ -70,21 +82,25 @@ Lines and scorer exactly as P-ZOOM §3 and §7 (`p_zoom_analysis.score_page`): `
 
 ## 5. Readings fixed in advance (`p_zoom2_analysis.reading`)
 
-Thresholds are judgements (10 points = about 39 marks, about 7 lines; 80% control floor), not
-derived from data.
+Thresholds are judgements (10 points = 39 marks; 80% control floor), not derived from data. In
+lines the 10 points are not "about 7": marks per line are very skewed (median 3, 17 of 71 lines
+have one mark, the heaviest line has 49 and the two heaviest 96, 24.8% of all marks), so the
+threshold can be met by one to three lines.
 
 1. **Control first.** Bands find < 80% of control marks ⇒ `instrument_fails_control`: the bands
    lose ordinary lines too, and the round says nothing about zoom.
 2. **`zoom_adds_beyond_perturbation`**: `Z ≥ 10` points and `Z − N ≥ 10` points. Zoom recovers
    absent text that a mere change of input does not.
 3. **`perturbation_explains_gain`**: otherwise, `N ≥ 10` points. A change of input alone
-   recovers about what zoom does, so P-ZOOM's gain is read-to-read variability. The lever, if
-   any, is combining several views (the union row), not zoom.
+   recovers about what the band view does, so P-ZOOM's gain does not need zoom to be explained. (A
+   union of several reads is higher than any single read for any extra read; whether views
+   complement one another beyond that needs a same-read-count comparison this pilot lacks.)
 4. **`no_gain_from_views`**: otherwise.
 
-Consequences, each a *next draft*, never a run: (2) a registered bands-based re-read with
-order-free v2 precision charged; (3) a registered multi-view fusion with the same charge;
-(1) or (4): P-ZOOM stops.
+Consequences, each a *next draft*, never a run, and only through the controlled reading of
+`P_ZOOM3_CONTROLS_DRAFT.md` §4 for anything about zoom: a registered re-read with order-free v2
+precision charged; a registered multi-view fusion with the same charge and a same-read-count
+comparison.
 
 ## 6. Cost and claims
 

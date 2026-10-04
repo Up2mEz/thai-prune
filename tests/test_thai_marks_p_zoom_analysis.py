@@ -123,3 +123,16 @@ def test_assemble_pages_orders_tiles_and_refuses_a_partial_run() -> None:
                        [page], 4)
     with pytest.raises(ValueError, match="duplicate"):
         assemble_pages(records + records[:1], [page], 4)
+
+
+def test_the_unclaimed_sensitivity_variant_matches_only_selected_lines() -> None:
+    twin = "\n".join([A, A])
+    variant = score_page(twin, [A], [0], [1], claim_other_lines=False)["lines"]
+    assert [r["line"] for r in variant] == [0, 1]
+    assert sorted(r["outcome"] for r in variant) == ["not_found", "text"]  # the two still share one claim
+    # a kept twin outside the selection no longer blocks the absent line
+    three = "\n".join([A, A, B])
+    blocked = score_page(three, [A], [1], [2])["lines"]
+    free = score_page(three, [A], [1], [2], claim_other_lines=False)["lines"]
+    assert [r["outcome"] for r in blocked][0] == "not_found"
+    assert [r["outcome"] for r in free][0] == "text"

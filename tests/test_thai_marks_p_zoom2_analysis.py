@@ -120,3 +120,22 @@ def test_analyze_controlled_isolates_zoom_from_cropping_and_flags_drift() -> Non
     assert out["stack"] == "baseline_reproduced"
     assert pz2.analyze_controlled(base, scores, (17, 21))["stack"] == "stack_drift"
     assert pz2.analyze_controlled(base, scores, (20, 21)) == out  # deterministic
+
+
+def test_the_stack_condition_and_the_instrument_come_before_a_zoom_label() -> None:
+    assert pz2.controlled_reading(0.30, [0.20, 0.40], 0.9, same_stack=False) == "stack_differs"
+    assert pz2.controlled_reading(0.30, [0.20, 0.40], 0.5, same_stack=False) == "instrument_fails_control"
+
+
+def test_a_text_gain_matched_by_a_figure_loss_is_flagged_as_a_markup_shift() -> None:
+    base = [_page("figure_only", "figure_only", "not_found", "not_found") for _ in range(8)]
+    crop = [_page("figure_only", "figure_only", "not_found", "not_found") for _ in range(8)]
+    zoom = [_page("text", "text", "not_found", "not_found") for _ in range(8)]  # figures become text
+    scores = {"repeat": base, "pad": base, "scale90": base, "bands100": crop, "bands": zoom}
+    out = pz2.analyze_controlled(base, scores, (21, 21))
+    assert out["zoom_effect_D"] == pytest.approx(0.5)
+    assert out["zoom_effect_read_anywhere"]["D"] == pytest.approx(0.0)
+    assert out["zoom_effect_figure_share"]["D"] == pytest.approx(-0.5)
+    assert out["text_gain_is_markup_shift"] is True
+    assert out["zoom_effect_ci95_halfwidth"] >= 0
+    assert pz2.analyze_controlled(base, scores, (21, 21), same_stack=False)["controlled_reading"] == "stack_differs"

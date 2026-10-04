@@ -174,12 +174,14 @@ MIN_IDENTICAL_PAGES = 18
 
 
 def page_text_rows(view_scores: list[dict]) -> list[dict]:
-    """Per page: absent marks and absent marks recovered as text."""
+    """Per page: absent marks, and those recovered as `text`, as `figure_only`, and in either."""
     rows = []
     for page in view_scores:
         absent = [r for r in page["lines"] if r["group"] == "absent"]
-        rows.append({"absent": sum(r["marks"] for r in absent),
-                     "text": sum(r["marks"] for r in absent if r["outcome"] == "text")})
+        text = sum(r["marks"] for r in absent if r["outcome"] == "text")
+        figure = sum(r["marks"] for r in absent if r["outcome"] == "figure_only")
+        rows.append({"absent": sum(r["marks"] for r in absent), "text": text,
+                     "figure": figure, "any": text + figure})
     return rows
 
 
@@ -202,10 +204,18 @@ def identical_pages(repeat_outputs: dict[str, str], baseline_outputs: dict[str, 
     return sum(repeat_outputs[i] == baseline_outputs[i] for i in repeat_outputs), len(repeat_outputs)
 
 
-def controlled_reading(effect: float, ci: list[float], crop_control: float) -> str:
-    """Zoom effect D = text share (bands, 1.85x) - text share (bands100, 1.0x), same crops."""
+def controlled_reading(effect: float, ci: list[float], crop_control: float,
+                       same_stack: bool = True) -> str:
+    """Zoom effect D = text share (bands, 1.85x) - text share (bands100, 1.0x), same crops.
+
+    `zoom_not_distinguishable` is *inconclusive*: at 21 pages the interval is wide and a
+    difference smaller than about its half-width cannot be told from zero. It is not
+    evidence that zoom does nothing.
+    """
     if crop_control < CONTROL_FLOOR:
         return "instrument_fails_control"
+    if not same_stack:
+        return "stack_differs"  # the two reads came from sessions with different software stacks
     if effect >= ZOOM_EFFECT and ci[0] > 0:
         return "zoom_helps"
     if effect <= -ZOOM_EFFECT and ci[1] < 0:
@@ -220,19 +230,27 @@ def _bootstrap(stat, pages: int) -> list[float]:
 
 
 def analyze_controlled(baseline_scores: list[dict], scores: dict[str, list[dict]],
-                       repeat_identical: tuple[int, int]) -> dict:
+                       repeat_identical: tuple[int, int], same_stack: bool = True) -> dict:
     """The P-ZOOM-3 readings, from the baseline, every view's scores and the exact-repeat check."""
     rows = {name: page_text_rows(s) for name, s in scores.items()}
     base_rows = page_text_rows(baseline_scores)
     pages = len(baseline_scores)
 
-    def share(r, idx=None):
+    def share(r, idx=None, key="text"):
         chosen = r if idx is None else [r[i] for i in idx]
         total = sum(x["absent"] for x in chosen)
-        return sum(x["text"] for x in chosen) / total if total else 0.0
+        return sum(x[key] for x in chosen) / total if total else 0.0
 
     effect = share(rows[ZOOM_VIEW]) - share(rows[CROP_VIEW])
     ci = _bootstrap(lambda idx: share(rows[ZOOM_VIEW], idx) - share(rows[CROP_VIEW], idx), pages)
+    # Co-reported with D: the same contrast on "read anywhere" (text or figure) and on figure
+    # share. A text gain that is matched by a figure loss is a change of markup, not more reading.
+    effects = {}
+    for key in ("any", "figure"):
+        effects[key] = {
+            "D": share(rows[ZOOM_VIEW], key=key) - share(rows[CROP_VIEW], key=key),
+            "ci95": _bootstrap(lambda idx, k=key: share(rows[ZOOM_VIEW], idx, k)
+                               - share(rows[CROP_VIEW], idx, k), pages)}
     crop_control = control_text_share(scores[CROP_VIEW])
     per_view = {}
     for name, r in rows.items():
@@ -248,10 +266,14 @@ def analyze_controlled(baseline_scores: list[dict], scores: dict[str, list[dict]
         "baseline_absent_text_share": share(base_rows),
         "per_view": per_view,
         "zoom_effect_D": effect, "zoom_effect_ci95": ci, "crop_control_text_share": crop_control,
+        "zoom_effect_ci95_halfwidth": (ci[1] - ci[0]) / 2,
+        "zoom_effect_read_anywhere": effects["any"], "zoom_effect_figure_share": effects["figure"],
+        "text_gain_is_markup_shift": effect >= ZOOM_EFFECT and effects["any"]["D"] < ZOOM_EFFECT / 2,
+        "same_stack": same_stack,
         "crop_effect_bands100_minus_baseline": share(rows[CROP_VIEW]) - share(base_rows),
         "repeat_identical_pages": [identical, compared],
         "stack": "baseline_reproduced" if identical >= MIN_IDENTICAL_PAGES else "stack_drift",
         "thresholds": {"zoom_effect": ZOOM_EFFECT, "control_floor": CONTROL_FLOOR,
                        "min_identical_pages": MIN_IDENTICAL_PAGES},
-        "controlled_reading": controlled_reading(effect, ci, crop_control),
+        "controlled_reading": controlled_reading(effect, ci, crop_control, same_stack),
     }

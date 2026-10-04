@@ -24,6 +24,28 @@ def _jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
+STACK_FIELDS = ("model_id", "revision", "dtype_used", "torch", "transformers", "cuda_device")
+
+
+def stack_signature(manifest: dict) -> dict:
+    """What must match for two reads to come from the same software/hardware stack."""
+    sig = {k: manifest.get(k) for k in STACK_FIELDS}
+    sig["generation_active"] = (manifest.get("generation") or {}).get("active")
+    return sig
+
+
+def visual_token_check(records: list[dict]) -> dict:
+    """Recorded visual tokens against the Qwen3-VL prediction from the image size read.
+
+    A mismatch would mean the processor resized or capped the image: the model saw something
+    other than what the view recorded. Prediction: round(h/32) * round(w/32).
+    """
+    bad = [(r["id"], r["view"], r["tile"], r["read_size"], r["visual_tokens"]) for r in records
+           if round(r["read_size"][1] / 32) * round(r["read_size"][0] / 32) != r["visual_tokens"]]
+    return {"reads": len(records), "mismatches": len(bad), "examples": bad[:5],
+            "max_visual_tokens": max(r["visual_tokens"] for r in records)}
+
+
 def load_run(run_dir: Path, config_path: Path, pages: list[dict]):
     """Checksum-verified run: (success, config, manifests, records). Refuses failed reads."""
     if (run_dir / "FAILURE.json").exists():
@@ -115,13 +137,24 @@ def main() -> None:
         "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
         "gpu_hours": {n: sum(x["wall_seconds"] for x in m) / 3600 for n, (_, _, m, _) in loaded.items()},
         "reads": {v: dict(c) for v, c in reads.items()}, "zoom_factor": zoom,
-        "pages": page_ids, "p_zoom2_as_registered": result,
+        "pages": page_ids,
+        "visual_token_check": {n: visual_token_check(rec) for n, (_, _, _, rec) in loaded.items()},
+        # kept as written; superseded for any statement about zoom by p_zoom3_controlled
+        "p_zoom2_as_registered_NOT_A_ZOOM_RESULT": result,
     }
     if args.controls_run_dir:
         baseline_outputs = {p["id"]: t1[(p["id"], "TYPHOON_CARD")]["raw_output"] for p in pages}
         identical = pz2.identical_pages(
             {i: o for i, o in outputs["repeat"].items()}, baseline_outputs)
-        out["p_zoom3_controlled"] = pz2.analyze_controlled(baseline, scores, identical)
+        sigs = {n: [stack_signature(x) for x in m] for n, (_, _, m, _) in loaded.items()}
+        same_stack = all(sig == sigs["p_zoom2"][0] for sigs_n in sigs.values() for sig in sigs_n)
+        out["stack_signatures"] = sigs
+        t1_manifest = Path(args.t1_records).with_name("manifest.json")
+        if t1_manifest.exists():
+            t1_sig = stack_signature(json.loads(t1_manifest.read_text(encoding="utf-8")))
+            out["t1_stack_signature"] = t1_sig
+            out["t1_stack_equals_p_zoom2"] = t1_sig == sigs["p_zoom2"][0]  # reported, not gating
+        out["p_zoom3_controlled"] = pz2.analyze_controlled(baseline, scores, identical, same_stack)
         # Sensitivity to the inherited line-match cutoff (P-ZOOM's registered reading flipped at
         # 0.25). Reported, never used for the label, which is the registered cutoff's.
         registered_cutoff = attribution.READ_ELSEWHERE_CER
@@ -130,16 +163,20 @@ def main() -> None:
             assembled_all.update(pz2.assemble_views(records, pages, config["views"]))
         out["p_zoom3_sensitivity"] = {}
         try:
-            for cutoff in SENSITIVITY_CUTOFFS:
+            for cutoff, claim in [(c, True) for c in SENSITIVITY_CUTOFFS] + [(registered_cutoff, False)]:
                 attribution.READ_ELSEWHERE_CER = cutoff
                 base_c = [score_page(t1[(p["id"], "TYPHOON_CARD")]["reference"],
                                      [t1[(p["id"], "TYPHOON_CARD")]["raw_output"]],
-                                     p["absent_lines"], p["control_lines"]) for p in pages]
-                sc = {v: pz2.score_view(pl) for v, pl in assembled_all.items()}
-                c = pz2.analyze_controlled(base_c, sc, identical)
-                out["p_zoom3_sensitivity"][str(cutoff)] = {
+                                     p["absent_lines"], p["control_lines"],
+                                     claim_other_lines=claim) for p in pages]
+                sc = {v: [score_page(p["reference"], p["tile_outputs"], p["absent"], p["control"],
+                                     claim_other_lines=claim) for p in pl]
+                      for v, pl in assembled_all.items()}
+                c = pz2.analyze_controlled(base_c, sc, identical, same_stack)
+                out["p_zoom3_sensitivity"][f"cutoff={cutoff}" + ("" if claim else ",no_other_line_claims")] = {
                     "baseline_absent_text_share": c["baseline_absent_text_share"],
                     "zoom_effect_D": c["zoom_effect_D"], "zoom_effect_ci95": c["zoom_effect_ci95"],
+                    "zoom_effect_read_anywhere": c["zoom_effect_read_anywhere"]["D"],
                     "crop_control_text_share": c["crop_control_text_share"],
                     "controlled_reading": c["controlled_reading"],
                     "absent_text_share": {v: b["absent_text_share"] for v, b in c["per_view"].items()}}

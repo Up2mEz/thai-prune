@@ -79,12 +79,14 @@ def _locate(line: str, texts: list[str], used: list[set]) -> tuple[int, str] | N
 
 
 def score_page(raw_reference: str, tile_outputs: list[str], absent: list[int],
-               control: list[int]) -> dict:
+               control: list[int], *, claim_other_lines: bool = True) -> dict:
     """Outcome of every selected line of one page against its tile outputs.
 
     `absent` and `control` are indices into `reference_lines(raw_reference)`.
     All reference lines are matched, the absent ones last, against one shared claim state
     per tile, so two lines cannot be credited from one stretch of a tile read.
+    `claim_other_lines=False` is a reported sensitivity variant (only the selected lines are
+    matched, in index order), never the registered scoring.
     """
     lines = reference_lines(raw_reference)
     text = [extract_text(raw) for raw in tile_outputs]
@@ -96,7 +98,8 @@ def score_page(raw_reference: str, tile_outputs: list[str], absent: list[int],
     # tile that reads some other line (a near-identical caption, a repeated line) must not be
     # credited as the absent line too. This is the page-alignment `used` rule of
     # `attribution.find_elsewhere`, rebuilt for tiles, which cannot be aligned to the page.
-    order = [i for i in range(len(lines)) if i not in set(absent)] + sorted(absent)
+    order = ([i for i in range(len(lines)) if i not in set(absent)] + sorted(absent)
+             if claim_other_lines else sorted(kind_of))
     rows = []
     for index in order:
         line = lines[index]

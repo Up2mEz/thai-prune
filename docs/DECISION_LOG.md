@@ -2,6 +2,24 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04c — controlled reading amended before any P-ZOOM-2/-3 output was opened
+
+**Evidence:** the second review of `wf_9f91ee64-a6b` (verification agents again stopped by a
+session limit), `P_ZOOM3_CONTROLS_DRAFT.md` §6 and §8, my own re-checks listed there.
+
+**Decided (assistant, reversible), before scoring:** `controlled_reading` gains a stack condition
+(`stack_differs` when the P-ZOOM-2 and P-ZOOM-3 sessions' model revision, dtype, torch,
+transformers, device or resolved generation config differ), its inconclusive outcome is worded as
+inconclusive, `D` is co-reported on text-or-figure and on figure share with a markup-shift flag,
+every `D` is quoted with its interval half-width, the token count is checked against the size
+read, and sensitivity at three cutoffs and without other-line claiming is reported. The P-ZOOM-2
+rule is kept, reported under `p_zoom2_as_registered_NOT_A_ZOOM_RESULT`. The scorer is unchanged.
+
+**Not changed, on purpose:** thresholds (10 points, 80%, 18 of 21), the scorer, the registered
+cutoff 0.2. **Disclosure:** `P_ZOOM3_CONTROLS_DRAFT.md` §6 lists exactly what was seen.
+
+---
+
 ## 2026-10-04b — P-ZOOM-2 cannot be read as a test of zoom; P-ZOOM-3 controls registered
 
 **Evidence:** an independent review (`wf_9f91ee64-a6b`: scorer review and all verification
@@ -41,7 +59,7 @@ GPU spend are the assistant's judgements within the pzoom budget of `PARALLEL_SE
 first said "Decision owner: Up2mEz" and "standing delegation".] Reversible at any time by the
 researcher.
 
-**Authorized:** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
+**Authorized (by the assistant, see the decision owner above):** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
 21 pages, 105 reads (two whole-page perturbation views and 3 full-width bands at 1.85x),
 readings of §5 fixed in advance. First a smoke (`--limit 2`) on the secondary account; then
 one T4 session on the main account, kernel slug `labbs2026-thai-marks-pzoom`, under 2
@@ -60,7 +78,8 @@ Calibration split, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
 **Finding:** tiles (2x2, 15% overlap, 1.85x) recover 47.8% of the marks of lines Typhoon left
 out of full pages as text, 12.7% as `<figure>` descriptions, and miss 39.5%. The zoom-free
 `TYPHOON_CARD` whole-page read recovers 50.6%. By the reading fixed before the run
-(`resolution_attention_limit` needs >= 50% and +15 points over that baseline): no. The result
+(`resolution_attention_limit` needs >= 50% as text and a *gross* gain of >= 15 points: marks of
+lines tiles recover and the whole-page read does not, ignoring the marks tiles lose): no. The result
 is `beyond_typhoon_at_this_resolution`. It is 2.2 points under the line, and the control shows
 the grid loses wide ordinary lines (40% found against a 97% ceiling), so it is not a clean
 negative.
@@ -96,7 +115,8 @@ session, under 2 GPU-hours (the session budget is 3 h this week).
 **Amendment made before any tile output (§7):** the draft's "tiles recover
 >= 50% of absent marks" would also be met by the whole-page `TYPHOON_CARD`
 read, which already recovers 50.6% with no zoom. The reading now requires a
-gain of >= 15 points over that baseline; otherwise the result is reported as
+gross gain of >= 15 points (marks of lines tiles recover and the whole-page read does not; lost
+marks are not subtracted) over that baseline; otherwise the result is reported as
 `prompt_not_zoom`. The 15 points are a judgement. To reverse: edit the rule
 in `p_zoom_analysis.reading` before the first tile output is read, and log it.
 

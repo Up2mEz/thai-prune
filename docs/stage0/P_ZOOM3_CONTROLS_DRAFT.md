@@ -46,31 +46,51 @@ Lines and scorer as P-ZOOM §3 and §7, at the registered cutoff `READ_ELSEWHERE
   interval.
 - **Crop effect** = text share of `bands100` − baseline (reported, no rule).
 - **Control**: share of control marks `bands100` finds as text.
-- **Sensitivity** (reported, never used for a label): `D`, its interval and the baseline share at
-  cutoffs 0.15, 0.25, 0.30.
+- **Read anywhere and figure share** (added 2026-10-04 before any output was opened, after a
+  review noted that enlarging a chart can change whether Typhoon transcribes or describes it):
+  the contrast `bands` − `bands100` on text-or-figure and on figure only, each with its interval;
+  `text_gain_is_markup_shift` is true when `D ≥ 10` points but the read-anywhere contrast is
+  under 5 points (text gained mostly where figures were lost). It qualifies a `zoom_helps`;
+  it does not change the label.
+- **Stack of the two reads** (added likewise): `bands` comes from the P-ZOOM-2 session (git
+  `6a7840f`) and `bands100`, `repeat` from the P-ZOOM-3 session (git `deea2ee`), so `D` subtracts
+  reads from two Kaggle sessions. The manifests' model revision, dtype, torch, transformers,
+  CUDA device and resolved generation config must be equal across them, else `stack_differs`; the
+  same signature of the T1 manifest is reported, not gating.
+- **Visual-token check**: for every read, recorded visual tokens against
+  `round(h/32) × round(w/32)` of the size read; a mismatch would mean the processor resized it.
+- **Interval half-width of `D`**, to be quoted with every `D`.
+- **Sensitivity** (reported, never used for a label): `D`, its interval, the read-anywhere contrast
+  and the baseline share at cutoffs 0.15, 0.25, 0.30, and with other reference lines not claiming
+  stretches first (`claim_other_lines=False`).
 - Also reported: P-ZOOM-2's registered `analyze()` output unchanged (`N`, `Z`, `Z − N`, union
   shares, its reading), reads that reach `max_new_tokens`, tokens, visual tokens, seconds.
 
 ## 4. Readings, fixed in advance (`controlled_reading`, `analyze_controlled`)
 
-Thresholds are judgements (10 points ≈ 39 marks ≈ 7 lines; 80% control floor; 18 of 21 pages), not
-derived from data.
+Thresholds are judgements (10 points = 39 marks, which one 49-mark line can supply; 80% control
+floor; 18 of 21 pages), not derived from data.
 
 1. **Stack.** `repeat` identical to T1 on ≥ 18 of 21 pages ⇒ `baseline_reproduced`: the stored
    baseline can be used as a reference read. Otherwise `stack_drift`: every difference from T1 in
    P-ZOOM and P-ZOOM-2 mixes input and run; read them against the churn of `repeat`, and the
    stored baseline is not a clean reference.
 2. **Instrument.** `bands100` finds < 80% of control marks ⇒ `instrument_fails_control`; no zoom
-   reading is made.
+   reading is made. If the two sessions' stack signatures differ ⇒ `stack_differs`; no zoom reading.
 3. **Zoom effect on the same crops.**
    - `zoom_helps`: `D ≥ +10` points and the 95% interval lies above 0;
    - `zoom_hurts`: `D ≤ −10` points and the interval lies below 0;
-   - `zoom_not_distinguishable`: otherwise.
+   - `zoom_not_distinguishable`: otherwise. This is **inconclusive**, not "zoom does nothing": with
+     21 pages the interval is wide, and a difference smaller than about its half-width cannot be
+     told from zero. Every `D` is quoted with that half-width.
 
 P-ZOOM-2's rule (`reading()`) is computed and reported as registered, but any statement about zoom
 uses the label above. Consequences, each a *next draft*, never a run: `zoom_helps` ⇒ a registered
-re-read with order-free v2 precision charged; `zoom_hurts` or `zoom_not_distinguishable` ⇒ zoom is not
-the lever on these pages; multi-view reads (the union rows) are the remaining candidate.
+re-read with order-free v2 precision charged, and a replication at a larger sample; `zoom_hurts` ⇒
+the bands' extra scale or width is harmful for this model, which says nothing yet about
+zoom within the trained size; `zoom_not_distinguishable` ⇒ no conclusion either way. The union rows
+of P-ZOOM-2 are descriptive: any extra read raises a union, so they support no lever without a
+same-read-count comparison.
 
 ## 5. Limits that stay whatever the outcome
 
@@ -86,8 +106,13 @@ pruning or merging is involved.
 - P-ZOOM's own outputs and all of §9's numbers.
 - The first 70 characters of each of the 10 reads of the P-ZOOM-2 smoke (2 pages), the
   per-read sizes, tokens, seconds and `<figure>` counts. No scoring.
-- Of the full P-ZOOM-2 run: integrity only (checksums, 105 records, no failed read, 1.02 GPU-hours).
-  No output text opened, nothing scored.
+- Of the full P-ZOOM-2 run: integrity only (checksums, 105 records, no failed read, 1.02 GPU-hours)
+  and, after the review, per-read metadata (image size read, visual tokens: they match the prediction
+  on all 105 reads). No output text opened, nothing scored.
+- The P-ZOOM-3 smoke (2 pages, 8 reads): sizes, tokens and seconds, and that the `repeat` output
+  equals the stored T1 output byte for byte on both pages. Nothing else.
+- The review's findings (below, §8), including that the 2x2 grid's vertical seam makes P-ZOOM's
+  label an instrument artifact; bands are full width, so `bands` and `bands100` share no seam.
 
 ## 7. Cost
 
@@ -95,3 +120,23 @@ pruning or merging is involved.
 scale (shorter than the zoomed bands). Estimated 0.5 to 0.7 GPU-hours. P-ZOOM used 0.55 and P-ZOOM-2
 1.02 of this week's 3-hour pzoom budget; this round brings it to about 2.2. The smoke runs on the
 secondary account first.
+
+## 8. Review findings that shaped this draft, and what was left alone
+
+From the second review (`wf_9f91ee64-a6b`; the verification agents failed on a session limit again,
+so each finding below is a reviewer's claim unless I say I re-checked it):
+
+- *Re-checked by me:* 8 of the 71 absent lines (9 marks) are shorter than the 8 characters
+  `find_elsewhere` needs, so they are always `not_found` and sit in the denominator; every share
+  is capped below 100% (97.7% by marks) in every view alike. Marks per line are very skewed (above).
+  Visual tokens equal `round(h/32) × round(w/32)` on all reads of P-ZOOM-2 and P-ZOOM-3.
+  The "3 placeholder pages are a subset of the 21" statement of P-ZOOM §2 is wrong: of 3
+  matching outputs, 2 are in the frozen list.
+- *Reported by the reviewers, not re-checked:* a line is credited only if it sits whole in one tile,
+  so lines cut by the vertical seam of the 2x2 grid are `not_found` (this alone makes P-ZOOM's label
+  an artifact; it does not touch full-width bands); claim order can move a 22-mark line (5.7 points)
+  in either direction; overlap strips can credit one physical line twice; non-selected lines do not
+  compete for `<figure>` stretches (figure-only share 12.7% would be about 8.8%); `_FIGURE` and
+  `extract` disagree on nested figures. The first review's verified-by-recomputation items stand.
+- *Left as registered:* the scorer (changing it now would split P-ZOOM's registered numbers from
+  these); the sensitivity variants above are reported instead.
