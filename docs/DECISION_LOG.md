@@ -2,6 +2,58 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04b — INPUT_SIDE_D1 (Track D, gap G2) authorized
+
+> Drafted by PELY334's Claude Code session after Up2mEz agreed to Track D as
+> G2 only with three edits
+> (`collab/messages/20261004T0605Z_Up2mEz_to_PELY334_f1-addendum1-ok-pr38-track-d-review-s1-results.md`).
+> **Approved by both researchers:** PELY334 stated in session on 2026-10-04;
+> Up2mEz by approving PR #46 (2026-10-04T11:39:47Z, "approved under the researcher's
+> delegation for Track D"), recorded here by PELY334's session at Up2mEz's
+> request (`collab/messages/20261004T1139Z_Up2mEz_to_PELY334_d1-approved-review-f1-r2-results.md`).
+
+**Stage/Gate:** RQ-A, mechanism probe (gap G2). Opens or passes no gate; Gates
+1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/INPUT_SIDE_D1_REGISTRATION.md`
+with parameters `configs/input_side/d1.yaml`: the same 69 Fine-grained
+calibration items as FIND_VS_READ_F1, both pinned models (Typhoon primary),
+F1's grid-aligned crop shifted by d ∈ {0, 4, 8, 12, 16, 32} px without
+resampling, smoke first, cap 2 T4-hours, PELY334's own Kaggle quota. The locked
+split stays closed; no image is written to outputs or the repository.
+
+This **supersedes, for Track D only**, the sequencing in `ONBOARDING.md` §7 and
+`docs/exec-plans/active/QWEN3VL_TYPHOON_EXPERIMENT_PLAN.md` §6 under which D
+waited on T2: G2 is a mechanism probe that does not need T2's routing (T2's
+tone numbers await a rerun). G3 (scale) stays with Up2mEz's P-ZOOM.
+
+### Reasoning
+
+- A tone mark is a few pixels of a patch dominated by its base; whether the
+  grid alignment, rather than resolution, decides its survival is testable
+  without resampling by moving a grid-aligned crop.
+- `d = 32` keeps the grid phase and moves one token row: a control for position
+  and edge context (Up2mEz's edit 2). Exact flip counts, no interval rule
+  (edit 3).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- A phase effect would justify registering a phase-aware remedy; no remedy is
+  evaluated here.
+
+### Files/configs affected
+
+- `docs/stage0/INPUT_SIDE_D1_REGISTRATION.md`, `configs/input_side/d1.yaml`
+- `src/labbs2026/input_side/`, `scripts/input_side_*.py`,
+  `infra/kaggle/input_side_worker.py`
+
+---
+
 ## 2026-10-04 — FIND_VS_READ_F1 (Track C) authorized
 
 > Drafted by PELY334's Claude Code session at Up2mEz's request
