@@ -4,24 +4,10 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from labbs2026.thai_marks.confidence import _marks
+from labbs2026.thai_marks.confidence import _marks, base_of as _base_of
 from labbs2026.thai_marks.decompose import align_anchored, edit_distance_from
 
 NOT_FOUND_CER = 0.4
-
-
-def _base_of(text: str, h: int) -> int:
-    """Step back from a combining mark to the character it sits on.
-
-    The anchored alignment may start its window on a mark (a tie between a
-    substitution and an insertion), putting a reference consonant against the
-    read's mark; the cluster to compare is the one the mark belongs to.
-    """
-    from labbs2026.thai_marks.orthography import COMBINING
-
-    while h > 0 and text[h] in COMBINING:
-        h -= 1
-    return h
 
 
 def view_status(line: str, ref_index: int, reads: Sequence[str]) -> str:
@@ -43,6 +29,7 @@ def view_status(line: str, ref_index: int, reads: Sequence[str]) -> str:
         return "not_found"
     _, pairs, read = best
     hyp = {r: h for r, h in pairs if r is not None and h is not None}
+    ref_index = _base_of(line, ref_index)
     h = hyp.get(ref_index)
     if h is None:
         return "wrong"

@@ -95,3 +95,9 @@ def test_unmatched_lines_between_matched_ones_are_not_labelled() -> None:
     lo, hi = raw.index(extra), raw.index(extra) + len(extra)
     assert labelled and not any(lo <= c["start"] < hi for c in labelled)
     assert not any(c["error"] for c in labelled)
+
+
+def test_reference_positions_on_a_mark_are_moved_to_their_consonant() -> None:
+    from labbs2026.thai_marks.confidence import base_of
+
+    assert base_of("ขึ้น", 2) == 0 and base_of("ขึ้น", 3) == 3 and base_of("้", 0) == 0

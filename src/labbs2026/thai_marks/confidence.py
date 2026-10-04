@@ -68,6 +68,18 @@ def _marks(text: str, start: int) -> str:
     return "".join(found)
 
 
+def base_of(text: str, i: int) -> int:
+    """Step back from a combining mark to the character it sits on.
+
+    Anchored alignment can pair a consonant with a mark at a window start (a
+    substitution/insertion tie); the cluster to compare is the mark's own.
+    Found 2026-10-04: 19 of 232 E1 mark-error labels sat on a reference mark.
+    """
+    while i > 0 and text[i] in COMBINING:
+        i -= 1
+    return i
+
+
 def _figure_mask(raw: str) -> set[int]:
     return {i for m in FIGURE.finditer(raw) for i in range(m.start(), m.end())}
 
@@ -131,6 +143,7 @@ def label_clusters(raw: str, pairs: list[tuple[str, int, int]],
         own = _marks(raw, start)
         if start in ref_of:
             text, r = ref_of[start]
+            r = base_of(text, r)
             ref_marks = _marks(text, r)
             consonant_error = text[r] != raw[start]
         else:
