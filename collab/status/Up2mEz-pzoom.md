@@ -1,32 +1,35 @@
 # Status — Up2mEz-pzoom
 
-**Updated:** 2026-10-04 (pzoom, fourth work block)
+**Updated:** 2026-10-04 (pzoom, fifth work block)
 
 ## Track
 
-P-ZOOM — `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`, then P-ZOOM-2 and P-ZOOM-3 (`docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`,
+P-ZOOM, P-ZOOM-2, P-ZOOM-3 (`docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md`, `P_ZOOM2_VIEWS_PROBE_DRAFT.md`,
 `P_ZOOM3_CONTROLS_DRAFT.md`). Protocol: `docs/exec-plans/active/PARALLEL_SESSIONS.md`.
 
-## State
+## Done
 
-- P-ZOOM (2x2 tiles): done; registered label `beyond_typhoon_at_this_resolution`, but an independent review
-  showed it rests on one line near its cutoff and overstates (draft §10; `DECISION_LOG.md` 2026-10-04b).
-- P-ZOOM-2 (`pad`, `scale90`, full-width `bands` at 1.85x): run complete on the main account
-  (`kaggle-thai-marks-t6-6a7840fe40d4-typhoon`, 105 reads, 1.02 GPU-hours), **not opened or scored yet**.
-- P-ZOOM-3 controls (`repeat` = T1 input unchanged, `bands100` = same crops at zoom 1.0), readings registered before
-  any output is read (`DECISION_LOG.md` 2026-10-04b). Smoke on the secondary account, then the main account.
+- P-ZOOM (2x2 tiles): the registered label was an artifact of the grid's seam; it supports neither
+  `beyond_typhoon_at_this_resolution` nor `resolution_attention_limit` (draft §10b). "P-ZOOM stops" withdrawn.
+- P-ZOOM-2 + P-ZOOM-3 (controls) done and scored, rules fixed before any output was opened
+  (`DECISION_LOG.md` 2026-10-04b/c/d; draft `P_ZOOM3_CONTROLS_DRAFT.md` §9):
+  - Typhoon is reproducible on the pinned stack: the same image gives the same output, 21 of 21 pages.
+  - Changing the image, even slightly, flips 11 to 19% of the marks it left out across the text / not-text line.
+  - Zoom (1.85x vs 1.0x on the same three bands): 0.0 points. Cropping into three bands at page scale:
+    +8.0 points (50.6% → 58.7%, interval +0.6 to +22.8), no loss on ordinary lines, about +50% decode time.
+- Independent reviews (two rounds) and skeptic verification are recorded in the drafts.
 
 ## Running now
 
-See the run list in the latest commit message; kernel `thanakritsamoena/labbs2026-thai-marks-pzoom` (own slug; the
-default `labbs2026-thai-marks-t1-t2` is not touched).
+Nothing on Kaggle.
 
 ## GPU-hours used this week (main account)
 
-1.57 so far (0.55 P-ZOOM + 1.02 P-ZOOM-2); P-ZOOM-3 expected 0.5 to 0.7 (pzoom budget 3, limit in
-`PARALLEL_SESSIONS.md` §3).
+2.30 (0.55 P-ZOOM, 1.02 P-ZOOM-2, 0.73 P-ZOOM-3) of the pzoom budget of 3
+(`PARALLEL_SESSIONS.md` §3). The smokes ran on the secondary account.
 
 ## Waiting on
 
-Nothing from the researcher. Decisions made by the assistant under "ทำไปเรื่อยๆเลย" are marked as such in
-`DECISION_LOG.md`; the researcher can reverse any of them.
+The researcher: whether a band re-read is worth piloting as a method (needs a registered draft,
+order-free v2 precision charged, about 207 band reads; more than the 0.7 hours left this week).
+Until a yes, the assistant runs nothing further.
