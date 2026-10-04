@@ -40,7 +40,7 @@ def main() -> None:
     words = lexicon()
     segment = lambda s: word_tokenize(s, engine="newmm", keep_whitespace=True)  # noqa: E731
     decode = lambda t: tok.decode([t], clean_up_tokenization_spaces=False)  # noqa: E731
-    scored = {r["case"]: r["scores"] for p in sorted((args.e1_run_dir / "t6" / "typhoon").glob("*/records.jsonl"))
+    scored = {r["case"]: r["scores"] for p in sorted((args.e1_run_dir).glob("*/typhoon/*/records.jsonl"))
               for r in _jsonl(p)}
     t5 = [r for p in sorted((args.t5_run_dir / "t5" / "typhoon").glob("*/records.jsonl"))
           for r in _jsonl(p) if r["arm"] == "greedy" and not r["reached_max_new_tokens"]]

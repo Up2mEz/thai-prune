@@ -174,8 +174,8 @@ def main() -> None:
     parser.add_argument("--t3-cases", type=Path, default=None,
                         help="T3 cases JSON (scripts/thai_marks_t3_cases.py); attached as a "
                              "private dataset")
-    parser.add_argument("--t6-cases", type=Path, default=None,
-                        help="E1 cases JSON (scripts/thai_marks_t6_cases.py); attached as a "
+    parser.add_argument("--e1-cases", type=Path, default=None,
+                        help="E1 cases JSON (scripts/thai_marks_e1_cases.py); attached as a "
                              "private dataset")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
                         help="Kaggle kernel slug; give each parallel session its own")
@@ -253,19 +253,19 @@ def main() -> None:
         dataset_sources.append(dataset_id(root, t3_slug))
     elif "t3" in tests:
         raise SystemExit("t3 needs --t3-cases")
-    t6_staging: Path | None = None
-    t6_slug = f"{args.kernel_slug}-t6-cases"
-    if args.t6_cases:
-        if "t6" not in tests:
-            raise SystemExit("--t6-cases given but t6 is not in --tests")
-        t6_staging = run_dir / "t6_dataset"
-        t6_staging.mkdir(parents=True, exist_ok=False)
-        shutil.copyfile(args.t6_cases, t6_staging / "t6_cases.json")
-        spec["t6_cases_sha256"] = sha256_file(t6_staging / "t6_cases.json")
-        spec["t6_cases"] = dataset_mount_path(t6_slug, "t6_cases.json")
-        dataset_sources.append(dataset_id(root, t6_slug))
-    elif "t6" in tests:
-        raise SystemExit("t6 needs --t6-cases")
+    e1_staging: Path | None = None
+    e1_slug = f"{args.kernel_slug}-e1-cases"
+    if args.e1_cases:
+        if "e1" not in tests:
+            raise SystemExit("--e1-cases given but e1 is not in --tests")
+        e1_staging = run_dir / "e1_dataset"
+        e1_staging.mkdir(parents=True, exist_ok=False)
+        shutil.copyfile(args.e1_cases, e1_staging / "e1_cases.json")
+        spec["e1_cases_sha256"] = sha256_file(e1_staging / "e1_cases.json")
+        spec["e1_cases"] = dataset_mount_path(e1_slug, "e1_cases.json")
+        dataset_sources.append(dataset_id(root, e1_slug))
+    elif "e1" in tests:
+        raise SystemExit("e1 needs --e1-cases")
     if args.resume_from:
         old_run_id, resume_dataset_staging = stage_resume_dataset(
             args.resume_from.resolve(), run_dir)
@@ -293,9 +293,9 @@ def main() -> None:
         if t3_staging is not None:
             print("t3 cases dataset ready:", upload_dataset(
                 root, t3_staging, t3_slug, "LabBS2026 Thai Marks T3 Cases"))
-        if t6_staging is not None:
-            print("t6 cases dataset ready:", upload_dataset(
-                root, t6_staging, t6_slug, kernel_title(t6_slug)))
+        if e1_staging is not None:
+            print("e1 cases dataset ready:", upload_dataset(
+                root, e1_staging, e1_slug, kernel_title(e1_slug)))
         if resume_dataset_staging is not None:
             uploaded_ref = upload_resume_dataset(root, resume_dataset_staging, resume_slug)
             print(f"resume dataset uploaded: {uploaded_ref}")

@@ -71,6 +71,10 @@ flagged; 95% page-cluster bootstrap (seed 20261004, 1000 resamples).
 356 forwards, no generation; under 30 minutes on 2×T4 (`--shards 2`). New
 test `t6` (infrastructure change): smoke on the secondary account first.
 
+*Renamed 2026-10-04:* the test is now `e1` (`--e1-cases`, `e1_cases.json`),
+because session pzoom also added a `t6`. The run below was made as `t6`;
+the analysis scripts read either name.
+
 ## 6. Result (2026-10-04): PASS
 
 Run `kaggle-thai-marks-t6-7934890c22f6-typhoon-x2` (git `7934890`), 356

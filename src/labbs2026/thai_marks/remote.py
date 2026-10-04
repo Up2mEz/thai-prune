@@ -54,7 +54,7 @@ def completed_keys(records_path: Path, test: str) -> set:
                 keys.add((record["id"], record["prompt_kind"]))
             elif test == "t5":
                 keys.add((record["id"], record["prompt_kind"], record["arm"]))
-            elif test in ("t3", "t6"):
+            elif test in ("t3", "e1"):
                 keys.add(record["case"])
             else:
                 keys.add(record["id"])
@@ -117,10 +117,10 @@ def load_t3_cases(spec: dict) -> list[dict]:
     return load_cases(spec, "t3")
 
 
-def _run_t6(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
+def _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
             typhoon_prompt, device, failures, runtime, torch) -> list:
     """E1: teacher-forced confidence of each case's own output; returns the cases run."""
-    cases = shard_items(load_cases(spec, "t6"), args.shard, args.shards)
+    cases = shard_items(load_cases(spec, "e1"), args.shard, args.shards)
     if int(spec.get("limit") or 0):
         cases = cases[: int(spec["limit"])]
     index_of = {id_col[i]: i for i in ordered}
@@ -197,7 +197,7 @@ def t5_processors(arm: dict, tokenizer) -> tuple[list, dict]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3", "t5", "t6"), required=True)
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t5", "e1"), required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
                         help="a previous, interrupted attempt's output directory "
@@ -301,10 +301,10 @@ def main() -> None:
         if args.test == "t3":
             selected = _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model,
                                processor, typhoon_prompt, device, dtype, failures, runtime, torch)
-        if args.test == "t6":
-            selected = _run_t6(spec, args, handle, dataset, ordered, id_col, completed, model,
+        if args.test == "e1":
+            selected = _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model,
                                processor, typhoon_prompt, device, failures, runtime, torch)
-        for index in ([] if args.test in ("t3", "t6") else selected):
+        for index in ([] if args.test in ("t3", "e1") else selected):
             row = dataset[index]
             if args.test == "t2" and row["Id"] in completed:
                 continue

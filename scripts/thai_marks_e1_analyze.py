@@ -1,4 +1,4 @@
-"""E1: guards and the registered gate from a fetched t6 run (offline)."""
+"""E1: guards and the registered gate from a fetched E1 run (test `e1`; runs before 2026-10-04 named it `t6`)."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def _jsonl(path: Path) -> list[dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--run-dir", type=Path, required=True, help="fetched t6 artifacts/<run_id>")
+    parser.add_argument("--run-dir", type=Path, required=True, help="fetched E1 artifacts/<run_id>")
     parser.add_argument("--t5-run-dir", type=Path, required=True, help="the T5 run the cases came from")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -45,7 +45,7 @@ def main() -> None:
     from transformers import AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(TOKENIZER[0], revision=TOKENIZER[1])
-    scored = [r for p in sorted((root / "t6" / "typhoon").glob("**/records.jsonl")) for r in _jsonl(p)]
+    scored = [r for p in sorted((root).glob("*/typhoon/**/records.jsonl")) for r in _jsonl(p)]
     t5 = {(r["task"], r["prompt_kind"], r["id"]): r
           for p in sorted((args.t5_run_dir / "t5" / "typhoon").glob("*/records.jsonl"))
           for r in _jsonl(p) if r["arm"] == "greedy"}
