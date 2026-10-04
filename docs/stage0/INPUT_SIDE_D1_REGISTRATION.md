@@ -95,3 +95,37 @@ any full-run output, recorded.
 Scale (G3, with P-ZOOM); horizontal shifts; Full-page OCR and Text
 recognition; any remedy; the locked split; claims beyond these two
 checkpoints of one architecture family.
+
+---
+
+## Addendum 1, 2026-10-04 — after the smoke, before the full run
+
+No full-run output exists. The only D1 outputs are the engineering smoke
+`kaggle-input-side-d1-4290f823c924-smoke2` (2 items, both models, all seven
+arms): 0 failures, fp16, checksums verified, no image in the outputs, no
+markup in any output (`scripts/audit_markup.py`), `D0` token-identical to F1's
+`CROP_SAME_SCALE` with the same image hash, seven distinct image hashes per
+item. Engineering observations only.
+
+**Design flaw found and fixed.** §2 moved a window of the rectangle's own size
+up by `d`, so the window **lost the bottom `d` rows of the rectangle**. The
+margin below the text is only ~0.25 × box height before snapping, so a shift
+can cut the text itself: in the smoke, at `d = 64` the base read a different
+line (`สุขภาพดีเสมอมาบาร์` for `สถานีวัดเสมียนนารี`) and Typhoon changed `น`
+to `ม`; at `d = 32` the base also degraded. The controls would then have
+measured clipping, and even `d` ≤ 16 could cut lower vowels (`ุ`, `ู`) and
+pass that off as a phase effect.
+
+**Change (replaces §2's window).** The window is the F1 rectangle **extended
+downward by 64 px** (= the largest shift, a multiple of 32) and then moved up
+by `d`: page rows `[top − d, bottom + 64 − d)`. For every `d` in {0, …, 64}
+the rectangle's own pixels are entirely inside the window, shifted down by `d`
+(tested); the window has one size for all `d`, a multiple of 32; rows outside
+the page are white; no resampling; F1's floor padding unchanged. What differs
+between arms is only the grid phase, the position (M-RoPE) and up to 64 px of
+context above and below the box — the controls `d = 32` and `d = 64` carry the
+last two.
+
+Consequence: `D0` is no longer pixel-identical to F1's `CROP_SAME_SCALE` (it
+has 64 px more page below the box). Everything else in §3–§8 stands. A new
+smoke is run before the full run.

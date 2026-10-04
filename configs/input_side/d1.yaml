@@ -27,6 +27,7 @@ split:
 
 shifts: [0, 4, 8, 12, 16, 32, 64]  # px; window moved up, glyphs move down relative to the grid; 32 and 64 are controls
 crop_margin: 0.25              # as F1
+window_extra_below: 64         # addendum 1: the window extends 64 px below the F1 rectangle, so no shift clips the box
 crop_prompt: "ช่วยดึงข้อความของรูปภาพออกมาให้หน่อย"     # F1's crop prompt
 crop_prompt_sha256: 45078cf08e63c50260c2456ee5ced9ccb1af0abae5a3e49ce8c0c78561f558d5
 
