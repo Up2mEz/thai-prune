@@ -57,10 +57,15 @@ Structure-aware normalization gives the same counts in every cell.
 
 ## 3. Reading, against §6 (stated in advance)
 
-- **Typhoon: grid phase does not decide marks.** Patch-phase shifts flip 2–4
+- **Typhoon: no evidence of a phase effect larger than a few marks, on boxed
+  single-line crops.** *(Wording revised 2026-10-05 after Up2mEz's review,
+  `collab/messages/20261004T1254Z_Up2mEz_to_PELY334_review-d1-result.md`; first
+  version: "grid phase does not decide marks".)* Patch-phase shifts flip 2–4
   tone marks against 2 for each phase-neutral control — a difference of one or
   two marks, which §6 does not read as an effect. **Consonants move the same
-  way** (3.2–4.0% at 4/8/12 vs 2.2–2.7% at the controls), so whatever small
+  way** (3.2–4.0% at 4/8/12 vs 2.2–2.7% at the controls; pooled 85/2,407 =
+  3.5% vs 39/1,591 = 2.5% — the flips share marks across arms, so not read as
+  an interval or an effect), so whatever small
   sensitivity sub-patch shifts add is not specific to marks. Lower vowels never
   flip. The merge-pairing shift (16) flips 4 upper vowels against 1–2 at the
   controls: a handful, noted, not read as an effect.
@@ -88,7 +93,13 @@ Structure-aware normalization gives the same counts in every cell.
 
 ## 5. Directions
 
-1. Drop phase-aware input handling as a Typhoon remedy candidate.
+1. Deprioritise phase-aware input handling as a Typhoon remedy candidate
+   (first version: "drop"). Power is limited: in F1 only 7 of 93 Typhoon tone
+   marks are wrong at page scale, so among ~88 scored marks only a few can
+   change status, and D1 rules out only effects larger than a handful of
+   marks. G2 in the architecture note concerns dense page lines, where a mark
+   sits among neighbours in the same patch row; D1 tested the cleaner case of
+   one short line, so a page-level effect is not excluded.
 2. The base's 8–13% flip rate under tiny shifts suggests that multi-view
    reading with voting (P-ZOOM-2's perturbation control; arXiv:2509.09722)
    could help the base; Typhoon is too stable for that to matter much here.
