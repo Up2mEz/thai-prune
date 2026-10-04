@@ -108,3 +108,12 @@ comparison.
 read took 48 s median in T1; a tile about 24 s). 0.55 of this week's 3-hour pzoom budget is
 used; the smoke runs on the secondary account first. Claim level
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only; 21 pages, 71 lines.
+
+## 7. Result (2026-10-04)
+
+Run `kaggle-thai-marks-t6-6a7840fe40d4-typhoon`: 105 reads, 1.02 GPU-hours. Scored together with
+P-ZOOM-3's controls; see `P_ZOOM3_CONTROLS_DRAFT.md` §9 for the readings, the numbers and their
+limits. The §5 rule as registered gives `no_gain_from_views` (`N` 7.0, `Z` 13.7, `Z − N` 6.7 points
+[−2.3, +21.5]); it is not a zoom result. With `bands100` as the matched control, zoom itself
+(1.85× against 1.0× on the same crops) changes text recovery by 0.0 points; cropping into bands
+gives +8.0 points over the whole-page read.

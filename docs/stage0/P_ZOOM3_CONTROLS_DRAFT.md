@@ -139,3 +139,80 @@ in `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10b. In short, for the contrast `D` of
   pages are a subset of the 21" statement of P-ZOOM §2 is wrong (2 of 3).
 - *Left as registered:* the scorer (changing it now would split P-ZOOM's registered numbers from
   these); the sensitivity variants above are reported instead.
+
+## 9. Result (2026-10-04)
+
+Runs: P-ZOOM-2 `kaggle-thai-marks-t6-6a7840fe40d4-typhoon` (105 reads, 1.02 GPU-hours) and P-ZOOM-3
+`kaggle-thai-marks-t6-deea2ee8846f-typhoon` (84 reads, 0.73 GPU-hours), main account, no failed
+read, checksums verified, fp16, greedy; scored by `scripts/thai_marks_pzoom2_analyze.py` at git
+`e6b1c93` (rules of §3-§4, committed before any output was opened). The pzoom budget used this week:
+0.55 + 1.02 + 0.73 = 2.30 of 3 hours. Calibration split, Typhoon only, 21 pages, 71 absent lines
+(387 marks), `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Registered readings.**
+
+| reading | result |
+|---|---|
+| stack (`repeat` equal to the stored T1 output) | `baseline_reproduced`: **21 of 21 pages byte for byte**; churn 0.0% |
+| stack signature of the two sessions | equal (model revision, fp16, torch 2.14.0+cu130, transformers 5.12.0, Tesla T4, resolved generation); the T1 manifest differs only in not having logged its resolved generation |
+| instrument (`bands100` control marks as text) | 99.3% (floor 80%): passes |
+| zoom effect `D` = `bands` − `bands100` | **0.0 points**; label `zoom_not_distinguishable` |
+
+`D` needs two caveats. (1) Its page-bootstrap interval is degenerate, [0.0, 0.0], so it cannot be
+read as precision: the per-page text marks of the two views are equal on all 21 pages. The only lines
+whose text status differs are three on one page (`908E11C8`: two lost, 10 + 6 marks; one gained, 16
+marks), which cancel exactly. At line level 3 of 71 absent lines are discordant. (2) This is not the
+"low power" case the label's wording guards against: the two views simply recover the same lines.
+Sensitivity (reported, never used for the label): `D` = −0.8 / +3.6 / +3.6 / −0.3 points at cutoffs
+0.15 / 0.25 / 0.30 and with other lines not claiming first. Read anywhere (text or figure): −4.7
+points [−12.6, +0.3]; figure-only share 16.8% (1.0×) → 12.1% (1.85×): at 1.85× fewer lines are only
+described inside a figure and more are not found at all. The markup-shift flag is false.
+
+**Also reported.**
+
+| view | content scale | absent marks as text | figure only | not found | net vs baseline [page bootstrap] | churn vs baseline | control marks as text |
+|---|---|---|---|---|---|---|---|
+| baseline = `repeat` | 1.0 (identical input) | 50.6% | 16.5% | 32.8% | 0 | **0.0%** | 96.9% |
+| `pad` | 0.93 | 47.8% | 19.9% | 32.3% | −2.8 [−7.4, 0.0] | 11.1% | 97.8% |
+| `scale90` | 0.90 | 56.1% | 18.6% | 25.3% | +5.4 [−11.4, +20.4] | 14.2% | 86.4% |
+| `bands100` (3 full-width bands) | 1.0 | **58.7%** | 16.8% | 24.5% | **+8.0 [+0.6, +22.8]** | 19.4% | 99.3% |
+| `bands` (same bands) | 1.85 | 58.7% | 12.1% | 29.2% | +8.0 [+0.6, +22.8] | 19.4% | 97.1% |
+
+- **Identical input gives identical output; any change of the image does not.** `repeat` churn is
+  0.0%; a 7% rescale with a margin (`pad`) or a 10% shrink (`scale90`) flips 11 to 14% of the absent
+  marks across the text / not-text boundary while the net stays small (−2.8, +5.4); the band crops
+  flip 19.4%. A comparison of two single reads at the 10-point level is therefore noisy by design.
+- **Reading in bands recovers more (crop, not zoom).** `bands100` against the baseline: +8.0 points
+  (50.6% → 58.7%): 12 lines gained (53 marks), 9 lost (22 marks); 6 pages better, 13 equal, 2 worse;
+  leave-one-page-out +3.7 to +10.5; across the scorer variants +2.8 to +9.1. The largest single
+  contribution is page `AF432B6A` (+18 marks, the advertising inset, which is not infographic text).
+  Control lines are not lost (99.3%).
+- **Cost.** 63 band reads at page scale against 21 whole-page reads: generated tokens 40,438 vs
+  26,374 (+53%), visual tokens 53,235 vs 47,264 (+13%), generation time 1,552 s vs 1,029 s (+51%).
+  The 1.85× bands carry 182,754 visual tokens (3.9× the page) for the same text recovery. Reads that
+  hit `max_new_tokens`: `bands100` 3 of 63, `bands` 2 of 63, `scale90` 1 of 21, `pad` 0, `repeat` 0.
+  Recorded visual tokens equal `round(h/32) × round(w/32)` on all 189 reads.
+- **P-ZOOM-2's rule as registered:** `no_gain_from_views` (`N` 7.0, `Z` 13.7, `Z − N` 6.7 points
+  [−2.3, +21.5]). Not a zoom result (§1), and it shows the gap the review named: `Z ≥ 10` is labelled
+  "no gain" because `N` is small.
+- **Union of reads** (descriptive; any extra read raises it): baseline 50.6%; + `pad`, `scale90`
+  60.5%; + `bands` 64.3%; all five 74.2%.
+
+**What the data show, what is inference, what is unknown.**
+
+- *Shown (these pages, this model):* enlarging the same crops by 1.85× changes the text Typhoon
+  recovers by about zero points; reading the page as three full-width bands recovers about 8 more
+  points of the marks it left out than reading it whole, without losing ordinary lines, at about
+  50% more decode time; and the stack reproduces its own stored reads exactly.
+- *Inference, not shown:* that the gain comes from cropping (a smaller context per read) rather than
+  from re-sampling, since `pad` and `scale90` also move the recovery by −3 to +5 points and the
+  band net's interval starts at +0.6. The CI is wide, the scorer carries inflations of 1 to 2 points
+  that favour tiled reads (§8), and 12 gained against 9 lost lines is not much.
+- *Unknown:* surplus text. The bands overlap by 15%, so a concatenation repeats text; order-free v2
+  precision was not charged here. Whether the effect holds on pages Typhoon reads whole without
+  omissions (these 21 were chosen because it left lines out), on other pages of the benchmark, or
+  for another model. Whether the lines that remain missing (24.5% not found, 16.8% only inside a
+  figure) are reachable by anything training-free.
+- *The P-ZOOM question as originally put* ("can Typhoon read the text it leaves out of graphics if
+  shown larger?"): within the trained size, showing it larger did not help. Whether a re-read
+  method built on the bands is worth its cost is a next draft, not something this round decides.

@@ -2,6 +2,32 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04d — P-ZOOM-2 and P-ZOOM-3 result: zoom adds nothing, cropping into bands recovers about 8 points
+
+**Evidence:** `docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md` §9; runs
+`kaggle-thai-marks-t6-6a7840fe40d4-typhoon` and `kaggle-thai-marks-t6-deea2ee8846f-typhoon` (1.75
+GPU-hours together; pzoom budget used this week 2.30 of 3). Calibration split, Typhoon only,
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`. Rules fixed in `e6b1c93` before any output was opened.
+
+**Finding:** (1) Typhoon's reads are reproducible on the pinned stack: the same image gives the same
+output on 21 of 21 pages. (2) Changing the image, even a little, flips 11 to 19% of the marks it left
+out across the text / not-text line. (3) Zoom: enlarging the same three full-width crops by 1.85× changes
+text recovery by 0.0 points (`zoom_not_distinguishable`; sensitivity −0.8 to +3.6). (4) Cropping:
+reading the page as three bands at page scale recovers 58.7% of the left-out marks against 50.6% for
+the whole page (+8.0 points, interval +0.6 to +22.8), loses no ordinary lines, and costs about 50%
+more decode time. P-ZOOM-2's own rule gives `no_gain_from_views` and is not a zoom result.
+
+**Supersedes in part:** P-ZOOM's first-run label (2026-10-03e). That label was an artifact of the 2x2
+grid's seam (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10b); "P-ZOOM stops" is withdrawn as a finding.
+
+**Not decided (needs the researcher; I will not run it without a yes):** whether to pilot a band
+re-read as a method. It would be scored with order-free v2 mark precision/recall/F1 so the surplus
+from overlapping bands is charged, on the Full-page items of the calibration split, about 207 band
+reads at the measured rates. It exceeds this week's remaining pzoom budget (0.7 of 3 hours) or needs
+next week's. No claim about other models, other pages, or zoom in general.
+
+---
+
 ## 2026-10-04c — controlled reading amended before any P-ZOOM-2/-3 output was opened
 
 **Evidence:** the second review of `wf_9f91ee64-a6b` (verification agents again stopped by a
@@ -2767,3 +2793,4 @@ Copy this block whenever a substantive scientific decision is made.
 
 ### Files/configs affected
 ```
+
