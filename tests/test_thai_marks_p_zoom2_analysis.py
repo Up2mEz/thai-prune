@@ -82,3 +82,41 @@ def test_analyze_ties_the_pieces_together_and_is_deterministic() -> None:
     assert out["union_absent_text_share"]["baseline"] == 0.25
     assert out["union_absent_text_share"]["all"] == 1.0
     assert pz2.analyze(base, scores) == out
+
+
+def test_controlled_reading_follows_the_registered_thresholds() -> None:
+    assert pz2.controlled_reading(0.15, [0.03, 0.27], 0.9) == "zoom_helps"
+    assert pz2.controlled_reading(0.15, [-0.02, 0.30], 0.9) == "zoom_not_distinguishable"  # CI spans 0
+    assert pz2.controlled_reading(0.05, [0.01, 0.09], 0.9) == "zoom_not_distinguishable"  # too small
+    assert pz2.controlled_reading(-0.12, [-0.20, -0.04], 0.9) == "zoom_hurts"
+    assert pz2.controlled_reading(-0.12, [-0.20, 0.01], 0.9) == "zoom_not_distinguishable"
+    assert pz2.controlled_reading(0.30, [0.20, 0.40], 0.79) == "instrument_fails_control"
+
+
+def test_churn_counts_marks_that_change_side_in_either_direction() -> None:
+    base = [_page("text", "not_found", "text", "not_found")]
+    view = [_page("not_found", "text", "text", "not_found")]
+    assert pz2.churn_share(view, base) == 20 / 40
+    assert pz2.churn_share(base, base) == 0.0
+
+
+def test_identical_pages_compares_outputs_byte_for_byte() -> None:
+    assert pz2.identical_pages({"a": "x", "b": "y"}, {"a": "x", "b": "z"}) == (1, 2)
+    with pytest.raises(ValueError):
+        pz2.identical_pages({"a": "x"}, {"b": "x"})
+
+
+def test_analyze_controlled_isolates_zoom_from_cropping_and_flags_drift() -> None:
+    base = [_page("text", "not_found", "not_found", "not_found") for _ in range(8)]
+    scores = {"repeat": base,
+              "pad": base, "scale90": base,
+              "bands100": [_page("text", "text", "not_found", "not_found") for _ in range(8)],
+              "bands": [_page("text", "text", "text", "text") for _ in range(8)]}
+    out = pz2.analyze_controlled(base, scores, (20, 21))
+    assert out["zoom_effect_D"] == pytest.approx(0.5)  # 100% vs 50%
+    assert out["crop_effect_bands100_minus_baseline"] == pytest.approx(0.25)
+    assert out["per_view"]["repeat"]["churn_vs_baseline"] == 0.0
+    assert out["controlled_reading"] == "zoom_helps"
+    assert out["stack"] == "baseline_reproduced"
+    assert pz2.analyze_controlled(base, scores, (17, 21))["stack"] == "stack_drift"
+    assert pz2.analyze_controlled(base, scores, (20, 21)) == out  # deterministic

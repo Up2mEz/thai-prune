@@ -176,7 +176,7 @@ of §4 and §7, fixed before the run. Calibration split, Typhoon only,
 | found as text in a tile | 28 | 185 | **47.8%** |
 | found only inside `<figure>` | 14 | 49 | 12.7% |
 | not found | 29 | 153 | 39.5% |
-| whole page, `TYPHOON_CARD`, no zoom (baseline) | 31 text | 196 text | 50.6% text |
+| whole page, `TYPHOON_CARD`, no zoom (baseline) | 24 text [corrected 2026-10-04, was 31: that was its not-found count] | 196 text | 50.6% text |
 
 Marks of recovered lines read correctly: 100% (absent), 96% (control). Tiles recover 87 marks
 (22.5%) the whole-page read does not, and lose 98 marks (25.3%) it reads. Chance level: 1 of 113
@@ -184,19 +184,22 @@ lines. Scorer check on the `BENCHMARK_QUESTION` page read: 6.7% of absent marks,
 
 **Reading by the rule fixed in advance: `beyond_typhoon_at_this_resolution`.** Tiles reach 47.8%,
 under the 50% line; figure-only lines hold 12.7%, far under the policy line. By that rule P-ZOOM
-stops: no graphics-aware re-read is registered.
+stops: no graphics-aware re-read is registered. [See §10: the label is applied as written, but it
+overstates what the data show.]
 
 **What this does and does not show.**
 
-- The 47.8% is 2.2 points under the line, 5 marks less than the whole-page read's 196. One or
-  two lines would flip it. The rule was fixed to be applied as written; it should not be read as
+- The 47.8% is 2.2 points under the line, 11 marks less than the whole-page read's 196 [corrected
+  2026-10-04, was 5]. One line would flip it (§10). The rule was fixed to be applied as written; it should not be read as
   a clean "no".
-- Control lines the page read fine are found in a tile only 40.2% of the time (ceiling 96.9%
-  on the whole page). The 2×2 grid cuts wide lines in two, and `find_elsewhere` needs the whole
+- Tiles carry only 40.2% of the control *marks* as text (25 of 42 control lines, 59.5%; ceiling
+  96.9% of marks on the whole page) [wording corrected 2026-10-04: 40.2% is mark-weighted, not a
+  per-line rate]. The 2×2 grid cuts wide lines in two, and `find_elsewhere` needs the whole
   line in one tile. *Post hoc:* control lines not found have median length 96 characters, found
   ones 32. Absent lines are short and their length does not separate found (median 23) from not
-  found (26), so this cut does not explain the absent misses. The tile step does lose ordinary
-  text, as §3's control was meant to show.
+  found (26). [Retracted 2026-10-04: the original sentence here concluded that the cut does not
+  explain the absent misses; a line-length median does not answer a mark-weighted question, see
+  §10.] The tile step does lose ordinary text, as §3's control was meant to show.
 - Loops do not explain it (3 of 84 reads; absent recovery 48.3% on pages with a looped tile,
   47.6% on the others).
 - *Post hoc, not registered:* the union of the whole-page read and the tiles holds 73.1% of the
@@ -204,5 +207,43 @@ stops: no graphics-aware re-read is registered.
   part of both is read-to-read variability of one greedy decode, which a single read per
   condition cannot separate from the effect of zoom.
 - Zoom is therefore neither shown to reveal the text nor ruled out as a way to add some of it.
-  What the data support: a single 2×2 re-read does not recover most of what Typhoon leaves out of
-  graphics, and 12.7% of those marks go into `<figure>` descriptions instead of text.
+  What the data support is narrower than first written (§10): the pooled tile share of the lines
+  Typhoon left out of the page read is 47.8%, 12.7% of those marks go into `<figure>` descriptions
+  instead of text, and the data cannot tell 47.8% from 50%.
+
+## 10. Errata and independent review (2026-10-04)
+
+An independent review (four reviewers, `wf_9f91ee64-a6b`; three finished before a session limit
+stopped the rest) recomputed every headline number of §9 from the raw records: 47.8%, 12.7%, 39.5%,
+50.6%, gain 22.5% (87 marks), loss 25.3% (98 marks), control 40.2%, union 73.1%, 1 of 113 chance,
+loops 48.3% / 47.6% all reproduce. It found three wrong figures in my write-up (corrected in place
+above, marked) and the following problems with what the numbers were taken to mean. None is
+resolved by the data in hand; each is carried into `P_ZOOM3_CONTROLS_DRAFT.md`.
+
+- **One line decides the registered reading.** Line 60 of page `8F33EBB9` (282 characters, 49
+  marks, 12.7% of all absent marks and half of the 98 lost marks) is found by the whole-page read and
+  sits in a tile at `elsewhere_cer` 0.28, just over the inherited 0.2 cutoff, so it scores
+  `not_found`. Scored as found, tiles reach 60.5% and the rule returns `resolution_attention_limit`.
+  With the cutoff at 0.25 the label also flips; chance stays at 1 of 113 at 0.30. A page-bootstrap
+  gives the tile share a standard deviation of about 12 points; P(share ≥ 50%) is about 43%. The
+  claim above that the seam cut does not explain the absent misses is therefore retracted: the cut
+  is plausibly why that long line fails.
+- **The label overstates.** `beyond_typhoon_at_this_resolution` is the fall-through of a rule that
+  has no branch for "the whole-page read already recovers most of it". The baseline recovers 50.6%
+  without zoom, so most of these marks are within Typhoon's reach at page scale under
+  `TYPHOON_CARD`. "P-ZOOM stops" means only that no re-read method is registered on this evidence;
+  it is not a finding that the text is unreadable.
+- **The gain criterion is gross, not net.** Gain (87 marks) is the lines tiles recover and the
+  whole-page read does not; it ignores the 98 marks lost. Under exchangeability two reads of the same
+  process would show about equal gain and loss, here (22.5% + 25.3%) / 2. A gain of 15 points has
+  no null calibration. A third of the gain is also figure-wrapper changes, not newly found text.
+- **The 387 marks are not only graphics.** They are every line with marks that
+  `whole_line_causes` called `line_missing`: infographic text, but also mastheads, an advertising
+  inset and two body paragraphs (`TYPHOON_FAILURE_PROFILE.md` §2d). "Text it leaves out of
+  graphics" in §1 and §9 is an inference, and the subgroup split promised in `DECISION_LOG.md`
+  2026-10-03 was not made.
+- **The baseline is a past read.** The T1 outputs came from an earlier run whose resolved
+  decoding was not logged. Differences between a view and the baseline are "a change of input plus a
+  change of run".
+- **Scope.** 21 pages, 71 lines. Mark-weighted pooling lets a few long lines dominate; the sign of
+  the net effect changes with the unit.

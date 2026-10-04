@@ -47,3 +47,17 @@ def test_a_band_is_not_capped_at_the_card_resolution() -> None:
 def test_unknown_kind_is_rejected() -> None:
     with pytest.raises(ValueError):
         view_images(PAGE, {"kind": "rotate"})
+
+
+def test_whole_view_is_exactly_the_t1_input() -> None:
+    (view,) = view_images(PAGE, {"kind": "whole"})
+    assert view["image"].size == resize_policy(PAGE).size
+    assert view["image"].tobytes() == resize_policy(PAGE).tobytes()
+    assert view["zoom"] == pytest.approx(1.0, rel=1e-3)  # int() rounding of the policy resize
+
+
+def test_a_grid_at_zoom_one_is_read_at_page_scale() -> None:
+    views = view_images(PAGE, {"kind": "grid", "rows": 3, "cols": 1, "overlap": 0.15, "zoom": 1.0})
+    for v in views:
+        assert v["zoom"] == pytest.approx(1.0, rel=1e-2)
+        assert v["image"].width == round(1000 * read_scale(PAGE.size))

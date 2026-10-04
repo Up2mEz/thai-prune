@@ -159,3 +159,99 @@ def analyze(baseline_scores: list[dict], scores: dict[str, list[dict]]) -> dict:
         "thresholds": {"gain": GAIN, "control_floor": CONTROL_FLOOR},
         "reading": reading(z, n, bands_control),
     }
+
+
+# --- P-ZOOM-3 controls (`docs/stage0/P_ZOOM3_CONTROLS_DRAFT.md` §3-§4) ---------------------------
+# Registered 2026-10-04, after an independent review found that the P-ZOOM-2 rule compares a
+# decorrelated crop view with near-copy perturbation views, and before any P-ZOOM-2 or -3 output
+# was read. `reading()` above stays as registered and is reported; statements about zoom use the
+# controlled label below.
+
+REPEAT_VIEW = "repeat"
+CROP_VIEW = "bands100"
+ZOOM_EFFECT = 0.10
+MIN_IDENTICAL_PAGES = 18
+
+
+def page_text_rows(view_scores: list[dict]) -> list[dict]:
+    """Per page: absent marks and absent marks recovered as text."""
+    rows = []
+    for page in view_scores:
+        absent = [r for r in page["lines"] if r["group"] == "absent"]
+        rows.append({"absent": sum(r["marks"] for r in absent),
+                     "text": sum(r["marks"] for r in absent if r["outcome"] == "text")})
+    return rows
+
+
+def churn_share(view_scores: list[dict], baseline_scores: list[dict]) -> float:
+    """Share of absent marks whose line is `text` in exactly one of the view and the baseline."""
+    total = changed = 0
+    for view, base in zip(view_scores, baseline_scores):
+        for v, b in zip(view["lines"], base["lines"]):
+            if v["group"] != "absent":
+                continue
+            total += v["marks"]
+            changed += v["marks"] * ((v["outcome"] == "text") != (b["outcome"] == "text"))
+    return changed / total if total else 0.0
+
+
+def identical_pages(repeat_outputs: dict[str, str], baseline_outputs: dict[str, str]) -> tuple[int, int]:
+    """(pages whose repeat output equals the stored T1 output byte for byte, pages compared)."""
+    if set(repeat_outputs) != set(baseline_outputs):
+        raise ValueError("repeat and baseline cover different pages")
+    return sum(repeat_outputs[i] == baseline_outputs[i] for i in repeat_outputs), len(repeat_outputs)
+
+
+def controlled_reading(effect: float, ci: list[float], crop_control: float) -> str:
+    """Zoom effect D = text share (bands, 1.85x) - text share (bands100, 1.0x), same crops."""
+    if crop_control < CONTROL_FLOOR:
+        return "instrument_fails_control"
+    if effect >= ZOOM_EFFECT and ci[0] > 0:
+        return "zoom_helps"
+    if effect <= -ZOOM_EFFECT and ci[1] < 0:
+        return "zoom_hurts"
+    return "zoom_not_distinguishable"
+
+
+def _bootstrap(stat, pages: int) -> list[float]:
+    rng = random.Random(BOOTSTRAP_SEED)
+    draws = sorted(stat([rng.randrange(pages) for _ in range(pages)]) for _ in range(BOOTSTRAP_RESAMPLES))
+    return [draws[int(0.025 * len(draws))], draws[int(0.975 * len(draws)) - 1]]
+
+
+def analyze_controlled(baseline_scores: list[dict], scores: dict[str, list[dict]],
+                       repeat_identical: tuple[int, int]) -> dict:
+    """The P-ZOOM-3 readings, from the baseline, every view's scores and the exact-repeat check."""
+    rows = {name: page_text_rows(s) for name, s in scores.items()}
+    base_rows = page_text_rows(baseline_scores)
+    pages = len(baseline_scores)
+
+    def share(r, idx=None):
+        chosen = r if idx is None else [r[i] for i in idx]
+        total = sum(x["absent"] for x in chosen)
+        return sum(x["text"] for x in chosen) / total if total else 0.0
+
+    effect = share(rows[ZOOM_VIEW]) - share(rows[CROP_VIEW])
+    ci = _bootstrap(lambda idx: share(rows[ZOOM_VIEW], idx) - share(rows[CROP_VIEW], idx), pages)
+    crop_control = control_text_share(scores[CROP_VIEW])
+    per_view = {}
+    for name, r in rows.items():
+        per_view[name] = {
+            "absent_text_share": share(r),
+            "net_vs_baseline": share(r) - share(base_rows),
+            "net_vs_baseline_ci95": _bootstrap(lambda idx, r=r: share(r, idx) - share(base_rows, idx), pages),
+            "churn_vs_baseline": churn_share(scores[name], baseline_scores),
+            "control_text_share": control_text_share(scores[name]),
+        }
+    identical, compared = repeat_identical
+    return {
+        "baseline_absent_text_share": share(base_rows),
+        "per_view": per_view,
+        "zoom_effect_D": effect, "zoom_effect_ci95": ci, "crop_control_text_share": crop_control,
+        "crop_effect_bands100_minus_baseline": share(rows[CROP_VIEW]) - share(base_rows),
+        "repeat_identical_pages": [identical, compared],
+        "stack": "baseline_reproduced" if identical >= MIN_IDENTICAL_PAGES else "stack_drift",
+        "thresholds": {"zoom_effect": ZOOM_EFFECT, "control_floor": CONTROL_FLOOR,
+                       "min_identical_pages": MIN_IDENTICAL_PAGES},
+        "controlled_reading": controlled_reading(effect, ci, crop_control),
+    }

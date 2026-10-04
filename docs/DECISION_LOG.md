@@ -2,17 +2,44 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-04b — P-ZOOM-2 cannot be read as a test of zoom; P-ZOOM-3 controls registered
+
+**Evidence:** an independent review (`wf_9f91ee64-a6b`: scorer review and all verification
+agents did not finish, a session limit stopped them; the analysis, worker and claims reviews did)
+and `P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §10, `P_ZOOM3_CONTROLS_DRAFT.md` §1. I reproduced the
+cutoff sensitivity myself on P-ZOOM's records (tiles 47.0 / 47.8 / 50.4 / 66.4% at cutoffs
+0.15 / 0.20 / 0.25 / 0.30; the registered label flips at 0.25).
+
+**Finding:** P-ZOOM's registered label (`beyond_typhoon_at_this_resolution`) rests on one 49-mark
+line near the cutoff and overstates what the data show; three numbers in its write-up were wrong
+and are corrected in place, marked. P-ZOOM-2's `bands` differ from its controls in crop, scale and
+width, so its rule measures decorrelation, not zoom.
+
+**Decided (assistant, reversible):** the P-ZOOM-2 run (complete, 105 reads, 1.02 GPU-hours, not
+opened) is kept and its registered `analyze()` is reported as written. Two controls are added before
+any output is read: `repeat` (the T1 input unchanged: the noise floor) and `bands100` (the same
+crops at zoom 1.0), 84 reads, readings in `P_ZOOM3_CONTROLS_DRAFT.md` §4. The pzoom GPU budget used
+becomes about 2.2 of 3 hours. Smoke on the secondary account first.
+
+**Not decided:** anything about methods; whether zoom is a lever (that is what P-ZOOM-3 reads).
+
+---
+
 ## 2026-10-04 — P-ZOOM-2 (views probe) authorized after a literature review
 
 **Stage/Gate:** Stage 0 diagnostic, calibration split only. Gate 0 remains
 `NOT_RUN`; the locked split stays closed. Claim level
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; Typhoon only.
 
-**Decision owner:** Up2mEz, in session 2026-10-04 ("ลอง lit review research และทำการ
-ทดลองตามคำถามที่เราสงสัย"). The question taken from P-ZOOM's open ends
-(`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9): is what zoom "gained" zoom, or any change of the
-input. Recorded by the assistant as authorization under the researcher's standing
-delegation; reversible at any time.
+**Decision owner:** the assistant, acting on the researcher's instruction in session 2026-10-04
+("ลอง lit review research และทำการทดลองตามคำถามที่เราสงสัย", then "ทำไปเรื่อยๆเลย"). The
+researcher did not name this probe, its reads, its GPU budget or its thresholds; the choice of the
+question taken from P-ZOOM's open ends (`P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` §9: is what zoom
+"gained" zoom, or any change of the input), the design, the 10-point and 80% thresholds and the
+GPU spend are the assistant's judgements within the pzoom budget of `PARALLEL_SESSIONS.md` §3
+(3 GPU-hours this week). [Wording corrected 2026-10-04 after an independent review: this entry
+first said "Decision owner: Up2mEz" and "standing delegation".] Reversible at any time by the
+researcher.
 
 **Authorized:** `docs/stage0/P_ZOOM2_VIEWS_PROBE_DRAFT.md`: Typhoon, `TYPHOON_CARD`, the same
 21 pages, 105 reads (two whole-page perturbation views and 3 full-width bands at 1.85x),
@@ -54,8 +81,10 @@ needs its own draft and approval. No claim about other models or about zoom in g
 
 **Decision owner:** Up2mEz, in session 2026-10-03 ("ทำทั้งหมดเลย", answering a
 list that included approving the probe, the offline scorer, and a smoke on the
-secondary account). Recorded by the assistant as an approval given under the
-researcher's standing delegation; reversible at any time.
+secondary account). The reading rule's 15-point threshold and its amendment (§7) are the
+assistant's judgements, not the researcher's. [Wording corrected 2026-10-04: it first said
+"approval given under the researcher's standing delegation"; the delegation in force is
+`DECISION_LOG.md` 2026-10-03 for scope and metric only.] Reversible at any time.
 
 **Authorized:** `docs/stage0/P_ZOOM_GRAPHIC_TEXT_PROBE_DRAFT.md` with the choices
 of §6 and the amended reading rule of §7: Typhoon, `TYPHOON_CARD`, 21

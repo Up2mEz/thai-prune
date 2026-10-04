@@ -186,6 +186,8 @@ def main() -> None:
     parser.add_argument("--t3-cases", type=Path, default=None,
                         help="T3 cases JSON (scripts/thai_marks_t3_cases.py); attached as a "
                              "private dataset")
+    parser.add_argument("--views-config", default="configs/thai_marks/p_zoom2.yaml",
+                        help="t6 only: the registered views config (P-ZOOM-2 or P-ZOOM-3)")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
                         help="Kaggle kernel slug; give each parallel session its own")
     parser.add_argument("--submit", action="store_true")
@@ -216,14 +218,14 @@ def main() -> None:
                              "the researcher has not authorized this run")
     p_zoom2 = None
     if "t6" in tests:
-        p_zoom2 = yaml.safe_load((root / "configs/thai_marks/p_zoom2.yaml").read_text("utf-8"))
+        p_zoom2 = yaml.safe_load((root / args.views_config).read_text("utf-8"))
         if roles != list(p_zoom2["roles"]):
             raise SystemExit(f"t6 is registered for roles {p_zoom2['roles']} only")
         if args.kernel_slug == KERNEL_SLUG:
             raise SystemExit("t6 (P-ZOOM-2) must use its own --kernel-slug; "
                              f"{KERNEL_SLUG} belongs to the other session")
         if args.submit and p_zoom2["status"] != "APPROVED":
-            raise SystemExit(f"p_zoom2.yaml status is {p_zoom2['status']}; "
+            raise SystemExit(f"{args.views_config} status is {p_zoom2['status']}; "
                              "the researcher has not authorized this run")
     suffix = "" if roles == ["base", "typhoon"] else "-" + "-".join(roles)
     suffix += f"-x{args.shards}" if args.shards > 1 else ""
@@ -238,7 +240,8 @@ def main() -> None:
         "git_sha": git_sha,
         "expected_file_hashes": {p: committed_sha256(root, git_sha, p)
                                  for p in HASHED + (HASHED_T4 if p_zoom else ())
-                                 + (HASHED_T6 if p_zoom2 else ())},
+                                 + ((tuple(args.views_config if h == "configs/thai_marks/p_zoom2.yaml" else h
+                                           for h in HASHED_T6)) if p_zoom2 else ())},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],

@@ -100,9 +100,9 @@ def _resized(image, factor: float):
 def view_images(original, view: dict) -> list[dict]:
     """The images one `view` of a page feeds the model, each with the zoom it buys.
 
-    Kinds (P-ZOOM-2, `P_ZOOM2_VIEWS_PROBE_DRAFT.md`):
+    Kinds (P-ZOOM-2/-3, `P_ZOOM2_VIEWS_PROBE_DRAFT.md`, `P_ZOOM3_CONTROLS_DRAFT.md`):
 
-    - `pad`: the whole page on a white margin, then `runtime.resize_policy`;
+    - `whole`: the whole page through `runtime.resize_policy`, as T1 read it (zoom 1);    - `pad`: the whole page on a white margin, then `runtime.resize_policy`;
     - `scale`: the whole page through `runtime.resize_policy`, then times `factor`;
     - `grid`: `rows` x `cols` overlapping tiles cropped from the source pixels, each
       resized so a source pixel is `zoom` times larger than when the page is read whole
@@ -114,6 +114,11 @@ def view_images(original, view: dict) -> list[dict]:
 
     page_scale = read_scale(original.size)
     kind = view["kind"]
+    if kind == "whole":
+        # exactly the image the T1 whole-page read was given: a repeat of the baseline
+        image = resize_policy(original)
+        return [{"tile": Tile(0, 0, 0, (0, 0, *original.size)), "image": image,
+                 "zoom": (image.width / original.width) / page_scale}]
     if kind == "pad":
         source = padded(original, float(view["margin"]))
         image = resize_policy(source)
