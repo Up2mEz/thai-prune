@@ -120,6 +120,17 @@ Marks scored only in the crop arm vs `WHOLE` (TONE / UPPER / LOWER): 83 / 106 /
   reading the crop (no training, no model change) takes Typhoon from 7% to 99%
   found and 6% to 58–70% exact on these items.
 
+## 4b. Markup audit of the raw outputs (`scripts/audit_markup.py`)
+
+Checked before reporting, per model and arm (69 outputs each): no HTML tag in
+any arm except two Typhoon `WHOLE_NOCLAUSE` outputs, which are Typhoon
+reciting its own `TYPHOON_CARD` instructions (`Extract all text from the
+image. Instructions: …`, tags quoted from that text) — correctly scored as
+not found. The base's `WHOLE_MARKED` answers are chatty Markdown (headings,
+bullets, bold, code fences in 6–8 outputs), which the best-window scoring
+reads through. **No Thai character is removed by either normalization in any
+arm (0.0%)**, so no count above is driven by format.
+
 ## 5. What this result does not show
 
 - Not magnitudes: 69 items, ~100 tone marks, error counts in single digits.
