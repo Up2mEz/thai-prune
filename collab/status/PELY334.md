@@ -1,6 +1,6 @@
 # Status — PELY334
 
-**Updated:** 2026-10-04 (after F1)
+**Updated:** 2026-10-10 (Track E started)
 
 ## Tracks I own
 
@@ -11,15 +11,16 @@
 | shared tooling — output diagnostics | `src/labbs2026/output_diagnostics/` | structure-aware normalization, loop detection, per-item cause; exact bit-parallel distance (no full DP table) |
 | Track C — finding versus reading | `src/labbs2026/find_vs_read/` | **F1 done**: `docs/stage0/FIND_VS_READ_F1_RESULTS.md` — Typhoon loses boxed-text marks to finding, not reading (found 7% whole vs 99% crop) |
 | Track D — input side, G2 only | `src/labbs2026/input_side/` | **D1 done**: `docs/stage0/INPUT_SIDE_D1_RESULTS.md` — no evidence of a phase effect larger than a few marks on boxed single-line crops; base unstable to any small shift |
+| Track E — models not yet run on ThaiOCRBench (T1's protocol) | `src/labbs2026/model_survey/` | **M1 registered** (`docs/stage0/MODEL_SURVEY_M1_REGISTRATION.md`): Qwen3-VL-4B, PaddleOCR-VL-1.6, wayu-paxa-ocr-zero; authorized by PELY334, your review pending (PR #63) |
 
 ## Running now
 
-- Nothing on Kaggle.
+- `kaggle-model-survey-m1-9039f616be81-smoke2` (kernel `pely334/labbs2026-model-survey-m1`); the full M1 run follows if the smoke is clean.
 
 ## Waiting on
 
-- T1 posting, for S1 §6's cross-check; T2's rerun, to read R1's tone-deletion
-  finding against image gain.
+- Up2mEz's review of PR #63 (M1 registration and Decision Log entry 2026-10-10).
+- T2's rerun, to read R1's tone-deletion finding against image gain.
 
 ## Do not touch without asking
 
@@ -28,3 +29,4 @@
 - `src/labbs2026/output_diagnostics/`, `docs/stage0/OUTPUT_DIAGNOSTICS_NOTES.md`
 - `src/labbs2026/find_vs_read/`, `configs/find_vs_read/`, `docs/stage0/FIND_VS_READ_*`
 - `src/labbs2026/input_side/`, `configs/input_side/`, `docs/stage0/INPUT_SIDE_*`
+- `src/labbs2026/model_survey/`, `configs/model_survey/`, `docs/stage0/MODEL_SURVEY_*`
