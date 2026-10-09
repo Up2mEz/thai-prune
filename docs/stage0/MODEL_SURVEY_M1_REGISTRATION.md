@@ -144,3 +144,39 @@ rendered two- and three-line Thai image (Tahoma), never ThaiOCRBench:
   condition under which T1's two models decoded; it is recorded per run.
 - Qwen3-VL-4B (8.9 GB in fp16) does not fit the local GPU; it is the
   architecture of the base, which T1 already ran in this runtime.
+
+---
+
+## Addendum 1, 2026-10-10 — after the smoke, before the full run
+
+No full-run output exists. The only M1 output on ThaiOCRBench is the
+engineering smoke `kaggle-model-survey-m1-9039f616be81-smoke2` (the first two
+calibration items, both Full-page OCR; Text recognition was not exercised):
+`SUCCESS.json`, four units, 0 failures, fp16 for every model on Tesla T4,
+torch `2.14.0+cu130`, transformers `5.12.0`, `use_cache` recorded `true`,
+resolved decoding greedy; outputs are JSON, JSONL and logs only (no image);
+no markup tag in any output; the analysis script ran end to end on it. Its
+scores are not reported (two items). Engineering observations only:
+
+| model | s/token | peak memory | visual tokens |
+|---|---|---|---|
+| Qwen3-VL-4B | 0.059 | 9.6 GB | 2,240 |
+| Paddle, Wayu | 0.021–0.023 | 2.07 GB | 1,260 (their own processor's pixel cap, after T1's 1,800-px policy; recorded, not changed) |
+
+Paddle and Wayu reached `max_new_tokens` in 7 of 8 Full-page generations: a
+recognisable reading of the page's first part, then degenerate repetition —
+the off-design behaviour §2 stated. Paddle with `BENCHMARK_QUESTION` produced
+text unrelated to the page.
+
+**Budget consequence and change.** A Full-page generation that loops costs
+≈ 68 s for Paddle or Wayu. With Text recognition unexercised, the worst case
+(every generation looping) is ≈ 6.7 h per 0.9B model and would break the 8
+T4-hour cap; the expected case is ≈ 3 h per model and ≈ 1.5 h per Qwen3-VL-4B
+shard, ≈ 5 h of session time. **Added before the full run:** each unit stops
+starting new items once its elapsed time passes its deadline
+(`unit_deadline_hours`: Qwen3-VL-4B shards 3.0, Paddle 4.5, Wayu 4.5; each
+queue 7.5 h ≤ the cap, tested in `plan.validate`). Items in `Id` order (random
+hex ids) that a deadline leaves unread are listed per unit in the manifest
+(`not_run`) and reported with the results; every comparison is paired on the
+items both models read. In the expected case no deadline binds. Everything
+else in §1–§7 stands.

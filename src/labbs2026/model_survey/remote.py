@@ -88,9 +88,17 @@ def main() -> None:
         generation_record = {"requested": gen_kwargs, "use_cache": resolved.get("use_cache"),
                              **describe_resolved(resolved)}
 
+    deadline = float(role["unit_deadline_hours"]) * 3600 if role.get("unit_deadline_hours") else None
+    attempted: list[str] = []
+    not_run: list[str] = []
     with io.open(out_dir / "records.jsonl", "w", encoding="utf-8", newline="\n") as handle:
-        for index in selected:
+        for position, index in enumerate(selected):
+            if deadline is not None and time.perf_counter() - started > deadline:
+                # registered stop (Addendum 1): no item is started past the unit's deadline
+                not_run = [id_col[i] for i in selected[position:]]
+                break
             row = dataset[index]
+            attempted.append(row["Id"])
             original = row["image"].convert("RGB")
             image = runtime.resize_policy(original)
             base = {"id": row["Id"], "task": row["Task"], "category": row["category"],
@@ -114,7 +122,8 @@ def main() -> None:
         json.dump({
             "test": "m1", "role": args.role, "shard": args.shard, "shards": args.shards,
             "model_id": role["model_id"], "revision": role["revision"],
-            "prompts": role["prompts"], "dtype_used": dtype, "items": len(selected),
+            "prompts": role["prompts"], "dtype_used": dtype, "items": len(attempted),
+            "selected_items": len(selected), "deadline_seconds": deadline, "not_run": not_run,
             "failures": failures, "setup_seconds": setup_seconds,
             "generation": generation_record, "wall_seconds": time.perf_counter() - started,
             "torch": torch.__version__, "transformers": transformers.__version__,

@@ -50,6 +50,8 @@ def test_conditions_are_t1s():
     (lambda c: c["gpu_queues"][1].remove("wayu/0"), "exactly once"),
     (lambda c: c["gpu_queues"][0].append("wayu/0"), "exactly once"),
     (lambda c: c["gpu_queues"][0].append("qwen3vl4b/2"), "exactly once"),
+    (lambda c: c["models"]["paddle"].update(unit_deadline_hours=5.5), "budget cap"),
+    (lambda c: c["models"]["wayu"].pop("unit_deadline_hours"), "budget cap"),
 ])
 def test_validate_rejects(mutate, message):
     config = copy.deepcopy(CONFIG)

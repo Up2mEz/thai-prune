@@ -52,6 +52,12 @@ def validate(config: dict[str, Any]) -> list[list[tuple[str, int, int]]]:
     expected = {(role, s) for role, model in models.items() for s in range(int(model["shards"]))}
     if len(listed) != len(set(listed)) or set(listed) != expected:
         raise ValueError("gpu_queues must list every (role, shard) exactly once")
+    cap = config.get("budget_cap_t4_hours")
+    if cap is not None:
+        for queue in queues:
+            hours = [models[role].get("unit_deadline_hours") for role, _ in queue]
+            if None in hours or sum(float(h) for h in hours) > float(cap):
+                raise ValueError("every unit needs a deadline, and a queue's deadlines must fit the budget cap")
     return [[(role, shard, int(models[role]["shards"])) for role, shard in queue]
             for queue in queues]
 
