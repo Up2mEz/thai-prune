@@ -158,6 +158,34 @@ def test_paired_difference_sign_and_identity():
     assert better["difference"] > 0 and better["ci95"][0] > 0 and better["n"] == 8
 
 
+def test_paired_difference_by_recall_and_precision():
+    from labbs2026.thai_marks.order_free import mark_counts
+
+    a = {f"i{k}": mark_counts(REF, REF, residual=True) for k in range(6)}
+    b = {f"i{k}": mark_counts(REF, REF + " " + REF, residual=True) for k in range(6)}  # surplus text
+    recall = paired_f1_difference(a, b, resamples=100, seed=1, key="recall")
+    precision = paired_f1_difference(a, b, resamples=100, seed=1, key="precision")
+    assert recall["difference"] == 0.0 and precision["difference"] < 0
+
+
+def test_exploratory_no_loop_and_length_split():
+    from labbs2026.model_survey.exploratory import compare, length_ratio, no_loop_ids, split_by_length
+    from labbs2026.thai_marks.order_free import mark_counts
+
+    a = {i: _record(i, "Text recognition", "BENCHMARK_QUESTION", REF) for i in ("x", "y", "z")}
+    b = {i: _record(i, "Text recognition", "OCR_NATIVE", REF) for i in ("x", "y")}
+    b["y"] = {**b["y"], "raw_output": REF + " " + "ข้อความอื่นในภาพ" * 5}
+    a["x"] = {**a["x"], "reached_max_new_tokens": True}
+    assert no_loop_ids(a, b) == ["y"]                                   # x loops in a; z not read by b
+    assert length_ratio(b["x"]) == 1.0 and length_ratio(b["y"]) > 1.5
+    assert split_by_length(b, ["x", "y"]) == {"about_reference": ["x"], "much_more": ["y"]}
+    counts_a = {i: mark_counts(r["reference"], r["raw_output"], residual=True) for i, r in a.items()}
+    counts_b = {i: mark_counts(r["reference"], r["raw_output"], residual=True) for i, r in b.items()}
+    result = compare(counts_a, counts_b, ["x", "y"], resamples=50, seed=1)
+    assert result["n"] == 2 and result["difference"]["recall"]["difference"] == 0.0
+    assert result["difference"]["precision"]["difference"] < 0
+
+
 def test_comparison_records_take_this_runs_references(tmp_path):
     archive = tmp_path / "t1.json.gz"
     rows = [{"id": "a", "task": "Text recognition", "prompt_kind": "BENCHMARK_QUESTION", "raw_output": REF},

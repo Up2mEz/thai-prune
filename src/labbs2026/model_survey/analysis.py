@@ -91,19 +91,20 @@ def order_free_cells(counts: dict[tuple, dict]) -> dict[str, dict]:
 
 
 def paired_f1_difference(a: dict[str, dict], b: dict[str, dict], *, resamples: int,
-                         seed: int) -> dict[str, Any]:
-    """F1(b) − F1(a) over the items both read, with a 95% item-bootstrap interval.
+                         seed: int, key: str = "f1") -> dict[str, Any]:
+    """`key`(b) − `key`(a) over the items both read, with a 95% item-bootstrap interval.
 
-    `a` and `b` map item id to `mark_counts`. Items are resampled in pairs, so
-    the interval reflects which pages are hard, not only how many marks there
-    are. Descriptive: M1 registers no decision rule on it.
+    `a` and `b` map item id to `mark_counts`; `key` is `f1` (the registered
+    outcome), `recall` or `precision`. Items are resampled in pairs, so the
+    interval reflects which pages are hard, not only how many marks there are.
+    Descriptive: M1 registers no decision rule on it.
     """
     ids = sorted(set(a) & set(b))
     if not ids:
         return {"n": 0, "difference": None, "ci95": None}
 
     def diff(sample: list[str]) -> float | None:
-        fa, fb = prf([a[i] for i in sample])["f1"], prf([b[i] for i in sample])["f1"]
+        fa, fb = prf([a[i] for i in sample])[key], prf([b[i] for i in sample])[key]
         return None if fa is None or fb is None else fb - fa
 
     rng = random.Random(seed)
