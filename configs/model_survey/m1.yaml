@@ -1,0 +1,90 @@
+schema_version: 1
+# PELY334 authorized the run in session on 2026-10-10 ("รันเลย, Up2mEz ตรวจทีหลัง").
+# Up2mEz's review is pending: the Decision Log entry stays unmerged until approved.
+status: APPROVED
+registration: docs/stage0/MODEL_SURVEY_M1_REGISTRATION.md
+authorization: docs/DECISION_LOG.md  # entry 2026-10-10 (PR; Up2mEz approval pending)
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Three checkpoints never run on ThaiOCRBench in this repository. All three are
+# Apache-2.0 and ungated (Hugging Face API, checked 2026-10-10). Pinned by
+# commit; never load `main`.
+models:
+  qwen3vl4b:
+    model_id: Qwen/Qwen3-VL-4B-Instruct
+    revision: ebb281ec70b05090aa6165b016eac8ec08e71b17
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    shards: 2
+    unit_deadline_hours: 3.0   # Addendum 1: no item starts later; each queue stays under the cap
+  paddle:
+    model_id: PaddlePaddle/PaddleOCR-VL-1.6
+    revision: c5630abae1d940eafe0697512a0325494b02ab42  # as configs/stage0/overall_model_budget_design.yaml
+    prompts: [OCR_NATIVE, BENCHMARK_QUESTION]
+    primary_prompt: OCR_NATIVE
+    shards: 1
+    unit_deadline_hours: 4.5
+  wayu:
+    model_id: wayu-ai/wayu-paxa-ocr-zero
+    revision: af0204b4f334a6d5068b6bac2b3738932d6e289b  # as configs/stage0/overall_model_budget_design.yaml
+    prompts: [OCR_NATIVE, BENCHMARK_QUESTION]
+    primary_prompt: OCR_NATIVE
+    shards: 1
+    unit_deadline_hours: 4.5
+
+prompts:
+  # PaddleOCR-VL's documented recognition prompt; Wayu is a full fine-tune of
+  # PaddleOCR-VL-1.6 and keeps it (the repository's region-OCR rounds used it).
+  OCR_NATIVE: "OCR:"
+  BENCHMARK_QUESTION: item.question
+
+# Benchmark, split, image policy and decoding are T1's
+# (configs/thai_marks/t1_t2.yaml), copied here so that a later change there
+# cannot change this registration.
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  run_on: calibration
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32      # used only if the first item yields non-finite logits
+  attention: sdpa
+  image_policy: typhoon_card   # long side to 1800 px if either side > 300 px
+  max_new_tokens: 3072
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+  # PaddleOCR-VL-1.6's generation_config.json ships `use_cache: false`, which
+  # recomputes the whole sequence at every step. Caching does not change what
+  # greedy decoding selects; it is passed explicitly to every model so all
+  # decode as T1's two models did (cached), and is recorded per call.
+  use_cache: true
+
+# One Kaggle session with two T4s; each queue runs its units one after another.
+gpu_queues:
+  - [qwen3vl4b/0, paddle/0]
+  - [qwen3vl4b/1, wayu/0]
+budget_cap_t4_hours: 8
+
+# The registered T1 outputs of the two models already studied, scored here with
+# the same code against the references this run records (the archived outputs
+# carry no reference text).
+comparison:
+  run_id: kaggle-thai-marks-t1-t2-a44199c29759
+  outputs: docs/stage0/data/T1_OUTPUTS_a44199c29759.json.gz
+  roles: [base, typhoon]
+  prompt: BENCHMARK_QUESTION
+
+scoring:
+  null_seed: 20260928                         # T1 scoring v2's chance threshold
+  order_free: {max_cer: 0.4, residual: true}  # v2, the reported mark metric (Decision Log 2026-10-03)
+  bootstrap: {resamples: 2000, seed: 20261010}

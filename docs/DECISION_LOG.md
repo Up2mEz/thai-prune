@@ -2,6 +2,59 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; Up2mEz's approval pending
+
+> Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
+> on 2026-10-10** ("find new model for 2-3 model and test it like we do in the
+> past"); asked whether to wait for Up2mEz as in Tracks C and D, PELY334 chose
+> to run first ("รันเลย, Up2mEz ตรวจทีหลัง"). **Up2mEz has not approved.** This
+> entry stays in the track's PR and is not merged until Up2mEz approves it
+> (`docs/COLLABORATION.md` §3); until then any M1 result says the review was
+> pending. The run uses only PELY334's Kaggle quota and new files; it changes
+> no other track's code, config or registration.
+
+**Stage/Gate:** RQ-A context — robustness of the Thai-marks findings beyond one
+model family. Opens or passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/MODEL_SURVEY_M1_REGISTRATION.md`
+with parameters `configs/model_survey/m1.yaml`: T1's protocol on its 178
+calibration items for `Qwen/Qwen3-VL-4B-Instruct@ebb281ec`,
+`PaddlePaddle/PaddleOCR-VL-1.6@c5630aba` and `wayu-ai/wayu-paxa-ocr-zero@af0204b4`
+(all Apache-2.0, ungated), smoke first, cap 8 T4-hours, PELY334's own Kaggle
+quota. The locked split stays closed. No image is written to outputs or the
+repository.
+
+### Reasoning
+
+- Every Thai-marks result so far rests on Qwen3-VL-2B and its fine-tune; the
+  registered rules forbid generalizing Qwen-only results. M1 adds a larger
+  model of the same family (is the base's deficit size?) and two 0.9B
+  document-OCR models, one of them Thai-specialized on synthetic data only.
+- T1's conditions are copied, not changed, and tested equal to T1's config.
+  The one explicit addition, `use_cache=true`, removes PaddleOCR-VL-1.6's
+  shipped `use_cache: false`, which a local check showed changes speed (15×)
+  and not the greedy output (registration §8).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+- Paddle and Wayu are region recognizers: their Full-page cells are off-design,
+  stated before the run.
+- No remedy is evaluated; a pattern in M1 can only route which follow-up is
+  worth registering.
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_M1_REGISTRATION.md`, `configs/model_survey/m1.yaml`
+- `src/labbs2026/model_survey/`, `scripts/model_survey_*.py`,
+  `infra/kaggle/model_survey_worker.py`, `tests/test_model_survey.py`
+
+---
+
 ## 2026-10-04f (gaps) — E3 fails: band re-reads at flagged lines gain little and cost 1.3–2× time
 
 **Evidence:** `docs/stage0/E3_FLAGGED_BAND_REREAD_DRAFT.md` §6, run
