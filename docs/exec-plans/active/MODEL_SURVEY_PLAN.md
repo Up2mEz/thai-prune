@@ -1,7 +1,8 @@
 # Track E — models not yet run on ThaiOCRBench (MODEL_SURVEY)
 
 **Owner:** PELY334. **Package:** `src/labbs2026/model_survey/` (new; reuses
-`thai_marks` read-only). **Branch:** `PELY334/model-survey-m1`.
+`thai_marks` read-only). **Branches:** `PELY334/model-survey-m1`,
+`PELY334/model-survey-m2` (both merged), `PELY334/model-survey-m2-results`.
 
 ## Why
 
@@ -27,8 +28,14 @@ Thai marks better or worse than Typhoon.
 4. **M2** (`docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md`, PELY334's "go" on
    2026-10-10): Wayu with its card's decoding (`R105`, `CARD`) and T5b's stop
    (`+B`). Do loops explain its deficit, and does the card's penalty cost marks?
+   **Done** (`MODEL_SURVEY_M2_RESULTS.md`; Addendum 1's `G` control passed
+   20/20). The card's decoding does not fix the loops. The stop recovers
+   +11 / +24 mark F1. Wayu stays below Typhoon, mostly on pages it never
+   finished reading.
 5. Only if M2 warrants it: Wayu as a re-reader of the lines Typhoon's
-   confidence flags (E1), as a new registration reviewed by Up2mEz.
+   confidence flags (E1), as a new registration reviewed by Up2mEz. M2 does
+   not strengthen the case: on the symmetric subset Wayu reads about one point
+   below Typhoon (M2 results §4e). Not started.
 
 ## Governance
 

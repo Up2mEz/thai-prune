@@ -1,0 +1,268 @@
+{
+ "run_id": "kaggle-model-survey-m2-61c813afe487-control20",
+ "git_sha": "0bcbd8f1378579a6db6ea3fe05c621fa183a1e50",
+ "git_dirty": false,
+ "reference_arm": {
+  "name": "G",
+  "run_id": "kaggle-model-survey-m1-3431d9f9dccf",
+  "outputs": "docs/stage0/data/M1_OUTPUTS_3431d9f9dccf.json.gz",
+  "role": "wayu",
+  "outputs_sha256": "892b58c30f86615b8a9a759038971b1613aacad3692678d9f65511575f726aab"
+ },
+ "manifests": {
+  "G0": {
+   "test": "m2",
+   "arm": "G0",
+   "model_id": "wayu-ai/wayu-paxa-ocr-zero",
+   "revision": "af0204b4f334a6d5068b6bac2b3738932d6e289b",
+   "prompt_kind": "OCR_NATIVE",
+   "dtype_used": "float16",
+   "items": 20,
+   "selected_items": 20,
+   "deadline_seconds": 5400.0,
+   "not_run": [],
+   "failures": [],
+   "setup_seconds": 17.549098363999974,
+   "requested": {
+    "do_sample": false,
+    "no_repeat_ngram_size": 0,
+    "num_beams": 1,
+    "repetition_penalty": 1.0,
+    "max_new_tokens": 3072,
+    "use_cache": true
+   },
+   "resolved": {
+    "do_sample": false,
+    "num_beams": 1,
+    "max_new_tokens": 3072,
+    "repetition_penalty": 1.0,
+    "no_repeat_ngram_size": 0,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "top_k": 50,
+    "use_cache": true,
+    "eos_token_id": 2,
+    "pad_token_id": 0
+   },
+   "wall_seconds": 465.326738408,
+   "torch": "2.14.0+cu130",
+   "transformers": "5.12.0",
+   "cuda": "13.0",
+   "cuda_device": "Tesla T4",
+   "platform": "Linux-6.18.48+-x86_64-with-glibc2.39",
+   "git_sha": "61c813afe487a2717800bac2dca4afaff04f62d4",
+   "run_id": "kaggle-model-survey-m2-61c813afe487-control20",
+   "config_sha256": "203d465b1db57853593340ff7a30438d56e1328b6539a9b8a2aa688eeb79316c"
+  }
+ },
+ "arms": {
+  "G0": {
+   "n": 20,
+   "reproduced": 20,
+   "all_reproduced": true,
+   "items": [
+    {
+     "id": "0159AF30",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 3072,
+     "reached_max_new_tokens": true
+    },
+    {
+     "id": "038EB8BB",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 3072,
+     "reached_max_new_tokens": true
+    },
+    {
+     "id": "048AEF1B",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 1487,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "049E88E5",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 210,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "056D30F1",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 63,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "0671D622",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 5,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "08A1628F",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 1565,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "0B5CA667",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 1979,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "0C084C7F",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 43,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "0C8ABA6F",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 70,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "145E6018",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 3072,
+     "reached_max_new_tokens": true
+    },
+    {
+     "id": "149C5D04",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 220,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "1576920D",
+     "task": "Full-page OCR",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 174,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "15E9383D",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 185,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "191DDE5A",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 3072,
+     "reached_max_new_tokens": true
+    },
+    {
+     "id": "19300F4D",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 15,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "1998EA9A",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 73,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "1A582D02",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 215,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "1B33F2CB",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 286,
+     "reached_max_new_tokens": false
+    },
+    {
+     "id": "1D6B66CE",
+     "task": "Text recognition",
+     "in_reference": true,
+     "same_text": true,
+     "same_tokens": true,
+     "first_difference": null,
+     "generated_tokens": 3072,
+     "reached_max_new_tokens": true
+    }
+   ]
+  }
+ },
+ "all_reproduced": true
+}
