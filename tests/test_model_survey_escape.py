@@ -6,12 +6,15 @@ from labbs2026.model_survey.escape import (
     EscapeState,
     TOP_K,
     _constraint,
+    collapse_digits,
     completes_unit,
     extend_inputs,
+    near_onset,
     rollback_index,
     starts_unit,
-    strip_ws,
+    unit_key,
     watch_fires,
+    watch_fires_after_escape,
 )
 
 
@@ -38,7 +41,7 @@ def test_watch_fires_on_a_completed_run_only():
 
 
 def test_starts_unit_follows_the_unit_until_the_model_deviates():
-    key = strip_ws("ยอดรวมทั้งสิ้น 58 บาท")
+    key = unit_key("ยอดรวมทั้งสิ้น 58 บาท")
     assert starts_unit("", "ยอด", key)                             # a second copy begins
     assert starts_unit("", " ยอดรวม", key)                         # whitespace is ignored
     assert starts_unit("ย", "อด", key)                             # continues a straddled start
@@ -49,10 +52,11 @@ def test_starts_unit_follows_the_unit_until_the_model_deviates():
 
 
 def test_completes_unit_counts_new_occurrences_only():
-    key = strip_ws("วันที่ ๒")
+    key = unit_key("วันที่ ๒")
     assert completes_unit("ประกาศ วันที่ ", "๒", key)
     assert not completes_unit("ประกาศ วันที่ ๒ แล้ว", "ก", key)      # the old occurrence is not new
-    assert not completes_unit("ประกาศ วันที่ ", "๓", key)
+    assert completes_unit("ประกาศ วันที่ ", "๓", key)                # numbers count as one 0 (Addendum 1)
+    assert not completes_unit("ประกาศ วันที่ ", "ก", key)
 
 
 def test_escape_state_applies_after_its_rollback():
@@ -97,3 +101,33 @@ def test_extend_inputs_appends_text_tokens():
     assert out["mm_token_type_ids"].tolist() == [[0, 1, 0, 0, 0]]
     assert out["pixel_values"] is inputs["pixel_values"]
     assert extend_inputs(inputs, []) is inputs
+
+
+def test_collapse_digits_maps_back_to_the_text():
+    norm, index = collapse_digits("ข้อ 12 และ ๓๔ จบ")
+    assert norm == "ข้อ 0 และ 0 จบ"
+    assert [norm[k] for k in range(len(norm)) if norm[k] != "0"] ==            ["ข้อ 12 และ ๓๔ จบ"[index[k]] for k in range(len(norm)) if norm[k] != "0"]
+    assert index[norm.index("0")] == "ข้อ 12 และ ๓๔ จบ".index("1")
+
+
+def test_near_onset_catches_numbered_copies_after_the_prefix():
+    numbered = "หัว 4) เนื้อหา" + "".join(f" {k}) การทดสอบหนี้สิน - ข้อความ" for k in range(5, 20))
+    assert loop_free(numbered)                                          # exact variant B misses it
+    start, end = near_onset(numbered, 0)
+    assert numbered[start:end] == " 5) การทดสอบหนี้สิน - ข้อความ"
+    assert watch_fires_after_escape(numbered, 0)
+    assert not watch_fires_after_escape(numbered, len(numbered) - 40)   # only text after the prefix counts
+    assert near_onset("ข้อความปกติ 1 2 3 จบ", 0) is None
+
+
+def loop_free(text):
+    return not watch_fires(text)
+
+
+def test_constraint_treats_numbered_copies_as_one_unit():
+    state = EscapeState()
+    first = "หัว 5) ข้อความซ้ำ"
+    state.add(3, len(first), " 5) ข้อความซ้ำ")
+    later = first + " หมายเหตุ 6) ข้อความซ้"
+    assert state.violates(20, "ำ", text=lambda: later, tail=later)       # 6) ... completes it again
+    assert not state.violates(20, "า", text=lambda: later, tail=later)

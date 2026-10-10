@@ -197,3 +197,46 @@ The checks ran locally on an RTX 3060 with transformers 5.12.0 and torch 2.11
 - **Cost of the watch.** Variant B's check takes at most about 65 ms on a
   4,000-character window. The watch uses 2,600 characters, enough to hold a
   completed run of the longest unit.
+
+## Addendum 1, 2026-10-11 — after the smoke, before the full run
+
+The smoke (`kaggle-model-survey-m3-08269ed99079-smoke2`, the first two
+calibration items) ran cleanly.
+
+- **The control item passed.** 038EB8BB, with no B-run in `G`, equals `G`
+  token for token (3,072 tokens).
+- **The escape item exposed a gap in the watch.** On 0159AF30, `E` escaped
+  three times, each time from a one-character variant of the same unit
+  (`- ข้อความของเอกสาร`, then `…เอกสรร`, then `…เอกสรุง`).
+  - The model then numbered its copies: `5) การทดสอบหนี้สินทุน -
+    ข้อความของเอกสรร 6) …`, `7) …`.
+  - Numbered copies are not exact repeats, so variant B's watch never fired
+    again, and the output ran to 3,072 tokens.
+
+A counter defeats the escape as registered, so it would not test the
+registered question. The watch is changed as follows, before any full-run
+output exists:
+
+1. **Digits collapse after the first escape.** After the first escape, the
+   watch applies variant B's rule with every run of digits (Arabic or Thai)
+   collapsed to one `0`, so `5) X` and `6) X` are the same unit.
+   - It reads only the text after the greedy prefix, so it never rewrites
+     greedy's output.
+   - The rollback and unit positions are mapped back to the uncollapsed text.
+2. **The constraint compares units the same way:** digit runs collapsed and
+   whitespace removed.
+3. **The first detection is unchanged:** exactly variant B. So `E0`, the
+   stop-only twin, is still B's stop, and the built-in control is unchanged.
+
+Nothing else changes: arms, items, outcome, patterns and budget stay as
+registered.
+
+**Re-checked locally on the synthetic page of 14 identical lines.**
+
+- The new watch fires on variants and escapes again, four times in all.
+- The model then wrote `60 60 60 …` until the step cap.
+- A run with no letter is never cut, either by variant B or here. Variant B
+  excludes such runs to protect dotted leaders and table rules.
+- Such text carries no Thai mark, so it costs tokens but not mark precision.
+
+The smoke is rerun at the new commit before the full run.

@@ -19,9 +19,19 @@ every `every` tokens. When a run completes its 8th copy (6th for long units):
 
 The constraint acts on the greedy choice: candidates are taken in score order
 and each one that would break it is set to −inf, until the best remaining one
-keeps it (`TOP_K` candidates are checked). After `max_escapes` escapes, the next
-run is stopped as in B (cut at its first copy). Decoding work per item is capped
-at `max_total_steps` tokens, discarded ones included.
+keeps it (`TOP_K` candidates are checked).
+
+After an escape, the watch also catches runs that differ only in their numbers:
+every run of digits (Arabic or Thai) counts as one `0`, in the watch and in the
+constraint. This is registration Addendum 1: in the smoke, the model numbered
+its copies (`5) …`, `6) …`), and an exact-repeat watch missed them. This
+watch reads only the text after the greedy prefix, which no escape may
+rewrite. The first detection stays exactly variant B, so the stop-only twin
+is B's stop.
+
+After `max_escapes` escapes, the next run is stopped as in B (cut at its first
+copy). Decoding work per item is capped at `max_total_steps` tokens, discarded
+ones included.
 
 **Control built in.** The watch only stops a generation, and no constraint
 exists before the first rollback. So an output in which no run completes is
@@ -45,10 +55,46 @@ TOP_K = 64                          # candidates checked against the constraint 
 TAIL_TOKENS = 192                   # decoded tail used for the completion check
 START_WINDOW = 8                    # tokens after a rollback within which the start check applies
 _WS = re.compile(r"\s+")
+_DIGITS = re.compile(r"[0-9\u0e50-\u0e59]+")
 
 
 def strip_ws(text: str) -> str:
     return _WS.sub("", text)
+
+
+def collapse_digits(text: str) -> tuple[str, list[int]]:
+    """`text` with every run of digits (Arabic or Thai) replaced by `0`, and each character's index in `text`."""
+    out: list[str] = []
+    index: list[int] = []
+    pos = 0
+    for m in _DIGITS.finditer(text):
+        out.extend(text[pos:m.start()])
+        index.extend(range(pos, m.start()))
+        out.append("0")
+        index.append(m.start())
+        pos = m.end()
+    out.extend(text[pos:])
+    index.extend(range(pos, len(text)))
+    return "".join(out), index
+
+
+def unit_key(text: str) -> str:
+    """How the constraint compares a unit: digit runs collapsed, whitespace removed."""
+    return strip_ws(collapse_digits(text)[0])
+
+
+def near_onset(text: str, start: int) -> tuple[int, int] | None:
+    """Variant B's rule on `text[start:]` with digit runs collapsed.
+
+    Returns (onset, end of the run's first copy) as positions in `text`, or None.
+    """
+    norm, index = collapse_digits(text[start:])
+    found = loop_onset(norm, STOP_K, STOP_K_LONG)
+    if found is None:
+        return None
+    onset, unit = found
+    end = index[onset + unit] if onset + unit < len(index) else len(text) - start
+    return start + index[onset], start + end
 
 
 def rollback_index(tokens: list[int], chars: int, decode: Callable[[list[int]], str]) -> int:
@@ -73,23 +119,31 @@ def watch_fires(text: str) -> bool:
     return loop_onset(text[-WATCH_WINDOW_CHARS:], STOP_K, STOP_K_LONG) is not None
 
 
-def starts_unit(since_boundary: str, piece: str, unit_key: str) -> bool:
+def watch_fires_after_escape(text: str, greedy_prefix: int) -> bool:
+    """Whether the digit-collapsed rule finds a completed run in the recent text after the greedy prefix."""
+    return near_onset(text, max(greedy_prefix, len(text) - WATCH_WINDOW_CHARS)) is not None
+
+
+def starts_unit(since_boundary: str, piece: str, key: str) -> bool:
     """Whether `piece` extends the text after a run's first copy further into another copy.
 
-    Whitespace is ignored. Applies only while the text after the first copy is
-    still a prefix of the unit (the model has not yet deviated from it).
+    Compared as `unit_key` does. Applies only while the text after the first
+    copy is still a prefix of the unit (the model has not yet deviated from it).
     """
-    before = strip_ws(since_boundary)
-    if not unit_key.startswith(before):
+    before = _normal(since_boundary)
+    if not key.startswith(before):
         return False
-    after = strip_ws(since_boundary + piece)
-    return after != before and (unit_key.startswith(after) or after.startswith(unit_key))
+    after = _normal(since_boundary + piece)
+    return after != before and (key.startswith(after) or after.startswith(key))
 
 
-def completes_unit(tail: str, piece: str, unit_key: str) -> bool:
-    """Whether appending `piece` to `tail` completes a new occurrence of the unit (whitespace ignored)."""
-    before = strip_ws(tail)
-    return (before + strip_ws(piece)).count(unit_key) > before.count(unit_key)
+def completes_unit(tail: str, piece: str, key: str) -> bool:
+    """Whether appending `piece` to `tail` completes a new occurrence of the unit (compared as `unit_key` does)."""
+    return _normal(tail + piece).count(key) > _normal(tail).count(key)
+
+
+def _normal(text: str) -> str:
+    return strip_ws(collapse_digits(text)[0])
 
 
 class EscapeState:
@@ -100,7 +154,7 @@ class EscapeState:
         self.rollbacks: list[tuple[int, int, str]] = []
 
     def add(self, position: int, boundary_chars: int, unit: str) -> None:
-        key = strip_ws(unit)
+        key = unit_key(unit)
         if key:
             self.rollbacks.append((position, boundary_chars, key))
 
@@ -122,8 +176,9 @@ class EscapeState:
         return False
 
 
-def _criteria(decode: Callable[[list[int]], str], base: int, every: int):
-    """A `StoppingCriteria` that stops when `watch_fires` on the output decoded so far."""
+def _criteria(decode: Callable[[list[int]], str], base: int, every: int,
+              fires: Callable[[str], bool] = watch_fires):
+    """A `StoppingCriteria` that stops when `fires` on the output decoded so far."""
     import torch
     from transformers import StoppingCriteria
 
@@ -134,7 +189,7 @@ def _criteria(decode: Callable[[list[int]], str], base: int, every: int):
 
         def __call__(self, input_ids, scores, **kwargs):
             self.calls += 1
-            if self.calls % every == 0 and watch_fires(decode(input_ids[0, base:].tolist())):
+            if self.calls % every == 0 and fires(decode(input_ids[0, base:].tolist())):
                 self.fired = True
             return torch.full((input_ids.shape[0],), self.fired, dtype=torch.bool, device=input_ids.device)
 
@@ -229,7 +284,11 @@ def generate_with_escape(model, processor, image, prompt: str, *, generation: di
         if budget <= 0:
             step_cap_hit = steps >= max_total_steps
             break
-        watch = _criteria(decode, base, every)
+        if escapes:
+            prefix = greedy_prefix_chars
+            watch = _criteria(decode, base, every, lambda text: watch_fires_after_escape(text, prefix))
+        else:
+            watch = _criteria(decode, base, every)
         with torch.inference_mode():
             produced = model.generate(
                 **extend_inputs(inputs, kept), **{**generation, "max_new_tokens": budget},
@@ -243,11 +302,16 @@ def generate_with_escape(model, processor, image, prompt: str, *, generation: di
             step_cap_hit = steps >= max_total_steps and len(kept) < limit
             break
         text = decode(kept)
-        onset = loop_onset(text, STOP_K, STOP_K_LONG)
-        if onset is None:      # the window saw a run the whole text does not hold: cannot happen
+        if escapes:
+            found, rule = near_onset(text, greedy_prefix_chars), "digits_collapsed"
+        else:
+            onset = loop_onset(text, STOP_K, STOP_K_LONG)
+            found, rule = (None if onset is None else (onset[0], onset[0] + onset[1])), "variant_b"
+        if found is None:      # the window saw a run the whole text does not hold: cannot happen
             raise RuntimeError("loop watch fired without a run in the output")
-        start, unit = onset
-        cut = rollback_index(kept, start + unit, decode)
+        start, end = found
+        unit = end - start
+        cut = rollback_index(kept, end, decode)
         if greedy_prefix_chars is None:
             greedy_prefix_chars, greedy_prefix_tokens = len(decode(kept[:cut])), cut
         if len(escapes) >= max_escapes:
@@ -255,8 +319,8 @@ def generate_with_escape(model, processor, image, prompt: str, *, generation: di
             final_cut = True
             break
         unit_text = text[start:start + unit]
-        state.add(cut, start + unit, unit_text)
-        escapes.append({"at_step": steps, "onset_chars": start, "unit_chars": unit, "unit": unit_text,
+        state.add(cut, end, unit_text)
+        escapes.append({"at_step": steps, "rule": rule, "onset_chars": start, "unit_chars": unit, "unit": unit_text,
                         "rollback_tokens": cut, "discarded_tokens": len(kept) - cut})
         kept = kept[:cut]
     runtime._sync(device)
