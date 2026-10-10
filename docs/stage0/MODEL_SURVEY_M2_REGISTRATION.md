@@ -1,10 +1,12 @@
 # MODEL_SURVEY_M2 — registration (Track E: Wayu's loops)
 
-**Status: `APPROVED` by PELY334 only.** PELY334 replied "go" on 2026-10-10 to
-the proposed next step (`MODEL_SURVEY_M1_RESULTS.md` §7), under M1's process:
-run first, Up2mEz reviews afterwards. The Decision Log entry 2026-10-10b stays
-unmerged until Up2mEz approves. Written before any M2 output exists; the only
-output so far is a local engineering check on a synthetic image (§8).
+**Status: `APPROVED` by PELY334, then by Up2mEz** (collab
+`20261010T0925Z_Up2mEz_to_PELY334_review-track-e-m1-m2-approved.md`, after the
+full run had finished; the review's requests are Addendum 1). PELY334 replied
+"go" on 2026-10-10 to the proposed next step (`MODEL_SURVEY_M1_RESULTS.md` §7),
+under M1's process: run first, Up2mEz reviews afterwards. Sections 1–8 were
+written before any M2 output existed; the only output then was a local
+engineering check on a synthetic image (§8).
 Parameters: `configs/model_survey/m2.yaml`. Claim level of every result:
 `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
 
@@ -107,3 +109,57 @@ Local RTX 3060, `transformers 5.12.0`, a rendered two-line Thai image:
   top_p 0.7, top_k 50, penalty 1.05; `use_cache` true);
 - `CARD` with the same item seed gave the identical output twice, and `R105`
   is deterministic.
+
+## Addendum 1, 2026-10-10 — Up2mEz's review; written before the control runs
+
+Up2mEz approved M2 (Decision Log 2026-10-10b; collab
+`20261010T0925Z_Up2mEz_to_PELY334_review-track-e-m1-m2-approved.md`) and asked
+for four things before M2 is read.
+
+**Timing, stated plainly.** The review arrived after the full run
+(`kaggle-model-survey-m2-edb6ce636dbd`) had finished and after its registered
+scores had been computed and seen. The control below therefore runs after the
+M2 numbers are known. Its pass rule is fixed here and concerns reproduction
+only, so it cannot be tuned to them.
+
+1. **Control for `G`.** `G` is M1's output from another run. A control arm
+   `G0` decodes exactly as T1 and M1 (penalty 1.0, greedy; `m2.validate`
+   refuses anything else). It runs with M2's code and environment on the first
+   20 calibration items in Id order (`control.items` in
+   `configs/model_survey/m2.yaml`; the smoke's two items are the first two).
+   These are 8 Full-page and 12 Text recognition items; 5 of them reached
+   `max_new_tokens` in M1.
+   - **Pass:** every item's output equals M1's `G` token for token, read as
+     the same text and the same generated-token count
+     (`m2.reproduces`; `scripts/model_survey_m2_control.py`).
+   - **If every item passes,** the comparisons against `G` are read as
+     registered.
+   - **If any item differs,** no arm effect against `G` is read. `G0` then runs
+     on all 178 items in one further run and replaces `G`. That run is about
+     1 hour; with the M2 run (≈ 1.0 h) and this control (≈ 0.3 h) it stays
+     within the 3-hour cap.
+2. **False cuts by `+B`.** Variant B fires on any output, not only on runaway
+   ones. A legitimate eightfold repeat (form lines, table cells) would lose
+   all the text after it. For every cut item the results report:
+   - whether the output had reached `max_new_tokens`;
+   - whether the run is a runaway to the end of the output, with less than
+     one unit of text after its last copy;
+   - the reference marks credited inside the removed text;
+   - whether the repeated unit occurs in the reference at all.
+
+   These come from `m2_exploratory.stop_effect`. Cuts of outputs that ended
+   normally, and cuts of runs followed by more text, are the ones that can
+   drop real reading. The registered reading "recall ≈ `G`" is judged with
+   this split beside it.
+3. **Cost is an upper bound.** The `+B` arms' tokens and seconds are scaled
+   to the first copy, but a decode-time stop can only fire when the 8th copy
+   completes (6th for long units). The saving reported for `+B` is therefore an
+   upper bound. The tokens to the point of detection are reported beside it
+   (`m2_exploratory.stop_effect`).
+4. **One draw.** `CARD` uses one seed per item. "`CARD` is better than `R105`"
+   is said only after two more seeds. Any other reading of `CARD` carries the
+   one-draw caveat.
+
+The exploratory readings (`scripts/model_survey_m2_exploratory.py`) also give
+the symmetric Text recognition subset the review asked for: Wayu and Typhoon
+both well-behaved, beside M1's one-sided split.

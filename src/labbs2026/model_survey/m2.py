@@ -7,7 +7,8 @@ item id, so a result does not depend on item order or sharding. The offline
 stop is T5b's variant B (`thai_marks.loop_cut`, Decision Log 2026-10-03e):
 cutting an output where an exact repeat completes its 8th copy (6th for long
 units) is what stopping decoding there would have produced, because decoding
-never revisits earlier tokens.
+never revisits earlier tokens. A control arm (registration Addendum 1) decodes
+exactly as T1 and must reproduce M1's outputs (`G`) token for token.
 """
 
 from __future__ import annotations
@@ -51,10 +52,16 @@ def item_seed(base: int, item_id: str) -> int:
 def validate(config: dict[str, Any]) -> list[list[str]]:
     """Check arms, queues and deadlines; return the GPU queues as lists of arm names."""
     arms = config["arms"]
+    base, max_new = config["runtime"]["generation"], int(config["runtime"]["max_new_tokens"])
     for name, arm in arms.items():
-        arm_kwargs(config["runtime"]["generation"], arm, int(config["runtime"]["max_new_tokens"]))
+        arm_kwargs(base, arm, max_new)
         if name in config.get("offline_arms", {}):
             raise ValueError(f"{name} is both a run arm and an offline arm")
+    for name, arm in config.get("control", {}).get("arms", {}).items():
+        if name in arms or name in config.get("offline_arms", {}) or name == config["reference_arm"]["name"]:
+            raise ValueError(f"{name} is both a control arm and another arm")
+        if arm_kwargs(base, arm, max_new) != generation_kwargs(base, max_new):
+            raise ValueError(f"control arm {name} must decode exactly as T1 and M1's G")
     queues = [list(q) for q in config["gpu_queues"]]
     listed = [a for q in queues for a in q]
     if len(listed) != len(set(listed)) or set(listed) != set(arms):
@@ -80,6 +87,29 @@ def load_arm(run_root: Path, arm: str) -> tuple[list[dict], dict]:
         raise ValueError(f"{leg}: {len(records)} records, manifest implies "
                          f"{manifest['items'] - len(manifest['failures'])}")
     return records, manifest
+
+
+def reproduces(control: list[dict], reference: dict[str, dict]) -> dict[str, Any]:
+    """Whether each control output equals the reference arm's output for its item, token for token.
+
+    Token for token is read as the same text and the same generated-token
+    count (records keep text, not token ids). `reference` maps item id to record.
+    """
+    items = []
+    for r in control:
+        g = reference.get(r["id"])
+        text = g is not None and r["raw_output"] == g["raw_output"]
+        first = None
+        if g is not None and not text:
+            a, b = r["raw_output"], g["raw_output"]
+            first = next((k for k in range(min(len(a), len(b))) if a[k] != b[k]), min(len(a), len(b)))
+        items.append({"id": r["id"], "task": r["task"], "in_reference": g is not None, "same_text": text,
+                      "same_tokens": g is not None and r["generated_tokens"] == g["generated_tokens"],
+                      "first_difference": first, "generated_tokens": r["generated_tokens"],
+                      "reached_max_new_tokens": r["reached_max_new_tokens"]})
+    same = [i["same_text"] and i["same_tokens"] for i in items]
+    return {"n": len(items), "reproduced": sum(same), "all_reproduced": bool(items) and all(same),
+            "items": items}
 
 
 def cost(records: list[dict]) -> dict[str, Any]:

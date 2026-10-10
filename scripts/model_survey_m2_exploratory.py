@@ -27,6 +27,7 @@ from labbs2026.model_survey.m2_exploratory import (
     split_by_loop,
     stop_effect,
     summarize_stops,
+    symmetric_ids,
 )
 from labbs2026.thai_marks.order_free import mark_counts
 
@@ -91,7 +92,8 @@ def main() -> None:
                     "git_sha": _git("rev-parse", "HEAD"),
                     "git_dirty": bool(_git("status", "--porcelain", "--untracked-files=no")),
                     "records_sha256": records_sha256, "order_free": order_free, "bootstrap": boot,
-                    "pairs": {}, "stops": {}, "loop_content": {}, "loop_split_vs_typhoon": {}}
+                    "pairs": {}, "stops": {}, "cut_items": {}, "loop_content": {}, "loop_split_vs_typhoon": {},
+                    "text_recognition_symmetric": {}}
     for task in config["benchmark"]["tasks"]:
         rows = {name: {r["id"]: r for r in arms[name] if r["task"] == task} for name in arms}
         task_counts = {name: {i: counts[name][i] for i in rows[name]} for name in arms}
@@ -100,13 +102,19 @@ def main() -> None:
             result["pairs"][f"{b} - {a} / {task}"] = compare(task_counts[a], task_counts[b], ids, **boot)
         for stopped, source in config["offline_arms"].items():
             effects = [stop_effect(raw, task_counts[source][i], task_counts[stopped][i])
-                       for i, raw in rows[source].items() if rows[stopped][i]["t5b_cut"]]
+                       for i, raw in sorted(rows[source].items()) if rows[stopped][i]["t5b_cut"]]
             result["stops"][f"{stopped} / {task}"] = summarize_stops(effects)
+            result["cut_items"][f"{stopped} / {task}"] = effects
             result["loop_content"][f"{source} / {task}"] = loop_content(list(rows[source].values()),
                                                                         task_counts[source])
             for part, ids in split_by_loop(rows[source]).items():
                 result["loop_split_vs_typhoon"][f"{stopped} / {task} / {part}"] = compare(
                     task_counts["typhoon"], task_counts[stopped], ids, **boot)
+        if task == "Text recognition":       # the review's symmetric subset, next to M1's one-sided split
+            for name in [*config["arms"], ref_arm["name"], *config["offline_arms"]]:
+                ids = symmetric_ids(rows["typhoon"], rows[name])
+                result["text_recognition_symmetric"][name] = compare(task_counts["typhoon"], task_counts[name],
+                                                                     ids, **boot)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
