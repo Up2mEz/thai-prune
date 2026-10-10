@@ -3,12 +3,15 @@
 Arms: `E` (the run), `E0` (its stop-only twin, `m3.stop_only`), `G` and `G+B`
 (M1's greedy outputs, without and with T5b's stop), and base and Typhoon from
 T1's archive. All are scored against this run's references for the same items.
+Also lists every escaped item with what the escape changed (descriptive), and
+with `--outputs-archive` writes `E`'s outputs without reference text or images.
 Refuses to overwrite a results file.
 """
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import subprocess
@@ -32,6 +35,11 @@ CONFIG = Path("configs/model_survey/m3.yaml")
 KERNEL_SLUG = "labbs2026-model-survey-m3"
 # (a, b): b − a, paired over the items both read
 PAIRS = (("E0", "E"), ("G+B", "E"), ("typhoon", "E"), ("typhoon", "E0"), ("G+B", "E0"))
+ARCHIVE_FIELDS = ("id", "task", "prompt_kind", "arm", "raw_output", "generated_tokens", "reached_max_new_tokens",
+                  "visual_tokens", "prompt_tokens", "seconds_generate", "seconds_per_generated_token",
+                  "resized_size", "escapes", "final_cut", "total_steps", "step_cap_hit", "generate_calls",
+                  "greedy_prefix_chars", "greedy_prefix_tokens")
+DETAIL_KEYS = ("matched_lines", "eligible_lines", "correct", "reference_marks", "output_marks")
 
 
 def _git(*args: str) -> str:
@@ -48,11 +56,13 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--outputs-archive", type=Path)
     parser.add_argument("--skip-fetch", action="store_true")
     parser.add_argument("--workers", type=int, default=6)
     args = parser.parse_args()
-    if args.out.exists():
-        raise SystemExit(f"{args.out} exists; results are never overwritten")
+    for path in (args.out, args.outputs_archive):
+        if path is not None and path.exists():
+            raise SystemExit(f"{path} exists; results are never overwritten")
     config = yaml.safe_load(CONFIG.read_text("utf-8"))
     validate(config)
 
@@ -102,11 +112,21 @@ def main() -> None:
     def counts(name: str, task: str) -> dict[str, dict]:
         return {i: c for (t, _, i), c in scored[name]["_counts"].items() if t == task}
 
-    result["pairs"], result["escaped_items"], result["escape"] = {}, {}, {}
+    result["pairs"], result["escaped_items"], result["escape"], result["escaped_item_details"] = {}, {}, {}, []
     for task in config["benchmark"]["tasks"]:
         task_records = [r for r in records if r["task"] == task]
         result["escape"][task] = escape_summary(task_records)
         escaped = sorted(r["id"] for r in task_records if r["escapes"] or r["final_cut"])
+        by_id = {r["id"]: r for r in task_records}
+        e_counts, e0_counts = counts(arm, task), counts("E0", task)
+        for i in escaped:
+            r = by_id[i]
+            result["escaped_item_details"].append({
+                "id": i, "task": task, "escapes": len(r["escapes"]), "rules": [e["rule"] for e in r["escapes"]],
+                "final_cut": r["final_cut"], "reached_max_new_tokens": r["reached_max_new_tokens"],
+                "kept_tokens": r["generated_tokens"], "decoded_tokens": r["total_steps"],
+                "greedy_prefix_chars": r["greedy_prefix_chars"], "output_chars": len(r["raw_output"]),
+                "E0": {k: e0_counts[i][k] for k in DETAIL_KEYS}, "E": {k: e_counts[i][k] for k in DETAIL_KEYS}})
         for a, b in PAIRS:
             ca, cb = counts(a, task), counts(b, task)
             ids = sorted(set(ca) & set(cb))
@@ -122,6 +142,13 @@ def main() -> None:
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    if args.outputs_archive is not None:
+        payload = {"provenance": {"run_id": args.run_id, "records_sha256": result["records_sha256"],
+                                  "note": "MODEL_SURVEY_M3 outputs (arm E); no reference text and no image."},
+                   "records": {arm: [{k: r.get(k) for k in ARCHIVE_FIELDS} for r in sorted(records, key=lambda r: r["id"])]}}
+        args.outputs_archive.parent.mkdir(parents=True, exist_ok=True)
+        with gzip.open(args.outputs_archive, "wt", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False)
     print(args.out)
 
 
