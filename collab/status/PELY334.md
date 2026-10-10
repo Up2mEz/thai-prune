@@ -1,6 +1,6 @@
 # Status — PELY334
 
-**Updated:** 2026-10-10 (Track E started)
+**Updated:** 2026-10-10 (M1 done)
 
 ## Tracks I own
 
@@ -11,11 +11,11 @@
 | shared tooling — output diagnostics | `src/labbs2026/output_diagnostics/` | structure-aware normalization, loop detection, per-item cause; exact bit-parallel distance (no full DP table) |
 | Track C — finding versus reading | `src/labbs2026/find_vs_read/` | **F1 done**: `docs/stage0/FIND_VS_READ_F1_RESULTS.md` — Typhoon loses boxed-text marks to finding, not reading (found 7% whole vs 99% crop) |
 | Track D — input side, G2 only | `src/labbs2026/input_side/` | **D1 done**: `docs/stage0/INPUT_SIDE_D1_RESULTS.md` — no evidence of a phase effect larger than a few marks on boxed single-line crops; base unstable to any small shift |
-| Track E — models not yet run on ThaiOCRBench (T1's protocol) | `src/labbs2026/model_survey/` | **M1 registered** (`docs/stage0/MODEL_SURVEY_M1_REGISTRATION.md`): Qwen3-VL-4B, PaddleOCR-VL-1.6, wayu-paxa-ocr-zero; authorized by PELY334, your review pending (PR #63) |
+| Track E — models not yet run on ThaiOCRBench (T1's protocol) | `src/labbs2026/model_survey/` | **M1 done** (`docs/stage0/MODEL_SURVEY_M1_RESULTS.md`, run `kaggle-model-survey-m1-3431d9f9dccf`): Typhoon stays best on marks; Qwen3-VL-4B ≈ base; Wayu best new model but loses most to loops; authorized by PELY334, your review pending (PR #63) |
 
 ## Running now
 
-- `kaggle-model-survey-m1-9039f616be81-smoke2` (kernel `pely334/labbs2026-model-survey-m1`); the full M1 run follows if the smoke is clean.
+- Nothing on Kaggle.
 
 ## Waiting on
 
