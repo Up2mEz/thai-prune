@@ -2,7 +2,10 @@
 
 **Claim level: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.** Calibration split only,
 one run. **Authorized by PELY334; Up2mEz's review was pending when these
-results were produced** (PR #63; Decision Log 2026-10-10 not merged).
+results were produced** (PR #63; Decision Log 2026-10-10 not merged then).
+Up2mEz approved afterwards (collab
+`20261010T0925Z_Up2mEz_to_PELY334_review-track-e-m1-m2-approved.md`) and asked
+for two readings to be softened; both are marked "softened after review".
 Registration: `MODEL_SURVEY_M1_REGISTRATION.md` (with Addendum 1).
 
 | | |
@@ -97,7 +100,9 @@ mark-specific error). BQ = `BENCHMARK_QUESTION`.
 **In one sentence:** under T1's protocol, Typhoon OCR 1.5 remains clearly the
 best of five checkpoints on Thai marks, and doubling the base's size does not
 close its gap. The Thai synthetic fine-tune (Wayu) is the best of the three
-new models but loses most of what it reads to repetition loops.
+new models but loses a share of what it reads to repetition loops (softened
+after review: M1 alone shows 26% truncation, and a 10-point gap to Typhoon on
+items where neither loops; `MODEL_SURVEY_M2_RESULTS.md` measures the share).
 
 ## 4. Exploratory readings (not registered; `M1_EXPLORATORY_3431d9f9dccf.json`)
 
@@ -140,6 +145,11 @@ as Typhoon** (F1 94.9 vs 94.5). Two limits on this:
 
 - The split conditions on Wayu's own output, so these are items on which it
   behaved well; it is hypothesis-generating, not a test.
+- (Softened after review.) It selects on Wayu behaving well and not on
+  Typhoon, so Wayu's failures are excluded while Typhoon's stay in. The
+  symmetric subset, on which both are well-behaved, is in
+  `MODEL_SURVEY_M2_RESULTS.md`; a re-reader test would have to be registered
+  on held-out items.
 - Wayu's higher recall on the "reads much more" items comes from transcribing
   everything. It is not better reading.
 

@@ -50,20 +50,23 @@ def stop_point(text: str) -> dict[str, int] | None:
     `onset` and `unit_chars` locate the first copy (what the cut keeps);
     `fires_at` is where the 8th copy (6th for long units) completes, the
     earliest point a decode-time stop could detect the run; `chars_after_run`
-    is the text after the run's last whole copy. A run that ends in less than
-    one unit of text is a runaway to the end of the output: the cut drops
-    repeats only.
+    is the text after the run's last whole copy. The run is a runaway to the
+    end of the output when that text is the start of one more copy (a final
+    U+FFFD, a token cut mid-character by `max_new_tokens`, is ignored): the
+    cut then drops repeats only.
     """
     onset = loop_onset(text, STOP_K, STOP_K_LONG)
     if onset is None:
         return None
     start, unit = onset
+    copy = text[start:start + unit]
     copies = 1
-    while text.startswith(text[start:start + unit], start + copies * unit):
+    while text.startswith(copy, start + copies * unit):
         copies += 1
+    tail = text[start + copies * unit:]
     return {"onset": start, "unit_chars": unit, "copies": copies,
             "fires_at": start + (STOP_K if unit < LONG_UNIT else STOP_K_LONG) * unit,
-            "chars_after_run": len(text) - (start + copies * unit)}
+            "chars_after_run": len(tail), "runaway_to_end": copy.startswith(tail.rstrip("�"))}
 
 
 def stop_effect(record: dict[str, Any], before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
@@ -80,8 +83,7 @@ def stop_effect(record: dict[str, Any], before: dict[str, Any], after: dict[str,
     point = stop_point(text)
     unit = extract_text(text[point["onset"]:point["onset"] + point["unit_chars"]])
     per_char = record["generated_tokens"] / max(1, len(text))
-    return {"id": record["id"], "reached_max_new_tokens": bool(record["reached_max_new_tokens"]),
-            **point, "runaway_to_end": point["chars_after_run"] < point["unit_chars"],
+    return {"id": record["id"], "reached_max_new_tokens": bool(record["reached_max_new_tokens"]), **point,
             "output_marks_removed": before["output_marks"] - after["output_marks"],
             "credited_marks_removed": before["correct"] - after["correct"],
             "unit_in_reference": bool(unit) and unit in extract_text(record["reference"]),

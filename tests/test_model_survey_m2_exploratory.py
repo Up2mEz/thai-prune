@@ -22,9 +22,12 @@ def test_stop_point_locates_copies_detection_and_tail():
     # the earliest run starts at the space after "หัว": unit " abcd", then " ab" (less than a unit) follows
     point = stop_point("หัว " + "abcd " * 10 + "ab")
     assert point["onset"] == 3 and point["unit_chars"] == 5 and point["copies"] == 10
-    assert point["fires_at"] == 3 + 8 * 5 and point["chars_after_run"] == 3
+    assert point["fires_at"] == 3 + 8 * 5 and point["chars_after_run"] == 3 and point["runaway_to_end"]
+    # a final token cut mid-character by max_new_tokens leaves U+FFFD; still a runaway
+    assert stop_point("หัว" + " วันที่ ๒" * 9 + " วันที่ �")["runaway_to_end"]
     followed = stop_point("หัว " + "abcd " * 9 + "แล้วอ่านต่ออีกหลายคำ")
     assert followed["copies"] == 9 and followed["chars_after_run"] == 1 + len("แล้วอ่านต่ออีกหลายคำ")
+    assert not followed["runaway_to_end"]
     long_unit = "x" + "บรรทัดยาวที่ซ้ำกันหลายครั้งในหน้าเดียวกันของเอกสาร 1 " * 6
     assert stop_point(long_unit)["fires_at"] == 1 + 6 * stop_point(long_unit)["unit_chars"]
     assert stop_point("ไม่มีอะไรซ้ำ") is None

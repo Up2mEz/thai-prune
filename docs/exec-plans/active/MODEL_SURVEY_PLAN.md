@@ -23,7 +23,7 @@ Thai marks better or worse than Typhoon.
    archived base/Typhoon outputs on the same items; write
    `docs/stage0/MODEL_SURVEY_M1_RESULTS.md`.
 3. **Done:** M1 (`MODEL_SURVEY_M1_RESULTS.md`). Typhoon stays best; Wayu is
-   the best new model but loses most of what it reads to loops.
+   the best new model but loses a share of what it reads to loops.
 4. **M2** (`docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md`, PELY334's "go" on
    2026-10-10): Wayu with its card's decoding (`R105`, `CARD`) and T5b's stop
    (`+B`). Do loops explain its deficit, and does the card's penalty cost marks?
