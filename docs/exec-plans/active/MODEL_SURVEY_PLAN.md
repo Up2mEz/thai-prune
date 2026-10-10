@@ -41,7 +41,12 @@ Thai marks better or worse than Typhoon.
    "ทำต่อเลย ได้อนุมัติแล้ว" on 2026-10-11): Wayu with a decode-time loop
    escape. Is the text a loop leaves unread recoverable by decoding past the
    loop? Compared with its stop-only twin from the same run, with matched
-   reference lines guarding against alignment credit.
+   reference lines guarding against alignment credit. **Done**
+   (`MODEL_SURVEY_M3_RESULTS.md`): the escape reads some of what loops leave
+   unread (+23 matched lines on Full-page; one page read in full) but invents
+   text elsewhere, so mark F1 does not move. Wayu stays 18 points below
+   Typhoon. Next, only if registered: a confidence filter for escaped text
+   (results §6.2).
 
 ## Governance
 
