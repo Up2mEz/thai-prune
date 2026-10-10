@@ -2,6 +2,52 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; Up2mEz's approval pending
+
+> Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
+> on 2026-10-10** by replying "go" to the next step proposed in
+> `MODEL_SURVEY_M1_RESULTS.md` §7, under the process PELY334 chose for M1 (run
+> first, Up2mEz reviews afterwards). **Up2mEz has not approved.** This entry
+> is not merged until Up2mEz approves it; until then M2's results say the
+> review was pending. PELY334's Kaggle quota and new files only.
+
+**Stage/Gate:** RQ-A context — whether a non-Typhoon model's deficit on Thai
+marks is a decoding artefact. Opens or passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md`
+with parameters `configs/model_survey/m2.yaml`: Wayu (`af0204b4`, `OCR:`) on
+M1's 178 calibration items with two decoding arms — greedy with
+`repetition_penalty=1.05`, and its card's sampling recipe at fixed per-item
+seeds — plus T5b's stop applied offline to these and to M1's greedy outputs.
+Smoke first, cap 3 T4-hours, PELY334's quota. The locked split stays closed;
+no image is written.
+
+### Reasoning
+
+- M1: Wayu reads isolated Thai text about as well as Typhoon where it does not
+  loop (exploratory), yet 20-26% of its outputs run into `max_new_tokens`.
+  Whether its deficit is decoding decides whether it is worth a follow-up.
+- T5 showed that a repetition penalty can cost Thai marks; M2 measures that
+  cost for Wayu instead of assuming the card's recipe is safe.
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; descriptive, no gate.
+- No remedy is adopted; a pattern can only route a registered follow-up
+  (e.g. Wayu as a re-reader).
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md`, `configs/model_survey/m2.yaml`
+- `src/labbs2026/model_survey/m2.py`, `remote_m2.py`, `scripts/model_survey_m2_*.py`,
+  `infra/kaggle/model_survey_worker.py`, `tests/test_model_survey_m2.py`
+
+---
+
 ## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; Up2mEz's approval pending
 
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
