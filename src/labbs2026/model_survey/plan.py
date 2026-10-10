@@ -62,6 +62,18 @@ def validate(config: dict[str, Any]) -> list[list[tuple[str, int, int]]]:
             for queue in queues]
 
 
+def unit_command(module: str, name: str, args: list) -> dict[str, Any]:
+    """One worker unit: run `python -m module --remote-spec SPEC *args`, logged as `name`."""
+    return {"name": name, "module": module, "args": [str(a) for a in args]}
+
+
+def m1_commands(queues: list[list[tuple[str, int, int]]]) -> list[list[dict[str, Any]]]:
+    """M1's GPU queues as worker units (the command each unit ran in M1)."""
+    return [[unit_command("labbs2026.model_survey.remote", f"m1_{role}_shard-{shard}-of-{shards}",
+                          ["--role", role, "--shard", shard, "--shards", shards])
+             for role, shard, shards in queue] for queue in queues]
+
+
 def select(queues: list[list[tuple[str, int, int]]], roles: list[str]) -> list[list[tuple[str, int, int]]]:
     """The queues restricted to `roles` (a partial run keeps each unit on its GPU)."""
     unknown = set(roles) - {u[0] for q in queues for u in q}
