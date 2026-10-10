@@ -77,14 +77,16 @@ def _gpu_count() -> int:
 
 def _run_queue(gpu: int, queue: list, python: str, spec_path: Path, source: Path, env: dict,
                artifact_dir: Path) -> list[dict]:
-    """Run one GPU's units in order; a failed unit does not stop the next one."""
+    """Run one GPU's units in order; a failed unit does not stop the next one.
+
+    A unit is `{"name", "module", "args"}` (`labbs2026.model_survey.plan.unit_command`).
+    """
     results = []
-    for role, shard, shards in queue:
-        name = f"m1_{role}_shard-{shard}-of-{shards}"
+    for unit in queue:
+        name = unit["name"]
         unit_env = dict(env)
         unit_env["CUDA_VISIBLE_DEVICES"] = str(gpu)
-        command = [python, "-m", "labbs2026.model_survey.remote", "--remote-spec", str(spec_path),
-                   "--role", role, "--shard", str(shard), "--shards", str(shards)]
+        command = [python, "-m", unit["module"], "--remote-spec", str(spec_path), *unit["args"]]
         with (artifact_dir / f"{name}.log").open("w", encoding="utf-8") as log:
             code = subprocess.run(command, cwd=source, env=unit_env, stdout=log,
                                   stderr=subprocess.STDOUT).returncode

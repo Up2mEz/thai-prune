@@ -1,4 +1,4 @@
-"""Prepare (and optionally submit) the MODEL_SURVEY_M1 Kaggle run (Track E)."""
+"""Prepare (and optionally submit) the MODEL_SURVEY_M2 Kaggle run (Track E): Wayu's decoding arms."""
 
 from __future__ import annotations
 
@@ -21,17 +21,21 @@ from labbs2026.kaggle import (
     sha256_file,
     utc_now,
 )
-from labbs2026.model_survey.plan import m1_commands, select, validate
+from labbs2026.model_survey.m2 import validate
+from labbs2026.model_survey.plan import unit_command
 
-KERNEL_SLUG = "labbs2026-model-survey-m1"
-CONFIG = "configs/model_survey/m1.yaml"
+KERNEL_SLUG = "labbs2026-model-survey-m2"
+CONFIG = "configs/model_survey/m2.yaml"
 HASHED = (
     CONFIG,
     "src/labbs2026/model_survey/__init__.py",
+    "src/labbs2026/model_survey/m2.py",
     "src/labbs2026/model_survey/plan.py",
     "src/labbs2026/model_survey/remote.py",
+    "src/labbs2026/model_survey/remote_m2.py",
     "src/labbs2026/thai_marks/__init__.py",
     "src/labbs2026/thai_marks/generation.py",
+    "src/labbs2026/thai_marks/loop_cut.py",
     "src/labbs2026/thai_marks/normalize.py",
     "src/labbs2026/thai_marks/orthography.py",
     "src/labbs2026/thai_marks/remote.py",
@@ -60,9 +64,7 @@ def preflight(root: Path, remote_ref: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
-    parser.add_argument("--roles", default="", help="comma-separated subset of the models (default: all)")
-    parser.add_argument("--smoke", type=int, default=0,
-                        help="engineering smoke: the first N calibration items (N >= a model's shards)")
+    parser.add_argument("--smoke", type=int, default=0, help="engineering smoke: the first N calibration items")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG)
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
@@ -72,17 +74,11 @@ def main() -> None:
     if config["status"] != "APPROVED":
         raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
     queues = validate(config)
-    roles = [r for r in args.roles.split(",") if r] or list(config["models"])
-    queues = select(queues, roles)
-    if args.smoke and any(args.smoke < u[2] for q in queues for u in q):
-        raise SystemExit("--smoke must be at least every selected model's shard count")
-
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
-    suffix = "" if roles == list(config["models"]) else "-" + "-".join(roles)
-    suffix += f"-smoke{args.smoke}" if args.smoke else ""
-    run_id = f"kaggle-model-survey-m1-{git_sha[:12]}{suffix}"
+    run_id = f"kaggle-model-survey-m2-{git_sha[:12]}" + (f"-smoke{args.smoke}" if args.smoke else "")
+    role = config["model_role"]
 
     spec = {
         "schema_version": 1,
@@ -97,12 +93,18 @@ def main() -> None:
         "python_version": "3.12",
         "source_dir": "/tmp/labbs2026-source",
         "output_root": "/kaggle/working/artifacts",
-        "tests": ["m1"],
+        "tests": ["m2"],
         "limit": args.smoke,
-        "roles": roles,
-        "gpu_queues": m1_commands(queues),
-        "models": {r: config["models"][r] for r in roles},
+        "roles": [role],
+        "model_role": role,
+        "models": config["models"],
+        "prompt_kind": config["prompt_kind"],
         "prompts": config["prompts"],
+        "arms": config["arms"],
+        "seed": config["seed"],
+        "unit_deadline_hours": config["unit_deadline_hours"],
+        "gpu_queues": [[unit_command("labbs2026.model_survey.remote_m2", f"m2_{arm}", ["--arm", arm])
+                        for arm in queue] for queue in queues],
         "benchmark_repo": config["benchmark"]["repo"],
         "benchmark_revision": config["benchmark"]["revision"],
         "benchmark_split": config["benchmark"]["split"],
@@ -125,7 +127,7 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, args.kernel_slug), "title": "LabBS2026 Model Survey M1",
+        "id": kernel_id(root, args.kernel_slug), "title": "LabBS2026 Model Survey M2",
         "code_file": "worker.py", "language": "python", "kernel_type": "script",
         "is_private": True, "enable_gpu": True, "enable_internet": True,
         "machine_shape": "NvidiaTeslaT4", "dataset_sources": [], "competition_sources": [],
@@ -133,7 +135,7 @@ def main() -> None:
     })
     spec["generated_worker_sha256"] = sha256_file(staging / "worker.py")
     atomic_write_json(run_dir / "submission.json", spec)
-    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "roles": roles, "limit": args.smoke,
+    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "limit": args.smoke,
                       "gpu_queues": spec["gpu_queues"], "staging": str(staging)}, indent=1))
     if args.submit:
         result = subprocess.run(build_submit_command(staging), capture_output=True, text=True)

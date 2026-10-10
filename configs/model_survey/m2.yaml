@@ -1,0 +1,77 @@
+schema_version: 1
+# PELY334 authorized M2 in session on 2026-10-10 ("go", in reply to the proposed
+# next step), with M1's process: run first, Up2mEz reviews afterwards. The
+# Decision Log entry stays unmerged until Up2mEz approves.
+status: APPROVED
+registration: docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md
+authorization: docs/DECISION_LOG.md  # entry 2026-10-10b (PR; Up2mEz approval pending)
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+model_role: wayu
+models:
+  wayu:
+    model_id: wayu-ai/wayu-paxa-ocr-zero
+    revision: af0204b4f334a6d5068b6bac2b3738932d6e289b  # M1's
+prompt_kind: OCR_NATIVE            # Wayu's primary prompt in M1
+prompts:
+  OCR_NATIVE: "OCR:"
+
+# Benchmark, split, image policy and base decoding are M1's (= T1's).
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  run_on: calibration
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  attention: sdpa
+  image_policy: typhoon_card
+  max_new_tokens: 3072
+  generation:                       # the base every arm overrides
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+  use_cache: true
+
+# Decoding arms run on Kaggle. The model card's recommendation for GPU use is
+# temperature 0.1, top_p 0.7, repetition_penalty 1.05 (CARD); R105 is its
+# repetition penalty alone, greedy.
+arms:
+  R105: {do_sample: false, repetition_penalty: 1.05}
+  CARD: {do_sample: true, temperature: 0.1, top_p: 0.7, repetition_penalty: 1.05}
+seed: 20261010                      # CARD's per-item seeds: model_survey.m2.item_seed
+
+# M1's greedy outputs are arm G (not rerun); +B arms are T5b's variant B
+# (decode-time stop at a loop, Decision Log 2026-10-03e), applied offline.
+reference_arm:
+  name: G
+  run_id: kaggle-model-survey-m1-3431d9f9dccf
+  outputs: docs/stage0/data/M1_OUTPUTS_3431d9f9dccf.json.gz
+  role: wayu
+offline_arms:
+  G+B: G
+  R105+B: R105
+  CARD+B: CARD
+
+gpu_queues:
+  - [R105]
+  - [CARD]
+unit_deadline_hours: 1.5
+budget_cap_t4_hours: 3
+
+comparison:
+  run_id: kaggle-thai-marks-t1-t2-a44199c29759
+  outputs: docs/stage0/data/T1_OUTPUTS_a44199c29759.json.gz
+  roles: [base, typhoon]
+  prompt: BENCHMARK_QUESTION
+
+scoring:
+  null_seed: 20260928
+  order_free: {max_cer: 0.4, residual: true}
+  bootstrap: {resamples: 2000, seed: 20261010}

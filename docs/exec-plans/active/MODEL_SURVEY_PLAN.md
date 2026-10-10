@@ -22,9 +22,13 @@ Thai marks better or worse than Typhoon.
 2. Score offline with T1 scoring v2 and order-free v2; compare with T1's
    archived base/Typhoon outputs on the same items; write
    `docs/stage0/MODEL_SURVEY_M1_RESULTS.md`.
-3. Only if a pattern of §5 of the registration warrants it: propose a
-   follow-up (e.g. a model as a re-reader of Typhoon's flagged lines) as a
-   new registration, reviewed by Up2mEz before any run.
+3. **Done:** M1 (`MODEL_SURVEY_M1_RESULTS.md`). Typhoon stays best; Wayu is
+   the best new model but loses most of what it reads to loops.
+4. **M2** (`docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md`, PELY334's "go" on
+   2026-10-10): Wayu with its card's decoding (`R105`, `CARD`) and T5b's stop
+   (`+B`). Do loops explain its deficit, and does the card's penalty cost marks?
+5. Only if M2 warrants it: Wayu as a re-reader of the lines Typhoon's
+   confidence flags (E1), as a new registration reviewed by Up2mEz.
 
 ## Governance
 
