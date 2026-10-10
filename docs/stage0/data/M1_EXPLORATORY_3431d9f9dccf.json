@@ -1,0 +1,863 @@
+{
+ "status": "EXPLORATORY_NOT_REGISTERED",
+ "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
+ "git_sha": "e27f2cb918c6c2434f4bdc11c5d689163c65b5d5",
+ "git_dirty": false,
+ "records_sha256": {
+  "m1/paddle/records.jsonl": "649e77caaa7171cb844f90f56eb463aeabca0d7313e1d5eb0afd0e13ce006d1b",
+  "m1/qwen3vl4b/shard-0-of-2/records.jsonl": "d1c38f3fa05d96868fe671db9327439209657df34e96ad68f2e63d2973d26c28",
+  "m1/qwen3vl4b/shard-1-of-2/records.jsonl": "93a70b71ff5223a53074a2f582806a03766575bb96fec1838fdfc4326dd2aa4a",
+  "m1/wayu/records.jsonl": "4cd1f8fdedb951c1c1df8616fec8f39d6cf3ab34c70a21e80e2b77133eb7fa92"
+ },
+ "primary_prompt": {
+  "qwen3vl4b": "BENCHMARK_QUESTION",
+  "paddle": "OCR_NATIVE",
+  "wayu": "OCR_NATIVE",
+  "base": "BENCHMARK_QUESTION",
+  "typhoon": "BENCHMARK_QUESTION"
+ },
+ "bootstrap": {
+  "resamples": 2000,
+  "seed": 20261010
+ },
+ "wayu_minus_paddle": {
+  "Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.4661256608877413,
+    "precision": 0.6217812038707561,
+    "f1": 0.5328179901616302,
+    "n": 69,
+    "correct": 7582,
+    "reference_marks": 16266,
+    "output_marks": 12194,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 543,
+    "matched_reference_marks": 8165,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.6903971474240748,
+    "precision": 0.6181878234063636,
+    "f1": 0.6523001858736059,
+    "n": 69,
+    "correct": 11230,
+    "reference_marks": 16266,
+    "output_marks": 18166,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 653,
+    "matched_reference_marks": 10683,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": 0.11948219571197571,
+     "ci95": [
+      -0.002400649897223661,
+      0.2515601220379548
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": 0.22427148653633344,
+     "ci95": [
+      0.10779259259259255,
+      0.35506533651819583
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.003593380464392504,
+     "ci95": [
+      -0.1856437129834329,
+      0.18574747554397886
+     ]
+    }
+   }
+  },
+  "Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.6733391354801277,
+    "precision": 0.3714788732394366,
+    "f1": 0.4788035069623517,
+    "n": 109,
+    "correct": 2321,
+    "reference_marks": 3447,
+    "output_marks": 6248,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 192,
+    "matched_reference_marks": 2596,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.8381201044386423,
+    "precision": 0.31698485845951285,
+    "f1": 0.459995223310246,
+    "n": 109,
+    "correct": 2889,
+    "reference_marks": 3447,
+    "output_marks": 9114,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 221,
+    "matched_reference_marks": 2901,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": -0.018808283652105684,
+     "ci95": [
+      -0.2084567133237057,
+      0.1450217624746694
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": 0.16478096895851457,
+     "ci95": [
+      0.010534236267870645,
+      0.2989721886336155
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": -0.05449401477992377,
+     "ci95": [
+      -0.30403948290690297,
+      0.10526802209308864
+     ]
+    }
+   }
+  }
+ },
+ "no_loop_vs_typhoon": {
+  "qwen3vl4b / Full-page OCR": {
+   "of": 69,
+   "n": 49,
+   "a": {
+    "recall": 0.9720257234726688,
+    "precision": 0.9852254209668658,
+    "f1": 0.9785810628540599,
+    "n": 49,
+    "correct": 9069,
+    "reference_marks": 9330,
+    "output_marks": 9205,
+    "short_line_marks": 14,
+    "lines": 931,
+    "eligible_lines": 736,
+    "matched_lines": 638,
+    "matched_reference_marks": 9129,
+    "short_line_mark_share": 0.0015005359056806003
+   },
+   "b": {
+    "recall": 0.8106109324758842,
+    "precision": 0.846730855351545,
+    "f1": 0.8282772971197022,
+    "n": 49,
+    "correct": 7563,
+    "reference_marks": 9330,
+    "output_marks": 8932,
+    "short_line_marks": 14,
+    "lines": 931,
+    "eligible_lines": 736,
+    "matched_lines": 572,
+    "matched_reference_marks": 8485,
+    "short_line_mark_share": 0.0015005359056806003
+   },
+   "difference": {
+    "f1": {
+     "n": 49,
+     "difference": -0.15030376573435766,
+     "ci95": [
+      -0.20036051639113006,
+      -0.1105775724512208
+     ]
+    },
+    "recall": {
+     "n": 49,
+     "difference": -0.16141479099678457,
+     "ci95": [
+      -0.24896190648131433,
+      -0.08890788630049151
+     ]
+    },
+    "precision": {
+     "n": 49,
+     "difference": -0.1384945656153208,
+     "ci95": [
+      -0.167244835377663,
+      -0.11145991956680723
+     ]
+    }
+   }
+  },
+  "paddle / Full-page OCR": {
+   "of": 69,
+   "n": 41,
+   "a": {
+    "recall": 0.983933726622317,
+    "precision": 0.9906483002653861,
+    "f1": 0.98727959697733,
+    "n": 41,
+    "correct": 7839,
+    "reference_marks": 7967,
+    "output_marks": 7913,
+    "short_line_marks": 9,
+    "lines": 648,
+    "eligible_lines": 522,
+    "matched_lines": 498,
+    "matched_reference_marks": 7871,
+    "short_line_mark_share": 0.0011296598468683318
+   },
+   "b": {
+    "recall": 0.8134806075059621,
+    "precision": 0.8323914718725919,
+    "f1": 0.8228273979559448,
+    "n": 41,
+    "correct": 6481,
+    "reference_marks": 7967,
+    "output_marks": 7786,
+    "short_line_marks": 9,
+    "lines": 648,
+    "eligible_lines": 522,
+    "matched_lines": 461,
+    "matched_reference_marks": 7327,
+    "short_line_mark_share": 0.0011296598468683318
+   },
+   "difference": {
+    "f1": {
+     "n": 41,
+     "difference": -0.1644521990213852,
+     "ci95": [
+      -0.20240037438387493,
+      -0.1273128700499463
+     ]
+    },
+    "recall": {
+     "n": 41,
+     "difference": -0.17045311911635497,
+     "ci95": [
+      -0.2155763239875389,
+      -0.13161290322580643
+     ]
+    },
+    "precision": {
+     "n": 41,
+     "difference": -0.1582568283927942,
+     "ci95": [
+      -0.21432296651381355,
+      -0.10631504710544715
+     ]
+    }
+   }
+  },
+  "wayu / Full-page OCR": {
+   "of": 69,
+   "n": 51,
+   "a": {
+    "recall": 0.9755648975302155,
+    "precision": 0.987587552087951,
+    "f1": 0.981539410494779,
+    "n": 51,
+    "correct": 11139,
+    "reference_marks": 11418,
+    "output_marks": 11279,
+    "short_line_marks": 14,
+    "lines": 890,
+    "eligible_lines": 697,
+    "matched_lines": 600,
+    "matched_reference_marks": 11175,
+    "short_line_mark_share": 0.0012261341741110527
+   },
+   "b": {
+    "recall": 0.8550534244175862,
+    "precision": 0.9089470254166279,
+    "f1": 0.8811769484182499,
+    "n": 51,
+    "correct": 9763,
+    "reference_marks": 11418,
+    "output_marks": 10741,
+    "short_line_marks": 14,
+    "lines": 890,
+    "eligible_lines": 697,
+    "matched_lines": 587,
+    "matched_reference_marks": 9906,
+    "short_line_mark_share": 0.0012261341741110527
+   },
+   "difference": {
+    "f1": {
+     "n": 51,
+     "difference": -0.1003624620765291,
+     "ci95": [
+      -0.15996848580658274,
+      -0.0471772467277749
+     ]
+    },
+    "recall": {
+     "n": 51,
+     "difference": -0.12051147311262922,
+     "ci95": [
+      -0.1885658743483256,
+      -0.05338621110433195
+     ]
+    },
+    "precision": {
+     "n": 51,
+     "difference": -0.07864052667132315,
+     "ci95": [
+      -0.13418608994220949,
+      -0.033694486692829484
+     ]
+    }
+   }
+  },
+  "base / Full-page OCR": {
+   "of": 69,
+   "n": 38,
+   "a": {
+    "recall": 0.9878757886923172,
+    "precision": 0.9942721952434317,
+    "f1": 0.9910636713416905,
+    "n": 38,
+    "correct": 7985,
+    "reference_marks": 8083,
+    "output_marks": 8031,
+    "short_line_marks": 10,
+    "lines": 590,
+    "eligible_lines": 477,
+    "matched_lines": 425,
+    "matched_reference_marks": 8006,
+    "short_line_mark_share": 0.0012371644191513053
+   },
+   "b": {
+    "recall": 0.8357045651367067,
+    "precision": 0.8570159857904085,
+    "f1": 0.8462261196367052,
+    "n": 38,
+    "correct": 6755,
+    "reference_marks": 8083,
+    "output_marks": 7882,
+    "short_line_marks": 10,
+    "lines": 590,
+    "eligible_lines": 477,
+    "matched_lines": 402,
+    "matched_reference_marks": 7513,
+    "short_line_mark_share": 0.0012371644191513053
+   },
+   "difference": {
+    "f1": {
+     "n": 38,
+     "difference": -0.14483755170498525,
+     "ci95": [
+      -0.20414339816760685,
+      -0.10321286647891226
+     ]
+    },
+    "recall": {
+     "n": 38,
+     "difference": -0.15217122355561052,
+     "ci95": [
+      -0.24392587508579278,
+      -0.08097902097902099
+     ]
+    },
+    "precision": {
+     "n": 38,
+     "difference": -0.1372562094530232,
+     "ci95": [
+      -0.1746587311426392,
+      -0.11157688531269139
+     ]
+    }
+   }
+  },
+  "qwen3vl4b / Text recognition": {
+   "of": 109,
+   "n": 95,
+   "a": {
+    "recall": 0.8133111480865225,
+    "precision": 0.8703703703703703,
+    "f1": 0.8408739033201444,
+    "n": 95,
+    "correct": 2444,
+    "reference_marks": 3005,
+    "output_marks": 2808,
+    "short_line_marks": 2,
+    "lines": 260,
+    "eligible_lines": 244,
+    "matched_lines": 176,
+    "matched_reference_marks": 2429,
+    "short_line_mark_share": 0.0006655574043261231
+   },
+   "b": {
+    "recall": 0.8462562396006655,
+    "precision": 0.25832994717594476,
+    "f1": 0.3958284691415675,
+    "n": 95,
+    "correct": 2543,
+    "reference_marks": 3005,
+    "output_marks": 9844,
+    "short_line_marks": 2,
+    "lines": 260,
+    "eligible_lines": 244,
+    "matched_lines": 209,
+    "matched_reference_marks": 2459,
+    "short_line_mark_share": 0.0006655574043261231
+   },
+   "difference": {
+    "f1": {
+     "n": 95,
+     "difference": -0.44504543417857695,
+     "ci95": [
+      -0.5378637243626218,
+      -0.3253189158792885
+     ]
+    },
+    "recall": {
+     "n": 95,
+     "difference": 0.03294509151414304,
+     "ci95": [
+      -0.12791666666666668,
+      0.2089389534883721
+     ]
+    },
+    "precision": {
+     "n": 95,
+     "difference": -0.6120404231944256,
+     "ci95": [
+      -0.6760094577686931,
+      -0.5345716162359173
+     ]
+    }
+   }
+  },
+  "paddle / Text recognition": {
+   "of": 109,
+   "n": 92,
+   "a": {
+    "recall": 0.8359011107130061,
+    "precision": 0.8747656542932134,
+    "f1": 0.8548919017955295,
+    "n": 92,
+    "correct": 2333,
+    "reference_marks": 2791,
+    "output_marks": 2667,
+    "short_line_marks": 0,
+    "lines": 249,
+    "eligible_lines": 233,
+    "matched_lines": 171,
+    "matched_reference_marks": 2307,
+    "short_line_mark_share": 0.0
+   },
+   "b": {
+    "recall": 0.8036546040845575,
+    "precision": 0.6029569892473118,
+    "f1": 0.6889878666871448,
+    "n": 92,
+    "correct": 2243,
+    "reference_marks": 2791,
+    "output_marks": 3720,
+    "short_line_marks": 0,
+    "lines": 249,
+    "eligible_lines": 233,
+    "matched_lines": 184,
+    "matched_reference_marks": 2522,
+    "short_line_mark_share": 0.0
+   },
+   "difference": {
+    "f1": {
+     "n": 92,
+     "difference": -0.1659040351083847,
+     "ci95": [
+      -0.283150709180785,
+      -0.04552392307015951
+     ]
+    },
+    "recall": {
+     "n": 92,
+     "difference": -0.032246506628448635,
+     "ci95": [
+      -0.15083295812696984,
+      0.11629048086359173
+     ]
+    },
+    "precision": {
+     "n": 92,
+     "difference": -0.2718086650459016,
+     "ci95": [
+      -0.39936500447904577,
+      -0.14293721549038985
+     ]
+    }
+   }
+  },
+  "wayu / Text recognition": {
+   "of": 109,
+   "n": 86,
+   "a": {
+    "recall": 0.8758052970651395,
+    "precision": 0.870199146514936,
+    "f1": 0.872993221548341,
+    "n": 86,
+    "correct": 2447,
+    "reference_marks": 2794,
+    "output_marks": 2812,
+    "short_line_marks": 1,
+    "lines": 205,
+    "eligible_lines": 197,
+    "matched_lines": 158,
+    "matched_reference_marks": 2431,
+    "short_line_mark_share": 0.00035790980672870435
+   },
+   "b": {
+    "recall": 0.9484609878310666,
+    "precision": 0.6013160880417517,
+    "f1": 0.7360088876544925,
+    "n": 86,
+    "correct": 2650,
+    "reference_marks": 2794,
+    "output_marks": 4407,
+    "short_line_marks": 1,
+    "lines": 205,
+    "eligible_lines": 197,
+    "matched_lines": 181,
+    "matched_reference_marks": 2693,
+    "short_line_mark_share": 0.00035790980672870435
+   },
+   "difference": {
+    "f1": {
+     "n": 86,
+     "difference": -0.13698433389384856,
+     "ci95": [
+      -0.22578525237255398,
+      -0.042165258972159614
+     ]
+    },
+    "recall": {
+     "n": 86,
+     "difference": 0.07265569076592704,
+     "ci95": [
+      0.021922428330522825,
+      0.1505210343496719
+     ]
+    },
+    "precision": {
+     "n": 86,
+     "difference": -0.2688830584731843,
+     "ci95": [
+      -0.3761786544501469,
+      -0.1356864277936255
+     ]
+    }
+   }
+  },
+  "base / Text recognition": {
+   "of": 109,
+   "n": 92,
+   "a": {
+    "recall": 0.8377054914305702,
+    "precision": 0.8750456704420899,
+    "f1": 0.8559685489635454,
+    "n": 92,
+    "correct": 2395,
+    "reference_marks": 2859,
+    "output_marks": 2737,
+    "short_line_marks": 2,
+    "lines": 237,
+    "eligible_lines": 222,
+    "matched_lines": 174,
+    "matched_reference_marks": 2382,
+    "short_line_mark_share": 0.0006995452955578874
+   },
+   "b": {
+    "recall": 0.8674361664917803,
+    "precision": 0.6099360550909986,
+    "f1": 0.716245487364621,
+    "n": 92,
+    "correct": 2480,
+    "reference_marks": 2859,
+    "output_marks": 4066,
+    "short_line_marks": 2,
+    "lines": 237,
+    "eligible_lines": 222,
+    "matched_lines": 182,
+    "matched_reference_marks": 2518,
+    "short_line_mark_share": 0.0006995452955578874
+   },
+   "difference": {
+    "f1": {
+     "n": 92,
+     "difference": -0.13972306159892434,
+     "ci95": [
+      -0.2336120061071305,
+      -0.026425200924424797
+     ]
+    },
+    "recall": {
+     "n": 92,
+     "difference": 0.029730675061210188,
+     "ci95": [
+      -0.07591178965224776,
+      0.17115623704931626
+     ]
+    },
+    "precision": {
+     "n": 92,
+     "difference": -0.26510961535109134,
+     "ci95": [
+      -0.3522206409109434,
+      -0.1743891939898139
+     ]
+    }
+   }
+  }
+ },
+ "text_recognition_by_length": {
+  "paddle / about_reference": {
+   "n": 65,
+   "a": {
+    "recall": 0.8738115816767502,
+    "precision": 0.9254004576659038,
+    "f1": 0.8988664147588353,
+    "n": 65,
+    "correct": 2022,
+    "reference_marks": 2314,
+    "output_marks": 2185,
+    "short_line_marks": 0,
+    "lines": 214,
+    "eligible_lines": 198,
+    "matched_lines": 144,
+    "matched_reference_marks": 2014,
+    "short_line_mark_share": 0.0
+   },
+   "b": {
+    "recall": 0.8098530682800346,
+    "precision": 0.9204322200392927,
+    "f1": 0.8616091954022989,
+    "n": 65,
+    "correct": 1874,
+    "reference_marks": 2314,
+    "output_marks": 2036,
+    "short_line_marks": 0,
+    "lines": 214,
+    "eligible_lines": 198,
+    "matched_lines": 154,
+    "matched_reference_marks": 2082,
+    "short_line_mark_share": 0.0
+   },
+   "difference": {
+    "f1": {
+     "n": 65,
+     "difference": -0.037257219356536475,
+     "ci95": [
+      -0.10761942321420559,
+      0.06696216504970887
+     ]
+    },
+    "recall": {
+     "n": 65,
+     "difference": -0.06395851339671565,
+     "ci95": [
+      -0.19012899607403244,
+      0.10231164383561642
+     ]
+    },
+    "precision": {
+     "n": 65,
+     "difference": -0.004968237626611138,
+     "ci95": [
+      -0.04907532620790145,
+      0.05503268968929653
+     ]
+    }
+   }
+  },
+  "paddle / much_more": {
+   "n": 27,
+   "a": {
+    "recall": 0.6519916142557652,
+    "precision": 0.6452282157676349,
+    "f1": 0.64859228362878,
+    "n": 27,
+    "correct": 311,
+    "reference_marks": 477,
+    "output_marks": 482,
+    "short_line_marks": 0,
+    "lines": 35,
+    "eligible_lines": 35,
+    "matched_lines": 27,
+    "matched_reference_marks": 293,
+    "short_line_mark_share": 0.0
+   },
+   "b": {
+    "recall": 0.7735849056603774,
+    "precision": 0.21912114014251782,
+    "f1": 0.34150856085145764,
+    "n": 27,
+    "correct": 369,
+    "reference_marks": 477,
+    "output_marks": 1684,
+    "short_line_marks": 0,
+    "lines": 35,
+    "eligible_lines": 35,
+    "matched_lines": 30,
+    "matched_reference_marks": 440,
+    "short_line_mark_share": 0.0
+   },
+   "difference": {
+    "f1": {
+     "n": 27,
+     "difference": -0.3070837227773223,
+     "ci95": [
+      -0.5064089527765948,
+      -0.06191644504269084
+     ]
+    },
+    "recall": {
+     "n": 27,
+     "difference": 0.12159329140461217,
+     "ci95": [
+      -0.09387755102040818,
+      0.33066132264529063
+     ]
+    },
+    "precision": {
+     "n": 27,
+     "difference": -0.42610707562511707,
+     "ci95": [
+      -0.6310729525474269,
+      -0.2203520977941057
+     ]
+    }
+   }
+  },
+  "wayu / about_reference": {
+   "n": 59,
+   "a": {
+    "recall": 0.9400798934753661,
+    "precision": 0.949350067234424,
+    "f1": 0.9446922390722569,
+    "n": 59,
+    "correct": 2118,
+    "reference_marks": 2253,
+    "output_marks": 2231,
+    "short_line_marks": 1,
+    "lines": 170,
+    "eligible_lines": 162,
+    "matched_lines": 134,
+    "matched_reference_marks": 2131,
+    "short_line_mark_share": 0.0004438526409232135
+   },
+   "b": {
+    "recall": 0.9533954727030626,
+    "precision": 0.9437609841827768,
+    "f1": 0.9485537646279533,
+    "n": 59,
+    "correct": 2148,
+    "reference_marks": 2253,
+    "output_marks": 2276,
+    "short_line_marks": 1,
+    "lines": 170,
+    "eligible_lines": 162,
+    "matched_lines": 149,
+    "matched_reference_marks": 2181,
+    "short_line_mark_share": 0.0004438526409232135
+   },
+   "difference": {
+    "f1": {
+     "n": 59,
+     "difference": 0.00386152555569641,
+     "ci95": [
+      -0.01622220299385657,
+      0.030100407815433994
+     ]
+    },
+    "recall": {
+     "n": 59,
+     "difference": 0.013315579227696439,
+     "ci95": [
+      -0.010587612493382692,
+      0.045223811721273655
+     ]
+    },
+    "precision": {
+     "n": 59,
+     "difference": -0.005589083051647292,
+     "ci95": [
+      -0.036421695668271026,
+      0.031568458084775264
+     ]
+    }
+   }
+  },
+  "wayu / much_more": {
+   "n": 27,
+   "a": {
+    "recall": 0.6081330868761553,
+    "precision": 0.5662650602409639,
+    "f1": 0.5864527629233512,
+    "n": 27,
+    "correct": 329,
+    "reference_marks": 541,
+    "output_marks": 581,
+    "short_line_marks": 0,
+    "lines": 35,
+    "eligible_lines": 35,
+    "matched_lines": 24,
+    "matched_reference_marks": 300,
+    "short_line_mark_share": 0.0
+   },
+   "b": {
+    "recall": 0.9279112754158965,
+    "precision": 0.23557015485687471,
+    "f1": 0.37574850299401197,
+    "n": 27,
+    "correct": 502,
+    "reference_marks": 541,
+    "output_marks": 2131,
+    "short_line_marks": 0,
+    "lines": 35,
+    "eligible_lines": 35,
+    "matched_lines": 32,
+    "matched_reference_marks": 512,
+    "short_line_mark_share": 0.0
+   },
+   "difference": {
+    "f1": {
+     "n": 27,
+     "difference": -0.21070425992933928,
+     "ci95": [
+      -0.4337386883638743,
+      0.04039382205038633
+     ]
+    },
+    "recall": {
+     "n": 27,
+     "difference": 0.31977818853974116,
+     "ci95": [
+      0.11816192560175054,
+      0.521671826625387
+     ]
+    },
+    "precision": {
+     "n": 27,
+     "difference": -0.3306949053840892,
+     "ci95": [
+      -0.5492584704623161,
+      -0.11681928006162895
+     ]
+    }
+   }
+  }
+ }
+}
