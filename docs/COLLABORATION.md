@@ -44,6 +44,30 @@ main                                    ← integration branch, ทุก PR mer
 คนเดียวคุยกับตัวเอง ตอนนี้มีสองคน PR review บนไฟล์ร่วมคือกลไกที่ทำให้กฎนั้นยังคง
 ทำงานจริง
 
+### 3b. Standing delegation จาก Up2mEz ถึง PELY334 (มีผล 2026-10-11)
+
+เพื่อไม่ให้ PELY334 ต้องรอ Up2mEz ทุกครั้ง (บันทึกใน `docs/DECISION_LOG.md`
+2026-10-11c) การทดสอบของ PELY334 ที่ **ครบทุกข้อต่อไปนี้ ไม่ต้องรอการอนุมัติจาก
+Up2mEz ก่อนรัน** รวมถึง Decision Log entry ที่บันทึกการทดสอบนั้น (PELY334
+approve และ merge เองได้ โดยเขียนว่า "authorized under standing delegation");
+Up2mEz รีวิวย้อนหลัง:
+
+1. ใช้ calibration split เท่านั้น ไม่แตะ locked split
+2. รันบนโควตา Kaggle ของ PELY334 และอยู่ในวงเงินที่ลงทะเบียนไว้
+3. แตะเฉพาะไฟล์ใหม่หรือ namespace ของ track ตัวเอง (§4) ไม่แก้ไฟล์ของ track อื่น
+4. มี registration ที่เขียนก่อนมี output พร้อมกำหนดล่วงหน้าว่าผลแต่ละแบบแปลว่าอะไร
+5. ระบุ claim level (`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE` หรือที่ `docs/CLAIMS.md`
+   อนุญาต) และไม่ประกาศว่า gate ผ่าน
+
+**ยังต้องให้ Up2mEz อนุมัติเสมอ:** การเปิด locked split, การอ้างว่า gate ผ่าน,
+claim ใหม่ใน `docs/CLAIMS.md`, การแก้ `docs/RESEARCH_SPEC.md`,
+`docs/EXPERIMENT_PROTOCOL.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`,
+`src/labbs2026/kaggle.py`, `pyproject.toml`, `uv.lock`, `.github/`, การแก้ไฟล์ของ
+track ที่เป็นของ Up2mEz, และการรันที่เกินวงเงินที่ลงทะเบียน กฎวิจัยใน `AGENTS.md`
+ยังบังคับใช้เหมือนเดิมทุกข้อ
+
+Up2mEz ยกเลิก delegation นี้ได้ทุกเมื่อด้วย `collab/` message ฉบับใหม่
+
 ## 4. แบ่งงานตาม track — ขอบเขตไฟล์ที่ไม่ชนกัน
 
 แต่ละ track ได้ namespace ของตัวเอง มองตามที่มีอยู่แล้วในโปรเจกต์
