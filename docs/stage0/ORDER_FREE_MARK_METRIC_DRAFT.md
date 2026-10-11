@@ -134,3 +134,51 @@ touch.
 
 Status stays `DRAFT_DIAGNOSTIC`: whether v2 becomes a reported metric
 alongside the anchored one is the researcher's decision.
+
+## 8. Repeat-aware variant (2026-10-11)
+
+**Why.** PELY334 found (`MODEL_SURVEY_M2_RESULTS.md` §4b, item 33067A35) that
+v2's residual global alignment credits copies of a looping unit: Wayu repeats
+`" วันที่ ๒"` 434 times, a unit absent from the reference, and the alignment
+lines the copies up with `วัน` and `ที่` across the reference, crediting 207
+of 413 reference marks. Precision charges the copies; recall does not.
+
+**Definition** (`mark_counts(..., residual=True, repeat_aware=True)`). Credit
+is computed on the output after `loop_cut.strip_repeats`: every run (T5b's
+rule, unchanged: a 4–400 character unit with a letter, repeated exactly at
+least 8 times, or 6 for units of 50+ characters) keeps one copy, and the text
+after the run is kept. Precision still counts every mark of the full output.
+With no run, the variant equals v2 (unit test). Designed after reading M2's
+example; the thresholds are T5b's, not tuned here.
+
+**Status.** v2 stays the registered score. The variant is reported beside it
+wherever outputs loop.
+
+**T1 recompute** (`order_free_v2r.json`, git `b061f65`, clean). v2 reproduces
+`order_free_v2.json` exactly (same correct counts in every cell). Recall /
+precision / F1, %:
+
+| cell | v2 | repeat-aware | marks in stripped copies |
+|---|---|---|---|
+| typhoon · Full-page · BQ | 96.1 / 93.7 / 94.9 | 96.1 / 93.6 / 94.8 | 310 |
+| typhoon · Full-page · TC | 94.5 / 96.1 / 95.3 | 94.3 / 96.0 / 95.1 | 280 |
+| typhoon · Text rec. · BQ | 82.9 / 80.6 / 81.7 | 82.9 / 80.5 / 81.7 | 274 |
+| typhoon · Text rec. · TC | 97.6 / 62.0 / 75.8 | 97.6 / 62.0 / 75.8 | 273 |
+| base · Full-page · BQ | 65.0 / 29.9 / 41.0 | **54.6 / 25.1 / 34.4** | 24,450 |
+| base · Full-page · TC | 17.8 / 39.0 / 24.4 | 15.8 / 34.6 / 21.6 | 3,723 |
+| base · Text rec. · BQ | 83.6 / 14.2 / 24.3 | 78.0 / 13.2 / 22.6 | 15,659 |
+| base · Text rec. · TC | 25.9 / 51.8 / 34.5 | 25.9 / 51.8 / 34.5 | 0 |
+
+**Raw check before reading the table.** Every stripped run was read back from
+the outputs: 8 Typhoon and 118 base outputs hold a run; all 126 reached
+`max_new_tokens`; the fewest copies in any run is 71 (Typhoon) and 15 (base);
+no Typhoon unit, and 4 base units, occur in the reference (once each, so one
+kept copy can still match). No ordinary text was stripped.
+
+**Reading.**
+- Typhoon moves by at most 0.2 points: its few loops earned almost nothing.
+- The base's Full-page BQ recall falls 10.4 points (65.0 → 54.6): about a
+  sixth of the marks v2 credited to it came from loop copies. Its F1 is 34.4,
+  not 41.0, and the gap to Typhoon is 60.4 points, not 53.9.
+- Any model that loops on common syllables (M1's models) is affected the same
+  way; PELY334's W1 reports both scores.

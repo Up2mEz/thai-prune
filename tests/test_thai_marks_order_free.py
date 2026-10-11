@@ -84,3 +84,27 @@ def test_v2_never_credits_claimed_output_twice() -> None:
 
 def test_v2_reordered_lines_still_get_full_recall() -> None:
     assert prf([mark_counts(REF, f"{L3} {L1} {L2}", residual=True)])["recall"] == 1
+
+
+LOOP_UNIT = " วันที่ ๒"
+
+
+def test_repeat_aware_equals_v2_when_nothing_loops() -> None:
+    for out in (f"{L1} {L2} {L3}", f"{L3} {L1}", f"{L1} {L2} {L3} {L1} {L2} {L3}"):
+        v2 = mark_counts(REF, out, residual=True)
+        ra = mark_counts(REF, out, residual=True, repeat_aware=True)
+        assert ra["repeat_marks"] == 0
+        assert {k: v for k, v in ra.items() if k != "repeat_marks"} == \
+            {k: v for k, v in v2.items() if k != "repeat_marks"}
+
+
+def test_copies_of_a_loop_are_charged_but_earn_no_recall() -> None:
+    ref = "\n".join(["วันที่ประชุมสามัญประจำปี", "ที่ประชุมรับทราบวันที่ส่งเอกสาร",
+                     "กำหนดวันที่ยื่นคำร้องภายในเดือนนี้"])
+    out = "วันที่ประชุมสามัญประจำปี" + LOOP_UNIT * 60
+    v2 = prf([mark_counts(ref, out, residual=True)])
+    ra = prf([mark_counts(ref, out, residual=True, repeat_aware=True)])
+    assert ra["output_marks"] == v2["output_marks"]          # every copy still charged
+    assert ra["repeat_marks"] > 0
+    assert ra["correct"] < v2["correct"]                      # copies no longer credited
+    assert ra["recall"] < v2["recall"] and ra["precision"] < v2["precision"]
