@@ -60,17 +60,21 @@ def preflight(root: Path, remote_ref: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
+    parser.add_argument("--config", default=CONFIG,
+                        help="a config with M1's schema (default: M1's); M5 reuses M1's protocol unchanged")
     parser.add_argument("--roles", default="", help="comma-separated subset of the models (default: all)")
     parser.add_argument("--smoke", type=int, default=0,
                         help="engineering smoke: the first N calibration items (N >= a model's shards)")
-    parser.add_argument("--kernel-slug", default=KERNEL_SLUG)
+    parser.add_argument("--kernel-slug", default=None, help="default: the config's kernel_slug, else M1's")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
 
     root = args.root.resolve()
-    config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
+    config = yaml.safe_load((root / args.config).read_text("utf-8"))
+    label = config.get("run_label", "m1")
+    args.kernel_slug = args.kernel_slug or config.get("kernel_slug", KERNEL_SLUG)
     if config["status"] != "APPROVED":
-        raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
+        raise SystemExit(f"{args.config} status is {config['status']!r}, not APPROVED")
     queues = validate(config)
     roles = [r for r in args.roles.split(",") if r] or list(config["models"])
     queues = select(queues, roles)
@@ -82,7 +86,7 @@ def main() -> None:
     git_sha = preflight(root, remote_ref)
     suffix = "" if roles == list(config["models"]) else "-" + "-".join(roles)
     suffix += f"-smoke{args.smoke}" if args.smoke else ""
-    run_id = f"kaggle-model-survey-m1-{git_sha[:12]}{suffix}"
+    run_id = f"kaggle-model-survey-{label}-{git_sha[:12]}{suffix}"
 
     spec = {
         "schema_version": 1,
@@ -90,7 +94,7 @@ def main() -> None:
         "repository_url": REPOSITORY,
         "remote_ref": remote_ref,
         "git_sha": git_sha,
-        "expected_file_hashes": {p: sha256_file(root / p) for p in HASHED},
+        "expected_file_hashes": {p: sha256_file(root / p) for p in (args.config, *HASHED[1:])},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
@@ -125,7 +129,7 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, args.kernel_slug), "title": "LabBS2026 Model Survey M1",
+        "id": kernel_id(root, args.kernel_slug), "title": f"LabBS2026 Model Survey {label.upper()}",
         "code_file": "worker.py", "language": "python", "kernel_type": "script",
         "is_private": True, "enable_gpu": True, "enable_internet": True,
         "machine_shape": "NvidiaTeslaT4", "dataset_sources": [], "competition_sources": [],

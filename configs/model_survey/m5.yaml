@@ -1,0 +1,72 @@
+schema_version: 1
+# MODEL_SURVEY_M5: Pathumma Vision 3.0.0-Re under M1's protocol, unchanged.
+# Up2mEz's work split (collab 20261011T1315Z, W2) asks for it first and alone.
+# PELY334 authorized the run in session on 2026-10-11 ("รัน smoke แล้วรันเต็มเลย",
+# smoke then the full run), under the standing delegation (PR #79, approved by
+# PELY334 the same day): calibration only, own quota, Up2mEz reviews afterwards.
+status: APPROVED
+registration: docs/stage0/MODEL_SURVEY_M5_REGISTRATION.md
+clearance: docs/stage0/MODEL_SURVEY_M5_CLEARANCE.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+run_label: m5
+kernel_slug: labbs2026-model-survey-m5
+
+# Apache-2.0, not gated (Hugging Face API at this revision, 2026-10-11). Pinned
+# by commit; never load `main`. config.json equals Qwen3-VL-2B-Instruct's at
+# T1's revision; lm_head is stored but tied (clearance doc §2).
+models:
+  pathumma:
+    model_id: nectec/Pathumma-llm-vision-3.0.0-re
+    revision: 08bb11dcabf509ac3fa3ac0014ecd44eadb9729b
+    prompts: [CARD_PROMPT, BENCHMARK_QUESTION]
+    primary_prompt: CARD_PROMPT
+    shards: 2
+    unit_deadline_hours: 3.0   # no item starts later; each queue stays under the cap
+
+prompts:
+  # The model card's Quickstart prompt ("read the text in this image").
+  CARD_PROMPT: "อ่านข้อความในภาพนี้"
+  BENCHMARK_QUESTION: item.question
+
+# Benchmark, split, image policy and decoding are M1's (= T1's), copied here so
+# that a later change there cannot change this registration.
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  run_on: calibration
+
+runtime:
+  dtype_preferred: float16     # T4 has no bf16; the card loads bf16 (QAT) - checked on the smoke
+  dtype_fallback: float32      # used only if the first item yields non-finite logits
+  attention: sdpa
+  image_policy: typhoon_card   # long side to 1800 px if either side > 300 px
+  max_new_tokens: 3072
+  generation:
+    do_sample: false           # the repo's generation_config.json samples; greedy is passed explicitly
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+  use_cache: true
+
+# One Kaggle session with two T4s, one shard each.
+gpu_queues:
+  - [pathumma/0]
+  - [pathumma/1]
+budget_cap_t4_hours: 6
+
+comparison:
+  run_id: kaggle-thai-marks-t1-t2-a44199c29759
+  outputs: docs/stage0/data/T1_OUTPUTS_a44199c29759.json.gz
+  roles: [base, typhoon]
+  prompt: BENCHMARK_QUESTION
+
+scoring:
+  null_seed: 20260928
+  order_free: {max_cer: 0.4, residual: true}  # v2, registered primary; repeat-aware reported beside it
+  bootstrap: {resamples: 2000, seed: 20261010}

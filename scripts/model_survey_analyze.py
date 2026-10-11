@@ -45,6 +45,7 @@ def _by_id(counts: dict[tuple, dict], task: str, prompt: str) -> dict[str, dict]
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
+    parser.add_argument("--config", type=Path, default=CONFIG, help="default: M1's; M5 uses M1's schema")
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--outputs-archive", type=Path, default=None)
@@ -54,11 +55,11 @@ def main() -> None:
     for path in (args.out, args.outputs_archive):
         if path is not None and path.exists():
             raise SystemExit(f"{path} exists; results are never overwritten")
-    config = yaml.safe_load(CONFIG.read_text("utf-8"))
+    config = yaml.safe_load(args.config.read_text("utf-8"))
 
     if not args.skip_fetch:
         args.destination.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["kaggle", "kernels", "output", args.kernel_id or kernel_id(Path("."), KERNEL_SLUG),
+        subprocess.run(["kaggle", "kernels", "output", args.kernel_id or kernel_id(Path("."), config.get("kernel_slug", KERNEL_SLUG)),
                         "-p", str(args.destination)], check=True, capture_output=True)
     root = next(args.destination.rglob(args.run_id), None)
     if root is None or not root.is_dir():
@@ -124,7 +125,7 @@ def main() -> None:
                        for r in sorted(records, key=lambda r: (r["id"], r["prompt_kind"]))]
                 for role, records in by_role.items()}
         payload = {"provenance": {"run_id": args.run_id, "records_sha256": result["records_sha256"],
-                                  "note": "MODEL_SURVEY_M1 outputs; no reference text and no image."},
+                                  "note": f"MODEL_SURVEY_{config.get('run_label', 'm1').upper()} outputs; no reference text and no image."},
                    "records": rows}
         args.outputs_archive.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(args.outputs_archive, "wt", encoding="utf-8") as handle:

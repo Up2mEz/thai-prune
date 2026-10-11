@@ -1,0 +1,34 @@
+"""MODEL_SURVEY_M5: Pathumma under M1's protocol, unchanged except the model and its card prompt."""
+
+from pathlib import Path
+
+import yaml
+
+from labbs2026.model_survey.plan import m1_commands, resolve_prompt, validate
+
+ROOT = Path(__file__).resolve().parents[1]
+M5 = yaml.safe_load((ROOT / "configs/model_survey/m5.yaml").read_text("utf-8"))
+M1 = yaml.safe_load((ROOT / "configs/model_survey/m1.yaml").read_text("utf-8"))
+
+
+def test_config_is_valid_and_pinned():
+    queues = validate(M5)
+    assert queues == [[("pathumma", 0, 2)], [("pathumma", 1, 2)]]
+    assert M5["models"]["pathumma"]["revision"] == "08bb11dcabf509ac3fa3ac0014ecd44eadb9729b"
+    assert [u["name"] for q in m1_commands(queues) for u in q] == ["m1_pathumma_shard-0-of-2",
+                                                                   "m1_pathumma_shard-1-of-2"]
+
+
+def test_everything_but_the_model_is_m1s():
+    for key in ("benchmark", "split", "runtime", "comparison", "scoring", "claim_level"):
+        assert M5[key] == M1[key], key
+    assert M5["prompts"]["BENCHMARK_QUESTION"] == M1["prompts"]["BENCHMARK_QUESTION"]
+
+
+def test_card_prompt():
+    assert resolve_prompt("CARD_PROMPT", "q?", M5["prompts"]) == "อ่านข้อความในภาพนี้"
+    assert resolve_prompt("BENCHMARK_QUESTION", "q?", M5["prompts"]) == "q?"
+
+
+def test_not_runnable_until_authorized():
+    assert M5["status"] != "APPROVED" or (ROOT / M5["registration"]).is_file()
