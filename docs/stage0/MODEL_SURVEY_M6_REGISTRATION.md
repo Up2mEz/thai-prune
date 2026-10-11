@@ -113,3 +113,57 @@ Nothing here is a gate.
 
 M6b's run (its own addendum), the locked split, any remedy, sampling, the
 GitHub-format InternVL code path, and any claim beyond these checkpoints.
+
+## Addendum 1, 2026-10-12 — M6b (DeepSeek-OCR-2), written before its smoke
+
+No M6b output exists. Parameters: `configs/model_survey/m6b.yaml`. Clearance §4
+gives the reasons for a separate runner.
+
+**Question (d).** A third model family, built for OCR, with a different visual
+encoding: about 256 tokens for a 1024 px global view plus 144 per 768 px crop,
+up to 6 crops. Thai is not declared. Where does it fall against Typhoon, and
+is its failure profile the same (claim (2))?
+
+**What is M1's and what is not.**
+
+| | M6b | M1 |
+|---|---|---|
+| items, split, image policy, scoring, comparison | M1's | |
+| decoding | greedy, `max_new_tokens` 3072, `use_cache`, no n-gram ban | same |
+| precision | fp16, fp32 fallback on non-finite first logits | same |
+| attention | **eager** (the remote code offers eager or flash-attention 2; T4 has no FA2) | sdpa |
+| environment | **own venv**: torch 2.6.0, transformers 4.46.3, tokenizers 0.20.3, as the card tested; `pip freeze` in each manifest | repository `uv.lock` |
+| inputs | **`remote_m6b.prepare_inputs`**: infer()'s own steps (template `plain`, crop mode, base 1024, crops 768, BOS 0, image token 128815), using the model's own helpers, on the in-memory image | the processor's chat template |
+
+What infer() does and M6b does not: reading the image from a file, bf16
+autocast, `no_repeat_ngram_size` 20, `max_new_tokens` 8192. The n-gram ban is a
+decoding remedy (T5 tested DeepSeek's processor as an arm); M1's protocol has
+none, for any model.
+
+**Prompts.**
+
+- **Primary:** `CARD_PROMPT` = `Free OCR.`, the card's plain-text prompt
+  ("without layouts"). The other card prompt, the grounding markdown one,
+  emits `<|ref|>`/`<|det|>` box markup that extraction v2 does not handle.
+- **Secondary:** `BENCHMARK_QUESTION`.
+- Both are sent after DeepSeek's `<image>` placeholder and a newline.
+
+**Outcomes and patterns.** As §2 and §3 for InternVL (question (b)): paired
+against Typhoon, the base and Qwen3-VL-4B; the repeat-aware variant; W1's stop
+and attribution; the markup audit.
+
+**Smoke first: `--smoke 2`.** It checks:
+
+- that the environment builds, the remote code loads at the pinned revision,
+  and the visual token count matches the card's formula;
+- fp16 finiteness, and fp16 output against the fp32 check of `--smoke-dtype
+  float32` if fp16 looks degenerate;
+- seconds per token;
+- that no image is written.
+
+**If a faithful run is not possible on a T4,** for example fp16 and fp32 both
+degenerate, or the remote code failing in this environment, M6b reports that
+and does not run a modified model.
+
+**Budget.** Cap 8 T4-hours; 3.5 h deadline per shard, including about 5
+minutes to build the environment.

@@ -69,3 +69,59 @@ def test_w3_queues():
 def test_worker_lets_a_unit_see_both_gpus():
     worker = (ROOT / "infra/kaggle/model_survey_worker.py").read_text("utf-8")
     assert 'str(unit.get("visible_devices", gpu))' in worker
+
+
+def test_m6b_config_is_m1s_but_the_model_and_attention():
+    m6b = yaml.safe_load((ROOT / "configs/model_survey/m6b.yaml").read_text("utf-8"))
+    validate(m6b)
+    for key in ("benchmark", "split", "comparison", "scoring", "claim_level"):
+        assert m6b[key] == M1[key], key
+    assert {k: v for k, v in m6b["runtime"].items() if k != "attention"} == \
+        {k: v for k, v in M1["runtime"].items() if k != "attention"}
+    assert m6b["runtime"]["attention"] == "eager"
+    assert m6b["runner_module"] == "labbs2026.model_survey.remote_m6b"
+    assert m6b["models"]["deepseek"]["revision"] == "aaa02f3811945a91062062994c5c4a3f4c0af2b0"
+    for path in m6b["extra_hashed"]:
+        assert (ROOT / path).is_file()
+    pins = (ROOT / "configs/model_survey/m6b_requirements.txt").read_text("utf-8")
+    assert "transformers==4.46.3" in pins and "torch==2.6.0" in pins
+
+
+def test_m6b_prepare_inputs_counts_image_tokens():
+    import types
+
+    import pytest
+
+    torch = pytest.importorskip("torch")
+    from PIL import Image, ImageOps
+
+    from labbs2026.model_survey.remote_m6b import IMAGE_TOKEN_ID, content_for, prepare_inputs
+
+    class Transform:
+        mean = (0.5, 0.5, 0.5)
+
+        def __init__(self, **_):
+            pass
+
+        def __call__(self, image):
+            return torch.zeros((3, image.size[1], image.size[0]))
+
+    def dynamic_preprocess(image):  # stands in for DeepSeek's: a 3 x 2 grid of 768-px crops
+        return [image.crop((0, 0, 768, 768))] * 6, (3, 2)
+
+    remote = types.SimpleNamespace(
+        format_messages=lambda conversations, sft_format, system_prompt: "<|User|>: "
+        + conversations[0]["content"] + "\n\n<|Assistant|>:",
+        BasicImageTransform=Transform, dynamic_preprocess=dynamic_preprocess, ImageOps=ImageOps,
+        text_encode=lambda tok, text, bos, eos: [7] * len(text.split()))
+    content = content_for("CARD_PROMPT", "q?", {"CARD_PROMPT": "Free OCR. "})
+    assert content == "<image>\nFree OCR. "
+    big = prepare_inputs(remote, None, Image.new("RGB", (1800, 1200)), content, torch.float16, torch, "cpu")
+    assert big["visual_tokens"] == 16 * 16 + 1 + (12 * 3) * (12 * 2)     # 256 + 1 + 6 x 144
+    ids, mask = big["input_ids"][0], big["images_seq_mask"][0]
+    assert ids[0] == 0 and int((ids == IMAGE_TOKEN_ID).sum()) == big["visual_tokens"] == int(mask.sum())
+    crops, ori = big["images"][0]
+    assert crops.shape == (6, 3, 768, 768) and ori.shape == (1, 3, 1024, 1024) and ori.dtype == torch.float16
+    assert big["images_spatial_crop"].tolist() == [[3, 2]]
+    small = prepare_inputs(remote, None, Image.new("RGB", (600, 400)), content, torch.float16, torch, "cpu")
+    assert small["visual_tokens"] == 257 and small["images"][0][0].shape == (1, 3, 1024, 1024)
