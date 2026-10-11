@@ -18,6 +18,7 @@ from pathlib import Path
 import yaml
 
 from labbs2026.kaggle import kernel_id
+from labbs2026.model_survey.m5 import unwrap_natural_text
 from labbs2026.model_survey.analysis import (
     UnfinishedLeg,
     comparison_records,
@@ -45,20 +46,23 @@ def _by_id(counts: dict[tuple, dict], task: str, prompt: str) -> dict[str, dict]
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
+    parser.add_argument("--config", type=Path, default=CONFIG, help="default: M1's; M5 uses M1's schema")
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--outputs-archive", type=Path, default=None)
     parser.add_argument("--skip-fetch", action="store_true")
     parser.add_argument("--kernel-id", default=None, help="owner/slug (default: this account's M1 kernel)")
+    parser.add_argument("--unwrap-natural-text", action="store_true",
+                        help="M5 Addendum 1 secondary: score outputs with model_survey.m5.unwrap_natural_text applied")
     args = parser.parse_args()
     for path in (args.out, args.outputs_archive):
         if path is not None and path.exists():
             raise SystemExit(f"{path} exists; results are never overwritten")
-    config = yaml.safe_load(CONFIG.read_text("utf-8"))
+    config = yaml.safe_load(args.config.read_text("utf-8"))
 
     if not args.skip_fetch:
         args.destination.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["kaggle", "kernels", "output", args.kernel_id or kernel_id(Path("."), KERNEL_SLUG),
+        subprocess.run(["kaggle", "kernels", "output", args.kernel_id or kernel_id(Path("."), config.get("kernel_slug", KERNEL_SLUG)),
                         "-p", str(args.destination)], check=True, capture_output=True)
     root = next(args.destination.rglob(args.run_id), None)
     if root is None or not root.is_dir():
@@ -78,13 +82,15 @@ def main() -> None:
         "run_id": args.run_id, "claim_level": config["claim_level"], "partial_run": partial,
         "git_sha": _git("rev-parse", "HEAD"),
         "git_dirty": bool(_git("status", "--porcelain", "--untracked-files=no")),
-        "scoring": scoring, "records_sha256": {}, "manifests": {}, "excluded": {},
+        "unwrap_natural_text": args.unwrap_natural_text, "scoring": scoring, "records_sha256": {}, "manifests": {}, "excluded": {},
         "models": {}, "comparison": {}, "paired_mark_f1": {},
     }
     scored, by_role = {}, {}
     for role, model in config["models"].items():
         try:
             records, manifests = load_role(root, role, model["prompts"])
+            if args.unwrap_natural_text:
+                records = [{**r, "raw_output": unwrap_natural_text(r["raw_output"])} for r in records]
         except UnfinishedLeg as exc:
             result["excluded"][role] = str(exc)
             continue
@@ -124,7 +130,7 @@ def main() -> None:
                        for r in sorted(records, key=lambda r: (r["id"], r["prompt_kind"]))]
                 for role, records in by_role.items()}
         payload = {"provenance": {"run_id": args.run_id, "records_sha256": result["records_sha256"],
-                                  "note": "MODEL_SURVEY_M1 outputs; no reference text and no image."},
+                                  "note": f"MODEL_SURVEY_{config.get('run_label', 'm1').upper()} outputs; no reference text and no image."},
                    "records": rows}
         args.outputs_archive.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(args.outputs_archive, "wt", encoding="utf-8") as handle:
