@@ -142,3 +142,15 @@ it, add per-item differences and an item-mean sensitivity to the pooled tone
 result, which weights items by mark count and keeps only items the arm itself
 left readable.
 4. Read §3 against T2's image gain at tone sites once T2 is posted.
+   **Done 2026-10-11** (inference, not a test). T2's fp32 rerun
+   (`THAI_MARKS_T1_T2_RESULTS.md`, PR #60) gives the Full-page tone oracle with
+   / without the image: Typhoon 99.7% / 98.8% (image gain +0.9 points), base
+   98.1% / 98.9% (−0.8). Given correct preceding text, the image-free prior
+   already gets the tone mark right about 99% of the time on both models, and
+   on the base the image adds nothing. An M3ID-form contrast that subtracts the
+   image-free prior therefore subtracts mostly correct tone evidence. This is
+   consistent with §3: on the base, where the image gain is nil, tone-mark
+   deletions roughly double. On Typhoon the image gain is small, so the
+   contrast has little to add at tone sites either; its gain there is ending
+   loops (§2). Caveats: T2 feeds the correct context, which greedy decoding
+   does not have, and T2's sites and R1's 24 items are different samples.

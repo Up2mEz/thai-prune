@@ -160,6 +160,10 @@ filtered or not, it does not move Wayu's mark F1 measurably, and Wayu stays
    Typhoon: flagging text for a second reading. Any held-out test needs both
    researchers, because the locked split is closed.
 
+**Status for the paper (2026-10-11): parked.** M4 is not cited. The
+confound with forced tokens is unresolved, and the effective sample is about
+four pages. The checks below stay as the record.
+
 ## 6. Confound checks (Up2mEz's review, 2026-10-11; exploratory, after the results)
 
 **The concern.** `E`'s text is scored by teacher forcing. Where the escape
@@ -205,6 +209,15 @@ page that Wayu reads well throughout cannot raise it.
 - **The evidence without forcing is thin.** The windows with no forced token
   come from 6 pages, and only 3 of them have both labels. The intervals are
   wide: the unforced-token AUROC's lower end is 0.57.
+- **The labels are nearly page-pure** (Up2mEz's review of this section,
+  collab `20261011T1341Z_Up2mEz_to_PELY334_review-m4-confound-checks.md`).
+  28 of the 46 `read` windows sit on two pages (F096D392 17 read / 1
+  invented, 85252C85 11 / 1), and four pages are all `invented`. Only four
+  pages mix both labels in quantity (AF432B6A 9 / 25, 0159AF30 6 / 23,
+  A2A35822 2 / 12, 8F33EBB9 1 / 1). The effective sample is therefore about
+  four mixed pages. Leaving one page out, the unforced-token AUROC ranges
+  0.70 to 0.85 (0.70 without F096D392; 0.79 to 0.85 otherwise) and `s_mean`
+  ranges 0.87 to 0.94, recomputed from the committed table.
 - **A model-free baseline also separates the labels, across pages.**
   Distance from the latest escape was oriented in advance as "closer = read".
   It came out the other way: windows right after an escape are more often
