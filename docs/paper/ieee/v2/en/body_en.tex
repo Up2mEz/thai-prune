@@ -21,7 +21,7 @@ For the models studied, the remaining mark errors of a strong Thai OCR model ari
 \textbf{Language priors and training-free decoding.} Contrastive decoding reduces VLM hallucination by down-weighting what the model would predict without, or with degraded, visual input: VCD \cite{leng2024vcd}, M3ID \cite{favero2024m3id}, and PAI \cite{liu2024pai}. These methods assume that the language prior is the problem; for Thai tone marks we find it is usually right. Our variants are reimplementations, which we call ``M3ID-form'' and ``PAI-style''. Speculative decoding \cite{leviathan2023speculative}, here with prompt-lookup drafts \cite{saxena2023pld}, speeds up decoding without changing its output in exact arithmetic.
 
 \section{Scoring Marks Without Charging Reading Order}\label{sec:metric}
-The \emph{marks} are the six upper vowels (\thai{ั ิ ี ึ ื ็}), the two lower vowels (\thai{ุ ู}), and the four tone marks (\thai{่ ้ ๊ ๋}). A full page has several reference lines, and a model may read its columns in another order than the reference does. A global alignment then marks correctly read marks as wrong.
+The \emph{marks} are the six upper vowels (\thai{กั กิ กี กึ กื ก็}), the two lower vowels (\thai{กุ กู}), and the four tone marks (\thai{ก่ ก้ ก๊ ก๋}). A full page has several reference lines, and a model may read its columns in another order than the reference does. A global alignment then marks correctly read marks as wrong.
 
 \textbf{Definition.} We process reference lines of at least eight characters, longest first. For each line we find the stretch of the output, with already claimed characters masked, that aligns to it at under 40\% character error rate; we credit the marks that match and claim the stretch, so that one output stretch never credits two lines. Lines left unmatched are aligned globally, in reference order, against the output with every claimed character removed. Without this second step, marks inside a poorly read line were dropped, and our first version failed its check against the base model. Recall is the credited marks over the reference marks. Precision is the credited marks over \emph{all} marks in the output, so surplus text is charged. F1 is micro-averaged over items.
 
@@ -45,7 +45,8 @@ The \emph{marks} are the six upper vowels (\thai{ั ิ ี ึ ื ็}), the 
 \toprule
 Item & Value\\
 \midrule
-Benchmark & ThaiOCRBench rev.\ \code{ca610d1ab330}, test split\\
+Benchmark & ThaiOCRBench, test split\\
+Benchmark revision & \code{ca610d1ab330}\\
 Calibration split & seed 20260927, 30\%\\
 Typhoon OCR 1.5 & \code{9c8a8fa14905}\\
 Qwen3-VL-2B / -4B & \code{89644892e4d8} / \code{ebb281ec}\\
