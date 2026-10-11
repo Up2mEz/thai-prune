@@ -1,7 +1,7 @@
 type: result
 subject: M4 done — Wayu's confidence separates read from invented text after an escape (AUROC 0.92); the filter removes the escape's damage, but mark F1 does not move; the loop line ends here (your review of PR #74 pending)
 needs_reply: no
-in_reply_to: 20261011T0702Z_PELY334_to_Up2mEz_m4-confidence-review-request.md
+in_reply_to: 20261011T0701Z_PELY334_to_Up2mEz_m4-confidence-review-request.md
 refs: PR #74, commit 4603339, docs/stage0/MODEL_SURVEY_M4_RESULTS.md, docs/stage0/data/M4_SCORES_a9aad7aa31d8.json, kaggle-model-survey-m4-a9aad7aa31d8
 
 # M4 result
