@@ -4,8 +4,8 @@
 
 **Rules for this draft:**
 - Every result sentence stays inside `docs/CLAIMS.md` ("Thai-marks phase").
-- `[CITE: …]` marks a citation still to be checked with `ref-verify`. No
-  reference was added from memory.
+- Citation keys point to `references.bib`, verified 2026-10-11 (see
+  `RELATED_WORK_DRAFT.md`).
 - `[W1]`–`[W4]` mark numbers that wait for PELY334's runs.
 - `[N]` is the final number of models.
 
@@ -16,15 +16,15 @@
 Thai is written with a consonant line and marks stacked above and below it:
 upper and lower vowels, and four tone marks. A single mark can change a word's
 meaning and its pronunciation, so a transcription that drops or swaps one is
-wrong for a reader even when almost every character is right. Yet OCR
-evaluation of Thai documents is usually summarized by character error rate
-or benchmark-level scores [CITE: ThaiOCRBench, arXiv:2511.04479]. These
-numbers do not say whether the marks are the problem. Character error rate
-also charges a model for reading a page's columns in a different order than
-the reference.
+wrong for a reader even when almost every character is right. Yet Thai OCR
+is scored with whole-text measures: n-gram overlap and normalized edit
+distance in ThaiOCRBench [nonesung2025thaiocrbench], and character error
+rate elsewhere. These numbers do not say whether the marks are the problem,
+and sequence-level scores also charge a model for reading a page's columns
+in a different order than the reference.
 
 Open vision-language models (VLMs) trained for Thai OCR are now available
-[CITE: Typhoon OCR 1.5; Pathumma-llm-vision 3.0; wayu-paxa-ocr-zero]. They
+[nonesung2026typhoonocr; nectec2026pathumma; pipatanakul2026synthetic]. They
 raise a practical question: when such a model gets a Thai mark wrong, what
 went wrong? One possibility is that the visual evidence for a small mark is
 lost or too weak. Another is that the model's language prior overrides that
@@ -32,10 +32,10 @@ evidence. A third is that the mark is never read at all, because the model
 skipped the line, failed to find the text, or fell into a repetition loop.
 These causes call for different remedies. If the image is the problem, one
 re-reads or zooms. If the prior is the problem, one subtracts the prior, as
-contrastive decoding methods do [CITE: VCD; M3ID]. If the text is never
+contrastive decoding methods do [leng2024vcd; favero2024m3id]. If the text is never
 read, it needs a decoding or localization fix.
 
-We study this question on ThaiOCRBench [CITE: ThaiOCRBench] with [N] open
+We study this question on ThaiOCRBench [nonesung2025thaiocrbench] with [N] open
 models, using full-page OCR and text recognition. We make three
 contributions.
 
@@ -69,17 +69,17 @@ finding text, not in seeing a tone mark more sharply.
 
 ## ภาษาไทย
 
-อักษรไทยเขียนพยัญชนะเป็นแนวหลัก แล้วมีเครื่องหมายซ้อนอยู่ด้านบนและด้านล่าง ได้แก่ สระบน สระล่าง และวรรณยุกต์สี่รูป mark เพียงตัวเดียวเปลี่ยนความหมายและเสียงของคำได้ การถอดข้อความที่ทำ mark หายหรือสลับผิดตัวจึงถือว่าผิดสำหรับผู้อ่าน แม้ตัวอักษรเกือบทั้งหมดจะถูก แต่การประเมิน OCR เอกสารไทยมักสรุปด้วย character error rate หรือคะแนนรวมของ benchmark [CITE: ThaiOCRBench, arXiv:2511.04479] ตัวเลขเหล่านี้ไม่ได้บอกว่าปัญหาอยู่ที่ mark หรือไม่ และ character error rate ยังลงโทษโมเดลที่อ่านคอลัมน์ของหน้าในลำดับที่ต่างจากเฉลยด้วย
+อักษรไทยเขียนพยัญชนะเป็นแนวหลัก แล้วมีเครื่องหมายซ้อนอยู่ด้านบนและด้านล่าง ได้แก่ สระบน สระล่าง และวรรณยุกต์สี่รูป mark เพียงตัวเดียวเปลี่ยนความหมายและเสียงของคำได้ การถอดข้อความที่ทำ mark หายหรือสลับผิดตัวจึงถือว่าผิดสำหรับผู้อ่าน แม้ตัวอักษรเกือบทั้งหมดจะถูก แต่ OCR ภาษาไทยถูกให้คะแนนด้วยตัวชี้วัดระดับข้อความทั้งก้อน ได้แก่ ความทับซ้อนของ n-gram และ normalized edit distance ใน ThaiOCRBench [nonesung2025thaiocrbench] และ character error rate ในงานอื่น ตัวเลขเหล่านี้ไม่ได้บอกว่าปัญหาอยู่ที่ mark หรือไม่ และคะแนนแบบเทียบทั้งลำดับยังลงโทษโมเดลที่อ่านคอลัมน์ของหน้าในลำดับที่ต่างจากเฉลยด้วย
 
-ปัจจุบันมี vision-language model (VLM) แบบเปิดที่ train มาเพื่อ OCR ภาษาไทยแล้ว [CITE: Typhoon OCR 1.5; Pathumma-llm-vision 3.0; wayu-paxa-ocr-zero] จึงเกิดคำถามเชิงปฏิบัติว่า เมื่อโมเดลแบบนี้ทำ mark ภาษาไทยผิด ผิดเพราะอะไร มีความเป็นไปได้สามทาง
+ปัจจุบันมี vision-language model (VLM) แบบเปิดที่ train มาเพื่อ OCR ภาษาไทยแล้ว [nonesung2026typhoonocr; nectec2026pathumma; pipatanakul2026synthetic] จึงเกิดคำถามเชิงปฏิบัติว่า เมื่อโมเดลแบบนี้ทำ mark ภาษาไทยผิด ผิดเพราะอะไร มีความเป็นไปได้สามทาง
 
 1. หลักฐานในภาพของ mark ที่เล็กมากหายไปหรืออ่อนเกินไป
 2. ความรู้ภาษาของโมเดลทับหลักฐานในภาพ
 3. โมเดลไม่ได้อ่าน mark นั้นเลย เพราะข้ามบรรทัด หาข้อความไม่เจอ หรือติดการวนซ้ำ
 
-สาเหตุแต่ละทางต้องแก้ต่างกัน ถ้าปัญหาอยู่ที่ภาพ ต้องอ่านซ้ำหรือขยายภาพ ถ้าปัญหาอยู่ที่ความรู้ภาษา ต้องหักความรู้ภาษาออกแบบที่ contrastive decoding ทำ [CITE: VCD; M3ID] ถ้าข้อความไม่ถูกอ่านเลย ต้องแก้ที่วิธี decode หรือการหาตำแหน่งข้อความ
+สาเหตุแต่ละทางต้องแก้ต่างกัน ถ้าปัญหาอยู่ที่ภาพ ต้องอ่านซ้ำหรือขยายภาพ ถ้าปัญหาอยู่ที่ความรู้ภาษา ต้องหักความรู้ภาษาออกแบบที่ contrastive decoding ทำ [leng2024vcd; favero2024m3id] ถ้าข้อความไม่ถูกอ่านเลย ต้องแก้ที่วิธี decode หรือการหาตำแหน่งข้อความ
 
-เราศึกษาคำถามนี้บน ThaiOCRBench [CITE: ThaiOCRBench] กับโมเดลแบบเปิด [N] ตัว ในงานอ่านทั้งหน้าและงานอ่านข้อความสั้น โดยมีส่วนร่วม (contributions) สามข้อ
+เราศึกษาคำถามนี้บน ThaiOCRBench [nonesung2025thaiocrbench] กับโมเดลแบบเปิด [N] ตัว ในงานอ่านทั้งหน้าและงานอ่านข้อความสั้น โดยมีส่วนร่วม (contributions) สามข้อ
 
 1. **ตัวชี้วัด mark ที่ไม่ลงโทษลำดับการอ่าน**
    - ให้คะแนนสระบน สระล่าง และวรรณยุกต์ทีละบรรทัดของเฉลย ไม่ว่าบรรทัดนั้นจะไปอยู่ตรงไหนของ output
