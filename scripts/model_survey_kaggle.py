@@ -136,7 +136,8 @@ def main() -> None:
     spec["worker_template_sha256"] = sha256_file(template)
     atomic_write_text(staging / "worker.py", render_worker(template.read_text("utf-8"), spec))
     atomic_write_json(staging / "kernel-metadata.json", {
-        "id": kernel_id(root, args.kernel_slug), "title": f"LabBS2026 Model Survey {label.upper()}",
+        "id": kernel_id(root, args.kernel_slug), "title": f"LabBS2026 Model Survey {label.upper()}" + ("" if args.kernel_slug == config.get("kernel_slug", KERNEL_SLUG)
+                                                             else f" {args.kernel_slug.rsplit('-', 1)[-1].capitalize()}"),
         "code_file": "worker.py", "language": "python", "kernel_type": "script",
         "is_private": True, "enable_gpu": True, "enable_internet": True,
         "machine_shape": "NvidiaTeslaT4", "dataset_sources": [], "competition_sources": [],
