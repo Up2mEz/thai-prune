@@ -72,7 +72,9 @@ arm, no effect on marks or on any paired comparison.
 
 - Not magnitudes: 24 items; Typhoon's tone changes are a handful of marks.
 - Not that `M3ID_MP` is safe for marks: on both models it still costs some.
-- Not a comparison with T2's oracle (T2's tone numbers await a rerun).
+- Not a comparison with T2's oracle at the same sites. For context, T2's fp32
+  rerun (`THAI_MARKS_T1_T2_RESULTS.md`) gives the Full-page tone oracle with /
+  without the image: Typhoon 99.7% / 98.8%, base 98.1% / 98.9% (R1 §6 item 4).
 - Nothing about other prompts, the locked split, or other models.
 
 ## 4. Directions (each would need its own registration)

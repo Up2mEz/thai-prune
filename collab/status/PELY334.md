@@ -1,6 +1,6 @@
 # Status — PELY334
 
-**Updated:** 2026-10-11 (M2-M4 approved; M4 confound checks done)
+**Updated:** 2026-10-11 (paper prep: §1 items done; W1 next)
 
 ## Tracks I own
 
@@ -16,11 +16,11 @@
 ## Running now
 
 - Nothing on Kaggle.
+- Paper prep (your work split, `20261011T1315Z`): §1 items 1, 3 and 4 done; M4 parked (not cited). Next: W1 (cross-model failure profile and the stop, no GPU), then W2 M5 (Pathumma), W3, W4 draft.
 
 ## Waiting on
 
-- Your approval of PR #82 (Decision Log: your approval of 2026-10-10, 10-10b, 10-11, 10-11b recorded).
-- T2's rerun, to read R1's tone-deletion finding against image gain.
+- Nothing from you. PR #79 (standing delegation) waits on my approval.
 
 ## Do not touch without asking
 
