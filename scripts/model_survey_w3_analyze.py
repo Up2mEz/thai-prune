@@ -8,7 +8,13 @@ Qwen3-VL-4B). These are scored with `thai_marks.analysis` read-only, exactly as
 
 - `summarize_t2_v2`: oracle, prior, contrastive and greedy per task and mark;
 - greedy correctness with scoring v2's chance-located rule;
-- `oracle_by_convention`.
+- `oracle_by_convention`;
+- the registered secondary "greedy accuracy restricted to sites inside text
+  the greedy read produced" (`produced_sites`). No code for it exists in
+  `thai_marks`, so it is defined here: a site is produced when its base
+  consonant (the site itself for a bare consonant) is aligned to an output
+  character in the greedy output's v2 alignment. Oracle, prior and greedy
+  are then compared on those sites only.
 
 Writes one JSON file without reference or output text, and refuses to
 overwrite it.
@@ -25,7 +31,54 @@ from pathlib import Path
 import yaml
 
 from labbs2026.model_survey.analysis import load_role
-from labbs2026.thai_marks.analysis import analyze_t1_v2, oracle_by_convention, summarize_t2_v2
+from labbs2026.thai_marks.analysis import (
+    _ratio,
+    analyze_t1_v2,
+    bootstrap,
+    greedy_correct_at,
+    greedy_fates_v2,
+    oracle_by_convention,
+    site_outcomes,
+    summarize_t2_v2,
+)
+from labbs2026.thai_marks.decompose import _base_index
+
+KINDS = ("TONE", "UPPER", "LOWER", "TONE_ABSENT")
+
+
+def produced_sites(records: list[dict], greedy: dict[str, str], thresholds: dict[str, float]) -> dict:
+    """Oracle, prior and greedy accuracy on the sites whose base the greedy read produced."""
+    out: dict = {}
+    for task in sorted({r["task"] for r in records}):
+        per_item = []
+        for item in (r for r in records if r["task"] == task):
+            reference = item["reference_collapsed"]
+            hyp, pairs, fates = greedy_fates_v2(reference, greedy[item["id"]], located_below=thresholds[task])
+            counts: dict = {}
+            for site in item["sites"]:
+                kind = site["kind"]
+                base = site["index"] if kind == "TONE_ABSENT" else _base_index(reference, site["index"])
+                counts[f"{kind}_all"] = counts.get(f"{kind}_all", 0) + 1
+                if base is None or fates.get(base) not in ("correct", "substituted"):
+                    continue
+                outcome = site_outcomes(site)
+                counts[f"{kind}_n"] = counts.get(f"{kind}_n", 0) + 1
+                for key in ("oracle", "prior"):
+                    counts[f"{kind}_{key}"] = counts.get(f"{kind}_{key}", 0) + outcome[key]
+                counts[f"{kind}_greedy"] = counts.get(f"{kind}_greedy", 0) + greedy_correct_at(
+                    site, reference, hyp, fates, pairs)
+            per_item.append({"id": item["id"], "task": task, **counts})
+        block: dict = {}
+        for kind in KINDS:
+            rows = [{**{k: p.get(f"{kind}_{k}", 0) for k in ("all", "n", "oracle", "prior", "greedy")}, "task": task}
+                    for p in per_item if p.get(f"{kind}_all")]
+            if not rows:
+                continue
+            block[kind] = {"sites": sum(r["all"] for r in rows), "produced": sum(r["n"] for r in rows),
+                           **{k: bootstrap(rows, lambda xs, k=k: _ratio(xs, k, "n"))
+                              for k in ("oracle", "prior", "greedy")}}
+        out[task] = block
+    return out
 
 
 def _git(*args: str) -> str:
@@ -92,6 +145,7 @@ def main() -> None:
                                                  "wall_seconds", "transformers")} for m in manifests],
             "chance_thresholds": thresholds,
             "t2": summarize_t2_v2(records, greedy=greedy, located_below=thresholds),
+            "produced_sites": produced_sites(records, greedy, thresholds),
             "conventions": {task: oracle_by_convention([r for r in records if r["task"] == task])
                             for task in sorted({r["task"] for r in records})},
         }

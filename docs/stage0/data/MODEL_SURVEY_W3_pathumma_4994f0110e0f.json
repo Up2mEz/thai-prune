@@ -1,0 +1,678 @@
+{
+ "kind": "MODEL_SURVEY W3: T2 on other models (registered, MODEL_SURVEY_W3_REGISTRATION.md)",
+ "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
+ "git_sha": "b1b36a4e01f7c202d64d449e8e2bad40d71c8ed9",
+ "git_dirty": true,
+ "roles": {
+  "pathumma": {
+   "w3_run": "kaggle-model-survey-w3a-4994f0110e0f",
+   "greedy_run": "kaggle-model-survey-m5-8252b99e735d",
+   "greedy_prompt": "BENCHMARK_QUESTION",
+   "items_scored": 178,
+   "manifests": [
+    {
+     "shard": 0,
+     "dtype_used": "float32",
+     "placement": [
+      "cuda"
+     ],
+     "items": 89,
+     "selected_items": 89,
+     "not_run": [],
+     "failures": [],
+     "wall_seconds": 4597.8537602119995,
+     "transformers": "5.12.0"
+    },
+    {
+     "shard": 1,
+     "dtype_used": "float32",
+     "placement": [
+      "cuda"
+     ],
+     "items": 89,
+     "selected_items": 89,
+     "not_run": [],
+     "failures": [],
+     "wall_seconds": 4211.0605278,
+     "transformers": "5.12.0"
+    }
+   ],
+   "chance_thresholds": {
+    "Full-page OCR": 0.7992831541218638,
+    "Text recognition": 0.7
+   },
+   "t2": {
+    "Full-page OCR": {
+     "items": 69,
+     "TONE": {
+      "sites": 1495,
+      "oracle": {
+       "estimate": 0.9966555183946488,
+       "ci_low": 0.9935022742040286,
+       "ci_high": 0.9993224932249323,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.9872909698996656,
+       "ci_low": 0.9794097460535347,
+       "ci_high": 0.9936708860759493,
+       "n_items": 69
+      },
+      "contrastive_0.5": {
+       "estimate": 0.948494983277592,
+       "ci_low": 0.9357377049180328,
+       "ci_high": 0.9604715672676838,
+       "n_items": 69
+      },
+      "contrastive_1.0": {
+       "estimate": 0.31638795986622076,
+       "ci_low": 0.2905405405405405,
+       "ci_high": 0.34316353887399464,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.8789297658862876,
+       "ci_low": 0.8090349075975359,
+       "ci_high": 0.9391480730223124,
+       "n_items": 69
+      },
+      "image_gain_median": 6.0343861660576295,
+      "image_gain_share_positive": 0.8722408026755852
+     },
+     "UPPER": {
+      "sites": 815,
+      "oracle": {
+       "estimate": 0.9950920245398773,
+       "ci_low": 0.990159901599016,
+       "ci_high": 0.998792270531401,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.9865030674846625,
+       "ci_low": 0.9790382244143033,
+       "ci_high": 0.9936948297604036,
+       "n_items": 69
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9337423312883436,
+       "ci_low": 0.9130434782608695,
+       "ci_high": 0.9525547445255474,
+       "n_items": 69
+      },
+      "contrastive_1.0": {
+       "estimate": 0.1558282208588957,
+       "ci_low": 0.13006134969325153,
+       "ci_high": 0.1820418204182042,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.8883435582822086,
+       "ci_low": 0.825062034739454,
+       "ci_high": 0.9418886198547215,
+       "n_items": 69
+      },
+      "image_gain_median": 5.3144261646557425,
+      "image_gain_share_positive": 0.8392638036809816
+     },
+     "LOWER": {
+      "sites": 482,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 67
+      },
+      "prior": {
+       "estimate": 0.9813278008298755,
+       "ci_low": 0.9663157894736842,
+       "ci_high": 0.99375,
+       "n_items": 67
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9377593360995851,
+       "ci_low": 0.9102564102564102,
+       "ci_high": 0.9620253164556962,
+       "n_items": 67
+      },
+      "contrastive_1.0": {
+       "estimate": 0.3236514522821577,
+       "ci_low": 0.2766884531590414,
+       "ci_high": 0.36983471074380164,
+       "n_items": 67
+      },
+      "greedy": {
+       "estimate": 0.8713692946058091,
+       "ci_low": 0.8,
+       "ci_high": 0.9356223175965666,
+       "n_items": 67
+      },
+      "image_gain_median": 5.685650798849565,
+      "image_gain_share_positive": 0.8692946058091287
+     },
+     "TONE_ABSENT": {
+      "sites": 828,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.998792270531401,
+       "ci_low": 0.9963768115942029,
+       "ci_high": 1.0,
+       "n_items": 69
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9794685990338164,
+       "ci_low": 0.9685990338164251,
+       "ci_high": 0.9879227053140096,
+       "n_items": 69
+      },
+      "contrastive_1.0": {
+       "estimate": 0.3635265700483092,
+       "ci_low": 0.322463768115942,
+       "ci_high": 0.4057971014492754,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.8780193236714976,
+       "ci_low": 0.8152173913043478,
+       "ci_high": 0.9323671497584541,
+       "n_items": 69
+      },
+      "image_gain_median": 6.323951409525975,
+      "image_gain_share_positive": 0.8719806763285024
+     }
+    },
+    "Text recognition": {
+     "items": 109,
+     "TONE": {
+      "sites": 1038,
+      "oracle": {
+       "estimate": 0.9903660886319846,
+       "ci_low": 0.9834469328140214,
+       "ci_high": 0.9955908289241623,
+       "n_items": 98
+      },
+      "prior": {
+       "estimate": 0.9778420038535646,
+       "ci_low": 0.9682242990654205,
+       "ci_high": 0.9859594383775351,
+       "n_items": 98
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9470134874759152,
+       "ci_low": 0.927485380116959,
+       "ci_high": 0.9632277834525026,
+       "n_items": 98
+      },
+      "contrastive_1.0": {
+       "estimate": 0.40655105973025046,
+       "ci_low": 0.364741641337386,
+       "ci_high": 0.44668587896253603,
+       "n_items": 98
+      },
+      "greedy": {
+       "estimate": 0.9277456647398844,
+       "ci_low": 0.8727655099894848,
+       "ci_high": 0.9688385269121813,
+       "n_items": 98
+      },
+      "image_gain_median": 8.006263539571364,
+      "image_gain_share_positive": 0.9171483622350675
+     },
+     "UPPER": {
+      "sites": 820,
+      "oracle": {
+       "estimate": 0.9939024390243902,
+       "ci_low": 0.9865591397849462,
+       "ci_high": 0.9988439306358381,
+       "n_items": 106
+      },
+      "prior": {
+       "estimate": 0.9597560975609756,
+       "ci_low": 0.939877300613497,
+       "ci_high": 0.976303317535545,
+       "n_items": 106
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9243902439024391,
+       "ci_low": 0.9052369077306733,
+       "ci_high": 0.9423312883435583,
+       "n_items": 106
+      },
+      "contrastive_1.0": {
+       "estimate": 0.22560975609756098,
+       "ci_low": 0.195338512763596,
+       "ci_high": 0.2586002372479241,
+       "n_items": 106
+      },
+      "greedy": {
+       "estimate": 0.9170731707317074,
+       "ci_low": 0.8648960739030023,
+       "ci_high": 0.9596678529062871,
+       "n_items": 106
+      },
+      "image_gain_median": 7.935875187922548,
+      "image_gain_share_positive": 0.8951219512195122
+     },
+     "LOWER": {
+      "sites": 296,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 86
+      },
+      "prior": {
+       "estimate": 0.972972972972973,
+       "ci_low": 0.9501779359430605,
+       "ci_high": 0.9904153354632588,
+       "n_items": 86
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9290540540540541,
+       "ci_low": 0.8995983935742972,
+       "ci_high": 0.9560439560439561,
+       "n_items": 86
+      },
+      "contrastive_1.0": {
+       "estimate": 0.36486486486486486,
+       "ci_low": 0.30030959752321984,
+       "ci_high": 0.4290657439446367,
+       "n_items": 86
+      },
+      "greedy": {
+       "estimate": 0.9054054054054054,
+       "ci_low": 0.8422939068100358,
+       "ci_high": 0.9566473988439307,
+       "n_items": 86
+      },
+      "image_gain_median": 8.23000688215754,
+      "image_gain_share_positive": 0.9290540540540541
+     },
+     "TONE_ABSENT": {
+      "sites": 1184,
+      "oracle": {
+       "estimate": 0.9974662162162162,
+       "ci_low": 0.9941666666666666,
+       "ci_high": 1.0,
+       "n_items": 109
+      },
+      "prior": {
+       "estimate": 0.9940878378378378,
+       "ci_low": 0.9896551724137931,
+       "ci_high": 0.998262380538662,
+       "n_items": 109
+      },
+      "contrastive_0.5": {
+       "estimate": 0.9527027027027027,
+       "ci_low": 0.9404761904761905,
+       "ci_high": 0.9641943734015346,
+       "n_items": 109
+      },
+      "contrastive_1.0": {
+       "estimate": 0.4155405405405405,
+       "ci_low": 0.382960413080895,
+       "ci_high": 0.44763513513513514,
+       "n_items": 109
+      },
+      "greedy": {
+       "estimate": 0.9070945945945946,
+       "ci_low": 0.8635578583765112,
+       "ci_high": 0.945,
+       "n_items": 109
+      },
+      "image_gain_median": 10.87985881565237,
+      "image_gain_share_positive": 0.9222972972972973
+     }
+    }
+   },
+   "produced_sites": {
+    "Full-page OCR": {
+     "TONE": {
+      "sites": 1495,
+      "produced": 1337,
+      "oracle": {
+       "estimate": 0.9977561705310396,
+       "ci_low": 0.9948867786705624,
+       "ci_high": 1.0,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.9880329094988781,
+       "ci_low": 0.9794459338695264,
+       "ci_high": 0.9946018893387314,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.981301421091997,
+       "ci_low": 0.9656786271450858,
+       "ci_high": 0.9932835820895523,
+       "n_items": 69
+      }
+     },
+     "UPPER": {
+      "sites": 815,
+      "produced": 737,
+      "oracle": {
+       "estimate": 0.994572591587517,
+       "ci_low": 0.9890560875512996,
+       "ci_high": 0.9986893840104849,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.9850746268656716,
+       "ci_low": 0.9766233766233766,
+       "ci_high": 0.9928366762177651,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.9823609226594301,
+       "ci_low": 0.9690322580645161,
+       "ci_high": 0.9932523616734144,
+       "n_items": 69
+      }
+     },
+     "LOWER": {
+      "sites": 482,
+      "produced": 428,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 67
+      },
+      "prior": {
+       "estimate": 0.9789719626168224,
+       "ci_low": 0.9617977528089887,
+       "ci_high": 0.9930232558139535,
+       "n_items": 67
+      },
+      "greedy": {
+       "estimate": 0.9813084112149533,
+       "ci_low": 0.9619565217391305,
+       "ci_high": 0.9954853273137697,
+       "n_items": 67
+      }
+     },
+     "TONE_ABSENT": {
+      "sites": 828,
+      "produced": 738,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 69
+      },
+      "prior": {
+       "estimate": 0.9986449864498645,
+       "ci_low": 0.9958041958041958,
+       "ci_high": 1.0,
+       "n_items": 69
+      },
+      "greedy": {
+       "estimate": 0.9850948509485095,
+       "ci_low": 0.9726708074534162,
+       "ci_high": 0.9946452476572959,
+       "n_items": 69
+      }
+     }
+    },
+    "Text recognition": {
+     "TONE": {
+      "sites": 1038,
+      "produced": 990,
+      "oracle": {
+       "estimate": 0.990909090909091,
+       "ci_low": 0.9839743589743589,
+       "ci_high": 0.9961315280464217,
+       "n_items": 98
+      },
+      "prior": {
+       "estimate": 0.9787878787878788,
+       "ci_low": 0.9691991786447639,
+       "ci_high": 0.9868020304568528,
+       "n_items": 98
+      },
+      "greedy": {
+       "estimate": 0.9707070707070707,
+       "ci_low": 0.9442176870748299,
+       "ci_high": 0.988558352402746,
+       "n_items": 98
+      }
+     },
+     "UPPER": {
+      "sites": 820,
+      "produced": 772,
+      "oracle": {
+       "estimate": 0.9961139896373057,
+       "ci_low": 0.9909774436090225,
+       "ci_high": 1.0,
+       "n_items": 106
+      },
+      "prior": {
+       "estimate": 0.9624352331606217,
+       "ci_low": 0.9425,
+       "ci_high": 0.9789473684210527,
+       "n_items": 106
+      },
+      "greedy": {
+       "estimate": 0.9715025906735751,
+       "ci_low": 0.9515477792732167,
+       "ci_high": 0.9872881355932204,
+       "n_items": 106
+      }
+     },
+     "LOWER": {
+      "sites": 296,
+      "produced": 280,
+      "oracle": {
+       "estimate": 1.0,
+       "ci_low": 1.0,
+       "ci_high": 1.0,
+       "n_items": 86
+      },
+      "prior": {
+       "estimate": 0.9714285714285714,
+       "ci_low": 0.9473684210526315,
+       "ci_high": 0.98989898989899,
+       "n_items": 86
+      },
+      "greedy": {
+       "estimate": 0.9571428571428572,
+       "ci_low": 0.9213483146067416,
+       "ci_high": 0.9838709677419355,
+       "n_items": 86
+      }
+     },
+     "TONE_ABSENT": {
+      "sites": 1184,
+      "produced": 1111,
+      "oracle": {
+       "estimate": 0.9981998199819982,
+       "ci_low": 0.9954504094631483,
+       "ci_high": 1.0,
+       "n_items": 109
+      },
+      "prior": {
+       "estimate": 0.9963996399639964,
+       "ci_low": 0.992773261065944,
+       "ci_high": 0.9991319444444444,
+       "n_items": 109
+      },
+      "greedy": {
+       "estimate": 0.9666966696669667,
+       "ci_low": 0.9454209065679926,
+       "ci_high": 0.9836909871244636,
+       "n_items": 109
+      }
+     }
+    }
+   },
+   "conventions": {
+    "Full-page OCR": {
+     "sum": {
+      "LOWER": {
+       "oracle": 1.0,
+       "prior": 0.9813278008298755,
+       "sites": 482,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.9966555183946488,
+       "prior": 0.9872909698996656,
+       "sites": 1495,
+       "unscorable": 0
+      },
+      "TONE_ABSENT": {
+       "oracle": 1.0,
+       "prior": 0.998792270531401,
+       "sites": 828,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9950920245398773,
+       "prior": 0.9865030674846625,
+       "sites": 815,
+       "unscorable": 0
+      }
+     },
+     "mean": {
+      "LOWER": {
+       "oracle": 1.0,
+       "prior": 0.991701244813278,
+       "sites": 482,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.9959866220735786,
+       "prior": 0.9859531772575251,
+       "sites": 1495,
+       "unscorable": 0
+      },
+      "TONE_ABSENT": {
+       "oracle": 0.9867149758454107,
+       "prior": 0.9601449275362319,
+       "sites": 828,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9950920245398773,
+       "prior": 0.9865030674846625,
+       "sites": 815,
+       "unscorable": 0
+      }
+     },
+     "first_divergent": {
+      "LOWER": {
+       "oracle": 0.9688796680497925,
+       "prior": 0.9273858921161826,
+       "sites": 482,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.8641231593038822,
+       "prior": 0.821285140562249,
+       "sites": 1494,
+       "unscorable": 1
+      },
+      "TONE_ABSENT": {
+       "oracle": 0.9915458937198067,
+       "prior": 0.9239130434782609,
+       "sites": 828,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9496314496314496,
+       "prior": 0.902948402948403,
+       "sites": 814,
+       "unscorable": 1
+      }
+     }
+    },
+    "Text recognition": {
+     "sum": {
+      "LOWER": {
+       "oracle": 1.0,
+       "prior": 0.972972972972973,
+       "sites": 296,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.9903660886319846,
+       "prior": 0.9778420038535646,
+       "sites": 1038,
+       "unscorable": 0
+      },
+      "TONE_ABSENT": {
+       "oracle": 0.9974662162162162,
+       "prior": 0.9940878378378378,
+       "sites": 1184,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9939024390243902,
+       "prior": 0.9597560975609756,
+       "sites": 820,
+       "unscorable": 0
+      }
+     },
+     "mean": {
+      "LOWER": {
+       "oracle": 1.0,
+       "prior": 0.9797297297297297,
+       "sites": 296,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.9913294797687862,
+       "prior": 0.9720616570327553,
+       "sites": 1038,
+       "unscorable": 0
+      },
+      "TONE_ABSENT": {
+       "oracle": 0.9839527027027027,
+       "prior": 0.902027027027027,
+       "sites": 1184,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9939024390243902,
+       "prior": 0.9658536585365853,
+       "sites": 820,
+       "unscorable": 0
+      }
+     },
+     "first_divergent": {
+      "LOWER": {
+       "oracle": 0.9527027027027027,
+       "prior": 0.8851351351351351,
+       "sites": 296,
+       "unscorable": 0
+      },
+      "TONE": {
+       "oracle": 0.8664085188770572,
+       "prior": 0.7967086156824782,
+       "sites": 1033,
+       "unscorable": 5
+      },
+      "TONE_ABSENT": {
+       "oracle": 0.9839527027027027,
+       "prior": 0.8361486486486487,
+       "sites": 1184,
+       "unscorable": 0
+      },
+      "UPPER": {
+       "oracle": 0.9510403916768666,
+       "prior": 0.8518971848225214,
+       "sites": 817,
+       "unscorable": 3
+      }
+     }
+    }
+   }
+  }
+ }
+}
