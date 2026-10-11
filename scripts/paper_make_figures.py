@@ -44,7 +44,7 @@ TEXT = {
         "methods": ["Repetition penalty 1.1", "n-gram blocking", "Stop at loop"],
         "decoders_x": "Change in mark F1 vs. greedy (points)",
         "all": "all pages", "free": "loop-free pages",
-        "tone_x": "Tone accuracy (%)", "with": "with image", "without": "without image",
+        "gain_x": "Gain from the image (points)",
         "lam_x": "Prior weight λ", "lam_y": "Tone accuracy (%)",
         "f1_x": "Mark F1 (%)", "full": "Full-page", "text": "Text recognition",
     },
@@ -55,7 +55,7 @@ TEXT = {
         "methods": ["Repetition penalty 1.1", "n-gram blocking", "หยุดเมื่อวนซ้ำ"],
         "decoders_x": "การเปลี่ยนของ mark F1 เทียบ greedy (จุด)",
         "all": "ทุกหน้า", "free": "หน้าที่ไม่วนซ้ำ",
-        "tone_x": "ความแม่นยำของวรรณยุกต์ (%)", "with": "มีภาพ", "without": "ไม่มีภาพ",
+        "gain_x": "ภาพช่วยเพิ่มความแม่นยำ (จุด)",
         "lam_x": "น้ำหนักความรู้ภาษาที่หัก λ", "lam_y": "ความแม่นยำ (%)",
         "f1_x": "Mark F1 (%)", "full": "อ่านทั้งหน้า", "text": "อ่านข้อความสั้น",
     },
@@ -167,26 +167,22 @@ def decoders(lang: str) -> None:
 def prior(lang: str) -> None:
     s, t = _setup(lang), TEXT[lang]
     d = DATA["tone_accuracy_typhoon_fullpage"]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(s["width"], 1.55 if lang == "en" else 1.9),
-                               gridspec_kw={"width_ratios": [1, 1.05], "wspace": 0.38})
-    for y, name, color, key in ((0, "Typhoon", BLUE, "typhoon"), (1, "Qwen3-VL-2B", GREY, "base")):
-        w, wo = d[key]["with_image"], d[key]["without_image"]
-        a.plot([wo, w], [y, y], color=color, linewidth=1.2, zorder=1)
-        a.plot(w, y, "o", color=color, markersize=5, zorder=2)
-        a.plot(wo, y, "o", color="white", markeredgecolor=color, markeredgewidth=1.0, markersize=5, zorder=2)
-        a.text(min(w, wo) - 0.28, y, name, ha="right", va="center", fontsize=s["font"] - 0.5)
-    from matplotlib.lines import Line2D
-    a.legend(handles=[Line2D([], [], marker="o", color=MUTED, markerfacecolor=MUTED, linestyle="", markersize=5,
-                             label=t["with"]),
-                      Line2D([], [], marker="o", color=MUTED, markerfacecolor="white", linestyle="",
-                             markersize=5, label=t["without"])],
-             loc="upper left", frameon=False, fontsize=s["font"] - 1.0, handletextpad=0.2,
-             borderaxespad=0.0, bbox_to_anchor=(0.0, 1.0))
-    a.set_yticks([])
-    a.spines["left"].set_visible(False)
-    a.set_ylim(1.7, -1.4)
-    a.set_xlim(96.2, 100.4)
-    a.set_xlabel(t["tone_x"])
+    fig, (a, b) = plt.subplots(1, 2, figsize=(s["width"], 1.5 if lang == "en" else 1.9),
+                               gridspec_kw={"width_ratios": [1, 1.05], "wspace": 0.7})
+    gains = [d["typhoon"]["with_image"] - d["typhoon"]["without_image"],
+             d["base"]["with_image"] - d["base"]["without_image"]]
+    names, colors = ["Typhoon", "Qwen3-VL-2B"], [BLUE, GREY]
+    a.barh([0, 1], gains, color=colors, height=0.5)
+    for y, g in enumerate(gains):
+        a.text(g + (0.06 if g >= 0 else -0.06), y, f"{g:+.1f}", va="center",
+               ha="left" if g >= 0 else "right", fontsize=s["font"] - 0.5)
+    a.axvline(0, color=INK, linewidth=0.8)
+    a.set_yticks([0, 1], names)
+    a.set_ylim(1.6, -0.6)
+    a.set_xlim(-1.9, 1.9)
+    a.set_xlabel(t["gain_x"])
+    a.xaxis.grid(True, color=GRID, linewidth=0.5)
+    a.set_axisbelow(True)
     a.text(0.0, 1.03, t["panel"][0], transform=a.transAxes, fontsize=s["font"], fontweight="bold", va="bottom")
     lam = d["typhoon_contrastive_lambda"]
     b.plot(lam["lambda"], lam["accuracy"], "-o", color=BLUE, markersize=4, linewidth=1.2)
