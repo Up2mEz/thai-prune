@@ -76,11 +76,30 @@ def load_all(root: Path) -> list[Message]:
 
 
 def open_for(root: Path, person: str) -> list[Message]:
-    """Messages to `person` (or `all`) that ask for a reply and have none yet."""
+    """Messages to `person` (or `all`) that ask for a reply and have none yet.
+
+    Only a reply written by `person` closes a message: a later note from the
+    original sender that cites it is not an answer.
+    """
     messages = load_all(root)
-    answered = {m.in_reply_to for m in messages if m.in_reply_to}
+    answered = {m.in_reply_to for m in messages if m.in_reply_to and m.sender == person}
     return [
         m for m in messages
         if m.to in (person, "all") and m.sender != person
         and m.needs_reply and m.path.name not in answered
+    ]
+
+
+def since_last_sent(root: Path, person: str) -> list[Message]:
+    """Messages to `person` (or `all`), of any kind, newer than the last one `person` sent.
+
+    `open_for` lists only messages that ask for a reply, so notes without
+    `needs_reply` never appear there; this is what a session should also read.
+    """
+    messages = load_all(root)
+    stamps = [m.path.name.split("_", 1)[0] for m in messages if m.sender == person]
+    last = max(stamps, default="")
+    return [
+        m for m in messages
+        if m.to in (person, "all") and m.sender != person and m.path.name.split("_", 1)[0] > last
     ]
