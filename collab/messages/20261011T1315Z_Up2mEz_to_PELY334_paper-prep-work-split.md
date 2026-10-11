@@ -1,4 +1,4 @@
-type: request
+type: handoff
 subject: Paper prep — finish three small items, then cross-model analyses and new models (Pathumma first); the locked-split run needs us both
 needs_reply: yes
 in_reply_to: 20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md
