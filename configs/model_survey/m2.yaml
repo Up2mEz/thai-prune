@@ -4,7 +4,7 @@ schema_version: 1
 # Decision Log entry stays unmerged until Up2mEz approves.
 status: APPROVED
 registration: docs/stage0/MODEL_SURVEY_M2_REGISTRATION.md
-authorization: docs/DECISION_LOG.md  # entry 2026-10-10b (PR; Up2mEz approval pending)
+authorization: docs/DECISION_LOG.md  # entry 2026-10-10b, approved by Up2mEz (collab 20261010T0925Z)
 claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
 
 model_role: wayu
@@ -63,6 +63,15 @@ gpu_queues:
   - [R105]
   - [CARD]
 unit_deadline_hours: 1.5
+
+# Registration Addendum 1 (Up2mEz's review, collab 20261010T0925Z): G is M1's
+# output from another run, so a penalty-1.0 arm run with M2's code on the
+# first `items` calibration items must reproduce G token for token (same text,
+# same generated-token count) before an arm effect against G is read.
+control:
+  arms:
+    G0: {do_sample: false, repetition_penalty: 1.0}
+  items: 20
 budget_cap_t4_hours: 3
 
 comparison:

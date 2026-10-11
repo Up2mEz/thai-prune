@@ -65,19 +65,27 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--smoke", type=int, default=0, help="engineering smoke: the first N calibration items")
+    parser.add_argument("--control", action="store_true",
+                        help="registration Addendum 1: the control arms on the control items only")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG)
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
+    if args.control and args.smoke:
+        raise SystemExit("--control runs its registered items; it takes no --smoke")
 
     root = args.root.resolve()
     config = yaml.safe_load((root / CONFIG).read_text("utf-8"))
     if config["status"] != "APPROVED":
         raise SystemExit(f"{CONFIG} status is {config['status']!r}, not APPROVED")
     queues = validate(config)
+    arms, limit, suffix = config["arms"], args.smoke, f"-smoke{args.smoke}" if args.smoke else ""
+    if args.control:
+        arms, limit = config["control"]["arms"], int(config["control"]["items"])
+        queues, suffix = [list(arms)], f"-control{limit}"
     local = load_local_config(root)
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
-    run_id = f"kaggle-model-survey-m2-{git_sha[:12]}" + (f"-smoke{args.smoke}" if args.smoke else "")
+    run_id = f"kaggle-model-survey-m2-{git_sha[:12]}{suffix}"
     role = config["model_role"]
 
     spec = {
@@ -94,13 +102,13 @@ def main() -> None:
         "source_dir": "/tmp/labbs2026-source",
         "output_root": "/kaggle/working/artifacts",
         "tests": ["m2"],
-        "limit": args.smoke,
+        "limit": limit,
         "roles": [role],
         "model_role": role,
         "models": config["models"],
         "prompt_kind": config["prompt_kind"],
         "prompts": config["prompts"],
-        "arms": config["arms"],
+        "arms": arms,
         "seed": config["seed"],
         "unit_deadline_hours": config["unit_deadline_hours"],
         "gpu_queues": [[unit_command("labbs2026.model_survey.remote_m2", f"m2_{arm}", ["--arm", arm])
@@ -135,7 +143,7 @@ def main() -> None:
     })
     spec["generated_worker_sha256"] = sha256_file(staging / "worker.py")
     atomic_write_json(run_dir / "submission.json", spec)
-    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "limit": args.smoke,
+    print(json.dumps({"run_id": run_id, "git_sha": git_sha, "limit": limit,
                       "gpu_queues": spec["gpu_queues"], "staging": str(staging)}, indent=1))
     if args.submit:
         result = subprocess.run(build_submit_command(staging), capture_output=True, text=True)

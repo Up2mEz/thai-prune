@@ -7,8 +7,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from labbs2026.model_survey.m2 import arm_kwargs, cost, item_seed, load_arm, stop_at_loop, validate
+from labbs2026.model_survey.m2 import arm_kwargs, cost, item_seed, load_arm, reproduces, stop_at_loop, validate
 from labbs2026.model_survey.plan import m1_commands, validate as validate_m1
+from labbs2026.thai_marks.generation import generation_kwargs
 
 ROOT = Path(__file__).resolve().parents[1]
 M2 = yaml.safe_load((ROOT / "configs/model_survey/m2.yaml").read_text("utf-8"))
@@ -59,6 +60,34 @@ def test_validate_rejects_bad_queues_and_budget():
     bad["unit_deadline_hours"] = 4
     with pytest.raises(ValueError, match="budget"):
         validate(bad)
+
+
+def test_control_arm_decodes_as_t1():
+    assert M2["control"]["arms"] == {"G0": {"do_sample": False, "repetition_penalty": 1.0}}
+    assert arm_kwargs(BASE, M2["control"]["arms"]["G0"], 3072) == generation_kwargs(BASE, 3072)
+    for arm in ({"do_sample": False, "repetition_penalty": 1.05},
+                {"do_sample": True, "temperature": 0.1, "top_p": 0.7, "repetition_penalty": 1.0}):
+        bad = copy.deepcopy(M2)
+        bad["control"]["arms"]["G0"] = arm
+        with pytest.raises(ValueError, match="decode exactly as T1"):
+            validate(bad)
+    bad = copy.deepcopy(M2)
+    bad["control"]["arms"] = {"R105": {"do_sample": False, "repetition_penalty": 1.0}}
+    with pytest.raises(ValueError, match="another arm"):
+        validate(bad)
+
+
+def test_reproduces_needs_same_text_and_tokens():
+    g = {"a": {"raw_output": "ข้อความ", "generated_tokens": 5}, "b": {"raw_output": "abcdef", "generated_tokens": 3}}
+    control = [{"id": "a", "task": "t", "raw_output": "ข้อความ", "generated_tokens": 5, "reached_max_new_tokens": False},
+               {"id": "b", "task": "t", "raw_output": "abcxef", "generated_tokens": 3, "reached_max_new_tokens": False}]
+    out = reproduces(control, g)
+    assert (out["n"], out["reproduced"], out["all_reproduced"]) == (2, 1, False)
+    assert out["items"][1]["first_difference"] == 3 and out["items"][0]["first_difference"] is None
+    assert not reproduces([control[0] | {"generated_tokens": 6}], g)["all_reproduced"]
+    assert not reproduces([control[0] | {"id": "z"}], g)["all_reproduced"]
+    assert reproduces([control[0]], g)["all_reproduced"]
+    assert not reproduces([], g)["all_reproduced"]
 
 
 def test_item_seed_is_fixed_per_item():

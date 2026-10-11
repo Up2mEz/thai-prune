@@ -1,9 +1,10 @@
 # MODEL_SURVEY_M1 — registration (Track E: models not yet run on ThaiOCRBench)
 
-**Status: `APPROVED` by PELY334 only.** PELY334 authorized the run in session on
-2026-10-10 and chose to run before Up2mEz's review ("รันเลย, Up2mEz ตรวจทีหลัง").
-**Up2mEz's review is pending**: the Decision Log entry 2026-10-10 is in this
-track's PR and is not merged until Up2mEz approves (`docs/COLLABORATION.md` §3).
+**Status: `APPROVED` by PELY334, then by Up2mEz** (collab
+`20261010T0925Z_Up2mEz_to_PELY334_review-track-e-m1-m2-approved.md`, after the
+results; Decision Log 2026-10-10 merged in PR #63). PELY334 authorized the run in
+session on 2026-10-10 and chose to run before Up2mEz's review ("รันเลย, Up2mEz
+ตรวจทีหลัง").
 Written before any M1 output on ThaiOCRBench exists; the only outputs so far are
 local engineering checks on a synthetic image (§8). Plan:
 `docs/exec-plans/active/MODEL_SURVEY_PLAN.md`. Parameters:
