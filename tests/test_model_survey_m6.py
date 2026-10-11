@@ -37,3 +37,35 @@ def test_sealion_is_qwen3vl4b_but_the_weights():
     config = yaml.safe_load((cards / "config.json").read_text("utf-8"))
     assert config["architectures"] == ["Qwen3VLForConditionalGeneration"]
     assert M1["models"]["qwen3vl4b"]["revision"] == "ebb281ec70b05090aa6165b016eac8ec08e71b17"
+
+
+def test_w3_copies_t2_unchanged():
+    w3 = yaml.safe_load((ROOT / "configs/model_survey/w3_t2.yaml").read_text("utf-8"))
+    t2 = yaml.safe_load((ROOT / "configs/thai_marks/t1_t2.yaml").read_text("utf-8"))
+    for key in ("benchmark", "split", "runtime", "prompts"):
+        assert w3[key] == t2[key], key
+    for key in ("prompt", "dtype", "window_after_chars", "consistency_tolerance_nats"):
+        assert w3["t2"][key] == t2["t2"][key], key
+    m5 = yaml.safe_load((ROOT / "configs/model_survey/m5.yaml").read_text("utf-8"))
+    for role, source in (("pathumma", m5), ("qwen3vl4b", M1)):
+        for key in ("model_id", "revision"):
+            assert w3["models"][role][key] == source["models"][role][key]
+    assert (ROOT / w3["registration"]).is_file()
+
+
+def test_w3_queues():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("w3k", ROOT / "scripts/model_survey_w3_kaggle.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    w3 = yaml.safe_load((ROOT / "configs/model_survey/w3_t2.yaml").read_text("utf-8"))
+    a = module.queues(w3, ["pathumma"])
+    assert [len(q) for q in a] == [1, 1] and all("visible_devices" not in q[0] for q in a)
+    (b,), = [module.queues(w3, ["qwen3vl4b"])]
+    assert b[0]["visible_devices"] == "0,1" and b[0]["module"] == "labbs2026.model_survey.remote_w3"
+
+
+def test_worker_lets_a_unit_see_both_gpus():
+    worker = (ROOT / "infra/kaggle/model_survey_worker.py").read_text("utf-8")
+    assert 'str(unit.get("visible_devices", gpu))' in worker

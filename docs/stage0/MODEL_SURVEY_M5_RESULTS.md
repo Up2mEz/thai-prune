@@ -51,14 +51,25 @@ Read against the registered patterns (§3):
   0.592, metric unstated) does not show under this metric. The point
   estimate is below Typhoon's, but Typhoon is not shown better either.
   - Under the registered reading, the paper does **not** call Typhoon the
-    best open Thai OCR model. It can say the two are comparable here, with
-    Typhoon's point estimate higher.
+    best open Thai OCR model.
+  - **"Comparable" is not "equivalent"** (Up2mEz's review, 2026-10-12).
+    Nothing here shows the two are equal; it only fails to show a
+    difference. The Text recognition interval cannot rule out that Typhoon is
+    15 points better, and Full-page's lower end is −14.3. Wording for the
+    paper: "no difference shown at n = 69/109, with intervals about ±10
+    points wide; Typhoon's point estimates are higher".
   - **Contamination applies to both models** (registration Addendum 2).
     Typhoon comes from ThaiOCRBench's group. Pathumma's card says it was
     fine-tuned on 377K OCR samples without naming them, and the card reports
     ThaiOCRBench scores itself. Overlap with the benchmark cannot be ruled out
     for either model, so neither level, and no lead between them, is clean
     of it.
+  - **The two may share training signal.** Pathumma writes Typhoon OCR's
+    output format: HTML tables, `<figure>` descriptions, headings and, on
+    five outputs, Typhoon's `{"natural_text": …}` wrapper (§4). That suggests
+    its training targets came from a Typhoon-style pipeline. This is an
+    inference, not shown. If so, the two models' scores may not be
+    independent of each other either.
 - **Against the base: well above, on both tasks.** The intervals are far
   from 0, so a second Thai fine-tune of Qwen3-VL-2B gains marks over the
   base. RQ-C has two specialized-vs-base pairs (Typhoon and Pathumma), with
@@ -75,6 +86,9 @@ Read against the registered patterns (§3):
     characters that reads the full slide.
   - Its precision is therefore lower. The F1 difference is the net of the
     two and is not a difference in reading marks.
+  - **Do not quote the recall lead alone.** Order-free recall credits marks
+    anywhere in the output, so most of the +14.3 comes from the
+    whole-image habit. It is always given next to the precision drop.
 
 ## 2. Secondaries
 
@@ -189,11 +203,20 @@ both pages with a perfect read. The card-prompt F1 becomes 90.5 and Δ vs
 Typhoon −4.4 [−13.4, +2.2]; `BENCHMARK_QUESTION` gives −2.7 [−8.7, +2.4].
 The reading of §1 does not change.
 
+**This is a scoring defect, not only a property of the data** (Up2mEz's
+review, 2026-10-12). Extraction v2 lets a stray or malformed opening tag
+swallow the rest of the text. The same behaviour was found in a review of the
+T1 scoring branch (`extract_text('a x<y b z')`). It sits in `thai_marks`,
+Up2mEz's namespace, and is passed on there; this track does not change it.
+Until it is fixed, every model that writes figure markup gets the upper bound
+reported beside the registered score.
+
 ## 5. What this supports (proposal; claims are Up2mEz's to word)
 
-- **Typhoon is not "the best open Thai OCR model".** On our metric,
-  Pathumma and Typhoon are comparable on both tasks: the intervals include
-  0, and Typhoon's point estimates are higher. Both carry the contamination
+- **Typhoon is not "the best open Thai OCR model".** On our metric, no
+  difference between Pathumma and Typhoon is shown on either task. The
+  intervals include 0 and are about ±10 points wide, and Typhoon's point
+  estimates are higher. This is not equivalence. Both carry the contamination
   caveat of §6. The wording that fits is "the
   strongest of the models we measured, comparable to Pathumma", not "best".
 - **RQ-C: two Thai fine-tunes of the same base both gain about 50 F1
