@@ -1,0 +1,74 @@
+% ============================================================
+% Short paper, English, "Example" format (docs/paper/Example/*ENG*.pdf):
+% IEEE conference, US Letter, two columns, italic title, per-author blocks,
+% copyright line at the foot of page 1, bold abstract, bold-italic keywords.
+% Build: xelatex main_en && bibtex main_en && xelatex main_en && xelatex main_en
+% Body, abstract and keywords are shared files in this folder.
+% ============================================================
+\documentclass[conference]{IEEEtran}
+
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}[Scale=MatchLowercase]
+\newfontfamily\thaifont[Script=Thai,Path=../../../../../assets/fonts/noto/]{NotoSansThai-Regular.ttf}
+\newcommand{\thai}[1]{{\thaifont #1}}
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[#1]}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\graphicspath{{../../../figures/}}
+\newcommand{\figlang}{en}\newcommand{\figwidth}{\columnwidth}\newcommand{\fit}[1]{\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{#1}}
+
+% copyright line at the foot of page 1, as in the example
+\IEEEoverridecommandlockouts
+\IEEEpubid{\makebox[\columnwidth]{XXX-X-XXXX-XXXX-X/XX/\$XX.00 \copyright 20XX IEEE\hfill}\hspace{\columnsep}\makebox[\columnwidth]{}}
+
+\begin{document}
+
+\title{\itshape Not Reading, Not Misreading:\\ Where Thai OCR Vision-Language Models\\ Lose Vowel and Tone Marks}
+
+\author{%
+  \IEEEauthorblockN{Thanakrit Samoenar}
+  \IEEEauthorblockA{\textit{School of Information Technology}\\
+  \textit{King Mongkut's Institute of}\\
+  \textit{Technology Ladkrabang}\\
+  Bangkok, Thailand\\
+  67070060@kmitl.ac.th}
+  \and
+  \IEEEauthorblockN{Thanawat Suriya}
+  \IEEEauthorblockA{\textit{School of Information Technology}\\
+  \textit{King Mongkut's Institute of}\\
+  \textit{Technology Ladkrabang}\\
+  Bangkok, Thailand\\
+  67070236@kmitl.ac.th}
+  \and
+  \IEEEauthorblockN{Asst.\ Prof.\ Nont Kanungsukkasem, Ph.D.}
+  \IEEEauthorblockA{\textit{School of Information Technology}\\
+  \textit{King Mongkut's Institute of}\\
+  \textit{Technology Ladkrabang}\\
+  Bangkok, Thailand\\
+  nont@it.kmitl.ac.th}
+}
+
+\maketitle
+
+\begin{abstract}
+\input{abstract_en}
+\end{abstract}
+
+\begin{IEEEkeywords}
+\input{keywords_en}
+\end{IEEEkeywords}
+
+\input{body_en}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../../../references}
+
+\end{document}

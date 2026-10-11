@@ -50,6 +50,21 @@ def cut_at_loop(text: str, k: int, k_long: int) -> str:
     return text[:start + unit]
 
 
+def strip_repeats(text: str, k: int = 8, k_long: int = 6) -> str:
+    """Keep one copy of every run (same rule as `loop_onset`), and the text after it.
+
+    Used by the order-free metric's repeat-aware variant: copies of a looping
+    unit cannot earn recall. Unlike `cut_at_loop`, text after a run is kept.
+    """
+    while (onset := loop_onset(text, k, k_long)) is not None:
+        start, unit = onset
+        copy, end = text[start:start + unit], start + unit
+        while text.startswith(copy, end):
+            end += unit
+        text = text[:start + unit] + text[end:]
+    return text
+
+
 def variant_a(record: dict) -> str:
     """Cut runaway outputs only (reached `max_new_tokens`), k = 4 / 3."""
     if not record["reached_max_new_tokens"]:

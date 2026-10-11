@@ -1,0 +1,54 @@
+% ============================================================
+% Short paper (English), IEEE conference format.
+% Build:  cd docs/paper/ieee/en && xelatex main_en && bibtex main_en && xelatex main_en && xelatex main_en
+% Figures: ../figures/*.pdf (made by scripts/paper_make_figures.py)
+% Claim discipline: every result sentence stays within docs/CLAIMS.md
+% (Thai-marks phase). Red [..] marks wait for the collaborator's runs.
+% ============================================================
+\documentclass[conference]{IEEEtran}
+
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{cite}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}[Scale=MatchLowercase]
+\newfontfamily\thaifont[Script=Thai,Path=../../../../assets/fonts/noto/]{NotoSansThai-Regular.ttf}
+\newcommand{\thai}[1]{{\thaifont #1}}
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[#1]}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\graphicspath{{../../figures/}}
+\newcommand{\figlang}{en}\newcommand{\figwidth}{\columnwidth}\newcommand{\fit}[1]{\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{#1}}
+
+\begin{document}
+
+\title{Not Reading, Not Misreading:\\ Where Thai OCR Vision-Language Models\\ Lose Vowel and Tone Marks}
+
+\author{%
+  \IEEEauthorblockN{Thanakrit Samoenar, Thanawat Suriya, and Asst.\ Prof.\ Nont Kanungsukkasem, Ph.D.}
+  \IEEEauthorblockA{School of Information Technology, King Mongkut's Institute of Technology Ladkrabang, Bangkok, Thailand\\
+  67070060@kmitl.ac.th, 67070236@kmitl.ac.th, nont@it.kmitl.ac.th}
+}
+% Authors and advisor copied from the earlier draft (2026-09-07, supplied by the researcher).
+
+\maketitle
+
+\begin{abstract}
+\input{../v2/en/abstract_en}
+\end{abstract}
+
+\begin{IEEEkeywords}
+\input{../v2/en/keywords_en}
+\end{IEEEkeywords}
+
+\input{../v2/en/body_en}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../../references}
+
+\end{document}

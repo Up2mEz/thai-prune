@@ -50,3 +50,15 @@ def test_variant_b_needs_eight_repeats() -> None:
     assert variant_b({"raw_output": seven, "reached_max_new_tokens": False}) == seven
     nine = HEAD + "QMS\n" * 9
     assert variant_b({"raw_output": nine, "reached_max_new_tokens": False}).rstrip() == HEAD + "QMS"
+
+
+def test_strip_repeats_keeps_one_copy_and_the_text_after() -> None:
+    from labbs2026.thai_marks.loop_cut import strip_repeats
+    text = "หัวเรื่อง " + "ซอยนวมินทร์ " * 9 + "ท้ายเอกสาร"
+    assert strip_repeats(text) == "หัวเรื่อง ซอยนวมินทร์ ท้ายเอกสาร"
+
+
+def test_strip_repeats_handles_several_runs_and_leaves_short_ones() -> None:
+    from labbs2026.thai_marks.loop_cut import strip_repeats
+    text = "ก่อน" + "ABCD" * 10 + "กลาง" + "ขอบคุณ " * 3 + "QMS " * 20 + "หลัง" + "...." * 12
+    assert strip_repeats(text) == "ก่อนABCDกลาง" + "ขอบคุณ " * 3 + "QMS หลัง" + "...." * 12

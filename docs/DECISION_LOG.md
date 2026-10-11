@@ -2,6 +2,45 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-11d (gaps) — Thai-marks claims approved; repeat-aware variant of the order-free metric added
+
+**Stage/Gate:** reporting and metric only. Opens or passes no gate.
+
+**Decision owner:** Human researcher (Up2mEz), in session on 2026-10-11.
+
+**Decisions:**
+
+1. **Claims.** The proposed Thai-marks entries in `docs/CLAIMS.md` (PR #84) are
+   approved: the researcher said "merge #84 ให้เลย" and the PR was merged.
+   Ten descriptive entries `SUPPORTED_WITH_LIMITS` (calibration split), three
+   `HYPOTHESIS`, and new forbidden wordings. All entries are `Preliminary/Pilot`.
+2. **Metric.** `order_free.mark_counts(..., repeat_aware=True)` is added
+   (`ORDER_FREE_MARK_METRIC_DRAFT.md` §8), as metric owner, in answer to
+   PELY334's note on 33067A35:
+   - loop copies (T5b's run rule, k = 8 / 6) are charged in precision but
+     cannot earn recall;
+   - registered v2 is unchanged and stays the primary;
+   - the variant is reported beside it.
+3. **Work split.** Up2mEz writes the short paper and PELY334 runs its
+   experiments (`collab/messages/20261011T1315Z_Up2mEz_to_PELY334_paper-prep-work-split.md`).
+   The locked split still needs both researchers.
+
+### Evidence
+
+- **T1 recompute.** v2 reproduces exactly. Typhoon moves at most 0.2 points.
+  Base Full-page BQ goes from 65.0 / 29.9 / 41.0 to 54.6 / 25.1 / 34.4.
+- **Stripped runs.** All 126 are runaway loops (`max_new_tokens` reached).
+  No ordinary text was stripped.
+
+### Files/configs affected
+
+- `docs/CLAIMS.md`
+- `src/labbs2026/thai_marks/order_free.py`, `src/labbs2026/thai_marks/loop_cut.py`
+- `scripts/thai_marks_order_free.py`, tests
+- `docs/stage0/ORDER_FREE_MARK_METRIC_DRAFT.md`
+
+---
+
 ## 2026-10-11c — Standing delegation: PELY334's registered calibration-only tests need no per-test approval
 
 > Drafted by Up2mEz's Claude Code session at the researcher's explicit
@@ -48,8 +87,11 @@ as "authorized under standing delegation"; Up2mEz reviews afterwards.
 
 ---
 
-## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-11** ("ได้ลองทำเลย", "go ahead and try it") in reply to the
 > proposal in `MODEL_SURVEY_M3_RESULTS.md` §6.2. It follows the process used
@@ -103,8 +145,11 @@ no image is written.
 
 ---
 
-## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-11**: "ลองดู" ("try it") to the next step proposed in
 > `MODEL_SURVEY_M2_RESULTS.md` §6.2, then "ทำต่อเลย ได้อนุมัติแล้ว" ("go ahead,
@@ -161,8 +206,11 @@ no image is written.
 
 ---
 
-## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-10** by replying "go" to the next step proposed in
 > `MODEL_SURVEY_M1_RESULTS.md` §7, under the process PELY334 chose for M1 (run
@@ -207,8 +255,11 @@ no image is written.
 
 ---
 
-## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-10** ("find new model for 2-3 model and test it like we do in the
 > past"); asked whether to wait for Up2mEz as in Tracks C and D, PELY334 chose

@@ -9,7 +9,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
-PROMPT_KINDS = ("OCR_NATIVE", "BENCHMARK_QUESTION")
+# CARD_PROMPT (M5): the fixed prompt a model card documents for OCR.
+PROMPT_KINDS = ("OCR_NATIVE", "BENCHMARK_QUESTION", "CARD_PROMPT")
 _COMMIT = re.compile(r"[0-9a-f]{40}")
 
 

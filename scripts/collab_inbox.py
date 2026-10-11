@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from labbs2026.collab import MESSAGE_DIR, load_all, message_filename, open_for
+from labbs2026.collab import MESSAGE_DIR, load_all, message_filename, open_for, since_last_sent
 
 
 def main() -> None:
@@ -33,6 +33,13 @@ def main() -> None:
     print(f"{len(waiting)} message(s) waiting for {args.me} ({total} in collab/messages/)")
     for message in waiting:
         print(f"  [{message.type}] {message.path.relative_to(root).as_posix()}  from {message.sender}: {message.subject}")
+
+    waiting_names = {m.path.name for m in waiting}
+    newer = [m for m in since_last_sent(root, args.me) if m.path.name not in waiting_names]
+    if newer:
+        print(f"{len(newer)} more message(s) to {args.me} since you last wrote (read these too):")
+        for message in newer:
+            print(f"  [{message.type}] {message.path.relative_to(root).as_posix()}  from {message.sender}: {message.subject}")
 
 
 if __name__ == "__main__":

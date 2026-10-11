@@ -14,6 +14,7 @@ from typing import Any
 from labbs2026.thai_marks.attribution import MARKS, MIN_ELSEWHERE_CHARS, reference_lines
 from labbs2026.thai_marks.decompose import _fates_from, align, align_anchored, edit_distance_from
 from labbs2026.thai_marks.extract import extract_text
+from labbs2026.thai_marks.loop_cut import strip_repeats
 
 LINE_MATCH_CER = 0.4
 # Never equal to any reference character, so a claimed output position can
@@ -40,17 +41,25 @@ def _prf(correct: int, reference_marks: int, output_marks: int) -> dict[str, flo
 
 
 def mark_counts(raw_reference: str, raw_output: str, *, mode: str = "line_matched",
-                max_cer: float = LINE_MATCH_CER, residual: bool = False) -> dict[str, Any]:
+                max_cer: float = LINE_MATCH_CER, residual: bool = False,
+                repeat_aware: bool = False) -> dict[str, Any]:
     """Counts behind mark precision/recall for one observation (sum these, then `prf`).
 
     `residual=False` is v1 (draft §2; failed its base check, §5). `residual=True`
     is v2 (§6): unmatched lines, in reference order, are globally aligned
     against the output with every claimed character removed.
+
+    `repeat_aware=True` (draft §8): credit is computed on the output with each
+    loop run reduced to one copy (`loop_cut.strip_repeats`, T5b's k = 8 / 6),
+    while precision still counts every mark of the full output. Copies of a
+    looping unit are charged but cannot earn recall.
     """
     lines = reference_lines(raw_reference)
-    hypothesis = extract_text(raw_output)
+    full = extract_text(raw_output)
+    hypothesis = extract_text(strip_repeats(raw_output)) if repeat_aware else full
     reference_marks = sum(_marks(line) for line in lines)
-    out = {"reference_marks": reference_marks, "output_marks": _marks(hypothesis),
+    out = {"reference_marks": reference_marks, "output_marks": _marks(full),
+           "repeat_marks": _marks(full) - _marks(hypothesis),
            "short_line_marks": sum(_marks(line) for line in lines
                                    if len(line) < MIN_ELSEWHERE_CHARS)}
     if mode == "global":
@@ -92,7 +101,8 @@ def mark_counts(raw_reference: str, raw_output: str, *, mode: str = "line_matche
 def prf(counts: list[dict[str, Any]]) -> dict[str, Any]:
     """Micro-averaged precision/recall/F1 over observations' `mark_counts`."""
     total = {k: sum(c.get(k, 0) for c in counts)
-             for k in ("correct", "reference_marks", "output_marks", "short_line_marks",
+             for k in ("correct", "reference_marks", "output_marks", "repeat_marks",
+                       "short_line_marks",
                        "lines", "eligible_lines", "matched_lines", "matched_reference_marks")}
     out = {**_prf(total["correct"], total["reference_marks"], total["output_marks"]),
            "n": len(counts), **total}

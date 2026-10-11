@@ -1,0 +1,161 @@
+\section{Introduction}
+Thai is written on a line of consonants, with vowels and tone marks stacked above and below it. A single mark can change the meaning and the sound of a word, as in \thai{ข่าว} (news) and \thai{ข้าว} (rice). A transcription that drops or swaps a mark is therefore wrong for the reader, even when nearly every other character is correct. Thai OCR is nevertheless scored with whole-text measures such as n-gram overlap and normalized edit distance in ThaiOCRBench \cite{nonesung2025thaiocrbench}, or with character error rate in other work. These measures do not show whether the marks are the problem. Sequence-level scores also penalize a model that reads the columns of a page in a different order from the reference.
+
+Open vision-language models (VLMs) trained for Thai OCR are now available \cite{nonesung2026typhoonocr,nectec2026pathumma,pipatanakul2026synthetic}. When one of them gets a mark wrong, there are three possible explanations. The visual evidence for a small mark may be weak. The language prior may override the evidence. Or the model may never read the mark, because it skipped the line, failed to find the text, or fell into a repetition loop. Each explanation calls for a different remedy. Weak evidence suggests re-reading or zooming, an overriding prior suggests subtracting it as contrastive decoding does \cite{leng2024vcd,favero2024m3id}, and unread text suggests changing the decoding or locating the text.
+
+We study this question on ThaiOCRBench with Typhoon OCR 1.5 and four other open checkpoints, using the full-page OCR and text recognition tasks. We make three contributions.
+\begin{enumerate}
+\item A mark score that ignores reading order (Section~\ref{sec:metric}). It scores upper vowels, lower vowels and tone marks line by line, wherever the line appears in the output. Surplus text is penalized, and copies produced by a repetition loop earn no credit.
+\item A diagnosis of where marks are lost (Section~\ref{sec:where}). After a correctly read consonant, Typhoon writes a wrong tone mark 0.65\% of the time. Given the correct preceding text, it chooses the right tone mark 98.8\% of the time even without the image. Most of the marks it loses are never read. \todo{The same diagnosis for the other models.}
+\item An evaluation of training-free decoding (Section~\ref{sec:decoding}). Stopping at a detected loop changes no non-looping output and raises mark F1. A repetition penalty lowers F1 on pages that do not loop, and subtracting the language prior removes correct tone marks. \todo{Confirmation on the locked split.}
+\end{enumerate}
+For the models we studied, the remaining mark errors of a strong Thai OCR model arise before the mark is reached. Decoding and finding the text matter more than seeing a tone mark more sharply.
+
+\section{Related Work}
+\textbf{Thai OCR with VLMs.} ThaiOCRBench \cite{nonesung2025thaiocrbench} evaluates proprietary and open VLMs on Thai document tasks, including full-page OCR and text recognition. It uses n-gram overlap and edit-distance measures: BLEU, METEOR, F1 and normalized Levenshtein distance, with ANLS for text recognition. Its introduction names stacked diacritics as a difficulty of Thai, but no score isolates the marks. Several open Thai OCR models have appeared since. Typhoon OCR \cite{nonesung2026typhoonocr} is a full fine-tune of Qwen3-VL-2B \cite{bai2025qwen3vl} in version 1.5, and its authors list infographics as an area for improvement. Pathumma-llm-vision 3.0 \cite{nectec2026pathumma} is another Qwen3-VL-2B fine-tune. wayu-paxa-ocr-zero \cite{pipatanakul2026synthetic} fine-tunes PaddleOCR-VL \cite{cui2025paddleocrvl} on synthetic Thai pages. Each reports aggregate accuracy. We ask where the marks are lost.
+
+\textbf{Diacritics in OCR.} OCR is known to be difficult for scripts with many diacritics. Post-OCR correction has been proposed for Vietnamese \cite{do2025reference}, and an evaluation of Arabic OCR treats diacritized text as a separate condition \cite{elsafty2025arabic}. We found no work that scores Thai marks separately from reading order and surplus text.
+
+\textbf{Repetition and omission.} Decoding that maximizes likelihood produces repetitive text \cite{holtzman2020curious}, and document OCR models show the same behavior. Nougat reports pages on which the model repeats a sentence, and it stops generation when a logit-variance signal falls \cite{blecher2024nougat}. olmOCR retries at a higher temperature \cite{poznanski2025olmocr}. The PaddleOCR-VL pipeline truncates repetitive output after decoding \cite{paddlex2025truncate}, and the released DeepSeek-OCR code bans repeated n-grams within a window \cite{deepseekocr2025code,wei2025deepseekocr}. CC-OCR counts repetition as a form of OCR hallucination \cite{yang2025ccocr}. These works treat repetition as something to detect or avoid. We measure what each remedy costs the marks on pages that do not loop. One of the remedies is the repetition penalty of CTRL \cite{keskar2019ctrl}, which some OCR packages enable by default.
+
+\textbf{Language priors and training-free decoding.} Contrastive decoding reduces hallucination in VLMs by down-weighting what the model would predict without the image, or with a degraded image. Examples are VCD \cite{leng2024vcd}, M3ID \cite{favero2024m3id} and PAI \cite{liu2024pai}. These methods assume that the language prior is the problem. For Thai tone marks we find that the prior is usually right. Our versions are reimplementations, so we call them M3ID-form and PAI-style. Speculative decoding \cite{leviathan2023speculative} with prompt-lookup drafts \cite{saxena2023pld} speeds up decoding and leaves the output unchanged in exact arithmetic.
+
+\section{Scoring Marks Without Charging Reading Order}\label{sec:metric}
+We call the following characters marks: the six upper vowels (\thai{กั กิ กี กึ กื ก็}), the two lower vowels (\thai{กุ กู}) and the four tone marks (\thai{ก่ ก้ ก๊ ก๋}). A full page has several reference lines, and a model may read its columns in a different order from the reference. A global alignment then counts correctly read marks as errors.
+
+\textbf{Definition.} We take the reference lines of at least eight characters, longest first. For each line we look for the stretch of the output that matches it at under 40\% character error rate, ignoring characters already claimed. We credit the marks that match and claim the stretch, so that no stretch credits two lines. The remaining lines are aligned globally, in reference order, against the output with all claimed characters removed. Without this second step, marks inside poorly read lines were lost, and our first version failed its check against the base model. Recall is the credited marks divided by the reference marks. Precision is the credited marks divided by all marks in the output, which penalizes surplus text. F1 is averaged over items by pooling counts.
+
+\textbf{Repeat-aware variant.} In this variant, credit is computed after each loop run is reduced to one copy. A run is a unit of 4 to 400 characters that contains a letter and repeats exactly at least eight times, or six times for units of 50 characters or more. Precision still counts every mark in the full output, so the copies are penalized and cannot earn recall. We added the variant after a collaborator showed that the alignment matched 434 copies of one repeated unit to common syllables in the reference. When nothing loops, the two scores are identical.
+
+\textbf{Checks.} Reading the same page twice in a row scores far below the better single read. The base model's recall stays within 0.3 points of the global alignment in every cell. Typhoon's full-page recall rises by 1.6 to 1.8 points when order is not charged, and charging order alone lowers its full-page mark F1 from 94.9 to 93.1 for the BQ prompt (95.3 to 93.7 for TC, both defined below). The base model is barely affected.
+
+\section{Experimental Setup}\label{sec:setup}
+\textbf{Data.} We use the test split of ThaiOCRBench \cite{nonesung2025thaiocrbench} on two tasks, full-page OCR and text recognition. A seeded 30\% calibration split, stratified by task and category, holds 69 full-page items and 109 text-recognition items. The remaining 70\% is a locked split that has not been opened. We report outputs and scores for each item and do not redistribute any benchmark image.
+
+\textbf{Models.} We evaluate Typhoon OCR 1.5 (2B), its base model Qwen3-VL-2B, Qwen3-VL-4B, and the 0.9B region recognizers PaddleOCR-VL-1.6 and wayu-paxa-ocr-zero (Wayu). We also apply the two region recognizers to full pages, which goes beyond their design. Each checkpoint is pinned by revision, and we use the Apache-2.0-only revision of Typhoon. Revisions, seeds and run identifiers are recorded in the project repository.
+
+\textbf{Prompts and decoding.} BQ is the benchmark's own question for each item, and TC is the prompt recommended on Typhoon's model card. Paddle and Wayu use their \code{OCR:} prompt. Decoding is greedy with at most 3,072 new tokens, in fp16 on Kaggle T4 GPUs. Each result comes from one run. Outputs are reduced to plain text before scoring. BQ is the primary prompt and TC the secondary one.
+
+\textbf{Statistics.} Intervals are 95\% bootstrap intervals over items. All results are preliminary and come from the calibration split. Several decoding rules were written after that split had been seen, and we say so where it applies.
+
+\section{Where Marks Are Lost}\label{sec:where}
+\subsection{Five Models}
+Typhoon scores a mark F1 of 94.9 on full pages and 81.7 on text recognition, far above the other four checkpoints (Fig.~\ref{fig:models} and Table~\ref{tab:models}). Wayu is lower than Typhoon by 29.6 points on full pages (interval 19.2 to 39.9). Doubling the size of the base model changes its full-page F1 by only +5.0 (interval $-$4.0 to +14.1), and its tone error stays near 9.4 to 9.9\%. Typhoon's median character error rate per page is 2.8\%. The models are compared as released, with different numbers of visual tokens. Typhoon is the best of the models we measured. Pathumma-llm-vision 3.0 reports higher ThaiOCRBench scores on text recognition and overall \cite{nectec2026pathumma}, and we have not yet measured it. \todo{Pathumma-llm-vision 3.0 and further models.}
+
+\begin{figure}[t]
+\centering\includegraphics[width=\figwidth]{fig_models_\figlang.pdf}
+\caption{Mark F1 on the calibration split, (a) full-page OCR and (b) text recognition. The prompt is BQ, except \code{OCR:} for the two 0.9B models.}\label{fig:models}
+\end{figure}
+
+\begin{table}[t]
+\caption{Mark F1, tone-mark error after a correctly read consonant, and share of outputs that reached the token limit (\%)}\label{tab:models}
+\centering\footnotesize
+\fit{\begin{tabular}{@{}l rrr rr@{}}
+\toprule
+ & \multicolumn{3}{c}{Full-page} & \multicolumn{2}{c}{Text rec.}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-6}
+Model & F1 & tone err. & limit & F1 & limit\\
+\midrule
+Typhoon OCR 1.5 & \textbf{94.9} & 0.65 & 2.9 & \textbf{81.7} & 0.9\\
+Wayu & 65.2 & 5.27 & 26.1 & 46.0 & 20.2\\
+PaddleOCR-VL-1.6 & 53.3 & 14.57 & 39.1 & 47.9 & 14.7\\
+Qwen3-VL-4B & 45.9 & 9.89 & 27.5 & 23.5 & 11.9\\
+Qwen3-VL-2B & 41.0 & 9.41 & 43.5 & 24.3 & 14.7\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Loop copies earned recall.} The repeat-aware score changes Typhoon by at most 0.2 points. It lowers the full-page F1 of the base model (BQ) from 41.0 to 34.4 and its recall from 65.0 to 54.6 (Table~\ref{tab:repeat}). About a sixth of the marks that the order-free score credited to the base model came from loop copies. We read back every stripped run. All 126 had reached the token limit, the shortest contained 15 copies, and no ordinary text was removed.
+
+\begin{table}[t]
+\caption{Recall (R), precision (P) and F1 (\%) with and without credit for loop copies, full-page BQ}\label{tab:repeat}
+\centering\footnotesize
+\fit{\begin{tabular}{@{}l rrr rrr@{}}
+\toprule
+ & \multicolumn{3}{c}{Order-free} & \multicolumn{3}{c}{Repeat-aware}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Model & R & P & F1 & R & P & F1\\
+\midrule
+Typhoon & 96.1 & 93.7 & 94.9 & 96.1 & 93.6 & 94.8\\
+Qwen3-VL-2B & 65.0 & 29.9 & 41.0 & 54.6 & 25.1 & 34.4\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Most of Typhoon's Lost Marks Are Never Read}
+On full pages, Typhoon gets 6.2\% (BQ) and 7.1\% (TC) of all reference marks wrong. We assign each error automatically to one of four causes (Fig.~\ref{fig:causes}). The line may be read in another order, meaning that some stretch of the output matches it at under 20\% character error rate (for lines of at least eight characters). The whole line may be absent. A span may be missing inside a line that was kept. Or the mark may be misread. Absent lines account for 2.3\% (BQ) and 2.9\% (TC) of the marks, missing spans for 0.7\% and 0.8\%, and misreads for 1.5\% and 2.4\%. Reading order alone accounts for 1.6\% and 0.9\%, and this is not an error of reading. In the raw outputs, the absent lines are mostly text inside infographics and charts, inset advertisements, and titles or page furniture, where Typhoon writes an image placeholder. This agrees with the note on infographics by its authors \cite{nonesung2026typhoonocr}. The base model loses about 41\% of the marks. The attribution is automatic, and we checked page images only for the six pages that hold most of the absent marks. \todo{Attribution for the other models.}
+
+\begin{figure}[t]
+\centering\includegraphics[width=\figwidth]{fig_causes_\figlang.pdf}
+\caption{Where Typhoon's full-page mark loss goes, as a share of all reference marks.}\label{fig:causes}
+\end{figure}
+
+\subsection{With the Right Context, the Prior Is Already Right}
+In a forced-choice test, we give the model the correct text up to a mark and let it score the legal variants of that mark with and without the image (fp32, in-context tokenization). On full pages Typhoon chooses the correct tone mark 99.7\% of the time with the image and 98.8\% without it. For the base model the figures are 98.1\% and 98.9\%. The image therefore adds 0.9 points for Typhoon and removes 0.8 for the base model (Fig.~\ref{fig:prior}a). This test gives the model correct context and is not free generation. In this one pair, the specialized model gains more from the image than its base model does, and we do not generalize from it. \todo{The same test for Pathumma and Qwen3-VL-4B.}
+
+\textbf{Confidence.} Typhoon's own token probabilities locate its mark errors. The lowest token probability inside a character cluster separates misread marks from correct ones with an AUROC of 0.918 (BQ) and 0.935 (TC) on the model's own greedy output.
+
+\begin{figure}[t]
+\centering\includegraphics[width=\figwidth]{fig_prior_\figlang.pdf}
+\caption{(a) Gain in tone accuracy when the image is given, at the registered sites. (b) Typhoon's tone accuracy when the no-image score is subtracted with weight $\lambda$.}\label{fig:prior}
+\end{figure}
+
+\section{Training-Free Decoding and Marks}\label{sec:decoding}
+\subsection{Loops Are Rare but Costly}
+Of 356 Typhoon outputs (both prompts, both tasks), 11 contain a loop. In each cell, two to five looping pages hold 68 to 76\% of all surplus marks. Without them, full-page F1 for BQ would be 97.4 instead of 94.9. This figure is a ceiling obtained by removing those pages. It is not the result of any method.
+
+\subsection{Three Ways to Handle a Loop}
+We compare three decoders for Typhoon with greedy decoding (Fig.~\ref{fig:decoders}, full pages, BQ).
+\begin{itemize}
+\item Repetition penalty 1.1, the setting used by Typhoon's own package, which applies the penalty of CTRL \cite{keskar2019ctrl}.
+\item n-gram blocking as in the DeepSeek-OCR code, which forbids repeating a 30-gram within 90 tokens.
+\item Stopping at a detected loop. When a unit repeats eight times, or six times for units of 50 characters or more, decoding stops at the first copy. Greedy decoding is prefix-deterministic, so we compute the cut offline from complete greedy outputs. A decode-time implementation has not yet been checked against this result.
+\end{itemize}
+
+\begin{figure}[t]
+\centering\includegraphics[width=\figwidth]{fig_decoders_\figlang.pdf}
+\caption{Change in full-page mark F1 against greedy decoding (Typhoon, BQ). Blue bars cover all pages, with 95\% intervals. Orange bars cover pages that do not loop.}\label{fig:decoders}
+\end{figure}
+
+\textbf{Repetition penalty.} It changes nearly every output, and none of the loop-free full-page BQ outputs is identical to greedy. F1 on loop-free pages falls by 1.1 to 1.3 points. On text recognition (BQ) the tone error rises from 17.1\% to 22.6\%. Over all pages the effect cannot be told apart from zero (+0.89, interval $-$2.70 to +4.81). Thai text legitimately repeats syllables and tone marks, and a page-wide penalty may discourage them. We did not test this explanation.
+
+\textbf{n-gram blocking.} It is safe where nothing loops: 92 to 100\% of loop-free outputs are unchanged and the change in F1 is at most 0.05. It ends 6 of the 11 loops. In the others, the model escapes into near-repeats, for example a street name that drifts through three similar names. These near-repeats carry more marks, so surplus rises and full-page F1 ends 0.68 lower for BQ. We read a loop as an attractor of the decoder, so that banning an exact repeat moves the model to a neighboring one. This is an interpretation and has not been tested.
+
+\textbf{Stopping at a loop.} It leaves every loop-free output unchanged, in every cell. Full-page mark F1 rises by 0.84 (BQ) and 0.67 (TC), and text-recognition F1 by 3.30 and 2.39. The stop also saves 11.2\% of the generated tokens. Recall falls by at most 0.16 points, because stopping cannot recover text that the loop skipped. We wrote the rule after seeing the previous comparison. Each cell has only one to four looping outputs, so every interval includes zero.
+
+\subsection{The Stop on a Second Model}
+Wayu loops far more often, and 26.1\% of its full-page outputs reach the token limit. Applying the same offline stop to its greedy outputs raises full-page mark F1 from 65.2 to 76.0 (+10.8, interval 5.3 to 16.1) and text-recognition F1 from 46.0 to 70.4 (+24.4, interval 10.7 to 35.7), as shown in Table~\ref{tab:stop}. The gain is in precision (+28.3 on full pages) and costs 3.3 points of recall. A repetition penalty of 1.05 alone, the value in Wayu's own example, does not help (+2.8, interval $-$3.6 to +9.6 on full pages, and $-$11.3, interval $-$22.5 to +4.5 on text recognition). Stopping saves 34\% of the generated tokens on full pages. In this run, 72\% of Wayu's full-page recall gap to Typhoon lies on the 18 pages where it loops, and no decoder we tested recovers it. We cannot say whether the loop is a cause or a symptom.
+
+\begin{table}[t]
+\caption{Mark F1 without and with the stop at a detected loop (offline)}\label{tab:stop}
+\centering\footnotesize
+\fit{\begin{tabular}{@{}l rr rr@{}}
+\toprule
+ & \multicolumn{2}{c}{Full-page} & \multicolumn{2}{c}{Text rec.}\\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Model & greedy & + stop & greedy & + stop\\
+\midrule
+Typhoon (BQ) & 94.9 & 95.7 & 81.7 & 85.0\\
+Typhoon (TC) & 95.3 & 96.0 & 75.8 & 78.2\\
+Wayu & 65.2 & 76.0 & 46.0 & 70.4\\
+\bottomrule
+\end{tabular}}
+\par\smallskip\todo{The other models.}
+\end{table}
+
+\subsection{Subtracting the Language Prior Removes Correct Marks}
+In the forced-choice test, subtracting the no-image score with weight $\lambda$ lowers Typhoon's tone accuracy from 99.7\% to 97.3\% at $\lambda=0.5$ and to 42.3\% at $\lambda=1$ (Fig.~\ref{fig:prior}b). The base model falls to 84.7\% at 0.5. In free generation, on a subset of 24 items, our M3ID-form contrast ended the loops of the base model (character error rate 1.12 to 0.21). It also raised the tone error on retained items from 3.7\% to 7.6\%, mostly by deleting tone marks (21 to 55 on 12 items). On Typhoon the change is small and concentrated in a few items. Both results point the same way. The prior for the tone mark is right, and removing it removes correct marks.
+
+\subsection{Speed}
+Speculative decoding with prompt lookup makes Typhoon 1.14 to 1.15 times faster (base model: 1.16 to 1.21 times) on pages that do not degenerate. The output is identical except at fp16 near-ties, and 88 to 93\% of items are identical. The greedy reference reproduces our main outputs character for character on all 177 timed items. \todo{Speed of the stop combined with speculative decoding.}
+
+\section{Discussion and Limitations}
+For the models we studied, the mark errors of a strong Thai OCR model arise mostly before the mark is reached, through unread lines, missing spans and loops. With the correct context the tone mark is almost certain, and methods that remove the prior pay for it in tone marks. The cheap and safe way to deal with a loop is to stop it.
+
+The study has several limitations. It uses one benchmark and two tasks. All results come from the calibration split, and the stop rule, the repeat-aware score and the scoring were written after the data had been seen. The locked split has not been opened \todo{pending}. The models are compared as released, with different numbers of visual tokens, and the two region recognizers are used on full pages beyond their design. Few outputs loop, so most intervals for Typhoon include zero, and our claim concerns a mechanism rather than a rate. The attribution of errors is automatic. The forced-choice test supplies correct context. Our contrastive variants are reimplementations tested on 24 items. Finally, we used a revision of Typhoon published under Apache-2.0 alone, while the vendor's current terms ask for written consent to competitive benchmarking.
+
+\section{Conclusion}
+A strong open Thai OCR model does not fail mainly at the tone mark. It fails earlier, by not reading, not finding the text, or looping. Stopping at a detected loop is a safe training-free step with a measurable gain, and removing the language prior is not. \todo{Final claims wait for the remaining runs.}
+
+\section*{Ethical and Licensing Notes}
+All models are open and used under their licenses (Apache-2.0 or MIT, with Typhoon at its Apache-2.0-only revision). ThaiOCRBench is released under CC-BY-SA-4.0. We cite its paper and revision, report outputs and scores, and do not redistribute its images.

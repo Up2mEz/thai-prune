@@ -1,0 +1,77 @@
+% ============================================================
+% ฉบับภาษาไทย (short paper) จัดรูปแบบตามตัวอย่างภาษาไทยเดิม:
+% คอลัมน์เดียว, Angsana New, ตารางที่/รูปที่, เอกสารอ้างอิง
+% ชื่อหัวข้อคงเป็นภาษาอังกฤษตามต้นฉบับภาษาอังกฤษ
+% คอมไพล์: cd docs/paper/ieee/th && xelatex main_th && bibtex main_th && xelatex main_th && xelatex main_th
+% วินัย claim: ทุกประโยคที่เป็นผลอยู่ในขอบเขตของ docs/CLAIMS.md
+% ข้อความสีแดง [..] คือส่วนที่รอผลการทดลองเพิ่มเติม
+% ============================================================
+\documentclass[12pt]{article}
+
+\usepackage{fontspec}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{cite}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+
+% Angsana New วาดอักษรเล็กกว่าขนาดที่ระบุ จึงปรับ Scale ให้อ่านได้ราว 16 pt
+\setmainfont{Angsana New}[Scale=1.32]
+\setmonofont{Consolas}[Scale=MatchLowercase]
+\linespread{1.12}
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[#1]}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\graphicspath{{../../figures/}}
+\newcommand{\figlang}{th}\newcommand{\figwidth}{4.6in}\newcommand{\fit}[1]{\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{#1}}
+
+\renewcommand{\tablename}{ตารางที่}
+\renewcommand{\figurename}{รูปที่}
+\renewcommand{\refname}{เอกสารอ้างอิง}
+\captionsetup{labelsep=space, font=small}
+\renewcommand{\abstractname}{บทคัดย่อ}
+
+\makeatletter
+\newcommand{\sectionnumpunct}{.}
+\renewcommand{\@seccntformat}[1]{%
+  \csname the#1\endcsname\csname #1numpunct\endcsname\hspace{0.5em}}
+\makeatother
+\setlength{\parindent}{1.5em}
+
+\title{\Large\bfseries Not Reading, Not Misreading:\\
+Where Thai OCR Vision-Language Models\\ Lose Vowel and Tone Marks}
+
+\author{%
+  ธนกฤต เสมอหน้า\textsuperscript{1} \quad ธนวัฒน์ สุริยะ\textsuperscript{2} \quad ผศ.ดร.\ นนท์ คนึงสุขเกษม\textsuperscript{3}\\[4pt]
+  \normalsize
+  คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง\\
+  เลขที่ 1 ซอยฉลองกรุง 1 แขวงลาดกระบัง เขตลาดกระบัง กรุงเทพมหานคร 10520\\[2pt]
+  \small
+  \textsuperscript{1}\texttt{67070060@kmitl.ac.th} \quad
+  \textsuperscript{2}\texttt{67070236@kmitl.ac.th} \quad
+  \textsuperscript{3}\texttt{nont@it.kmitl.ac.th}
+}
+% รายชื่อผู้เขียนและอาจารย์ที่ปรึกษาคัดจากร่างก่อนหน้า (07-09-2026)
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\input{../v2/th/abstract_th}
+\end{abstract}
+
+\noindent\textbf{\textit{คำสำคัญ}}---\input{../v2/th/keywords_th}
+
+\input{../v2/th/body_th}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../../references}
+
+\end{document}

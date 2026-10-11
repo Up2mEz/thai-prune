@@ -22,6 +22,9 @@ def _variants(job: tuple[str, str]) -> dict[str, dict]:
         out[f"line_matched@{t}"] = mark_counts(reference, output, max_cer=t)
         out[f"line_matched_residual@{t}"] = mark_counts(reference, output, max_cer=t,
                                                         residual=True)
+    t = order_free.LINE_MATCH_CER
+    out[f"line_matched_residual_repeat_aware@{t}"] = mark_counts(
+        reference, output, max_cer=t, residual=True, repeat_aware=True)
     return out
 
 

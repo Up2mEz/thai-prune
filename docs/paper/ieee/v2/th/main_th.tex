@@ -1,0 +1,83 @@
+% ============================================================
+% ฉบับภาษาไทย รูปแบบตามตัวอย่าง docs/paper/Example/[THAI]-67076012-Short Paper-1.pdf
+% หน้าแรก: ชื่อเรื่อง ผู้เขียน สังกัด บทคัดย่อ คำสำคัญ (คอลัมน์เดียว) และเชิงอรรถ
+% หน้าถัดไป: เนื้อหาแบบสองคอลัมน์ จัดชิดสองข้าง ย่อหน้าเว้นบรรทัดแรก
+% คอมไพล์: xelatex main_th && bibtex main_th && xelatex main_th && xelatex main_th
+% เนื้อหา บทคัดย่อ และคำสำคัญเป็นไฟล์ร่วมในโฟลเดอร์นี้ ชื่อหัวข้อคงเป็นภาษาอังกฤษ
+% ============================================================
+\documentclass[12pt,twocolumn]{article}
+
+\usepackage{fontspec}
+\usepackage[a4paper,top=2.5cm,bottom=2.3cm,left=2.2cm,right=2.2cm,columnsep=0.7cm]{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{cite}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+
+\setmainfont{Browallia New}[Scale=1.28]
+\setmonofont{Consolas}[Scale=MatchLowercase]
+\linespread{1.08}
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 1pt
+\sloppy
+\emergencystretch=2em
+
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[#1]}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\graphicspath{{../../../figures/}}
+\newcommand{\figlang}{th2}\newcommand{\figwidth}{\columnwidth}\newcommand{\fit}[1]{\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{#1}}
+
+\renewcommand{\tablename}{ตารางที่}
+\renewcommand{\figurename}{รูปที่}
+\renewcommand{\refname}{เอกสารอ้างอิง}
+\captionsetup{labelsep=space, font=small}
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0pt}
+
+% headings as in the example: "1. Introduction", "1.1 Subsection", bold, left
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{\z@}%
+  {1.4ex \@plus .6ex}{0.8ex \@plus .1ex}{\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}%
+  {1.1ex \@plus .5ex}{0.6ex \@plus .1ex}{\normalfont\normalsize\bfseries}}
+\renewcommand{\@seccntformat}[1]{\csname the#1\endcsname\ \ }
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\makeatother
+
+\begin{document}
+
+\twocolumn[{%
+\begin{center}
+{\fontsize{19}{26}\selectfont\bfseries Not Reading, Not Misreading:\\
+Where Thai OCR Vision-Language Models Lose Vowel and Tone Marks\par}
+\vspace{10pt}
+{\bfseries ธนกฤต เสมอหน้า\textsuperscript{1}, ธนวัฒน์ สุริยะ\textsuperscript{1} และ ผศ.ดร.\ นนท์ คนึงสุขเกษม\textsuperscript{2}\par}
+\vspace{6pt}
+{\bfseries คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง\par}
+\vspace{4pt}
+{\bfseries เลขที่ 1 ซอยฉลองกรุง 1 แขวงลาดกระบัง เขตลาดกระบัง กรุงเทพฯ 10520\par}
+\end{center}
+\vspace{6pt}
+\noindent{\bfseries\large บทคัดย่อ}\par\vspace{2pt}
+\begin{minipage}{\textwidth}
+\setlength{\parindent}{1.2cm}\input{abstract_th}
+\end{minipage}\par\vspace{8pt}
+\noindent\textbf{คำสำคัญ:} \input{keywords_th}\par
+\vspace{14pt}
+\noindent\rule{\textwidth}{0.4pt}\par\vspace{4pt}
+{\small * Author's Email: 67070060@kmitl.ac.th, 67070236@kmitl.ac.th, nont@it.kmitl.ac.th\par
+\textsuperscript{1} นักศึกษา คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง\par
+\textsuperscript{2} ผู้ช่วยศาสตราจารย์ คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง\par}
+\vspace{10pt}
+}]
+
+\input{body_th}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../../../references}
+
+\end{document}

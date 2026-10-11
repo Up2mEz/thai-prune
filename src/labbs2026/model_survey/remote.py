@@ -129,7 +129,7 @@ def main() -> None:
             "torch": torch.__version__, "transformers": transformers.__version__,
             "cuda": torch.version.cuda, "cuda_device": torch.cuda.get_device_name(0),
             "platform": platform.platform(), "git_sha": spec["git_sha"], "run_id": spec["run_id"],
-            "config_sha256": spec["expected_file_hashes"]["configs/model_survey/m1.yaml"],
+            "config_sha256": spec["expected_file_hashes"][spec.get("config_path", "configs/model_survey/m1.yaml")],
         }, handle, ensure_ascii=False, indent=1)
 
 

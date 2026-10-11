@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from labbs2026.collab import MESSAGE_DIR, message_filename, open_for, parse
+from labbs2026.collab import MESSAGE_DIR, message_filename, open_for, parse, since_last_sent
 
 NOON = dt.datetime(2026, 9, 27, 12, 0, tzinfo=dt.UTC)
 
@@ -66,6 +66,26 @@ def test_fyi_without_needs_reply_is_not_waiting(tmp_path: Path) -> None:
     _write(tmp_path, "20260927T1200Z_a_to_b_note.md",
            type="fyi", subject="s", needs_reply="no", in_reply_to="none")
     assert open_for(tmp_path, "b") == []
+
+
+def test_a_follow_up_by_the_sender_does_not_close_a_message(tmp_path: Path) -> None:
+    q = _write(tmp_path, "20260927T1200Z_a_to_b_task.md",
+               type="handoff", subject="do this", needs_reply="yes", in_reply_to="none")
+    _write(tmp_path, "20260927T1300Z_a_to_b_pointer.md",
+           type="fyi", subject="where to start", needs_reply="no", in_reply_to=q.name)
+    assert [m.path for m in open_for(tmp_path, "b")] == [q]
+
+
+def test_since_last_sent_lists_notes_that_ask_for_nothing(tmp_path: Path) -> None:
+    _write(tmp_path, "20260927T1000Z_b_to_a_hello.md",
+           type="fyi", subject="h", needs_reply="no", in_reply_to="none")
+    note = _write(tmp_path, "20260927T1100Z_a_to_b_note.md",
+                  type="fyi", subject="n", needs_reply="no", in_reply_to="none")
+    assert open_for(tmp_path, "b") == []
+    assert [m.path for m in since_last_sent(tmp_path, "b")] == [note]
+    _write(tmp_path, "20260927T1200Z_b_to_a_seen.md",
+           type="fyi", subject="s", needs_reply="no", in_reply_to="none")
+    assert since_last_sent(tmp_path, "b") == []
 
 
 def test_repository_messages_all_parse() -> None:
