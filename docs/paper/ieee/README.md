@@ -35,3 +35,15 @@ wide so that scaling to one IEEE column (3.5 in) gives about 8 pt text. The
 exported PDF is vector with embedded Times New Roman and selectable text. Its
 numbers are typed by hand from `figure_data.json`; it is not yet included in
 `main_en.tex` or `main_th.tex`.
+
+## Version 2: the format of `docs/paper/Example/`
+
+`v2/en/main_en.tex` and `v2/th/main_th.tex` follow the two example PDFs: IEEE
+conference format with italic title, per-author blocks and a copyright line
+(English, US Letter), and an A4 Thai page with a single-column title page,
+abstract, keywords and footnotes followed by two justified columns (Thai).
+Abstract, keywords and body are shared files in each folder (`abstract_*.tex`,
+`keywords_*.tex`, `body_*.tex`). Thai figures for this version are
+`fig_*_th2.pdf` (3.1 in wide). Thai font: Browallia New (installed with Windows),
+used because the example's font is not installed; swap it in `main_th.tex` if
+you have the original.
