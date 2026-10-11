@@ -65,6 +65,8 @@ def main() -> None:
     parser.add_argument("--roles", default="", help="comma-separated subset of the models (default: all)")
     parser.add_argument("--smoke", type=int, default=0,
                         help="engineering smoke: the first N calibration items (N >= a model's shards)")
+    parser.add_argument("--smoke-dtype", choices=("float32",), default=None,
+                        help="smoke only: load in this dtype, to tell fp16 degeneracy from the model's own")
     parser.add_argument("--kernel-slug", default=None, help="default: the config's kernel_slug, else M1's")
     parser.add_argument("--submit", action="store_true")
     args = parser.parse_args()
@@ -85,7 +87,10 @@ def main() -> None:
     remote_ref = local.get("remote_ref") or local_remote_ref(root)
     git_sha = preflight(root, remote_ref)
     suffix = "" if roles == list(config["models"]) else "-" + "-".join(roles)
+    if args.smoke_dtype and not args.smoke:
+        raise SystemExit("--smoke-dtype is for smoke runs only")
     suffix += f"-smoke{args.smoke}" if args.smoke else ""
+    suffix += f"-{args.smoke_dtype}" if args.smoke_dtype else ""
     run_id = f"kaggle-model-survey-{label}-{git_sha[:12]}{suffix}"
 
     spec = {
@@ -114,7 +119,7 @@ def main() -> None:
         "tasks": config["benchmark"]["tasks"],
         "split_seed": config["split"]["seed"],
         "calibration_fraction": config["split"]["calibration_fraction"],
-        "dtype_preferred": config["runtime"]["dtype_preferred"],
+        "dtype_preferred": args.smoke_dtype or config["runtime"]["dtype_preferred"],
         "dtype_fallback": config["runtime"]["dtype_fallback"],
         "max_new_tokens": config["runtime"]["max_new_tokens"],
         "generation": config["runtime"]["generation"],
