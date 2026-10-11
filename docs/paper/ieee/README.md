@@ -26,3 +26,12 @@ uv run --with matplotlib python scripts/paper_make_figures.py
 
 Red `[...]` marks in the PDFs wait for the collaborator's runs (work split
 W1--W4). Author names are copied from the earlier draft; confirm them.
+
+## Diagram made in Paper (design tool)
+
+`../figures/fig_stages_en.pdf` (and `.png`) is the conceptual diagram "Where a
+Thai mark can be lost", drawn in Paper Desktop (file "Neat cloud") at 1400 px
+wide so that scaling to one IEEE column (3.5 in) gives about 8 pt text. The
+exported PDF is vector with embedded Times New Roman and selectable text. Its
+numbers are typed by hand from `figure_data.json`; it is not yet included in
+`main_en.tex` or `main_th.tex`.
