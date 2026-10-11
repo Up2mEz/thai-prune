@@ -239,7 +239,12 @@ This is the path T1/T2 followed; follow the same one.
 3. **Human authorization** — a `docs/DECISION_LOG.md` entry recording the
    humans' decision. You may draft it; a human approves it. Because this file
    is shared, the other researcher reviews the PR (`docs/COLLABORATION.md` §3,
-   §5).
+   §5). **Exception:** a test that meets every condition of the standing
+   delegation (`docs/COLLABORATION.md` §3b: calibration split only, your own
+   quota within the registered cap, your own namespaces, a registration before
+   output, no gate claim) needs no prior approval; its entry may be approved
+   and merged by you as "authorized under standing delegation", and the owner
+   reviews afterwards.
 4. **Code** in `src/labbs2026/<your_track>/`, parameters in
    `configs/<your_track>/`, thin scripts in `scripts/<your_track>_*.py`, unit
    tests for every metric in `tests/`.
@@ -267,7 +272,9 @@ This is the path T1/T2 followed; follow the same one.
   (`docs/DECISION_LOG.md`, `docs/RESEARCH_SPEC.md`, `docs/CLAIMS.md`,
   `docs/EXPERIMENT_PROTOCOL.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`,
   `src/labbs2026/kaggle.py`, `src/labbs2026/consistency.py`, `pyproject.toml`,
-  `uv.lock`): the other researcher must approve.
+  `uv.lock`): the other researcher must approve — except a Decision Log entry
+  that records a test within the standing delegation (`docs/COLLABORATION.md`
+  §3b), which you may approve and merge yourself.
 - `collab/` messages and your own status file: self-merge as soon as CI passes.
 - Decision Log entries go at the top, under the H1. Pull first; commit the
   entry alone; on conflict keep both entries, newest first, and re-run the
