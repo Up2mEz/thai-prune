@@ -1,6 +1,6 @@
 # Status — PELY334
 
-**Updated:** 2026-10-11 (W1 done; M5 running)
+**Updated:** 2026-10-12 (W1 and M5 done)
 
 ## Tracks I own
 
@@ -11,17 +11,16 @@
 | shared tooling — output diagnostics | `src/labbs2026/output_diagnostics/` | structure-aware normalization, loop detection, per-item cause; exact bit-parallel distance (no full DP table) |
 | Track C — finding versus reading | `src/labbs2026/find_vs_read/` | **F1 done**: `docs/stage0/FIND_VS_READ_F1_RESULTS.md` — Typhoon loses boxed-text marks to finding, not reading (found 7% whole vs 99% crop) |
 | Track D — input side, G2 only | `src/labbs2026/input_side/` | **D1 done**: `docs/stage0/INPUT_SIDE_D1_RESULTS.md` — no evidence of a phase effect larger than a few marks on boxed single-line crops; base unstable to any small shift |
-| Track E — models not yet run on ThaiOCRBench (T1's protocol) | `src/labbs2026/model_survey/` | **M1 done** (`docs/stage0/MODEL_SURVEY_M1_RESULTS.md`): Typhoon stays best; Qwen3-VL-4B ≈ base; Wayu best new model, loses a share to loops. **M2 done** (`docs/stage0/MODEL_SURVEY_M2_RESULTS.md`, run `kaggle-model-survey-m2-edb6ce636dbd`, `G` control 20/20): the card's decoding does not fix Wayu's loops; T5b's stop +11 / +24 mark F1; Wayu stays below Typhoon. M2 results and Addendum 1 merged (PR #69). **M3 done** (`docs/stage0/MODEL_SURVEY_M3_RESULTS.md`, run `kaggle-model-survey-m3-e970f61dc74c`, PR #71): decoding past a loop reads some of what Wayu left unread (+23 matched lines on Full-page) but invents text elsewhere; mark F1 unchanged; Wayu stays 18 points below Typhoon. **M4 done** (`docs/stage0/MODEL_SURVEY_M4_RESULTS.md`, PR #74): a confidence score separates read from invented text after an escape (AUROC 0.92), partly because of the escape's forced tokens (§6, your confound checks: 0.80 on unforced tokens, 0.83-0.88 within pages, on 3-6 pages); the filter removes the escape's damage but mark F1 does not move; the loop line ends here. M1-M4 approved by both |
+| Track E — models not yet run on ThaiOCRBench (T1's protocol) | `src/labbs2026/model_survey/` | **M1 done** (`docs/stage0/MODEL_SURVEY_M1_RESULTS.md`): Typhoon stays best; Qwen3-VL-4B ≈ base; Wayu best new model, loses a share to loops. **M2 done** (`docs/stage0/MODEL_SURVEY_M2_RESULTS.md`, run `kaggle-model-survey-m2-edb6ce636dbd`, `G` control 20/20): the card's decoding does not fix Wayu's loops; T5b's stop +11 / +24 mark F1; Wayu stays below Typhoon. M2 results and Addendum 1 merged (PR #69). **M3 done** (`docs/stage0/MODEL_SURVEY_M3_RESULTS.md`, run `kaggle-model-survey-m3-e970f61dc74c`, PR #71): decoding past a loop reads some of what Wayu left unread (+23 matched lines on Full-page) but invents text elsewhere; mark F1 unchanged; Wayu stays 18 points below Typhoon. **M4 done** (`docs/stage0/MODEL_SURVEY_M4_RESULTS.md`, PR #74): a confidence score separates read from invented text after an escape (AUROC 0.92), partly because of the escape's forced tokens (§6, your confound checks: 0.80 on unforced tokens, 0.83-0.88 within pages, on 3-6 pages); the filter removes the escape's damage but mark F1 does not move; the loop line ends here. M1-M4 approved by both. **W1 done** (`docs/stage0/MODEL_SURVEY_W1_CROSS_MODEL.md`). **M5 done** (`docs/stage0/MODEL_SURVEY_M5_RESULTS.md`, run `kaggle-model-survey-m5-8252b99e735d`): Pathumma comparable to Typhoon on both tasks (intervals include 0), +49 / +53 F1 over the base; rarely loops; loses marks mostly by not reading |
 
 ## Running now
 
 - Nothing on Kaggle.
-- M5 (Pathumma Vision 3.0.0-Re) full run on Kaggle: `kaggle-model-survey-m5-8252b99e735d`.
-- Paper prep (your work split, `20261011T1315Z`): §1 done; M4 parked (not cited); **W1 done** (`docs/stage0/MODEL_SURVEY_W1_CROSS_MODEL.md`). Next: M5 results, then M6, W3, W4 draft.
+- Paper prep (your work split, `20261011T1315Z`): §1 done; M4 parked (not cited); W1 done; **M5 done**. Next: M6 (SEA-LION v4 4B-VL, DeepSeek-OCR-2, InternVL3.5-2B optional), each with clearance and registration first; then W3, then the W4 draft.
 
 ## Waiting on
 
-- PR #79: approved by PELY334; it conflicts with main, please rebase and merge.
+- Nothing.
 
 ## Do not touch without asking
 

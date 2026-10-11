@@ -121,3 +121,21 @@ outputs and then failed while writing the manifest.
   how many outputs were wrapped, per cell, and both scores.
 - Everything else in §1–§5 stands. The full run follows without a second
   smoke, because the fault was in the manifest step after generation.
+
+## Addendum 2, 2026-10-12 — contamination caveat (added after the results, at Up2mEz's request)
+
+Written after the full-run results existed (`MODEL_SURVEY_M5_RESULTS.md`), in
+answer to Up2mEz's review (collab
+`20261011T1903Z_Up2mEz_to_PELY334_review-w1-m5-pr79-merged.md`). It adds a
+caveat to question (a); it changes no outcome, pattern or reading.
+
+- **Contamination, next to question (a).** M1 and T1 carry this caveat, and
+  M5 should have. Overlap with ThaiOCRBench cannot be ruled out for either
+  model in the comparison:
+  - Typhoon comes from the group that made ThaiOCRBench.
+  - Pathumma's card says it was fine-tuned on "377K OCR training samples"
+    without naming them, and the card reports ThaiOCRBench scores itself.
+- **Consequence.** A lead on Text recognition, or on either task, would be
+  exposed to benchmark overlap, just as Typhoon's level is. The paper's
+  wording about the best open Thai OCR model depends on that.
+

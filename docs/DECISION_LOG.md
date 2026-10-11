@@ -2,6 +2,68 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-11e — MODEL_SURVEY_M5 (Track E: Pathumma Vision 3.0.0-Re under T1's protocol) authorized under standing delegation
+
+> **Authorized under standing delegation** (2026-10-11c, `docs/COLLABORATION.md`
+> §3b). PELY334 authorized it in session on 2026-10-11 ("รัน smoke แล้วรันเต็มเลย",
+> "run the smoke, then the full run"). Up2mEz asked for this entry and said it
+> needs no approval from Up2mEz (collab
+> `20261011T1903Z_Up2mEz_to_PELY334_review-w1-m5-pr79-merged.md`); Up2mEz
+> reviews afterwards. Drafted by PELY334's Claude Code session and written
+> after the run; the registration was written before any output.
+
+**Stage/Gate:** RQ-C context (specialized vs base) and the paper's wording
+about Typhoon. Opens or passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** PELY334, under the standing delegation.
+
+**Decision:** run exactly the test registered in
+`docs/stage0/MODEL_SURVEY_M5_REGISTRATION.md` (Addenda 1 and 2), with
+parameters `configs/model_survey/m5.yaml`:
+
+- `nectec/Pathumma-llm-vision-3.0.0-re@08bb11dcabf509ac3fa3ac0014ecd44eadb9729b`,
+  cleared in `docs/stage0/MODEL_SURVEY_M5_CLEARANCE.md` (Apache-2.0, not
+  gated, card and config snapshotted with hashes);
+- M1's protocol unchanged (T1's 178 calibration items, greedy,
+  `max_new_tokens` 3072, fp16 with fp32 fallback), card prompt primary and
+  `BENCHMARK_QUESTION` secondary.
+
+The delegation's conditions hold:
+
+- calibration split only;
+- PELY334's Kaggle quota, cap 6 T4-hours (about 2.0 GPU-hours used);
+- new files and PELY334's own namespace only;
+- registration and outcome patterns written before any output;
+- claim level `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+### Reasoning
+
+- The paper should not call Typhoon the best open Thai OCR model until
+  Pathumma is measured; NECTEC's card reports a Text recognition lead.
+- Pathumma is a second Thai fine-tune of the base T1 ran, which gives RQ-C a
+  second pair.
+
+### Consequences
+
+- Results: `docs/stage0/MODEL_SURVEY_M5_RESULTS.md`.
+  - Against Typhoon, both tasks are comparable: the paired intervals include
+    0.
+  - Against the base, Pathumma is far above on both tasks.
+  - Contamination cannot be ruled out for either Thai model (Addendum 2).
+- The locked split stays closed. M6 follows under the same delegation, each
+  model with its own clearance and registration.
+
+### Files/configs affected
+
+- `configs/model_survey/m5.yaml`, `docs/stage0/MODEL_SURVEY_M5_*`
+- `src/labbs2026/model_survey/m5.py`, `plan.py` (`CARD_PROMPT`), `remote.py`
+  (config path in the manifest)
+- `scripts/model_survey_kaggle.py`, `scripts/model_survey_analyze.py`
+  (`--config`), `scripts/model_survey_w1.py` (`--config`),
+  `scripts/model_survey_m5_extra.py`, `tests/test_model_survey_m5.py`
+
+---
+
 ## 2026-10-11d (gaps) — Thai-marks claims approved; repeat-aware variant of the order-free metric added
 
 **Stage/Gate:** reporting and metric only. Opens or passes no gate.
