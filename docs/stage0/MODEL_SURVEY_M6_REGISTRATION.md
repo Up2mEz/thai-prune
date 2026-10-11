@@ -195,3 +195,38 @@ checksums verified.
   may loop on many items. Its cost is bounded by the 2.0 h unit deadline,
   and items not started are listed.
 
+
+## Addendum 3, 2026-10-12 — M6b smoke, before its full run
+
+No M6b full-run output exists.
+
+- **First smoke** (`kaggle-model-survey-m6b-3ee076494466-smoke2`) failed
+  before any model load: Kaggle's Python has no `ensurepip`, so
+  `python -m venv` could not build the environment. The bootstrap now uses
+  `uv venv` and `uv pip install` (commit `b1b36a4`). Nothing else changed.
+- **Smoke** `kaggle-model-survey-m6b-b1b36a4e01f7-smoke2` (first two
+  calibration items, both Full-page) finished every unit, with checksums
+  verified.
+  - The environment builds (transformers 4.46.3, torch 2.6.0; `pip freeze`
+    in each manifest). The remote code loads at the pinned revision.
+  - fp16, no fallback, first logits finite.
+  - 1,121 visual tokens per page = 257 + 144 × 6 crops, the card's formula.
+  - About 0.034 s per generated token; 8.2 GB peak.
+  - No image written.
+  - **Output.** With `CARD_PROMPT`, both pages are read as correct Thai text
+    at first, then loop to the 3,072-token limit: `0159AF30` repeats a
+    markdown table row, `038EB8BB` repeats `๑`. With `BENCHMARK_QUESTION`,
+    `0159AF30` repeats its first paragraph and `038EB8BB` repeats a phrase
+    from the start. No HTML tags; markdown tables (`|` rows) in one output.
+- **fp32 check** (`kaggle-model-survey-m6b-aa05f56cc14c-smoke2-float32`) is
+  **not possible on a T4**. Both units ran out of memory in the vision
+  encoder's eager attention (14.5 GB in use of 14.56 GB).
+- **Decision.** The full run goes ahead in fp16, unchanged.
+  - The rule of Addendum 1 compares fp16 against fp32 "if fp16 looks
+    degenerate". fp16 is not degenerate in the sense of the rule (overflow,
+    garbage): its text is correct Thai until a loop starts. That is the
+    loop pattern every model shows under M1's greedy protocol, and the
+    card's own `infer()` bans repeated 20-grams for this reason.
+  - What is not checked: whether fp32 would start a loop later or not at
+    all. M6b's loop rates are reported with that caveat, and W1's stop is
+    read beside the greedy numbers.
