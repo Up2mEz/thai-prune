@@ -34,7 +34,8 @@ INK, MUTED, GRID = "#1F2328", "#6B7280", "#E6E8EB"
 BLUE, GREY, ORANGE, SKY, PINK = "#0072B2", "#9AA0A6", "#D55E00", "#F2A97A", "#CC79A7"
 
 STYLE = {"en": {"width": 3.5, "font": 8.0, "family": "Times New Roman"},
-         "th": {"width": 4.6, "font": 10.0, "family": ["Arial", "Noto Sans Thai"]}}
+         "th": {"width": 4.6, "font": 10.0, "family": ["Arial", "Noto Sans Thai"]},
+         "th2": {"width": 3.1, "font": 8.5, "family": ["Arial", "Noto Sans Thai"]}}  # th2: two-column Thai paper
 TEXT = {
     "en": {
         "panel": ("(a)", "(b)"),
@@ -59,12 +60,13 @@ TEXT = {
         "f1_x": "Mark F1 (%)", "full": "อ่านทั้งหน้า", "text": "อ่านข้อความสั้น",
     },
 }
+TEXT["th2"] = TEXT["th"]
 HATCH = ["", "//", "..", "xx"]
 
 
 def _setup(lang: str):
     s = STYLE[lang]
-    if lang == "th":
+    if lang.startswith("th"):
         fm.fontManager.addfont(str(THAI_FONT))
     plt.rcParams.update({
         "font.family": s["family"], "font.size": s["font"], "axes.labelsize": s["font"],
@@ -203,7 +205,7 @@ def prior(lang: str) -> None:
 
 
 if __name__ == "__main__":
-    for language in ("en", "th"):
+    for language in ("en", "th", "th2"):
         causes(language)
         models(language)
         decoders(language)
