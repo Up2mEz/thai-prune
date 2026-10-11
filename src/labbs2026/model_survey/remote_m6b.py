@@ -31,6 +31,7 @@ import json
 import math
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -45,10 +46,15 @@ STOP = "<｜end▁of▁sentence｜>"
 def bootstrap(args: argparse.Namespace, spec: dict) -> None:
     source = Path(spec["source_dir"])
     venv = Path(f"/tmp/m6b-venv-{args.role}-{args.shard}")
-    subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
+    # Kaggle's Python has no ensurepip, so `python -m venv` fails; the worker has
+    # already installed uv, which builds the venv and installs into it.
+    uv = shutil.which("uv")
+    if uv is None:
+        raise RuntimeError("uv not found; the worker installs it before any unit runs")
+    subprocess.run([uv, "venv", "--python", f"{sys.version_info.major}.{sys.version_info.minor}",
+                    str(venv)], check=True)
     python = venv / "bin" / "python"
-    subprocess.run([str(python), "-m", "pip", "install", "--quiet", "--upgrade", "pip"], check=True)
-    subprocess.run([str(python), "-m", "pip", "install", "--quiet", "-r", str(source / REQUIREMENTS)],
+    subprocess.run([uv, "pip", "install", "--python", str(python), "-r", str(source / REQUIREMENTS)],
                    check=True)
     env = dict(os.environ, PYTHONPATH=str(source / "src"))
     subprocess.run([str(python), "-m", "labbs2026.model_survey.remote_m6b", "--stage", "run",
@@ -218,7 +224,8 @@ def run(args: argparse.Namespace, spec: dict) -> None:
                 }, ensure_ascii=False) + "\n")
                 handle.flush()
 
-    freeze = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True).stdout
+    freeze = subprocess.run([shutil.which("uv") or "uv", "pip", "freeze", "--python", sys.executable],
+                            capture_output=True, text=True).stdout
     with io.open(out_dir / "manifest.json", "w", encoding="utf-8") as handle:
         json.dump({
             "test": "m1", "runner": "model_survey.remote_m6b", "role": args.role,
