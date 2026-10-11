@@ -47,6 +47,14 @@ Thai marks better or worse than Typhoon.
    text elsewhere, so mark F1 does not move. Wayu stays 18 points below
    Typhoon. Next, only if registered: a confidence filter for escaped text
    (results §6.2).
+7. **M4** (`docs/stage0/MODEL_SURVEY_M4_REGISTRATION.md`; PELY334's "ได้ลองทำเลย"
+   on 2026-10-11): does Wayu's own confidence tell the text it read after an
+   escape from the text it invented? This is one teacher-forced scoring pass
+   over M3's outputs, with no generation. The filter threshold is fixed from
+   ordinary text, without labels. **Done**
+   (`MODEL_SURVEY_M4_RESULTS.md`): the confidence separates the two (AUROC
+   0.92), and the filter removes the escape's damage, but mark F1 does not
+   move. The loop line ends here for Wayu: its gap to Typhoon is in reading.
 
 ## Governance
 
