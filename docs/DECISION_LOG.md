@@ -2,8 +2,11 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-11** ("ได้ลองทำเลย", "go ahead and try it") in reply to the
 > proposal in `MODEL_SURVEY_M3_RESULTS.md` §6.2. It follows the process used
@@ -57,8 +60,11 @@ no image is written.
 
 ---
 
-## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-11**: "ลองดู" ("try it") to the next step proposed in
 > `MODEL_SURVEY_M2_RESULTS.md` §6.2, then "ทำต่อเลย ได้อนุมัติแล้ว" ("go ahead,
@@ -115,8 +121,11 @@ no image is written.
 
 ---
 
-## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-10** by replying "go" to the next step proposed in
 > `MODEL_SURVEY_M1_RESULTS.md` §7, under the process PELY334 chose for M1 (run
@@ -161,8 +170,11 @@ no image is written.
 
 ---
 
-## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; Up2mEz's approval pending
+## 2026-10-10 — MODEL_SURVEY_M1 (Track E) authorized by PELY334; approved by Up2mEz
 
+> **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
+> (collab `20261011T1045Z_Up2mEz_to_PELY334_review-m2-m3-m4-approved.md`).
+>
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
 > on 2026-10-10** ("find new model for 2-3 model and test it like we do in the
 > past"); asked whether to wait for Up2mEz as in Tracks C and D, PELY334 chose
