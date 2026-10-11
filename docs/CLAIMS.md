@@ -302,6 +302,88 @@ The following inference is also forbidden:
 
 ---
 
+# Thai-marks phase (objective of 2026-09-27)
+
+> **Proposed 2026-10-11 by Up2mEz's session, for the short paper. The
+> researcher's approval is the merge of the PR that adds this section.**
+> Every entry is `Preliminary/Pilot`: ThaiOCRBench calibration split only
+> (Full-page OCR 69 items, Text recognition 109 items, seed 20260927), pinned
+> revisions, greedy decoding, Kaggle T4. The locked split is unopened. Several
+> remedies were designed after seeing the same split.
+
+## SUPPORTED_WITH_LIMITS (descriptive, calibration split)
+
+Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTION`
+= BQ, `TYPHOON_CARD` = TC), T1 scoring v2 and the order-free v2 mark metric.
+
+1. **Order-free mark metric.** Typhoon OCR 1.5 2B Full-page mark F1 is 94.9 (BQ) /
+   95.3 (TC) order-free, against 93.1 / 93.7 with reading order charged. Base
+   Qwen3-VL-2B: 41.0 (BQ). `stage0/ORDER_FREE_MARK_METRIC_DRAFT.md` §7.
+2. **Mark-specific tone error.** When the base consonant is read correctly,
+   Typhoon's tone mark is wrong 0.65% of the time (Full-page, BQ); the base's
+   is 9.4%. T1 scoring v2 (`stage0/THAI_MARKS_T1_SCORING_V2.md`) on T1 run
+   `a44199c29759`, reproduced in `stage0/MODEL_SURVEY_M1_RESULTS.md` §1–2.
+3. **Where Typhoon's Full-page marks go**, as % of all reference marks (BQ / TC):
+   read in another order 1.6 / 1.0, whole line absent 2.3 / 2.9, span missing
+   0.7 / 0.8, misread 1.5 / 2.4. Automatic attribution, not hand-checked.
+   `stage0/TYPHOON_FAILURE_PROFILE.md` §2d.
+4. **Tone mark given correct context (T2).** In an in-context forced choice
+   with the correct preceding text, Full-page tone accuracy is 99.7% with the
+   image and 98.8% without (Typhoon); 98.1% / 98.9% (base). This is not free
+   generation. `stage0/THAI_MARKS_T1_T2_RESULTS.md`.
+5. **Loops.** On Typhoon, 2–5 looping pages hold 68–76% of all surplus marks.
+   `stage0/T5_LOOP_DECODING_DRAFT.md`.
+6. **Five checkpoints (M1).** Full-page / Text recognition mark F1: Typhoon
+   94.9 / 81.7, PaddleOCR-VL-1.6 53.3 / 47.9, wayu-paxa-ocr-zero 65.2 / 46.0,
+   Qwen3-VL-4B 45.9 / 23.5, Qwen3-VL-2B 41.0 / 24.3. Models are compared as
+   shipped (unequal visual-token budgets); Paddle and Wayu are region
+   recognizers, off-design on Full-page. `stage0/MODEL_SURVEY_M1_RESULTS.md` §2.
+7. **Stop at a detected loop (T5b-B, offline cut).**
+   - Typhoon: Full-page F1 +0.84 (BQ) / +0.67 (TC); no non-looping output
+     changed. The intervals include 0. The rule was set after T5.
+   - Wayu (M2): +10.8 [+5.3, +16.1] (Full-page), +24.4 [+10.7, +35.7] (Text
+     recognition).
+   - `stage0/T5B_STOP_AT_LOOP_DRAFT.md`, `stage0/MODEL_SURVEY_M2_RESULTS.md`.
+8. **Repetition penalty 1.1** (the vendor package's setting) changes almost
+   every Typhoon output and lowers non-looping Full-page F1 by 1.1–1.3; Text
+   recognition (BQ) tone error rises 17.1% → 22.6%.
+   `stage0/T5_LOOP_DECODING_DRAFT.md`.
+9. **Speculative decoding (S1).** Typhoon 1.14–1.15× faster (prompt lookup),
+   output identical except at fp16 near-ties. TC prompt, T4, batch 1 only.
+   `stage0/SPEC_DECODE_S1_RESULTS.md`.
+10. **Confidence (E1).** Typhoon's own token log-probability separates its
+    mark misreads from correct marks: AUROC 0.918 (BQ) / 0.935 (TC).
+    `stage0/E1_CONFIDENCE_DRAFT.md`.
+
+## HYPOTHESIS (needs more models and/or the locked split)
+
+- Thai OCR VLMs lose marks mainly by not reading (loops, text not found,
+  skipped lines) rather than by misreading marks. Shown so far for Typhoon
+  and Qwen3-VL-2B only.
+- Stopping at a detected loop raises mark F1 across models without changing
+  non-looping outputs.
+- Decoding that subtracts the language prior costs Thai tone marks in
+  general (seen with T2's contrastive rescoring and the project's
+  "M3ID-form" contrast, `stage0/REMEDIES_R1_RESULTS.md`).
+
+## Forbidden in this phase
+
+- "Typhoon OCR 1.5 2B is the best open Thai OCR model." Pathumma-llm-vision
+  3.0 self-reports higher ThaiOCRBench scores on Text recognition and
+  overall; the project has not measured it.
+- "Stopping at a loop is better than repetition penalties / existing
+  methods." Not until a registered locked-split result.
+- "M3ID", "VCD" or "PAI" results, unqualified. These are the project's
+  reimplementations: write "M3ID-form" / "PAI-style".
+- "Wayu knows when it is inventing text." M4's AUROC has an unresolved
+  confound with forced tokens.
+- "OCR specialization makes a model rely more on the image." One base and
+  descendant pair (RQ-C) only.
+- "Typhoon rarely misreads tone marks", without the scope: ThaiOCRBench
+  calibration split, given a correct base consonant.
+
+---
+
 # Scope-safe wording examples
 
 ## Before experiments
