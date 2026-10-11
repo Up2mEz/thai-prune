@@ -72,9 +72,19 @@ Readings:
   below 0. Seven of ten cells exclude 0. The three that touch 0 are Typhoon's
   two (one or two loops in a task) and Paddle's Text recognition.
 - **It leaves ended outputs alone.** It changed no output that ended on its
-  own, except two of Paddle's 42 Full-page outputs. On those two pages a
-  legitimate repeat ended without reaching the limit, and the cut raised
-  their F1 (+0.94 over the 42).
+  own, except two of Paddle's 42 Full-page outputs; the cut raised F1 over
+  the 42 by +0.94. Both are degenerate loops that Paddle left on its own
+  before the limit, not legitimate repeats (checked on the outputs at
+  Up2mEz's request, 2026-10-12). Real page text follows each loop, and the
+  cut drops it:
+  - `28987CC6`: `MFA` eleven times (once on the page), then the page's
+    `ANNUAL REPORT` and its Thai title. The stop keeps one `MFA` and drops
+    both lines; correct marks go from 1 to 0 of 2.
+  - `322DB7DB`: a hallucinated phrase repeated about 100 times, then four
+    lines that continue the page's text (misread in places). Correct marks
+    go from 466 to 387 of 515, but precision rises from 59% to 92%.
+  - So no false cut of a real repeat was seen. The cost is text the model
+    read after it escaped a loop on its own, as in M3.
 - **Precision rises and recall falls.** Recall drops by 10.2 points
   (Qwen3-VL-4B) and 10.6 (base) on Full-page; elsewhere by at most 3.3.
   Part of the raw recall was credit earned by loop copies. The repeat-aware

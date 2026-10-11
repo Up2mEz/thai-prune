@@ -1,6 +1,7 @@
 """MODEL_SURVEY W1: cross-model failure profile and the stop at a loop (offline; see `model_survey.w1`).
 
-Reads M1's fetched run (for the items' references; checksums verified), M1's
+Reads a fetched model-survey run (M1's by default; `--config` for M5, which
+uses M1's schema) for the items' references (checksums verified), its
 primary-prompt outputs, and T1's archived Typhoon and base outputs
 (`BENCHMARK_QUESTION`). Writes one JSON file with no reference text and no
 output text, and refuses to overwrite it.
@@ -23,7 +24,6 @@ from labbs2026.model_survey.w1 import attribution_shares, cell_scores, stop_summ
 from labbs2026.thai_marks.attribution import attribute_marks
 from labbs2026.thai_marks.order_free import mark_counts
 
-CONFIG = Path("configs/model_survey/m1.yaml")
 ATTRIBUTION_TASK = "Full-page OCR"
 
 
@@ -46,13 +46,14 @@ def _score(job: tuple) -> tuple:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--run-dir", type=Path, required=True, help="M1's fetched artifacts/<run_id> directory")
+    parser.add_argument("--run-dir", type=Path, required=True, help="the fetched artifacts/<run_id> directory")
+    parser.add_argument("--config", type=Path, default=Path("configs/model_survey/m1.yaml"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
     if args.out.exists():
         raise SystemExit(f"{args.out} exists; results are never overwritten")
-    config = yaml.safe_load(CONFIG.read_text("utf-8"))
+    config = yaml.safe_load(args.config.read_text("utf-8"))
     for line in (args.run_dir / "checksums.sha256").read_text(encoding="utf-8").splitlines():
         digest, relative = line.split("  ", 1)
         if hashlib.sha256((args.run_dir / relative).read_bytes()).hexdigest() != digest:
@@ -82,7 +83,7 @@ def main() -> None:
         "kind": "exploratory, offline (Up2mEz's work split W1, 2026-10-11)",
         "claim_level": config["claim_level"], "git_sha": _git("rev-parse", "HEAD"),
         "git_dirty": bool(_git("status", "--porcelain", "--untracked-files=no")),
-        "m1_run": args.run_dir.name,
+        "config": args.config.as_posix(), "run": args.run_dir.name,
         "t1_outputs": {"path": str(archive), "sha256": hashlib.sha256(archive.read_bytes()).hexdigest()},
         "prompts": {**{m: config["models"][m]["primary_prompt"] for m in config["models"]},
                     **{m: comparison["prompt"] for m in comparison["roles"]}},

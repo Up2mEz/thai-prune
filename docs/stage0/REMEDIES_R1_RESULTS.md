@@ -154,3 +154,12 @@ left readable.
    contrast has little to add at tone sites either; its gain there is ending
    loops (§2). Caveats: T2 feeds the correct context, which greedy decoding
    does not have, and T2's sites and R1's 24 items are different samples.
+   - **A direct measure agrees** (added 2026-10-12 at Up2mEz's suggestion).
+     T2 also tested the contrast itself: image-contrastive re-scoring
+     `score_image − λ·score_no_image` gives Typhoon Full-page tone 97.3% at
+     λ = 0.5 (oracle 99.7%) and 42.3% at λ = 1.0, and the base 84.7% at
+     λ = 0.5 (oracle 98.1%), "the same direction for every mark and task"
+     (`THAI_MARKS_T1_T2_RESULTS.md`).
+   - That is a teacher-forced test on correct context, separate from R1's
+     generation results. The two are independent measures that agree:
+     subtracting the image-free prior costs tone marks.
