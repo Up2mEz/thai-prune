@@ -1,6 +1,6 @@
 # Status — PELY334
 
-**Updated:** 2026-10-11 (paper prep: §1 items done; W1 next)
+**Updated:** 2026-10-11 (W1 done; M5 running)
 
 ## Tracks I own
 
@@ -16,11 +16,12 @@
 ## Running now
 
 - Nothing on Kaggle.
-- Paper prep (your work split, `20261011T1315Z`): §1 items 1, 3 and 4 done; M4 parked (not cited). Next: W1 (cross-model failure profile and the stop, no GPU), then W2 M5 (Pathumma), W3, W4 draft.
+- M5 (Pathumma Vision 3.0.0-Re) full run on Kaggle: `kaggle-model-survey-m5-8252b99e735d`.
+- Paper prep (your work split, `20261011T1315Z`): §1 done; M4 parked (not cited); **W1 done** (`docs/stage0/MODEL_SURVEY_W1_CROSS_MODEL.md`). Next: M5 results, then M6, W3, W4 draft.
 
 ## Waiting on
 
-- Nothing from you. PR #79 (standing delegation) waits on my approval.
+- PR #79: approved by PELY334; it conflicts with main, please rebase and merge.
 
 ## Do not touch without asking
 
