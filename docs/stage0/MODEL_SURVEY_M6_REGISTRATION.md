@@ -167,3 +167,31 @@ and does not run a modified model.
 
 **Budget.** Cap 8 T4-hours; 3.5 h deadline per shard, including about 5
 minutes to build the environment.
+
+## Addendum 2, 2026-10-12 — M6a smoke, before its full run
+
+No M6a full-run output exists. Smoke `kaggle-model-survey-m6a-3dd7bd0cc536-smoke2`
+(first two calibration items, both Full-page) finished every unit, with
+checksums verified.
+
+- **SEA-LION.** fp16 and no fallback. The output is readable Thai on both
+  items and ends on its own (286 and 451 tokens), with no markup. It has
+  2,240 visual tokens per page, as Qwen3-VL-4B's processor gives.
+- **InternVL, fp16.** No fallback, and 1,792 and 3,328 visual tokens (tiling
+  as clearance §3). Both outputs run to the token limit:
+  - `0159AF30` reads the page's first line, then repeats a phrase;
+  - `038EB8BB` opens with `# ข้อความในภาพ`, then `**ว` followed by `ส`
+    repeated to the limit.
+- **InternVL, fp32 check** (`--smoke-dtype float32`, run
+  `kaggle-model-survey-m6a-f2028d4ba247-internvl-smoke2-float32`). This is
+  the rule of §4: fp16 degenerate where fp32 is not would stop M6a. Both
+  items still run to the limit:
+  - `0159AF30` reads a slightly different first line, then repeats another
+    phrase;
+  - `038EB8BB` is the same `**วสสส…` from the start.
+
+  The degeneration is the model's, not fp16's, so the rule does not stop M6a.
+- **Decision.** The full run goes ahead for both models, unchanged. InternVL
+  may loop on many items. Its cost is bounded by the 2.0 h unit deadline,
+  and items not started are listed.
+
