@@ -89,6 +89,35 @@ def window_scores(spans: Sequence[tuple[int, int]], offsets: Sequence[Sequence[i
     return out
 
 
+def window_forcing(spans: Sequence[tuple[int, int]], offsets: Sequence[Sequence[int]],
+                   logprobs: Sequence[float], agrees: Sequence[int]) -> list[dict[str, Any]]:
+    """Per window: the share of its tokens that are not the teacher-forced argmax, and `s_mean` over the rest.
+
+    After an escape, decoding is greedy except where the escape's constraint
+    forced a token off greedy's choice, so a token that is not the argmax is
+    (up to fp16 ties) a forced one. Added after Up2mEz's review of M4: the
+    log-probability of a forced token is low by construction.
+    """
+    out = []
+    for a, b in spans:
+        idx = [k for k, (s, e) in enumerate(offsets) if s < b and e > a]
+        free = [logprobs[k] for k in idx if agrees[k]]
+        out.append({"forced": sum(not agrees[k] for k in idx), "n_tokens": len(idx),
+                    "forced_share": (sum(not agrees[k] for k in idx) / len(idx)) if idx else None,
+                    "s_mean_unforced": sum(free) / len(free) if free else None})
+    return out
+
+
+def escape_points(record: dict[str, Any]) -> list[int]:
+    """Approximate character positions in the final output where each escape resumed decoding.
+
+    An escape rolls back to the end of the run's first copy (`onset_chars` +
+    `unit_chars`, then up to a token boundary); the first equals
+    `greedy_prefix_chars` up to that boundary.
+    """
+    return sorted(e["onset_chars"] + e["unit_chars"] for e in record["escapes"])
+
+
 def label(window_text: str, reference: str, max_cer: float) -> tuple[str, float | None]:
     """`read`, `invented` or `no_letter`, and the window's CER at its best place in the reference."""
     text = _squash(window_text)
@@ -125,6 +154,23 @@ def item_bootstrap_auroc(by_item: dict[str, list[tuple[float, bool]]], *, resamp
             "auroc": compute(ids),
             "ci95": [draws[int(0.025 * len(draws))], draws[min(len(draws) - 1, int(0.975 * len(draws)))]]
             if draws else None, "valid_resamples": len(draws)}
+
+
+def within_item_auroc(by_item: dict[str, list[tuple[float, bool]]]) -> dict[str, Any]:
+    """AUROC over (positive, negative) pairs from the same item only; items with one label contribute nothing.
+
+    Removes differences between items (a page Wayu reads well is confident
+    throughout). Added after Up2mEz's review of M4.
+    """
+    wins = pairs = 0.0
+    used = []
+    for i, rows in sorted(by_item.items()):
+        pos, neg = [s for s, y in rows if y], [s for s, y in rows if not y]
+        if pos and neg:
+            used.append(i)
+            wins += sum((p > n) + 0.5 * (p == n) for p in pos for n in neg)
+            pairs += len(pos) * len(neg)
+    return {"items": used, "pairs": int(pairs), "auroc": wins / pairs if pairs else None}
 
 
 def quantile(values: Sequence[float], q: float) -> float:

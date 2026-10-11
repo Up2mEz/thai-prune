@@ -1,4 +1,4 @@
-"""MODEL_SURVEY_M4: windows, window scores, labels, AUROC, threshold, filter, config."""
+"""MODEL_SURVEY_M4: windows, window scores, labels, AUROC, threshold, filter, config; the confound checks."""
 
 import copy
 import importlib.util
@@ -9,14 +9,17 @@ import yaml
 
 from labbs2026.model_survey.m4 import (
     auroc,
+    escape_points,
     filtered_output,
     item_bootstrap_auroc,
     label,
     m4_commands,
     quantile,
     validate,
+    window_forcing,
     window_scores,
     windows,
+    within_item_auroc,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -99,3 +102,34 @@ def test_m4_script_hashes_existing_files():
     spec.loader.exec_module(module)
     assert all((ROOT / p).is_file() for p in module.HASHED)
     assert M4["scoring_pass"]["outputs_archive"] in module.HASHED
+
+
+def test_window_forcing_counts_non_argmax_tokens_and_averages_the_rest():
+    offsets = [[0, 2], [2, 4], [4, 6], [6, 8]]
+    out = window_forcing([(0, 4), (4, 8), (8, 9)], offsets, [-0.1, -3.0, -0.2, -0.4], [1, 0, 1, 1])
+    assert out[0] == {"forced": 1, "n_tokens": 2, "forced_share": 0.5, "s_mean_unforced": -0.1}
+    assert out[1]["forced"] == 0 and out[1]["s_mean_unforced"] == pytest.approx(-0.3)
+    assert out[2] == {"forced": 0, "n_tokens": 0, "forced_share": None, "s_mean_unforced": None}
+    assert window_forcing([(0, 2)], offsets, [-5.0], [0])[0]["s_mean_unforced"] is None
+
+
+def test_escape_points_are_where_decoding_resumed():
+    record = {"escapes": [{"onset_chars": 939, "unit_chars": 19}, {"onset_chars": 898, "unit_chars": 19}]}
+    assert escape_points(record) == [917, 958]
+    assert escape_points({"escapes": []}) == []
+
+
+def test_within_item_auroc_ignores_differences_between_items():
+    # across items the good page outranks the bad one; within each page the score is uninformative
+    by_item = {"good": [(0.9, True), (0.9, False)], "bad": [(0.1, True), (0.1, False)], "one": [(0.5, True)]}
+    out = within_item_auroc(by_item)
+    assert out == {"items": ["bad", "good"], "pairs": 2, "auroc": 0.5}
+    assert within_item_auroc({"a": [(1.0, True), (0.0, False)]})["auroc"] == 1.0
+    assert within_item_auroc({"a": [(1.0, True)]})["auroc"] is None
+
+
+def test_confound_script_imports():
+    spec = importlib.util.spec_from_file_location("m4c", ROOT / "scripts/model_survey_m4_confound.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert callable(module.main)
