@@ -94,7 +94,8 @@ def main() -> None:
         "repository_url": REPOSITORY,
         "remote_ref": remote_ref,
         "git_sha": git_sha,
-        "expected_file_hashes": {p: sha256_file(root / p) for p in (args.config, *HASHED[1:])},
+        "expected_file_hashes": {p: sha256_file(root / p)
+                                 for p in (args.config, *HASHED[1:], *config.get("extra_hashed", []))},
         "locked_package_versions": locked_package_versions(root / "uv.lock"),
         "uv_bootstrap_version": "0.11.25",
         "uv_sync_args": ["--frozen", "--extra", "model", "--extra", "bench"],
@@ -104,7 +105,7 @@ def main() -> None:
         "tests": ["m1"],
         "limit": args.smoke,
         "roles": roles,
-        "gpu_queues": m1_commands(queues),
+        "gpu_queues": m1_commands(queues, config.get("runner_module", "labbs2026.model_survey.remote")),
         "models": {r: config["models"][r] for r in roles},
         "prompts": config["prompts"],
         "benchmark_repo": config["benchmark"]["repo"],
