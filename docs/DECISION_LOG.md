@@ -2,6 +2,61 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; Up2mEz's approval pending
+
+> Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
+> on 2026-10-11** ("ได้ลองทำเลย", "go ahead and try it") in reply to the
+> proposal in `MODEL_SURVEY_M3_RESULTS.md` §6.2. It follows the process used
+> for M1-M3: run first, Up2mEz reviews afterwards. **Up2mEz's approval is not
+> recorded in the repository.** This entry is not merged until Up2mEz
+> approves it. PELY334's Kaggle quota and new files only.
+
+**Stage/Gate:** RQ-A context. The question is whether a model's own confidence
+separates the text it read from the text it invented after a loop escape.
+Opens or passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle scoring pass
+of, exactly the test registered in
+`docs/stage0/MODEL_SURVEY_M4_REGISTRATION.md`, with parameters
+`configs/model_survey/m4.yaml`:
+
+- one teacher-forced forward pass of Wayu over each of M3's 178 calibration
+  outputs, with no generation;
+- the confidence of each window written after an escape, and its AUROC
+  against reference-located labels on Full-page;
+- a filter whose threshold is fixed from Wayu's ordinary text without
+  labels.
+
+Smoke first, cap 1 T4-hour, PELY334's quota. The locked split stays closed;
+no image is written.
+
+### Reasoning
+
+- M3 found that an escape recovers real text on some pages but invents text on
+  others, so its net effect is zero.
+- A filter is the only way the escape could become useful. Whether Wayu's
+  confidence can drive it decides whether any decode-time remedy for its loops
+  is worth pursuing.
+- E1 found the analogous signal for Typhoon's mark errors (AUROC 0.94-0.95).
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; they are descriptive,
+  and there is no gate.
+- A positive signal could only motivate a held-out test, which needs both
+  researchers because the locked split is closed. No remedy is adopted.
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_M4_REGISTRATION.md`, `configs/model_survey/m4.yaml`
+- `src/labbs2026/model_survey/m4.py`, `remote_m4.py`
+- `scripts/model_survey_m4_*.py`, `tests/test_model_survey_m4.py`
+
+---
+
 ## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; Up2mEz's approval pending
 
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
