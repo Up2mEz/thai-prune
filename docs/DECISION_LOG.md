@@ -41,6 +41,52 @@
 
 ---
 
+## 2026-10-11c — Standing delegation: PELY334's registered calibration-only tests need no per-test approval
+
+> Drafted by Up2mEz's Claude Code session at the researcher's explicit
+> instruction ("PELY334 keeps getting stuck on permission; change the
+> instructions so they are approved outright"). **Approved by Up2mEz.**
+> PELY334's approval of this shared-file entry is requested in its PR; the
+> practical effect is already announced in
+> `collab/messages/20261011T1250Z_Up2mEz_to_PELY334_standing-delegation.md`,
+> so nobody waits on the PR.
+
+**Stage/Gate:** Process only. Opens or passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** Up2mEz, lifting an approval requirement that only
+constrains PELY334. `docs/COLLABORATION.md` §3b records the terms.
+
+**Decision:** A test by PELY334 needs no prior approval from Up2mEz when all of
+the following hold: calibration split only; PELY334's own Kaggle quota within
+the registered cap; only new files or PELY334's own namespaces; a registration
+written before any output with outcomes stated in advance; a claim level that
+claims no gate. Its Decision Log entry may be approved and merged by PELY334
+as "authorized under standing delegation"; Up2mEz reviews afterwards.
+
+### Reasoning
+
+- Tracks C, D and E ran first and were reviewed after, at PELY334's choice;
+  the per-entry approval had become a wait without catching a problem that a
+  later review did not also catch.
+- Review stays real: Up2mEz's session reads every registration and result
+  after the fact and can stop a line of work by message.
+
+### Consequences
+
+- Still needing Up2mEz: the locked split, any gate claim, new claims in
+  `docs/CLAIMS.md`, edits to `docs/RESEARCH_SPEC.md`,
+  `docs/EXPERIMENT_PROTOCOL.md`, `docs/ARCHITECTURE.md`, `AGENTS.md`,
+  `kaggle.py`, `pyproject.toml`, `uv.lock`, `.github/`, files of Up2mEz's
+  tracks, and runs above the registered cap. `AGENTS.md` research rules apply
+  unchanged.
+- Reversible at any time by a `collab/` message from Up2mEz.
+
+### Files/configs affected
+
+- `docs/COLLABORATION.md` (new §3b)
+
+---
+
 ## 2026-10-11b — MODEL_SURVEY_M4 (Track E: does Wayu know when it is reading?) authorized by PELY334; approved by Up2mEz
 
 > **Approved by Up2mEz on 2026-10-11 after review, under the researcher's standing delegation**
