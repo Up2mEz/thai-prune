@@ -2,6 +2,64 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-11 — MODEL_SURVEY_M3 (Track E: Wayu's loop escape) authorized by PELY334; Up2mEz's approval pending
+
+> Drafted by PELY334's Claude Code session. **PELY334 authorized it in session
+> on 2026-10-11**: "ลองดู" ("try it") to the next step proposed in
+> `MODEL_SURVEY_M2_RESULTS.md` §6.2, then "ทำต่อเลย ได้อนุมัติแล้ว" ("go ahead,
+> it has been approved"), under the process used for M1 and M2 (run first,
+> Up2mEz reviews afterwards). **Up2mEz's approval is not recorded in the
+> repository.** This entry is not merged until Up2mEz approves it; until then
+> M3's results say the review was pending. PELY334's Kaggle quota and new files
+> only.
+
+**Stage/Gate:** RQ-A context — whether the text a model leaves unread after a
+repetition loop is recoverable at decode time. Opens or passes no gate; Gates
+1-6 unchanged.
+
+**Decision owner:** Both human researchers (PELY334, Up2mEz), per
+`docs/COLLABORATION.md` §3.
+
+**Decision (proposed):** authorize the code for, and the Kaggle inference of,
+exactly the test registered in `docs/stage0/MODEL_SURVEY_M3_REGISTRATION.md`
+with parameters `configs/model_survey/m3.yaml`. The test is Wayu (`af0204b4`,
+`OCR:`) on M1's 178 calibration items, with M1's greedy decoding plus a
+decode-time loop escape:
+
+- T5b's variant-B rule detects a run;
+- decoding rolls back to the end of the run's first copy;
+- the run's unit may then neither restart there nor recur later;
+- at most 8 escapes and 6,144 decoded tokens per item.
+
+Smoke first, cap 3 T4-hours, PELY334's quota. The locked split stays closed;
+no image is written.
+
+### Reasoning
+
+- M2 found that 72% of Wayu's Full-page recall gap to Typhoon sits on the
+  pages where it loops, and that no stop returns that text.
+- Whether it is recoverable decides between two follow-ups:
+  - a decode-time remedy for loops, if it is;
+  - an input-side one (regions, Up2mEz's track), if it is not.
+- The escape changes nothing but what follows a loop. Its stop-only twin from
+  the same run isolates the effect. Matched reference lines guard against the
+  alignment credit M2 found in the order-free metric.
+
+### Consequences
+
+- Results carry `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`; they are descriptive,
+  and there is no gate.
+- No remedy is adopted. A pattern can only route a registered follow-up.
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_M3_REGISTRATION.md`, `configs/model_survey/m3.yaml`
+- `src/labbs2026/model_survey/escape.py`, `m3.py`, `remote_m3.py`
+- `scripts/model_survey_m3_*.py`
+- `tests/test_model_survey_escape.py`, `tests/test_model_survey_m3.py`
+
+---
+
 ## 2026-10-10b — MODEL_SURVEY_M2 (Track E: Wayu's loops) authorized by PELY334; Up2mEz's approval pending
 
 > Drafted by PELY334's Claude Code session. **PELY334 authorized it in session

@@ -2,7 +2,8 @@
 
 **Owner:** PELY334. **Package:** `src/labbs2026/model_survey/` (new; reuses
 `thai_marks` read-only). **Branches:** `PELY334/model-survey-m1`,
-`PELY334/model-survey-m2` (both merged), `PELY334/model-survey-m2-results`.
+`PELY334/model-survey-m2` (both merged), `PELY334/model-survey-m2-results`,
+`PELY334/model-survey-m3`.
 
 ## Why
 
@@ -36,6 +37,16 @@ Thai marks better or worse than Typhoon.
    confidence flags (E1), as a new registration reviewed by Up2mEz. M2 does
    not strengthen the case: on the symmetric subset Wayu reads about one point
    below Typhoon (M2 results §4e). Not started.
+6. **M3** (`docs/stage0/MODEL_SURVEY_M3_REGISTRATION.md`; PELY334's "ลองดู" and
+   "ทำต่อเลย ได้อนุมัติแล้ว" on 2026-10-11): Wayu with a decode-time loop
+   escape. Is the text a loop leaves unread recoverable by decoding past the
+   loop? Compared with its stop-only twin from the same run, with matched
+   reference lines guarding against alignment credit. **Done**
+   (`MODEL_SURVEY_M3_RESULTS.md`): the escape reads some of what loops leave
+   unread (+23 matched lines on Full-page; one page read in full) but invents
+   text elsewhere, so mark F1 does not move. Wayu stays 18 points below
+   Typhoon. Next, only if registered: a confidence filter for escaped text
+   (results §6.2).
 
 ## Governance
 
