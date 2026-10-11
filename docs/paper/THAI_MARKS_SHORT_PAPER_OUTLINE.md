@@ -41,7 +41,7 @@
 |---|---|---|
 | ThaiOCRBench | arXiv:2511.04479 (IJCNLP-AACL 2025) และ revision ของ dataset | บังคับตามเงื่อนไข dataset (Decision Log 2026-09-27b) |
 | Thai OCR models | Typhoon OCR 1.5, Pathumma-llm-vision 3.0, wayu-paxa-ocr-zero, PaddleOCR-VL | ตรวจ |
-| Loop / degeneration ใน OCR VLM | Nougat, PaddleOCR-VL (การหยุดเมื่อวนซ้ำ), DeepSeek-OCR (n-gram block) | ตรวจ |
+| Loop / degeneration ใน OCR VLM | Nougat (หยุดเมื่อวนซ้ำ), pipeline ของ PaddleOCR-VL ใน PaddleX (ตัดข้อความซ้ำหลัง decode ซึ่งอยู่ในโค้ด ไม่ใช่ใน paper), DeepSeek-OCR (n-gram block ในโค้ด), olmOCR, CC-OCR | ตรวจแล้ว ดู `RELATED_WORK_DRAFT.md` |
 | Hallucination / contrastive decoding | VCD, M3ID, PAI (เราใช้ "M3ID-form", "PAI-style") | ตรวจ |
 | Speculative / prompt lookup decoding | สำหรับ S1 | ตรวจ |
 | วรรณยุกต์และ diacritics ใน OCR | งานภาษาอื่นที่มี diacritics (เช่น เวียดนาม อาหรับ) | ต้องค้นเพิ่ม |
