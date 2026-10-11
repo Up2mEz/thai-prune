@@ -95,3 +95,29 @@ reported with them; nothing here is a gate.
 
 Other models (M6), the locked split, any remedy, sampling, the card's
 `3.0.0-preview`, and any claim beyond this checkpoint.
+
+## Addendum 1, 2026-10-11 — after the smoke, before the full run
+
+No full-run output exists. The smoke (`kaggle-model-survey-m5-4c0a721af760-smoke2`,
+first two calibration items, both Full-page, both prompts) generated all four
+outputs and then failed while writing the manifest.
+
+- **Engineering fault.** `remote.py` looked up the config hash under M1's
+  path. It now uses the run's config path (`spec["config_path"]`, tested).
+  M1's runs are unaffected, because the default is M1's path.
+- **Precision.** fp16 output is readable Thai on all four outputs. There is
+  no garbage or overflow and no fp32 fallback. The QAT/bf16 concern does not
+  show on these two pages.
+- **Markup.** There is no HTML in any output. One output, `CARD_PROMPT` on
+  `0159AF30`, comes wrapped in Typhoon OCR's JSON format, `{"natural_text":
+  "..."}`, with newlines as `\n` escapes. It reads the page, then falls into
+  a degenerate loop (`/nbs/";"` repeated) to the token limit.
+- **Added before the full run.** The registered primary stays M1's scoring
+  of the output as written. A **secondary** score applies
+  `model_survey.m5.unwrap_natural_text` first (tested). It returns the
+  `natural_text` value of a wrapped output, the decoded prefix if the JSON
+  never closed, and any other output unchanged. Run it with
+  `scripts/model_survey_analyze.py --unwrap-natural-text`. The results report
+  how many outputs were wrapped, per cell, and both scores.
+- Everything else in §1–§5 stands. The full run follows without a second
+  smoke, because the fault was in the manifest step after generation.

@@ -119,6 +119,7 @@ def main() -> None:
         "generation": config["runtime"]["generation"],
         "use_cache": config["runtime"]["use_cache"],
         "kernel_slug": args.kernel_slug,
+        "config_path": args.config,
         "created_at_utc": utc_now(),
     }
 
