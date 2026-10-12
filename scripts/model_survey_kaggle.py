@@ -64,7 +64,8 @@ def main() -> None:
                         help="a config with M1's schema (default: M1's); M5 reuses M1's protocol unchanged")
     parser.add_argument("--roles", default="", help="comma-separated subset of the models (default: all)")
     parser.add_argument("--smoke", type=int, default=0,
-                        help="engineering smoke: the first N calibration items (N >= a model's shards)")
+                        help="engineering smoke: the first N calibration items (N >= a model's shards), "
+                             "also for a config that runs on the locked split")
     parser.add_argument("--smoke-dtype", choices=("float32",), default=None,
                         help="smoke only: load in this dtype, to tell fp16 degeneracy from the model's own")
     parser.add_argument("--kernel-slug", default=None, help="default: the config's kernel_slug, else M1's")
@@ -77,6 +78,12 @@ def main() -> None:
     args.kernel_slug = args.kernel_slug or config.get("kernel_slug", KERNEL_SLUG)
     if config["status"] != "APPROVED":
         raise SystemExit(f"{args.config} status is {config['status']!r}, not APPROVED")
+    run_on = config["split"].get("run_on", "calibration")
+    if run_on == "locked" and not args.smoke:
+        # W4: the locked split opens only for an approved registration (DECISION_LOG 2026-10-12f)
+        registration = (root / config["registration"]).read_text("utf-8")
+        if "**Status: `APPROVED`" not in registration:
+            raise SystemExit(f"{config['registration']} is not APPROVED; the locked split stays closed")
     queues = validate(config)
     roles = [r for r in args.roles.split(",") if r] or list(config["models"])
     queues = select(queues, roles)
@@ -119,6 +126,8 @@ def main() -> None:
         "tasks": config["benchmark"]["tasks"],
         "split_seed": config["split"]["seed"],
         "calibration_fraction": config["split"]["calibration_fraction"],
+        # a smoke always reads calibration items, never locked ones (W4 §8)
+        "run_on": "calibration" if args.smoke else run_on,
         "dtype_preferred": args.smoke_dtype or config["runtime"]["dtype_preferred"],
         "dtype_fallback": config["runtime"]["dtype_fallback"],
         "max_new_tokens": config["runtime"]["max_new_tokens"],

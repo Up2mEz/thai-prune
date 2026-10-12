@@ -6,8 +6,9 @@ lists the units of each GPU queue; every unit must appear exactly once.
 
 from __future__ import annotations
 
+import hashlib
 import re
-from typing import Any
+from typing import Any, Sequence
 
 # CARD_PROMPT (M5): the fixed prompt a model card documents for OCR.
 PROMPT_KINDS = ("OCR_NATIVE", "BENCHMARK_QUESTION", "CARD_PROMPT")
@@ -23,6 +24,23 @@ def resolve_prompt(kind: str, question: str, prompts: dict[str, str]) -> str:
             raise ValueError("BENCHMARK_QUESTION must be the item's own question")
         return question
     return prompts[kind]
+
+
+RUN_ON = ("calibration", "locked")
+
+
+def run_items(ordered: Sequence[int], calibration: set[str], id_col: Sequence[str], run_on: str) -> list[int]:
+    """The rows a run reads: the calibration split, or its complement, the locked split (W4)."""
+    if run_on not in RUN_ON:
+        raise ValueError(f"run_on must be one of {RUN_ON}, not {run_on!r}")
+    return [i for i in ordered if (id_col[i] in calibration) == (run_on == "calibration")]
+
+
+def image_sha256(image) -> str:
+    """A hash of a decoded image, computed in memory: W4 clusters items that share a page."""
+    digest = hashlib.sha256(f"{image.mode}:{image.size[0]}x{image.size[1]}:".encode())
+    digest.update(image.tobytes())
+    return digest.hexdigest()
 
 
 def _unit(text: str) -> tuple[str, int]:

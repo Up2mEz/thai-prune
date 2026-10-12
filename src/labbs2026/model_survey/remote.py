@@ -16,7 +16,7 @@ import platform
 import time
 from pathlib import Path
 
-from labbs2026.model_survey.plan import resolve_prompt
+from labbs2026.model_survey.plan import image_sha256, resolve_prompt, run_items
 
 
 def logits_are_finite(model, processor, image, prompt: str, device: str, runtime, torch) -> bool:
@@ -56,13 +56,15 @@ def main() -> None:
     started = time.perf_counter()
 
     dataset, ordered, calibration, id_col = load_items(spec)
-    selected = [i for i in ordered if id_col[i] in calibration]
+    run_on = spec.get("run_on", "calibration")
+    selected = run_items(ordered, calibration, id_col, run_on)
     limit = int(spec.get("limit") or 0)
     if limit:
         selected = selected[:limit]
     selected = shard_items(selected, args.shard, args.shards)
     with io.open(out_dir / "split.json", "w", encoding="utf-8") as handle:
-        json.dump({"calibration": sorted(calibration), "run_ids": [id_col[i] for i in selected]},
+        json.dump({"run_on": run_on, "calibration": sorted(calibration),
+                   "run_ids": [id_col[i] for i in selected]},
                   handle, ensure_ascii=False, indent=1)
 
     device = "cuda"
@@ -103,7 +105,8 @@ def main() -> None:
             image = runtime.resize_policy(original)
             base = {"id": row["Id"], "task": row["Task"], "category": row["category"],
                     "reference": row["answer"],
-                    "source_size": list(original.size), "resized_size": list(image.size)}
+                    "source_size": list(original.size), "resized_size": list(image.size),
+                    "image_sha256": image_sha256(original)}
             for kind in role["prompts"]:
                 prompt = resolve_prompt(kind, row["question"], spec["prompts"])
                 try:
