@@ -343,7 +343,7 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
    - Models are compared as shipped (unequal visual-token budgets); Paddle
      and Wayu are region recognizers, off-design on Full-page; Pathumma's
      377K training samples are unnamed, so overlap with the benchmark is not
-     excluded.
+     excluded (unknown, not shown).
    - `stage0/MODEL_SURVEY_M1_RESULTS.md` §2, `stage0/MODEL_SURVEY_M5_RESULTS.md` §1.
 7. **Stop at a detected loop (T5b-B rule, offline cut), six models.**
    - Mark F1 rises in every model on both tasks; no interval lies below 0
@@ -371,8 +371,10 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
 11. **Where marks are lost, six models (Full-page, outputs cut at the first
     loop).** Whole lines absent plus spans missing cost 3.2% (Typhoon), 9.3%
     (Pathumma) and 29-44% (the other four) of the reference marks. A wrong
-    mark after a correctly read consonant costs 0.4%, 0.8% and 2.7-4.3%. Not
-    reading costs 7 to 12 times more than misreading in every model. For
+    mark after a correctly read consonant costs 0.4%, 0.8% and 2.7-4.3%. Lines
+    absent from the output cost 7 to 12 times more than misread marks in every
+    model. Absence from the output is observed; that the model failed to read
+    the line is not (a model may see a line and not write it). For
     looping models a line after a loop counts as absent, and the loop is not
     separated from a failure to read. The attribution is automatic.
     `stage0/MODEL_SURVEY_W1_CROSS_MODEL.md` §3, `stage0/MODEL_SURVEY_M5_RESULTS.md` §3.
