@@ -127,5 +127,78 @@ approximate_reorder=True)`), as share of reference marks:
 
 ## M6b (DeepSeek-OCR-2)
 
-⟨pending: run `kaggle-model-survey-m6b-afe5126bedd7`. fp16 only; an fp32
-check does not fit on a T4 (Addendum 3).⟩
+| | |
+|---|---|
+| run | `kaggle-model-survey-m6b-afe5126bedd7`; 2 shards on 2×T4, both finished; checksums verified; 356 records (178 items × 2 prompts); nothing failed, nothing not run |
+| model | `deepseek-ai/DeepSeek-OCR-2@aaa02f381194…`, own runner and venv (Addendum 1), eager attention |
+| precision | fp16 only. The fp32 check does not fit on a T4 (Addendum 3), so whether fp32 would loop later is not known |
+| compute | 4.4 GPU-hours (2.2 h per shard, both prompts); cap 8 |
+| primary scores | `docs/stage0/data/M6B_SCORES_afe5126bedd7.json` |
+| pairings, audit | `docs/stage0/data/M6B_EXTRA_afe5126bedd7.json` |
+| W1 | `docs/stage0/data/M6B_W1_PROFILE_afe5126bedd7.json` |
+| outputs | `docs/stage0/data/M6B_OUTPUTS_afe5126bedd7.json.gz` |
+
+### 0. Markup audit (raw outputs, before any score was read)
+
+| cell | n | at limit | `**` | `#` heading | `\|` table | `<\|ref\|>`/`<\|det\|>` | HTML / `<figure>` |
+|---|---|---|---|---|---|---|---|
+| `CARD_PROMPT` · Full-page | 69 | 27 | 12 | 26 | 4 | 1 | 0 |
+| `CARD_PROMPT` · Text rec. | 109 | 10 | 16 | 19 | 1 | 0 | 0 |
+| `BENCHMARK_QUESTION` · Full-page | 69 | 51 | 8 | 5 | 2 | 0 | 0 |
+| `BENCHMARK_QUESTION` · Text rec. | 109 | 50 | 23 | 9 | 0 | 2 | 0 |
+
+- No HTML and no `<figure>`: no unclosed-`<figure>` bound to report.
+- Markdown is removed by extraction v2.
+- **DeepSeek's grounding markup survives extraction** in 3 outputs
+  (`839D694C`, `C652EC9B` with `BENCHMARK_QUESTION`; `B2EF6E79` with
+  `CARD_PROMPT`): `<|ref|>text<|/ref|><|det|>[[x0, y0, x1, y1]]<|/det|>`
+  becomes `< ref >text< /ref >< det >[[…]]< /det >`. It holds no Thai mark,
+  so mark F1 is unchanged; it adds characters to CER and to the order-free
+  matcher's unmatched lines. The model emitted it although neither prompt
+  asks for grounding.
+- `<` also survives in `A3407ABE` (both prompts) as `<.05`, which is in the
+  reference.
+
+### 1. Primary: order-free v2 mark F1 (%), paired
+
+DeepSeek minus the other model on the same items, 95% item bootstrap.
+DeepSeek's primary prompt is the card's `Free OCR.`; the others ran
+`BENCHMARK_QUESTION`.
+
+| task | DeepSeek prompt | F1 | Δ vs Typhoon | Δ vs Qwen3-VL-4B | Δ vs base |
+|---|---|---|---|---|---|
+| Full-page (69) | **card (primary)** | 26.2 | **−68.7** [−74.7, −60.4] | **−19.8** [−30.0, −9.9] | **−14.8** [−24.5, −4.3] |
+| | `BENCHMARK_QUESTION` | 17.8 | **−77.1** [−82.1, −70.9] | **−28.2** [−38.8, −18.6] | **−23.2** [−33.0, −14.5] |
+| Text rec. (109) | **card (primary)** | 39.9 | **−41.8** [−61.2, −13.2] | **+16.4** [+0.5, +43.0] | +15.6 [−5.4, +44.3] |
+| | `BENCHMARK_QUESTION` | 4.0 | **−77.7** [−85.4, −68.2] | **−19.5** [−27.1, −13.8] | **−20.3** [−32.0, −12.9] |
+
+- **(d) Below Typhoon on both tasks, intervals below 0.** Typhoon stays the
+  strongest measured.
+- **Against Qwen3-VL-4B and the base:** below on Full-page. On Text
+  recognition, the card prompt's lead over Qwen3-VL-4B has an interval that
+  only just excludes 0 and is 42 points wide; over the base it is not shown.
+  Recall is lower than every comparison on both tasks (intervals below 0);
+  the Text recognition F1 lead comes from precision.
+- **Prompt matters more than for any model so far.** `BENCHMARK_QUESTION`
+  loops on 51/69 pages and 50/109 crops (card prompt: 27 and 10), and its
+  median CER is 1.0 on both tasks. The card's prompt is the registered
+  primary, so this does not change the reading.
+
+### 2. W1: stop at a loop, and attribution (card prompt)
+
+| task | looping | ended outputs changed | v2 F1 | with stop | Δ [95%] | repeat-aware |
+|---|---|---|---|---|---|---|
+| Full-page | 27 / 69 | 0 / 42 | 26.2 | 46.1 | **+19.9** [+13.5, +26.9] | 18.9 |
+| Text rec. | 10 / 109 | 0 / 99 | 39.9 | 62.2 | +22.3 [0.0, +36.3] | 39.7 |
+
+The Text recognition lower bound is 0.0: the gain is large but not shown at
+this n.
+
+Attribution, Full-page, stopped outputs (share of reference marks): correct
+36.8, line absent 33.9, span missing 14.6, misread with base right 3.8,
+misread other 10.8. Not reading ÷ misreading on a correct base = **12.9**.
+Claim (2) extends to DeepSeek-OCR-2, a fourth family.
+
+**Caveat (Addendum 3).** fp32 could not be checked on a T4. DeepSeek's loop
+rates and the stop's gain are fp16 numbers; the card's own `infer()` bans
+repeated 20-grams, which M1's protocol does not.
