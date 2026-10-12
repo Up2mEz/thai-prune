@@ -86,3 +86,40 @@ called "equivalent".
 
 Smoke first (two pages), then the full run on 2×T4. No read is repeated to change a result; a failed read is listed and
 the contrasts say how many pages each uses.
+
+## 7. Result (2026-10-13)
+
+Run `kaggle-thai-marks-t6-1e15847649a9-typhoon-x2` (git `1e15847`), 168 reads, 0 failures, checksums verified, 2×T4,
+fp16, 1.99 GPU-hours (shards 4,013 s and 3,154 s). Scored by `scripts/thai_marks_e4b_analyze.py`
+(`docs/stage0/data/E4B_SUMMARY_1e15847649a9.json`). Smoke first (2 pages, 0 failures). **Stack check:** `repeat` equals
+the stored T1 output on 21 of 21 pages.
+
+| view | omitted marks found as text | control marks as text | loops |
+|---|---|---|---|
+| `repeat` | 50.6% | 96.9% | 0 |
+| `pad` | 47.8% | 97.8% | 0 |
+| `scale90` | 56.1% | 86.4% | 1 |
+| `pad12` | 43.4% | 86.9% | 3 |
+| `scale75` | 43.2% | 87.8% | 1 |
+| `masked_bands` (3 reads, union) | 58.9% | 96.9% | 2 |
+
+| arm | omitted marks found as text |
+|---|---|
+| W3 (`repeat` + `pad` + `scale90`, union of 3 whole-page reads) | 60.5% |
+| M3 (union of the 3 masked reads) | 58.9% |
+| W5 (W3 + `pad12` + `scale75`, union of 5 whole-page reads) | 62.0% |
+
+- **D1 = M3 − W3: −1.6 points** [−14.1, +12.7]. **D2 = M3 − W5: −3.1** [−16.0, +10.5].
+- **Registered label (§4): `read_count_accounts_for_gain`.** The control share of W3 and `masked_bands` is above the
+  80% floor, so no `_qualified` suffix. Every whole-page view stays above the floor (lowest 86.4%).
+- **Read curve** (mean over subsets of the five whole-page views): 48.2% with one read, 54.1% with two, 58.0% with three,
+  60.6% with four, 62.0% with five.
+- W3 reproduces the post-hoc union of E4a's note (60.5%) in a single session.
+
+**What this shows, and does not.** With three different reads each, three whole-page reads (no crop, no masking) recover
+as much of the omitted text as three masked bands (the difference is −1.6 points, interval from −14 to +13). The gain of
+E4a's bands is therefore explained, on these pages, by reading the page more than once with a slightly different image,
+and the registered `competing_content` label of E4a should not be quoted as a mechanism. The interval is wide: E4b
+cannot exclude a masking benefit of up to about 13 points, and it does not show the two are equal. A single read finds
+43% to 59% of the omitted marks depending on the view, so which read is taken matters more than which kind of view it is
+(`repeat` 50.6%, `pad12` 43.4%). n = 21 pages and about 24 omitted lines: direction, not magnitude.
