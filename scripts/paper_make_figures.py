@@ -87,30 +87,32 @@ def _save(fig, name: str, lang: str) -> None:
 
 def causes(lang: str) -> None:
     s, t = _setup(lang), TEXT[lang]
-    d = DATA["attribution_typhoon_fullpage_pct_of_all_marks"]
+    d = DATA["attribution_cross_model_fullpage_stopped_pct_of_all_marks"]
     keys = ["other_order", "whole_line_absent", "span_missing", "misread"]
     colors = [GREY, ORANGE, SKY, PINK]
-    fig, ax = plt.subplots(figsize=(s["width"], 1.45 if lang == "en" else 1.8))
-    for row, prompt in enumerate(("BQ", "TC")):
+    n = len(d["models"])
+    fig, ax = plt.subplots(figsize=(s["width"], 2.1 if lang == "en" else 2.6))
+    for row in range(n):
         left = 0.0
         for i, key in enumerate(keys):
-            v = d[prompt][key]
+            v = d[key][row]
             ax.barh(row, v, left=left, color=colors[i], hatch=HATCH[i], edgecolor="white",
-                    linewidth=0.8, height=0.58)
-            ax.text(left + v / 2, row, f"{v:.1f}", ha="center", va="center", color=INK,
-                    fontsize=s["font"] - 0.5, bbox={"fc": "white", "ec": "none", "pad": 0.6, "alpha": 0.75})
-            if row == 0:  # direct labels above the first bar, staggered, same order for both bars
-                lift = 4 + 11 * (i % 2)
-                ax.annotate(t["causes"][i], (left + v / 2, row - 0.29), xytext=(0, lift),
-                            textcoords="offset points", ha="center", va="bottom",
-                            fontsize=s["font"] - 1, color=INK,
-                            arrowprops={"arrowstyle": "-", "lw": 0.5, "color": MUTED,
-                                        "shrinkA": 0, "shrinkB": 0})
+                    linewidth=0.8, height=0.62)
+            if v >= 4.5:
+                ax.text(left + v / 2, row, f"{v:.1f}", ha="center", va="center", color=INK,
+                        fontsize=s["font"] - 0.5,
+                        bbox={"fc": "white", "ec": "none", "pad": 0.5, "alpha": 0.8})
             left += v
-    ax.set_yticks([0, 1], ["BQ", "TC"])
-    ax.set_ylim(1.45, -1.25)
-    ax.set_xlim(0, 7.4)
+        ax.text(left + 0.8, row, f"{left - d['other_order'][row]:.1f}", va="center", fontsize=s["font"] - 0.5, color=INK)
+    ax.set_yticks(range(n), d["models"])
+    ax.set_ylim(n - 0.4, -0.6)
+    ax.set_xlim(0, 64)
     ax.set_xlabel(t["causes_x"])
+    from matplotlib.patches import Patch
+    ax.legend(handles=[Patch(fc=c, hatch=h, ec="white", label=lab)
+                       for c, h, lab in zip(colors, HATCH, t["causes"])],
+              loc="upper center", bbox_to_anchor=(0.35, -0.22), ncol=2, frameon=False,
+              fontsize=s["font"] - 0.5, handlelength=1.4, columnspacing=1.0)
     ax.xaxis.grid(True, color=GRID, linewidth=0.5)
     ax.set_axisbelow(True)
     _save(fig, "causes", lang)
@@ -119,7 +121,7 @@ def causes(lang: str) -> None:
 def models(lang: str) -> None:
     s, t = _setup(lang), TEXT[lang]
     d = DATA["five_models_mark_f1"]
-    fig, axes = plt.subplots(1, 2, figsize=(s["width"], 1.7 if lang == "en" else 2.1), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(s["width"], 2.0 if lang == "en" else 2.5), sharey=True)
     colors = [BLUE] + [GREY] * 4
     for ax, key, panel in zip(axes, ("full_page", "text_recognition"), t["panel"]):
         vals = d[key]
