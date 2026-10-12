@@ -11,9 +11,11 @@ No locked item, image, reference or output was opened, counted or inspected
 in writing this draft. Item counts below are derived from the split's
 definition, not from the data.
 
-**Open slots** (marked ⟨…⟩) depend on M6 and W3, which are still running when
-this is written. They are filled in an approval revision before anyone
-signs.
+**Open slots.** M6 and W3 have finished (`MODEL_SURVEY_M6_RESULTS.md`,
+`MODEL_SURVEY_W3_RESULTS.md`). The slots below now hold **proposed** values,
+marked *proposed*; the approval revision confirms or changes them before
+anyone signs. The remaining ⟨…⟩ are filled from the locked run itself or at
+approval.
 
 ## 0. Why confirm, and what
 
@@ -24,9 +26,9 @@ unseen items and reports the third.
 
 | id | hypothesis (CLAIMS.md wording) | calibration evidence |
 |---|---|---|
-| **H-read** | Thai OCR VLMs lose marks mainly by not reading (loops, text not found, skipped lines) rather than by misreading marks | W1 (five models), M5 (Pathumma), T2; W3 adds teacher-forced evidence ⟨W3⟩ |
-| **H-stop** | Stopping at a detected loop raises mark F1 across models without changing non-looping outputs | W1: every model, 2 of 726 ended outputs changed; M5: 1 of 172 |
-| **H-rank** (reported, not tested) | Typhoon's standing among open Thai OCR models | M1, M5: no difference shown against Pathumma |
+| **H-read** | Thai OCR VLMs lose marks mainly by not reading (loops, text not found, skipped lines) rather than by misreading marks | W1 (five models), M5 (Pathumma), M6 (SEA-LION, InternVL, DeepSeek-OCR-2): nine models, four families; T2 and W3 teacher-forced (Typhoon, base, Pathumma, Qwen3-VL-4B) |
+| **H-stop** | Stopping at a detected loop raises mark F1 across models without changing non-looping outputs | W1: every model, 2 of 726 ended outputs changed; M5: 1 of 172; M6: InternVL 4 of 95 (loops that ended with EOS before the limit), others 0 |
+| **H-rank** (reported, not tested) | Typhoon's standing among open Thai OCR models | M1, M5, M6: no difference shown against Pathumma; every other model below Typhoon |
 
 ## 1. Items
 
@@ -57,13 +59,24 @@ its calibration run:
 | PaddleOCR-VL-1.6 | `c5630aba…` | `OCR:` | M1 |
 | Wayu | `af0204b4…` | `OCR:` | M1 |
 | Pathumma Vision 3.0.0-Re | `08bb11dc…` | card prompt `อ่านข้อความในภาพนี้` | M5 |
-| Qwen-SEA-LION-v4-4B-VL | `d0734aa1…` | `BENCHMARK_QUESTION` | M6a ⟨if readable⟩ |
-| InternVL3.5-2B (HF) | `3f301ffc…` | `BENCHMARK_QUESTION` | M6a ⟨if readable⟩ |
-| DeepSeek-OCR-2 | `aaa02f38…` | ⟨M6b⟩ | M6b ⟨only if a faithful T4 run exists⟩ |
+| Qwen-SEA-LION-v4-4B-VL | `d0734aa1…` | `BENCHMARK_QUESTION` | M6a: readable (*proposed: include*) |
+| InternVL3.5-2B (HF) | `3f301ffc…` | `BENCHMARK_QUESTION` | M6a: smoke degenerate in fp16 and fp32 alike; F1 15.8 / 6.7 (*proposed: exclude*, see below) |
+| DeepSeek-OCR-2 | `aaa02f38…` | card `Free OCR.` (own runner, M6 Addendum 1) | M6b: fp16 only, fp32 unchecked on T4 (*proposed: include, with that caveat*) |
 
 **"Readable"** means the model's calibration run produced Thai text on both
 tasks, with the fp16 smoke clean. A model that fails this is listed and not
 run. The decision is made at approval, from calibration only.
+
+*Proposed* reading of the rule:
+
+- **InternVL fails it.** Its smoke outputs loop from the start in both
+  dtypes, and 53 of 69 Full-page outputs reach the limit. It would add about
+  3 GPU-hours to measure a model far below every other.
+- **DeepSeek-OCR-2 passes it.** It gives Thai text on both tasks, and fp16
+  output is correct until a loop. But no fp32 comparison exists, and its
+  runner differs from §3's (own venv, eager attention).
+
+Both are for the two researchers to decide.
 
 **Secondary prompt.** For Pathumma, `BENCHMARK_QUESTION` (as in M5), so that
 it has a same-prompt comparison with Typhoon. No other model gets a second
@@ -144,6 +157,13 @@ Speculative decoding is not an arm (PELY334's separate speed claim, S1).
 | S1: Δ F1 (stop − greedy), all items | for every model that looped on ≥ 5% of calibration items in that task, the lower bound of the Holm-adjusted one-sided interval > 0 | the stop raises mark F1 on unseen items for models that loop | the gain does not replicate for that model, which is named |
 | S2: ended outputs changed | the share of non-looping outputs the stop changes is ≤ 1% pooled over models, with the upper 95% bound reported | the stop leaves ended outputs alone | the stop has false cuts; the cases are read, and the claim is withdrawn as worded |
 
+*Proposed for S2* (from M6): "ended" means "did not reach `max_new_tokens`",
+as in W1. InternVL had 4 outputs that looped and then emitted
+end-of-sequence before the limit, and the stop changed them. Under S2 as
+written these count as changes. The approval revision either keeps that
+definition, or counts as changes only outputs with no repeat run (the stop's
+own rule). It must be fixed before the run.
+
 **H-read** (per model, Full-page, stopped outputs):
 
 | test | passes when | reading if it passes | reading if it fails |
@@ -169,8 +189,8 @@ loop from failure to read (W1 §3). The paper says "not read", not "skipped".
 
 - **Estimate.** Calibration costs were 1.0–2.6 GPU-hours per model and
   prompt, on 178 items. The locked split is about 2.3 times larger, so
-  roughly 2.5–6 GPU-hours per model and prompt. With ⟨8⟩ models and one
-  extra Pathumma prompt, about 30–45 GPU-hours.
+  roughly 2.5–6 GPU-hours per model and prompt. With 8 models (*proposed*: §2
+  without InternVL) and one extra Pathumma prompt, about 30–45 GPU-hours.
 - **This is more than one account's weekly Kaggle quota.** The draft splits
   the models between the two researchers' accounts, each run with the same
   code and config hash. ⟨assignment at approval⟩
