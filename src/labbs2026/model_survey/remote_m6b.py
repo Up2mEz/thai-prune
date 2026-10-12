@@ -124,6 +124,7 @@ def run(args: argparse.Namespace, spec: dict) -> None:
     from labbs2026.thai_marks import runtime
     from labbs2026.thai_marks.generation import generation_kwargs
     from labbs2026.thai_marks.remote import load_items, shard_items
+    from labbs2026.model_survey.plan import image_sha256, run_items
 
     role = spec["models"][args.role]
     out_dir = Path(spec["artifact_dir"]) / "m1" / args.role
@@ -133,12 +134,14 @@ def run(args: argparse.Namespace, spec: dict) -> None:
     started = time.perf_counter()
 
     dataset, ordered, calibration, id_col = load_items(spec)
-    selected = [i for i in ordered if id_col[i] in calibration]
+    run_on = spec.get("run_on", "calibration")
+    selected = run_items(ordered, calibration, id_col, run_on)
     if int(spec.get("limit") or 0):
         selected = selected[:int(spec["limit"])]
     selected = shard_items(selected, args.shard, args.shards)
     with io.open(out_dir / "split.json", "w", encoding="utf-8") as handle:
-        json.dump({"calibration": sorted(calibration), "run_ids": [id_col[i] for i in selected]},
+        json.dump({"run_on": run_on, "calibration": sorted(calibration),
+                   "run_ids": [id_col[i] for i in selected]},
                   handle, ensure_ascii=False, indent=1)
 
     def load(dtype_name: str):
@@ -190,7 +193,8 @@ def run(args: argparse.Namespace, spec: dict) -> None:
             image = runtime.resize_policy(original)
             base = {"id": row["Id"], "task": row["Task"], "category": row["category"],
                     "reference": row["answer"],
-                    "source_size": list(original.size), "resized_size": list(image.size)}
+                    "source_size": list(original.size), "resized_size": list(image.size),
+                    "image_sha256": image_sha256(original)}
             for kind in role["prompts"]:
                 try:
                     torch.cuda.synchronize()

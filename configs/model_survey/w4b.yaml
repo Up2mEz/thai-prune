@@ -1,0 +1,68 @@
+schema_version: 1
+# MODEL_SURVEY W4, phase B: the confirmatory run on the LOCKED split.
+# Approved by both researchers: DECISION_LOG 2026-10-12f (Up2mEz), 2026-10-13a
+# (PELY334). Runs on PELY334's Kaggle account. Model entries are copied
+# unchanged from their calibration configs (M1); only shards and
+# deadlines are set for the locked split (calibration seconds per shard x 2.3 x 1.5).
+status: APPROVED
+registration: docs/stage0/MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+run_label: w4b
+kernel_slug: labbs2026-model-survey-w4b
+
+models:
+  qwen3vl4b:
+    model_id: Qwen/Qwen3-VL-4B-Instruct
+    revision: ebb281ec70b05090aa6165b016eac8ec08e71b17   # M1's
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    shards: 2
+    unit_deadline_hours: 4.6   # calibration 2.65 h / 2 shards
+  paddle:
+    model_id: PaddlePaddle/PaddleOCR-VL-1.6
+    revision: c5630abae1d940eafe0697512a0325494b02ab42   # M1's
+    prompts: [OCR_NATIVE]
+    primary_prompt: OCR_NATIVE
+    shards: 2
+    unit_deadline_hours: 1.8   # calibration 1.06 h / 2 shards (OCR_NATIVE)
+
+prompts:
+  OCR_NATIVE: "OCR:"                 # PaddleOCR-VL (M1)
+  BENCHMARK_QUESTION: item.question
+
+# Benchmark, split, image policy and decoding are T1's = M1's, unchanged; only
+# run_on differs: the locked split, the complement of T1's calibration split.
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  run_on: locked               # a --smoke run still reads calibration items only
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32      # used only if the first item yields non-finite logits
+  attention: sdpa
+  image_policy: typhoon_card   # long side to 1800 px if either side > 300 px
+  max_new_tokens: 3072
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+  use_cache: true
+
+gpu_queues:
+  - [qwen3vl4b/0, paddle/0]
+  - [qwen3vl4b/1, paddle/1]
+budget_cap_t4_hours: 10
+
+# W4 §6: paired bootstrap over pages (items sharing an image_sha256 resampled together).
+scoring:
+  null_seed: 20260928
+  order_free: {max_cer: 0.4, residual: true}  # v2 primary; repeat-aware beside it in every cell
+  bootstrap: {resamples: 10000, seed: 20261012, cluster: image_sha256}
