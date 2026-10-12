@@ -2,6 +2,29 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-12f (gaps) — E4b (equal read count) and E5b (meaningful text) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำ E4b E5"): the two follow-ups
+named in 2026-10-12e as needing their own registration.
+
+**Authorized:** `docs/stage0/E4B_EQUAL_READS_DRAFT.md` as written: 168 Typhoon
+reads of the 21 P-ZOOM pages in one session (`repeat`, `pad`, `scale90`, `pad12`,
+`scale75`, `masked_bands`), D1 = three masked reads minus three whole-page
+reads, readings fixed before any output; and
+`docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md` as written: 54 Typhoon reads of
+synthetic pages with templated meaningful phrases on E5's layout grid, compared
+with E5's random-word pages. Calibration split and synthetic data only, own
+quota, smoke first, locked split closed. Every E5b result is labelled
+synthetic. Neither evaluates a method nor claims a gate.
+
+**Code changes with it:** `remote.py` resume check now counts `masked` view tiles
+(a latent skip bug that only affected resuming a partial t6 run; E4a ran without
+resuming, so its results are unaffected); `scripts/thai_marks_kaggle.py` gets
+`--e5-config` (default unchanged); the E5 cases generator gets `--text` and
+`--no-line-views` (the default output is byte-identical, sha a8ed5403...).
+
+---
+
 ## 2026-10-12e (gaps) — E4a and E5 results
 
 **Evidence:** `docs/stage0/E4A_MASKED_BAND_DRAFT.md` §7 and

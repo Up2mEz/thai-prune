@@ -1,0 +1,28 @@
+schema_version: 1
+# E4b (docs/stage0/E4B_EQUAL_READS_DRAFT.md). Authorized by the researcher in session on 2026-10-12
+# ("ทำ E4b E5", docs/DECISION_LOG.md 2026-10-12f (gaps)). scripts/thai_marks_kaggle.py refuses to
+# submit it unless APPROVED. Use: --tests t6 --views-config configs/thai_marks/p_zoom5.yaml
+status: APPROVED
+draft: docs/stage0/E4B_EQUAL_READS_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only; same pages, prompt, model revision, split, fp16 and greedy generation as E4a.
+# Every view runs in this one session.
+roles: [typhoon]
+prompt: TYPHOON_CARD
+pages:
+  file: configs/thai_marks/p_zoom_pages.json
+  sha256: 59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999
+
+# Whole-page reads (one read each, no crop, no masking): `repeat` is the T1 input unchanged;
+# `pad` and `scale90` are P-ZOOM-2's near-copy perturbations; `pad12` and `scale75` are larger
+# perturbations added so that the whole-page arm is not limited to near-copies.
+# `masked_bands`: E4a's three masked reads (same size and token count as `repeat`).
+# Equal-read-count arms (E4b section 3): W3 = repeat + pad + scale90; M3 = the three masked reads.
+views:
+  - {name: repeat, kind: whole}
+  - {name: pad, kind: pad, margin: 0.04}
+  - {name: scale90, kind: scale, factor: 0.9}
+  - {name: pad12, kind: pad, margin: 0.12}
+  - {name: scale75, kind: scale, factor: 0.75}
+  - {name: masked_bands, kind: masked, rows: 3, cols: 1, overlap: 0.15}

@@ -192,6 +192,8 @@ def main() -> None:
     parser.add_argument("--e5-cases", type=Path, default=None,
                         help="E5 synthetic cases JSON (scripts/thai_marks_e5_cases.py); attached as a "
                              "private dataset")
+    parser.add_argument("--e5-config", default="configs/thai_marks/e5.yaml",
+                        help="e5 only: the registered config (E5 words, or E5b sentences)")
     parser.add_argument("--views-config", default="configs/thai_marks/p_zoom2.yaml",
                         help="t6 only: the registered views config (P-ZOOM-2 or P-ZOOM-3)")
     parser.add_argument("--kernel-slug", default=KERNEL_SLUG,
@@ -217,14 +219,14 @@ def main() -> None:
         if args.submit and config["e3"]["status"] != "APPROVED":
             raise SystemExit("e3 is not APPROVED in configs/thai_marks/t1_t2.yaml")
     if "e5" in tests:
-        e5 = yaml.safe_load((root / "configs/thai_marks/e5.yaml").read_text("utf-8"))
+        e5 = yaml.safe_load((root / args.e5_config).read_text("utf-8"))
         if roles != list(e5["roles"]):
             raise SystemExit(f"e5 is registered for roles {e5['roles']} only")
         if args.kernel_slug == KERNEL_SLUG:
             raise SystemExit("e5 must use its own --kernel-slug; "
                              f"{KERNEL_SLUG} belongs to the other session")
         if args.submit and e5["status"] != "APPROVED":
-            raise SystemExit("configs/thai_marks/e5.yaml is not APPROVED")
+            raise SystemExit(f"{args.e5_config} is not APPROVED")
     p_zoom = None
     if "t4" in tests:
         p_zoom = yaml.safe_load((root / "configs/thai_marks/p_zoom.yaml").read_text("utf-8"))
