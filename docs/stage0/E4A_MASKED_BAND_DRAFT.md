@@ -76,3 +76,43 @@ called "equivalent".
 
 Smoke first (two pages, secondary account), then the full run on 2×T4. No read is repeated to change a result; a
 failed read is listed and the contrasts say how many pages each uses.
+
+## 7. Result (2026-10-12)
+
+Run `kaggle-thai-marks-t6-ddad6b7569b2-typhoon-x2` (git `ddad6b7`), 147 reads, 0 failures, checksums verified,
+2×T4, fp16, 1.21 GPU-hours (shards 2,435 s and 1,939 s). Scored by `scripts/thai_marks_e4a_analyze.py`
+(`docs/stage0/data/E4A_SUMMARY_ddad6b7569b2.json`). Smoke first (2 pages, 0 failures; masked reads had the whole
+page's visual-token count, 2,352 per read).
+
+| view | omitted marks found as text | control marks as text | reads | generated tokens | visual tokens | loops |
+|---|---|---|---|---|---|---|
+| `repeat` | 50.6% | 96.9% | 21 | 26,374 | 47,264 | 0 |
+| `bands100` | 58.7% | 99.3% | 63 | 40,438 | 53,235 | 3 |
+| `masked_bands` | 58.9% | 96.9% | 63 | 37,610 | 141,792 | 2 |
+
+- **Stack check:** `repeat` equals the stored T1 output on 21 of 21 pages.
+- **C1** (`masked_bands` − `repeat`): **+8.3 points** [+0.7, +23.3].
+- **C2** (`bands100` − `repeat`): +8.0 [+0.4, +22.6]. This reproduces P-ZOOM-3's +8.0.
+- **C3** (`bands100` − `masked_bands`): −0.3 [−11.7, +8.1].
+- Lines whose status differs between the two band views: 6 of 71 omitted lines.
+
+**Registered label (§4): `competing_content`** (C1 material, C3 not). The control share of `masked_bands` is 96.9%,
+above the floor.
+
+### What the label does not show (disclosed before anything is written about it)
+
+The registered contrast compares **three reads** (the three bands, a line counts as found if any read finds it)
+with **one** whole-page read. The design did not include a control that gives the whole page the same number of
+different reads. A post-hoc check on the stored P-ZOOM-2/-3 reads (**exploratory, not registered**, a different
+session): the union of `repeat`, `pad` and `scale90`, three whole-page reads with no crop and no masking, finds
+**60.5%** of the omitted marks. That equals `bands100` (58.7%) and `masked_bands` (58.9%).
+
+So the gain in both band views is at least as well explained by "more than one different read of the page" as by
+"fewer competing lines". E4a as registered cannot tell the two apart; the formal label should not be quoted as a
+mechanism. What E4a does show: the band gain is not due to the smaller image or its token count (C3 ≈ 0 with
+identical reads of 3× the tokens), and it reproduces.
+
+**Next step, if wanted (a new registration):** the same session with the same number of reads of each kind: three
+different whole-page perturbations against the three masked bands, compared as unions and read by read.
+
+n = 21 pages, 71 omitted lines: direction, not magnitude.
