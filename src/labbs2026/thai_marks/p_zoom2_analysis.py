@@ -48,7 +48,7 @@ def assemble_views(records: list[dict], pages: list[dict], views: list[dict]) ->
         raise ValueError(f"records outside the registered pages/views: {sorted(extra)[:5]}")
     out: dict[str, list[dict]] = {}
     for view in views:
-        tiles = int(view["rows"]) * int(view["cols"]) if view["kind"] == "grid" else 1
+        tiles = int(view["rows"]) * int(view["cols"]) if view["kind"] in ("grid", "masked") else 1
         assembled = []
         for page in pages:
             got = [by_key.get((page["id"], view["name"], t)) for t in range(tiles)]

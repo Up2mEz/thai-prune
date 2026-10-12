@@ -137,3 +137,14 @@ def test_e3_keys_are_id_and_band(tmp_path: Path) -> None:
     _write_jsonl(path, [{"id": "A1", "tile": 0, "raw_output": "x"},
                         {"id": "A1", "tile": 2, "raw_output": "y"}])
     assert completed_keys(path, "e3") == {("A1", 0), ("A1", 2)}
+
+
+def test_e5_is_a_registered_test_and_resumes_by_case(tmp_path) -> None:
+    import json
+
+    from labbs2026.thai_marks import remote
+
+    path = tmp_path / "records.jsonl"
+    path.write_text(json.dumps({"case": "L4-S24-0|page"}) + "\n", encoding="utf-8")
+    assert remote.completed_keys(path, "e5") == {"L4-S24-0|page"}
+    assert hasattr(remote, "_run_e5")

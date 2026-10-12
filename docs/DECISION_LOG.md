@@ -2,6 +2,63 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-12e (gaps) — E4a and E5 results
+
+**Evidence:** `docs/stage0/E4A_MASKED_BAND_DRAFT.md` §7 and
+`docs/stage0/E5_SYNTHETIC_OMISSION_DRAFT.md` §7; runs
+`kaggle-thai-marks-t6-ddad6b7569b2-typhoon-x2` and
+`kaggle-thai-marks-e5-ddad6b7569b2-typhoon-x2` (1.8 GPU-hours together, main
+account). Calibration / synthetic, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding:** (1) E4a: the band gain reproduces (+8.0) and does not come from the
+smaller image (masked bands at the whole page's token count give +8.3, the
+bands-versus-masked contrast is -0.3). The registered label fires as
+`competing_content`, but the design lacked a same-session control with the same
+number of reads, and an exploratory union of three whole-page perturbed reads
+finds 60.5%, as much as the bands: the label is not a mechanism. (2) E5: on clean
+synthetic Thai text Typhoon omitted no line in 54 pages (4 to 18 lines, 24 to 44
+px), so omission on ThaiOCRBench is not explained by line count or size alone;
+mark errors in found lines rise as text shrinks (4.4% at 24 px, 1.1% at 44 px)
+and not with the line count.
+
+**Not decided:** a same-session multi-read control for E4a, and a meaningful-text
+variant of E5; each needs its own registration.
+
+---
+
+## 2026-10-12d (gaps) — E5 (synthetic pages with known lines) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำสิ่งที่ต้องทำเพิ่มข้อ 2, 3, 5"):
+the controlled synthetic probe of omission against line count, text size
+and content, after the literature review.
+
+**Authorized:** `docs/stage0/E5_SYNTHETIC_OMISSION_DRAFT.md` as written,
+readings fixed before any output: 378 Typhoon reads of 54 synthetic pages and
+of 3 sampled lines per page in two views, calibration-free (no benchmark item),
+own quota, smoke first. Locked split closed. Every result is labelled
+synthetic and is never described as real-world evidence. It evaluates no
+method and claims no gate.
+
+---
+
+## 2026-10-12c (gaps) — E4a (masked bands) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำสิ่งที่ต้องทำเพิ่มข้อ 2, 3, 5"):
+the mechanism experiment on omitted lines, after the literature review
+(`stage0/LIT_REVIEW_OMISSION_2026-10-12.md`).
+
+**Authorized:** `docs/stage0/E4A_MASKED_BAND_DRAFT.md` as written, readings
+fixed before any output: 147 Typhoon reads (21 P-ZOOM pages; `repeat`,
+`bands100`, `masked_bands`) in one session, calibration split, own quota,
+smoke first on the secondary account. Locked split closed. It separates
+"competing content" from "image size or token count" for the omitted lines.
+It evaluates no method and claims no gate.
+
+**Not authorized here:** the synthetic control (E5) and the locked-split run
+(W4). E5 gets its own registration; W4 needs both researchers.
+
+---
+
 ## 2026-10-12a — MODEL_SURVEY_M6 (SEA-LION v4 4B-VL, InternVL3.5-2B, DeepSeek-OCR-2) and W3 (T2 on Pathumma and Qwen3-VL-4B) authorized under standing delegation; W4 drafted, not authorized
 
 > **Authorized under standing delegation** (2026-10-11c, `docs/COLLABORATION.md`

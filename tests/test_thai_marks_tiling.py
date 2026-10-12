@@ -87,3 +87,22 @@ def test_zoom_factor_is_the_ratio_of_resize_policy_scales() -> None:
 
 def test_small_images_are_not_rescaled_by_the_policy() -> None:
     assert read_scale((300, 200)) == 1.0
+
+
+def test_masked_view_keeps_page_size_and_blanks_outside_the_tile() -> None:
+    from PIL import Image
+
+    from labbs2026.thai_marks.tiling import tile_boxes, view_images
+
+    page = Image.new("RGB", (600, 900), "black")
+    items = view_images(page, {"kind": "masked", "rows": 3, "cols": 1, "overlap": 0.15})
+    whole = view_images(page, {"kind": "whole"})[0]["image"]
+    assert len(items) == 3
+    boxes = [t.box for t in tile_boxes(page.size, 3, 1, 0.15)]
+    for item, box in zip(items, boxes):
+        assert item["image"].size == whole.size  # same size, so the same visual-token count
+        scale = whole.height / page.height
+        inside = item["image"].getpixel((10, int((box[1] + box[3]) / 2 * scale)))
+        assert inside == (0, 0, 0)  # the tile's pixels are kept
+    outside = items[0]["image"].getpixel((10, int(0.95 * whole.height)))
+    assert outside == (255, 255, 255)  # far from the first tile: white

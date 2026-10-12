@@ -1,0 +1,24 @@
+schema_version: 1
+# E4a (docs/stage0/E4A_MASKED_BAND_DRAFT.md). Authorized by the researcher in session on 2026-10-12
+# (docs/DECISION_LOG.md 2026-10-12c (gaps)). scripts/thai_marks_kaggle.py refuses to submit it
+# unless APPROVED. Use: --tests t6 --views-config configs/thai_marks/p_zoom4.yaml
+status: APPROVED
+draft: docs/stage0/E4A_MASKED_BAND_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+
+# Typhoon only; same pages, prompt, model revision, split, fp16 and greedy generation as P-ZOOM-3.
+# All three views run in this one session so that no contrast subtracts reads from two sessions.
+roles: [typhoon]
+prompt: TYPHOON_CARD
+pages:
+  file: configs/thai_marks/p_zoom_pages.json
+  sha256: 59efcf239c8eeaf9a15fd63073ce2588505087f1adfa4d0e7da6e90e4aebc999
+
+# `repeat`: the T1 whole-page input unchanged (same-session reference and noise floor).
+# `bands100`: P-ZOOM-2's three full-width bands read at page scale (as P-ZOOM-3).
+# `masked_bands`: the whole page with all but one band painted white. Same size, scale and
+# visual-token count as `repeat`; only the other bands' content is gone.
+views:
+  - {name: repeat, kind: whole}
+  - {name: bands100, kind: grid, rows: 3, cols: 1, overlap: 0.15, zoom: 1.0}
+  - {name: masked_bands, kind: masked, rows: 3, cols: 1, overlap: 0.15}
