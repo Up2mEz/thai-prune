@@ -381,7 +381,7 @@ def main() -> None:
             if args.test == "t6" and all(
                     (row["Id"], v["name"], t) in completed
                     for v in spec["t6"]["views"]
-                    for t in range(int(v["rows"]) * int(v["cols"]) if v["kind"] == "grid" else 1)):
+                    for t in range(int(v["rows"]) * int(v["cols"]) if v["kind"] in ("grid", "masked") else 1)):
                 continue
             if args.test == "e3" and (
                     row["Task"] != spec["e3"]["task"]

@@ -1,0 +1,15 @@
+schema_version: 1
+# E5b (docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md). Authorized by the researcher in session on
+# 2026-10-12 ("ทำ E4b E5", docs/DECISION_LOG.md 2026-10-12f (gaps)). scripts/thai_marks_kaggle.py
+# refuses to submit it unless APPROVED.
+# Use: --tests e5 --roles typhoon --e5-cases e5b_cases.json --e5-config configs/thai_marks/e5b.yaml
+status: APPROVED
+draft: docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+roles: [typhoon]
+prompt: TYPHOON_CARD
+cases:
+  generator: scripts/thai_marks_e5_cases.py   # --text sentences --no-line-views
+  seed: 20261012
+  pages: 54          # 3 line counts x 3 font sizes x 6 pages, same layout grid as E5
+  reads: 54          # pages only
