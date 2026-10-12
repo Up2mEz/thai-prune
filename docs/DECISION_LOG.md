@@ -55,6 +55,50 @@ registered test, after 2026-10-12f's conditions hold. Passes no gate.
 
 ---
 
+## 2026-10-13a (gaps) — E4b and E5b results
+
+**Evidence:** `docs/stage0/E4B_EQUAL_READS_DRAFT.md` §7 and
+`docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md` §7; runs
+`kaggle-thai-marks-t6-1e15847649a9-typhoon-x2` and
+`kaggle-thai-marks-e5-1e15847649a9-typhoon-x2` (2.3 GPU-hours together, main
+account). Calibration / synthetic, Typhoon only, `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding:** (1) E4b: with the same number of different reads, three whole-page reads
+find 60.5% of the omitted marks and three masked bands 58.9% (D1 -1.6 points,
+interval -14 to +13); registered label `read_count_accounts_for_gain`. The E4a
+label `competing_content` is therefore not a mechanism: on these pages reading the
+page more than once with a slightly different image explains the band gain.
+The interval cannot exclude a masking benefit of up to about 13 points. (2) E5b:
+on clean templated Thai phrases Typhoon omitted no line and misread no mark in 54
+pages (0.0% in all cells; E5's random words gave 1.1% to 4.4% misread marks by
+size). The closed phrase set is small, so this does not show a general language-prior
+effect and says nothing about real pages.
+
+**Not decided:** what makes real pages lose lines (E5 and E5b rule out line count,
+size and meaning on clean pages); a human audit of the attribution; any remedy.
+
+---
+
+## 2026-10-12f (gaps) — E4b (equal read count) and E5b (meaningful text) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำ E4b E5"): the two follow-ups
+named in 2026-10-12e as needing their own registration.
+
+**Authorized:** `docs/stage0/E4B_EQUAL_READS_DRAFT.md` as written: 168 Typhoon
+reads of the 21 P-ZOOM pages in one session (`repeat`, `pad`, `scale90`, `pad12`,
+`scale75`, `masked_bands`), D1 = three masked reads minus three whole-page
+reads, readings fixed before any output; and
+`docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md` as written: 54 Typhoon reads of
+synthetic pages with templated meaningful phrases on E5's layout grid, compared
+with E5's random-word pages. Calibration split and synthetic data only, own
+quota, smoke first, locked split closed. Every E5b result is labelled
+synthetic. Neither evaluates a method nor claims a gate.
+
+**Code changes with it:** `remote.py` resume check now counts `masked` view tiles
+(a latent skip bug that only affected resuming a partial t6 run; E4a ran without
+resuming, so its results are unaffected); `scripts/thai_marks_kaggle.py` gets
+`--e5-config` (default unchanged); the E5 cases generator gets `--text` and
+`--no-line-views` (the default output is byte-identical, sha a8ed5403...).
 ## 2026-10-12f (W4) — MODEL_SURVEY_W4 (confirmatory run on the locked split): Up2mEz's side approved
 
 > Recorded by Up2mEz's Claude Code session at the researcher's explicit

@@ -1,0 +1,246 @@
+{
+ "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
+ "synthetic": true,
+ "draft": "docs/stage0/E5B_MEANINGFUL_TEXT_DRAFT.md",
+ "manifests": [
+  {
+   "model_id": "typhoon-ai/typhoon-ocr1.5-2b",
+   "revision": "9c8a8fa14905041d793f1e4e922312147956dcc0",
+   "dtype_used": "float16",
+   "items": 27,
+   "wall_seconds": 541.1962199,
+   "torch": "2.14.0+cu130",
+   "transformers": "5.12.0",
+   "cuda_device": "Tesla T4",
+   "git_sha": "1e15847649a9ad4a18c7f39ccaa3c2bfcfbd3434",
+   "run_id": "kaggle-thai-marks-e5-1e15847649a9-typhoon-x2"
+  },
+  {
+   "model_id": "typhoon-ai/typhoon-ocr1.5-2b",
+   "revision": "9c8a8fa14905041d793f1e4e922312147956dcc0",
+   "dtype_used": "float16",
+   "items": 27,
+   "wall_seconds": 556.1828026539999,
+   "torch": "2.14.0+cu130",
+   "transformers": "5.12.0",
+   "cuda_device": "Tesla T4",
+   "git_sha": "1e15847649a9ad4a18c7f39ccaa3c2bfcfbd3434",
+   "run_id": "kaggle-thai-marks-e5-1e15847649a9-typhoon-x2"
+  }
+ ],
+ "gpu_hours": 0.304827506265,
+ "cost": {
+  "reads": 54,
+  "generated_tokens": 24404,
+  "visual_tokens": 120960,
+  "reached_max_new_tokens": 0
+ },
+ "omitted_share_overall": 0.0,
+ "cells": {
+  "L4-S24": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L4-S32": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L4-S44": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L10-S24": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L10-S32": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L10-S44": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L18-S24": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L18-S32": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "L18-S44": {
+   "pages": 6,
+   "omitted_share": 0.0,
+   "omitted_ci95": [
+    0.0,
+    0.0
+   ],
+   "misread_share_in_found_lines": 0.0,
+   "misread_ci95": [
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "D1_density_18_minus_4": {
+  "estimate": 0.0,
+  "ci95": [
+   0.0,
+   0.0
+  ],
+  "material": false,
+  "pages": [
+   18,
+   18
+  ]
+ },
+ "D2_size_24_minus_44": {
+  "estimate": 0.0,
+  "ci95": [
+   0.0,
+   0.0
+  ],
+  "material": false,
+  "pages": [
+   18,
+   18
+  ]
+ },
+ "D3_misread_meaningful_minus_words": {
+  "estimate": -0.029257950530035336,
+  "ci95": [
+   -0.03467777943146302,
+   -0.023318640693871746
+  ],
+  "material": true,
+  "pages": [
+   54,
+   54
+  ],
+  "new_share": 0.0,
+  "old_share": 0.029257950530035336
+ },
+ "D3_reading": "meaningful_text_fewer_misreads",
+ "D3_by_size": {
+  "S24": {
+   "estimate": -0.043668122270742356,
+   "ci95": [
+    -0.051762940735183796,
+    -0.03620981387478849
+   ],
+   "material": true,
+   "pages": [
+    18,
+    18
+   ],
+   "new_share": 0.0,
+   "old_share": 0.043668122270742356
+  },
+  "S32": {
+   "estimate": -0.02197309417040359,
+   "ci95": [
+    -0.028743789921930447,
+    -0.015209125475285171
+   ],
+   "material": true,
+   "pages": [
+    18,
+    18
+   ],
+   "new_share": 0.0,
+   "old_share": 0.02197309417040359
+  },
+  "S44": {
+   "estimate": -0.010982306284319707,
+   "ci95": [
+    -0.016540317022742935,
+    -0.005405405405405406
+   ],
+   "material": true,
+   "pages": [
+    18,
+    18
+   ],
+   "new_share": 0.0,
+   "old_share": 0.010982306284319707
+  }
+ },
+ "pages": [
+  54,
+  54
+ ],
+ "reading_omission": "clean_meaningful_text_almost_never_omitted"
+}
