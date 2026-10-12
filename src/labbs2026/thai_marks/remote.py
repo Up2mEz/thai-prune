@@ -60,7 +60,7 @@ def completed_keys(records_path: Path, test: str) -> set:
                 keys.add((record["id"], record["view"], record["tile"]))
             elif test == "e3":
                 keys.add((record["id"], record["tile"]))
-            elif test in ("t3", "e1"):
+            elif test in ("t3", "e1", "e5"):
                 keys.add(record["case"])
             else:
                 keys.add(record["id"])
@@ -151,6 +151,37 @@ def _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model, proc
     return cases
 
 
+def _run_e5(spec, args, handle, completed, model, processor, typhoon_prompt, gen_kwargs, device,
+            failures, runtime, torch) -> list:
+    """E5: read each synthetic case (page, tight line crop, page-sized masked line) as T1 reads a page."""
+    import base64
+
+    from PIL import Image
+
+    cases = shard_items(load_cases(spec, "e5"), args.shard, args.shards)
+    if int(spec.get("limit") or 0):
+        cases = cases[: int(spec["limit"])]
+    for case in cases:
+        if case["case"] in completed:
+            continue
+        original = Image.open(io.BytesIO(base64.b64decode(case["image_png_b64"]))).convert("RGB")
+        image = runtime.resize_policy(original)
+        try:
+            result = runtime.generate(model, processor, image, typhoon_prompt,
+                                      generation=gen_kwargs, device=device)
+        except Exception as exc:  # recorded, never scored as an output
+            failures.append({"case": case["case"], "error": f"{type(exc).__name__}: {exc}"[:800]})
+            torch.cuda.empty_cache()
+            continue
+        meta = {k: case[k] for k in ("case", "kind", "page", "lines", "font_px", "reference")}
+        meta["line_index"] = case.get("line_index")
+        handle.write(json.dumps({**meta, "source_size": list(original.size),
+                                 "read_size": list(image.size), **result},
+                                ensure_ascii=False) + "\n")
+        handle.flush()
+    return cases
+
+
 def _run_t3(spec, args, handle, dataset, ordered, id_col, completed, model, processor,
             typhoon_prompt, device, dtype, failures, runtime, torch) -> list:
     """Score every T3 case of this shard; returns the cases run (for the manifest)."""
@@ -221,7 +252,7 @@ def t4_page_ids(spec: dict, source: Path, calibration, key: str = "t4") -> list[
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--remote-spec", type=Path, required=True)
-    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6", "e1", "e3"),
+    parser.add_argument("--test", choices=("t1", "t2", "t3", "t4", "t5", "t6", "e1", "e3", "e5"),
                         required=True)
     parser.add_argument("--role", choices=("base", "typhoon"), required=True)
     parser.add_argument("--resume-dir", type=Path, default=None,
@@ -308,7 +339,7 @@ def main() -> None:
 
     setup_seconds = time.perf_counter() - load_started  # dataset + model load, before any item
     gen_kwargs = generation_record = None
-    if args.test in ("t1", "t4", "t6", "e3"):  # T2 teacher-forces and never generates; t4 reads as t1 does
+    if args.test in ("t1", "t4", "t6", "e3", "e5"):  # T2 teacher-forces and never generates; t4 reads as t1 does
         gen_kwargs = generation_kwargs(spec["generation"], int(spec["max_new_tokens"]))
         generation_record = {"requested": gen_kwargs,
                              **describe_resolved(runtime.resolved_generation(model, gen_kwargs))}
@@ -334,7 +365,10 @@ def main() -> None:
         if args.test == "e1":
             selected = _run_e1(spec, args, handle, dataset, ordered, id_col, completed, model,
                                processor, typhoon_prompt, device, failures, runtime, torch)
-        for index in ([] if args.test in ("t3", "e1") else selected):
+        if args.test == "e5":
+            selected = _run_e5(spec, args, handle, completed, model, processor, typhoon_prompt,
+                               gen_kwargs, device, failures, runtime, torch)
+        for index in ([] if args.test in ("t3", "e1", "e5") else selected):
             row = dataset[index]
             if args.test == "t2" and row["Id"] in completed:
                 continue

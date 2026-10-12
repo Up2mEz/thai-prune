@@ -1,0 +1,14 @@
+schema_version: 1
+# E5 (docs/stage0/E5_SYNTHETIC_OMISSION_DRAFT.md). Authorized by the researcher in session on
+# 2026-10-12 (docs/DECISION_LOG.md 2026-10-12d (gaps)). scripts/thai_marks_kaggle.py refuses to
+# submit it unless APPROVED. Use: --tests e5 --roles typhoon --e5-cases e5_cases.json
+status: APPROVED
+draft: docs/stage0/E5_SYNTHETIC_OMISSION_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+roles: [typhoon]
+prompt: TYPHOON_CARD
+cases:
+  generator: scripts/thai_marks_e5_cases.py
+  seed: 20261012
+  pages: 54          # 3 line counts x 3 font sizes x 6 pages
+  reads: 378         # 54 pages + 3 lines per page in 2 views

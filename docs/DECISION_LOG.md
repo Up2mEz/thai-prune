@@ -2,6 +2,21 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-12d (gaps) — E5 (synthetic pages with known lines) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำสิ่งที่ต้องทำเพิ่มข้อ 2, 3, 5"):
+the controlled synthetic probe of omission against line count, text size
+and content, after the literature review.
+
+**Authorized:** `docs/stage0/E5_SYNTHETIC_OMISSION_DRAFT.md` as written,
+readings fixed before any output: 378 Typhoon reads of 54 synthetic pages and
+of 3 sampled lines per page in two views, calibration-free (no benchmark item),
+own quota, smoke first. Locked split closed. Every result is labelled
+synthetic and is never described as real-world evidence. It evaluates no
+method and claims no gate.
+
+---
+
 ## 2026-10-12c (gaps) — E4a (masked bands) authorized
 
 **Decision owner:** Up2mEz, in session 2026-10-12 ("ทำสิ่งที่ต้องทำเพิ่มข้อ 2, 3, 5"):
