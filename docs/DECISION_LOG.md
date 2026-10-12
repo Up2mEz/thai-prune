@@ -46,6 +46,67 @@ synthetic. Neither evaluates a method nor claims a gate.
 resuming, so its results are unaffected); `scripts/thai_marks_kaggle.py` gets
 `--e5-config` (default unchanged); the E5 cases generator gets `--text` and
 `--no-line-views` (the default output is byte-identical, sha a8ed5403...).
+## 2026-10-12f (W4) — MODEL_SURVEY_W4 (confirmatory run on the locked split): Up2mEz's side approved
+
+> Recorded by Up2mEz's Claude Code session at the researcher's explicit
+> statement in session on 2026-10-12 ("agree with W4, let the friend do it").
+> **Up2mEz has approved. PELY334's side is not recorded here**: the locked
+> split needs both researchers (`docs/COLLABORATION.md` §3b), so nothing runs
+> until PELY334 states theirs, in their own entry or by approving this PR.
+
+**Stage/Gate:** the confirmation of H-read and H-stop on the locked split
+(`docs/CLAIMS.md` hypotheses). Opens the locked split **once, for exactly the
+registered test**. Passes no gate; Gates 1-6 unchanged.
+
+**Decision owner:** Both human researchers. Up2mEz's decision, stated in
+session; PELY334's decision still to be recorded.
+
+**Decision (Up2mEz's side):** approve
+`docs/stage0/MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md` with the slot values
+in `collab/messages/20261012T0730Z_Up2mEz_to_PELY334_w4-up2mez-side-decisions.md`
+(models without InternVL3.5-2B, phases A/B/C, "ended" kept as in W1 with the
+no-repeat share reported beside it, extraction v2 kept as primary with the
+unwrapped bound beside it, "absent from the output" wording), plus the two
+additions asked there (a decode-time stop reproducing the offline cut on
+calibration first; repeat-aware F1 beside v2 in every cell). The research
+plan is PELY334's to execute: PELY334 may run all phases on their own quota
+if it suffices; Up2mEz's account is not required.
+
+### Conditions before the first locked item is read
+
+1. PELY334's approval of W4 is recorded (this PR approved, or their own entry).
+2. The registration is revised from DRAFT to APPROVED **before any locked
+   output exists**: every ⟨…⟩ and *proposed* slot filled, the code commit and
+   config hash recorded, the exact `loop_cut.variant_b` source hash recorded.
+3. The decode-time stop check on calibration is done and reported.
+4. A cap is stated in the registration. Up2mEz's cap for this decision: **45
+   T4-hours in total** over all phases and accounts, phases run in the order
+   A, B, C; a claim is made only for models whose phase finished. A run above
+   the cap needs a new approval from Up2mEz.
+5. Calibration smoke (`--smoke 2` on calibration items) precedes each run; no
+   locked item is used in any smoke.
+
+### Reasoning
+
+- Every Thai-mark result so far is calibration-only; the paper's claims are
+  hypotheses until a split nobody tuned on confirms them.
+- The registration fixes tests, thresholds and readings in advance (S1, S2,
+  R1, Holm over the confirmatory family), and states that H-rank is reported,
+  not tested.
+
+### Consequences
+
+- The locked split is opened once. Results carry
+  `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE` unless `docs/CLAIMS.md` allows more
+  after the run; no gate is claimed passed.
+- If any condition above is not met, the locked split stays closed.
+- Up2mEz can withdraw this approval by a `collab/` message at any time before
+  the first locked item is read.
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md` (approval
+  revision to be written by PELY334), `configs/model_survey/` (W4 config)
 
 ---
 
