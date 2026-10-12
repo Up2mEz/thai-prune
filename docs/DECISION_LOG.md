@@ -2,6 +2,24 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-12c (gaps) — E4a (masked bands) authorized
+
+**Decision owner:** Up2mEz, in session 2026-10-12 ("ทำสิ่งที่ต้องทำเพิ่มข้อ 2, 3, 5"):
+the mechanism experiment on omitted lines, after the literature review
+(`stage0/LIT_REVIEW_OMISSION_2026-10-12.md`).
+
+**Authorized:** `docs/stage0/E4A_MASKED_BAND_DRAFT.md` as written, readings
+fixed before any output: 147 Typhoon reads (21 P-ZOOM pages; `repeat`,
+`bands100`, `masked_bands`) in one session, calibration split, own quota,
+smoke first on the secondary account. Locked split closed. It separates
+"competing content" from "image size or token count" for the omitted lines.
+It evaluates no method and claims no gate.
+
+**Not authorized here:** the synthetic control (E5) and the locked-split run
+(W4). E5 gets its own registration; W4 needs both researchers.
+
+---
+
 ## 2026-10-12a — MODEL_SURVEY_M6 (SEA-LION v4 4B-VL, InternVL3.5-2B, DeepSeek-OCR-2) and W3 (T2 on Pathumma and Qwen3-VL-4B) authorized under standing delegation; W4 drafted, not authorized
 
 > **Authorized under standing delegation** (2026-10-11c, `docs/COLLABORATION.md`

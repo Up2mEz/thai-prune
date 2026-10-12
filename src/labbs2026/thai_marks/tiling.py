@@ -104,6 +104,8 @@ def view_images(original, view: dict) -> list[dict]:
 
     - `whole`: the whole page through `runtime.resize_policy`, as T1 read it (zoom 1);    - `pad`: the whole page on a white margin, then `runtime.resize_policy`;
     - `scale`: the whole page through `runtime.resize_policy`, then times `factor`;
+    - `masked`: the whole page with all but one `rows` x `cols` tile painted white, then
+      `runtime.resize_policy` (E4a: same size and token count as `whole`);
     - `grid`: `rows` x `cols` overlapping tiles cropped from the source pixels, each
       resized so a source pixel is `zoom` times larger than when the page is read whole
       (not through `resize_policy`: a full-width band would otherwise be capped at 1800 px).
@@ -136,5 +138,20 @@ def view_images(original, view: dict) -> list[dict]:
             image = _resized(crop, float(view["zoom"]) * page_scale)
             out.append({"tile": tile, "image": image,
                         "zoom": (image.width / crop.width) / page_scale})
+        return out
+    if kind == "masked":
+        # E4a: the whole page, pixel for pixel as in the whole-page read, with everything outside
+        # one tile painted white. Same size, same scale, same visual-token count as `whole`; only
+        # the content that competes with the tile's lines is gone.
+        from PIL import Image
+
+        out = []
+        for tile in tile_boxes(original.size, int(view["rows"]), int(view["cols"]),
+                               float(view["overlap"])):
+            canvas = Image.new("RGB", original.size, "white")
+            canvas.paste(original.convert("RGB").crop(tile.box), tile.box[:2])
+            image = resize_policy(canvas)
+            out.append({"tile": tile, "image": image,
+                        "zoom": (image.width / original.width) / page_scale})
         return out
     raise ValueError(f"unknown view kind {kind!r}")
