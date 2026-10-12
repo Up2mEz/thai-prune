@@ -2,6 +2,59 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-13a (W4) — MODEL_SURVEY_W4: PELY334's side approved; phase A on Up2mEz's account, B and C on PELY334's
+
+> Recorded by PELY334's Claude Code session at the researcher's explicit
+> statement in session on 2026-10-13 ("aprrove w4 แล้วแบ่ง model ให้ up2emZ
+> ทำด้วย", "approve W4, and split the models so Up2mEz runs some too"). PR #117
+> (2026-10-12f) was approved and merged by PELY334 the same day. With this
+> entry **both researchers have approved W4.**
+
+**Stage/Gate:** as 2026-10-12f. Opens the locked split once, for exactly the
+registered test, after 2026-10-12f's conditions hold. Passes no gate.
+
+**Decision owner:** Both human researchers; this entry is PELY334's side.
+
+**Decision (PELY334's side):**
+
+1. **Approve W4** with Up2mEz's slot values
+   (`collab/messages/20261012T0730Z_Up2mEz_to_PELY334_w4-up2mez-side-decisions.md`):
+   - eight models, without InternVL3.5-2B;
+   - phases A, B, C in that order;
+   - "ended" as in W1, with the no-repeat share beside it;
+   - extraction v2 primary, with the unwrapped bound beside it;
+   - "absent from the output" wording;
+   - the decode-time stop checked on calibration first;
+   - repeat-aware F1 beside v2 in every cell.
+2. **Accounts.** This is the split of Up2mEz's 0730Z proposal; 2026-10-12f
+   allowed PELY334 to run everything, and PELY334 asks for the split instead.
+
+   | phase | models | account | estimate | cap |
+   |---|---|---|---|---|
+   | A | Typhoon, base, Wayu, Pathumma (card prompt, plus `BENCHMARK_QUESTION`) | **Up2mEz** | 12–16 GPU-hours (Up2mEz's estimate) | 18 |
+   | B | Qwen3-VL-4B, PaddleOCR-VL | **PELY334** | about 8 (calibration × 2.3) | 10 |
+   | C | SEA-LION-4B, DeepSeek-OCR-2 (fp16 only) | **PELY334** | about 11 | 15 |
+
+   - Total cap: 43 T4-hours, within 2026-10-12f's 45.
+   - Same code commit and config hash on both accounts. The approval revision
+     records both.
+   - Phases still read in order: B and C may run while A runs, but no claim is
+     made for a model whose phase did not finish.
+   - If Up2mEz's account cannot take phase A, PELY334 runs it, as 2026-10-12f
+     allows.
+3. **Who does what before the locked split opens** (2026-10-12f's conditions):
+   PELY334 writes the approval revision, builds the decode-time stop and its
+   calibration check, and writes the W4 config and launcher. Up2mEz reads the
+   revision, as a courtesy and not a gate, and launches phase A from the
+   committed config.
+
+### Files/configs affected
+
+- `docs/stage0/MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md` (approval
+  revision, next), `configs/model_survey/` (W4 config, next)
+
+---
+
 ## 2026-10-12f (W4) — MODEL_SURVEY_W4 (confirmatory run on the locked split): Up2mEz's side approved
 
 > Recorded by Up2mEz's Claude Code session at the researcher's explicit
