@@ -68,9 +68,10 @@ def unit_command(module: str, name: str, args: list) -> dict[str, Any]:
     return {"name": name, "module": module, "args": [str(a) for a in args]}
 
 
-def m1_commands(queues: list[list[tuple[str, int, int]]]) -> list[list[dict[str, Any]]]:
-    """M1's GPU queues as worker units (the command each unit ran in M1)."""
-    return [[unit_command("labbs2026.model_survey.remote", f"m1_{role}_shard-{shard}-of-{shards}",
+def m1_commands(queues: list[list[tuple[str, int, int]]],
+                module: str = "labbs2026.model_survey.remote") -> list[list[dict[str, Any]]]:
+    """M1's GPU queues as worker units (the command each unit ran in M1; M6b passes its own runner)."""
+    return [[unit_command(module, f"m1_{role}_shard-{shard}-of-{shards}",
                           ["--role", role, "--shard", shard, "--shards", shards])
              for role, shard, shards in queue] for queue in queues]
 

@@ -1,0 +1,15 @@
+# MODEL_SURVEY M6b: DeepSeek-OCR-2's own environment on Kaggle (a fresh venv; the
+# repository's uv environment is untouched). torch, transformers and tokenizers
+# are the card's tested versions; datasets and pillow are uv.lock's, so the
+# benchmark loads and resizes as in M1. The full resolved set is recorded per run
+# (`pip freeze` in the manifest).
+torch==2.6.0
+torchvision==0.21.0
+transformers==4.46.3
+tokenizers==0.20.3
+einops==0.8.1
+addict==2.4.0
+easydict==1.13
+datasets==4.8.5
+pillow==12.3.0
+safetensors

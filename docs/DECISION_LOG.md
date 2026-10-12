@@ -2,6 +2,98 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-12a — MODEL_SURVEY_M6 (SEA-LION v4 4B-VL, InternVL3.5-2B, DeepSeek-OCR-2) and W3 (T2 on Pathumma and Qwen3-VL-4B) authorized under standing delegation; W4 drafted, not authorized
+
+> **Authorized under standing delegation** (2026-10-11c, `docs/COLLABORATION.md`
+> §3b). PELY334 authorized M6, W3 and the W4 draft in session on 2026-10-12
+> ("ทำทุกอันเลย", "do all of them"), the remaining items of Up2mEz's work
+> split (collab `20261011T1315Z_Up2mEz_to_PELY334_paper-prep-work-split.md`).
+> Up2mEz reviews afterwards. Drafted by PELY334's Claude Code session after
+> the runs; every registration and addendum was written before the output it
+> governs.
+
+**Stage/Gate:** RQ-C context, claim (2) ("marks are lost by not reading"),
+and the paper's wording about Typhoon. Opens or passes no gate; Gates 1-6
+unchanged.
+
+**Decision owner:** PELY334, under the standing delegation. W4 (locked
+split) is **not** decided here: it needs both researchers.
+
+**Decisions:**
+
+1. **M6a** (`MODEL_SURVEY_M6_REGISTRATION.md`, Addendum 2;
+   `configs/model_survey/m6a.yaml`): SEA-LION
+   `@d0734aa1b811…` and InternVL3.5-2B (HF format) `@3f301ffcf3dc…` under
+   M1's protocol unchanged, `BENCHMARK_QUESTION`. InternVL loops in fp16 and
+   fp32 alike on the smoke, so the full run went ahead (Addendum 2).
+2. **M6b** (Addenda 1 and 3; `configs/model_survey/m6b.yaml`):
+   DeepSeek-OCR-2 `@aaa02f381194…` with its own runner and venv
+   (transformers 4.46.3, eager attention, in-memory image, M1's greedy
+   decoding, no n-gram ban), card prompt `Free OCR.` primary. The fp32 check
+   does not fit on a T4; the run is fp16 only (Addendum 3).
+3. **W3** (`MODEL_SURVEY_W3_REGISTRATION.md`; `configs/model_survey/w3_t2.yaml`):
+   T2's scoring unchanged on Pathumma (W3a) and Qwen3-VL-4B (W3b, fp32 over
+   both T4s). The registered secondary "greedy at produced sites" is defined
+   in `scripts/model_survey_w3_analyze.py`, since `thai_marks` has no code
+   for it.
+4. **W4** (`MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md`): drafted only.
+   No locked item was opened.
+
+The delegation's conditions hold: calibration split only; PELY334's Kaggle
+quota (M6a about 5.6 GPU-hours of cap 10; M6b 4.4 of cap 8; W3 about 11 of
+cap 24); new files and PELY334's own namespace only (`thai_marks` imported
+read-only); registrations before output; claim level
+`PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+### Evidence
+
+- `docs/stage0/MODEL_SURVEY_M6_RESULTS.md`:
+  - every new model is below Typhoon on both tasks, intervals below 0;
+  - SEA-LION − Qwen3-VL-4B: no difference shown (F1 intervals include 0,
+    about ±7–9 points); recall lower on both tasks;
+  - not reading outweighs misreading on a correct base on Full-page:
+    SEA-LION 5.8×, InternVL 46.6×, DeepSeek 12.9×.
+- `docs/stage0/MODEL_SURVEY_W3_RESULTS.md`: Pathumma's oracle 99.7% / 99.0%
+  (tone), greedy at produced sites 98.1% / 97.1%
+  (close to the oracle: registered pattern "loss mostly not-reading").
+  Qwen3-VL-4B's oracle 98.7% / 98.0%, but greedy at produced sites 80.1% /
+  88.4% (far below: registered pattern "misreads happen in generation";
+  claim (2) holds only partly), with no image gain (−0.5 / +0.1), as the
+  base in T2.
+
+### Consequences
+
+- Typhoon stays the strongest model measured on calibration; Pathumma is the
+  only one with no difference shown against it (M5).
+- Claim (2)'s W1 attribution now covers nine models from four families:
+  Qwen-VL (Typhoon, base, Qwen3-VL-4B, Pathumma, SEA-LION), PaddleOCR-VL
+  (Paddle, Wayu), InternVL and DeepSeek-OCR, each with the limits its
+  results document states. Teacher-forced evidence (T2, W3) covers
+  Typhoon, base, Pathumma and Qwen3-VL-4B. It supports "not reading" for the
+  Thai OCR fine-tunes; for the general models (base, Qwen3-VL-4B) a
+  misreading component in generation is real. Claim (2)'s wording should say
+  which models it covers.
+- The stop's wording needs a caveat: InternVL has 4 outputs that looped and
+  then emitted end-of-sequence before the limit; the stop changes them. "Without
+  changing non-looping outputs" should read "without changing outputs that
+  ended without a loop".
+- W4's slots are filled from these results; W4 still needs both researchers.
+
+### Files/configs affected
+
+- `configs/model_survey/m6a.yaml`, `m6b.yaml`, `m6b_requirements.txt`,
+  `w3_t2.yaml`
+- `docs/stage0/MODEL_SURVEY_M6_*`, `MODEL_SURVEY_W3_*`,
+  `MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md`, card snapshots in
+  `docs/stage0/data/cards/`, result data in `docs/stage0/data/`
+- `src/labbs2026/model_survey/remote_m6b.py`, `remote_w3.py`, `plan.py`
+- `scripts/model_survey_kaggle.py`, `model_survey_w3_kaggle.py`,
+  `model_survey_w3_analyze.py`, `model_survey_m6_extra.py`
+- `infra/kaggle/model_survey_worker.py` (`visible_devices` per unit)
+- `tests/test_model_survey_m6.py`
+
+---
+
 ## 2026-10-11e — MODEL_SURVEY_M5 (Track E: Pathumma Vision 3.0.0-Re under T1's protocol) authorized under standing delegation
 
 > **Authorized under standing delegation** (2026-10-11c, `docs/COLLABORATION.md`

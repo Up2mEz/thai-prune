@@ -1,0 +1,804 @@
+{
+ "kind": "M6 registered pairings and markup audit; one unregistered diagnostic (marked)",
+ "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
+ "git_sha": "aed0b5649aac99458941a84fef63fe61026d60c8",
+ "git_dirty": false,
+ "run": "kaggle-model-survey-m6b-afe5126bedd7",
+ "order_free": {
+  "max_cer": 0.4,
+  "residual": true
+ },
+ "bootstrap": {
+  "resamples": 2000,
+  "seed": 20261010
+ },
+ "audit": {
+  "deepseek | CARD_PROMPT | Full-page OCR": {
+   "n": 69,
+   "reached_max_new_tokens": 27,
+   "md_bold": 12,
+   "md_heading": 26,
+   "md_table": 4,
+   "code_fence": 0,
+   "md_blockquote": 0,
+   "html_tag": 0,
+   "with_figure": 0,
+   "unclosed_figure": [],
+   "unclosed_figure_reached_limit": []
+  },
+  "deepseek | BENCHMARK_QUESTION | Full-page OCR": {
+   "n": 69,
+   "reached_max_new_tokens": 51,
+   "md_bold": 8,
+   "md_heading": 5,
+   "md_table": 2,
+   "code_fence": 0,
+   "md_blockquote": 0,
+   "html_tag": 0,
+   "with_figure": 0,
+   "unclosed_figure": [],
+   "unclosed_figure_reached_limit": []
+  },
+  "deepseek | CARD_PROMPT | Text recognition": {
+   "n": 109,
+   "reached_max_new_tokens": 10,
+   "md_bold": 16,
+   "md_heading": 19,
+   "md_table": 1,
+   "code_fence": 0,
+   "md_blockquote": 0,
+   "html_tag": 0,
+   "with_figure": 0,
+   "unclosed_figure": [],
+   "unclosed_figure_reached_limit": []
+  },
+  "deepseek | BENCHMARK_QUESTION | Text recognition": {
+   "n": 109,
+   "reached_max_new_tokens": 50,
+   "md_bold": 23,
+   "md_heading": 9,
+   "md_table": 0,
+   "code_fence": 0,
+   "md_blockquote": 0,
+   "html_tag": 0,
+   "with_figure": 0,
+   "unclosed_figure": [],
+   "unclosed_figure_reached_limit": []
+  }
+ },
+ "paired": {
+  "deepseek (CARD_PROMPT) - base (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.6498217140046724,
+    "precision": 0.29906912259853435,
+    "f1": 0.4096184773973532,
+    "n": 69,
+    "correct": 10570,
+    "reference_marks": 16266,
+    "output_marks": 35343,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 565,
+    "matched_reference_marks": 9061,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.5397147424074757,
+    "precision": 0.17289664408381913,
+    "f1": 0.2618955281763671,
+    "n": 69,
+    "correct": 8779,
+    "reference_marks": 16266,
+    "output_marks": 50776,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 485,
+    "matched_reference_marks": 4575,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.1477229492209861,
+     "ci95": [
+      -0.2449289460532025,
+      -0.04344311382652649
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.11010697159719662,
+     "ci95": [
+      -0.1966860340004304,
+      -0.020701476793248963
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.12617247851471522,
+     "ci95": [
+      -0.2212653081231826,
+      -0.03202518334233978
+     ]
+    }
+   }
+  },
+  "deepseek (CARD_PROMPT) - typhoon (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.961145948604451,
+    "precision": 0.9365602348289702,
+    "f1": 0.9486938317303316,
+    "n": 69,
+    "correct": 15634,
+    "reference_marks": 16266,
+    "output_marks": 16693,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 938,
+    "matched_reference_marks": 15719,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.5397147424074757,
+    "precision": 0.17289664408381913,
+    "f1": 0.2618955281763671,
+    "n": 69,
+    "correct": 8779,
+    "reference_marks": 16266,
+    "output_marks": 50776,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 485,
+    "matched_reference_marks": 4575,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.6867983035539645,
+     "ci95": [
+      -0.7468635003761176,
+      -0.6039898152283649
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.42143120619697527,
+     "ci95": [
+      -0.4869635518426194,
+      -0.35391771019678
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.7636635907451511,
+     "ci95": [
+      -0.8326737275462092,
+      -0.6695496641683794
+     ]
+    }
+   }
+  },
+  "deepseek (CARD_PROMPT) - qwen3vl4b (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.6927333087421615,
+    "precision": 0.3436518344566775,
+    "f1": 0.4594027112424829,
+    "n": 69,
+    "correct": 11268,
+    "reference_marks": 16266,
+    "output_marks": 32789,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 656,
+    "matched_reference_marks": 10034,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.5397147424074757,
+    "precision": 0.17289664408381913,
+    "f1": 0.2618955281763671,
+    "n": 69,
+    "correct": 8779,
+    "reference_marks": 16266,
+    "output_marks": 50776,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 485,
+    "matched_reference_marks": 4575,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.1975071830661158,
+     "ci95": [
+      -0.3001016145751013,
+      -0.09864351643358482
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.1530185663346858,
+     "ci95": [
+      -0.2381527892627695,
+      -0.06870002961208177
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.17075519037285838,
+     "ci95": [
+      -0.27659977562766547,
+      -0.070728071418824
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - base (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.6498217140046724,
+    "precision": 0.29906912259853435,
+    "f1": 0.4096184773973532,
+    "n": 69,
+    "correct": 10570,
+    "reference_marks": 16266,
+    "output_marks": 35343,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 565,
+    "matched_reference_marks": 9061,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.3319193409565966,
+    "precision": 0.1212931344356578,
+    "f1": 0.17766297015367402,
+    "n": 69,
+    "correct": 5399,
+    "reference_marks": 16266,
+    "output_marks": 44512,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 106,
+    "matched_reference_marks": 1854,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.23195550724367917,
+     "ci95": [
+      -0.3295634732095408,
+      -0.14494641558277319
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.3179023730480758,
+     "ci95": [
+      -0.42545684343567325,
+      -0.2167260008743988
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.17777598816287654,
+     "ci95": [
+      -0.26936780265894905,
+      -0.10308164151384454
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - typhoon (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.961145948604451,
+    "precision": 0.9365602348289702,
+    "f1": 0.9486938317303316,
+    "n": 69,
+    "correct": 15634,
+    "reference_marks": 16266,
+    "output_marks": 16693,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 938,
+    "matched_reference_marks": 15719,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.3319193409565966,
+    "precision": 0.1212931344356578,
+    "f1": 0.17766297015367402,
+    "n": 69,
+    "correct": 5399,
+    "reference_marks": 16266,
+    "output_marks": 44512,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 106,
+    "matched_reference_marks": 1854,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.7710308615766576,
+     "ci95": [
+      -0.8211356615855085,
+      -0.7094551489487655
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.6292266076478544,
+     "ci95": [
+      -0.6928948913681738,
+      -0.5591397849462365
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.8152671003933124,
+     "ci95": [
+      -0.8766821829088578,
+      -0.7381153444683229
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - qwen3vl4b (BENCHMARK_QUESTION) / Full-page OCR": {
+   "n": 69,
+   "a": {
+    "recall": 0.6927333087421615,
+    "precision": 0.3436518344566775,
+    "f1": 0.4594027112424829,
+    "n": 69,
+    "correct": 11268,
+    "reference_marks": 16266,
+    "output_marks": 32789,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 656,
+    "matched_reference_marks": 10034,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "b": {
+    "recall": 0.3319193409565966,
+    "precision": 0.1212931344356578,
+    "f1": 0.17766297015367402,
+    "n": 69,
+    "correct": 5399,
+    "reference_marks": 16266,
+    "output_marks": 44512,
+    "repeat_marks": 0,
+    "short_line_marks": 28,
+    "lines": 1391,
+    "eligible_lines": 1118,
+    "matched_lines": 106,
+    "matched_reference_marks": 1854,
+    "short_line_mark_share": 0.0017213820238534366
+   },
+   "difference": {
+    "f1": {
+     "n": 69,
+     "difference": -0.28173974108880884,
+     "ci95": [
+      -0.3884626210283122,
+      -0.18569985960912216
+     ]
+    },
+    "recall": {
+     "n": 69,
+     "difference": -0.36081396778556496,
+     "ci95": [
+      -0.4613648512205262,
+      -0.2568802465200298
+     ]
+    },
+    "precision": {
+     "n": 69,
+     "difference": -0.2223587000210197,
+     "ci95": [
+      -0.3327370372762315,
+      -0.13374001104076852
+     ]
+    }
+   }
+  },
+  "deepseek (CARD_PROMPT) - base (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8363794604003482,
+    "precision": 0.14208969935929028,
+    "f1": 0.24291190967687573,
+    "n": 109,
+    "correct": 2883,
+    "reference_marks": 3447,
+    "output_marks": 20290,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 208,
+    "matched_reference_marks": 2659,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.7075718015665796,
+    "precision": 0.27794871794871795,
+    "f1": 0.3991163475699558,
+    "n": 109,
+    "correct": 2439,
+    "reference_marks": 3447,
+    "output_marks": 8775,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 190,
+    "matched_reference_marks": 2415,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": 0.15620443789308006,
+     "ci95": [
+      -0.05352772163153474,
+      0.44294069744593295
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.12880765883376855,
+     "ci95": [
+      -0.21790962018297755,
+      -0.052738853503184746
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": 0.13585901858942767,
+     "ci95": [
+      -0.030430880996298593,
+      0.4664944484993476
+     ]
+    }
+   }
+  },
+  "deepseek (CARD_PROMPT) - typhoon (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8294168842471714,
+    "precision": 0.8055790363482671,
+    "f1": 0.8173241852487135,
+    "n": 109,
+    "correct": 2859,
+    "reference_marks": 3447,
+    "output_marks": 3549,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 223,
+    "matched_reference_marks": 2860,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.7075718015665796,
+    "precision": 0.27794871794871795,
+    "f1": 0.3991163475699558,
+    "n": 109,
+    "correct": 2439,
+    "reference_marks": 3447,
+    "output_marks": 8775,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 190,
+    "matched_reference_marks": 2415,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": -0.41820783767875774,
+     "ci95": [
+      -0.6121144818455675,
+      -0.13173327444619465
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.1218450826805918,
+     "ci95": [
+      -0.24256410256410255,
+      0.01848613539845112
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": -0.5276303183995492,
+     "ci95": [
+      -0.7120209186683054,
+      -0.17683486723791386
+     ]
+    }
+   }
+  },
+  "deepseek (CARD_PROMPT) - qwen3vl4b (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8427618218740934,
+    "precision": 0.13642981261447423,
+    "f1": 0.23484236054971705,
+    "n": 109,
+    "correct": 2905,
+    "reference_marks": 3447,
+    "output_marks": 21293,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 248,
+    "matched_reference_marks": 2783,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.7075718015665796,
+    "precision": 0.27794871794871795,
+    "f1": 0.3991163475699558,
+    "n": 109,
+    "correct": 2439,
+    "reference_marks": 3447,
+    "output_marks": 8775,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 190,
+    "matched_reference_marks": 2415,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": 0.16427398702023874,
+     "ci95": [
+      0.005366389453990927,
+      0.43003134586214037
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.13519002030751381,
+     "ci95": [
+      -0.22036969916636462,
+      -0.06448038998448935
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": 0.14151890533424372,
+     "ci95": [
+      0.00866286847053982,
+      0.4619439913599659
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - base (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8363794604003482,
+    "precision": 0.14208969935929028,
+    "f1": 0.24291190967687573,
+    "n": 109,
+    "correct": 2883,
+    "reference_marks": 3447,
+    "output_marks": 20290,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 208,
+    "matched_reference_marks": 2659,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.5268349289237018,
+    "precision": 0.020856781899620994,
+    "f1": 0.040125059381110724,
+    "n": 109,
+    "correct": 1816,
+    "reference_marks": 3447,
+    "output_marks": 87070,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 42,
+    "matched_reference_marks": 749,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": -0.20278685029576501,
+     "ci95": [
+      -0.31990881903636287,
+      -0.12941665533922725
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.3095445314766464,
+     "ci95": [
+      -0.4004142216085606,
+      -0.22278298485940873
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": -0.12123291745966928,
+     "ci95": [
+      -0.2072566599943634,
+      -0.07307813820787343
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - typhoon (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8294168842471714,
+    "precision": 0.8055790363482671,
+    "f1": 0.8173241852487135,
+    "n": 109,
+    "correct": 2859,
+    "reference_marks": 3447,
+    "output_marks": 3549,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 223,
+    "matched_reference_marks": 2860,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.5268349289237018,
+    "precision": 0.020856781899620994,
+    "f1": 0.040125059381110724,
+    "n": 109,
+    "correct": 1816,
+    "reference_marks": 3447,
+    "output_marks": 87070,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 42,
+    "matched_reference_marks": 749,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": -0.7771991258676028,
+     "ci95": [
+      -0.8538078478836707,
+      -0.6819032815505981
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.30258195532346965,
+     "ci95": [
+      -0.4343865641901509,
+      -0.16969854469854462
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": -0.7847222544486461,
+     "ci95": [
+      -0.8910561769074687,
+      -0.6553805953856541
+     ]
+    }
+   }
+  },
+  "deepseek (BENCHMARK_QUESTION) - qwen3vl4b (BENCHMARK_QUESTION) / Text recognition": {
+   "n": 109,
+   "a": {
+    "recall": 0.8427618218740934,
+    "precision": 0.13642981261447423,
+    "f1": 0.23484236054971705,
+    "n": 109,
+    "correct": 2905,
+    "reference_marks": 3447,
+    "output_marks": 21293,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 248,
+    "matched_reference_marks": 2783,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "b": {
+    "recall": 0.5268349289237018,
+    "precision": 0.020856781899620994,
+    "f1": 0.040125059381110724,
+    "n": 109,
+    "correct": 1816,
+    "reference_marks": 3447,
+    "output_marks": 87070,
+    "repeat_marks": 0,
+    "short_line_marks": 2,
+    "lines": 312,
+    "eligible_lines": 293,
+    "matched_lines": 42,
+    "matched_reference_marks": 749,
+    "short_line_mark_share": 0.0005802146794313896
+   },
+   "difference": {
+    "f1": {
+     "n": 109,
+     "difference": -0.19471730116860633,
+     "ci95": [
+      -0.27123411655292307,
+      -0.13753015050408407
+     ]
+    },
+    "recall": {
+     "n": 109,
+     "difference": -0.31592689295039167,
+     "ci95": [
+      -0.4479917610710607,
+      -0.15876515986769568
+     ]
+    },
+    "precision": {
+     "n": 109,
+     "difference": -0.11557303071485324,
+     "ci95": [
+      -0.1687316038789043,
+      -0.07834045101939605
+     ]
+    }
+   }
+  }
+ },
+ "diagnostic_unclosed_figure_upper_bound": {}
+}

@@ -85,7 +85,8 @@ def _run_queue(gpu: int, queue: list, python: str, spec_path: Path, source: Path
     for unit in queue:
         name = unit["name"]
         unit_env = dict(env)
-        unit_env["CUDA_VISIBLE_DEVICES"] = str(gpu)
+        # a unit may see more than its queue's GPU (W3: one fp32 model over both T4s)
+        unit_env["CUDA_VISIBLE_DEVICES"] = str(unit.get("visible_devices", gpu))
         command = [python, "-m", unit["module"], "--remote-spec", str(spec_path), *unit["args"]]
         with (artifact_dir / f"{name}.log").open("w", encoding="utf-8") as log:
             code = subprocess.run(command, cwd=source, env=unit_env, stdout=log,
