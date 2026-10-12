@@ -333,17 +333,31 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
    generation. `stage0/THAI_MARKS_T1_T2_RESULTS.md`.
 5. **Loops.** On Typhoon, 2–5 looping pages hold 68–76% of all surplus marks.
    `stage0/T5_LOOP_DECODING_DRAFT.md`.
-6. **Five checkpoints (M1).** Full-page / Text recognition mark F1: Typhoon
-   94.9 / 81.7, PaddleOCR-VL-1.6 53.3 / 47.9, wayu-paxa-ocr-zero 65.2 / 46.0,
-   Qwen3-VL-4B 45.9 / 23.5, Qwen3-VL-2B 41.0 / 24.3. Models are compared as
-   shipped (unequal visual-token budgets); Paddle and Wayu are region
-   recognizers, off-design on Full-page. `stage0/MODEL_SURVEY_M1_RESULTS.md` §2.
-7. **Stop at a detected loop (T5b-B, offline cut).**
-   - Typhoon: Full-page F1 +0.84 (BQ) / +0.67 (TC); no non-looping output
-     changed. The intervals include 0. The rule was set after T5.
-   - Wayu (M2): +10.8 [+5.3, +16.1] (Full-page), +24.4 [+10.7, +35.7] (Text
-     recognition).
-   - `stage0/T5B_STOP_AT_LOOP_DRAFT.md`, `stage0/MODEL_SURVEY_M2_RESULTS.md`.
+6. **Six checkpoints (M1, M5).** Full-page / Text recognition mark F1: Typhoon
+   94.9 / 81.7, Pathumma-llm-vision 3.0 (card prompt) 89.8 / 77.6,
+   wayu-paxa-ocr-zero 65.2 / 46.0, PaddleOCR-VL-1.6 53.3 / 47.9, Qwen3-VL-4B
+   45.9 / 23.5, Qwen3-VL-2B 41.0 / 24.3.
+   - Pathumma minus Typhoon is -5.1 [-14.3, +1.6] and -4.1 [-15.1, +8.0]:
+     comparable, neither shown better. Pathumma minus the base is +48.9 and
+     +53.3.
+   - Models are compared as shipped (unequal visual-token budgets); Paddle
+     and Wayu are region recognizers, off-design on Full-page; Pathumma's
+     377K training samples are unnamed, so overlap with the benchmark is not
+     excluded (unknown, not shown).
+   - `stage0/MODEL_SURVEY_M1_RESULTS.md` §2, `stage0/MODEL_SURVEY_M5_RESULTS.md` §1.
+7. **Stop at a detected loop (T5b-B rule, offline cut), six models.**
+   - Mark F1 rises in every model on both tasks; no interval lies below 0
+     and seven of twelve cells exclude 0. Full-page: Typhoon +0.8
+     [0.0, +2.7], Pathumma +3.0, Wayu +10.8 [+5.3, +16.1], Paddle +5.2,
+     Qwen3-VL-4B +22.9, base +24.4.
+   - Across the twelve cells the cut changed 3 of 898 outputs that had ended
+     on their own. Two are Paddle outputs that left a degenerate loop by
+     themselves; the cut dropped real page text after it.
+   - Recall falls by up to 10.6 points on Full-page, partly credit earned by
+     loop copies (see the repeat-aware score) and partly text after the loop.
+   - The rule was set after T5, on the same calibration split.
+   - `stage0/T5B_STOP_AT_LOOP_DRAFT.md`, `stage0/MODEL_SURVEY_M2_RESULTS.md`,
+     `stage0/MODEL_SURVEY_W1_CROSS_MODEL.md` §2, `stage0/MODEL_SURVEY_M5_RESULTS.md` §3.
 8. **Repetition penalty 1.1** (the vendor package's setting) changes almost
    every Typhoon output and lowers non-looping Full-page F1 by 1.1–1.3; Text
    recognition (BQ) tone error rises 17.1% → 22.6%.
@@ -354,14 +368,23 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
 10. **Confidence (E1).** Typhoon's own token log-probability separates its
     mark misreads from correct marks: AUROC 0.918 (BQ) / 0.935 (TC).
     `stage0/E1_CONFIDENCE_DRAFT.md`.
+11. **Where marks are lost, six models (Full-page, outputs cut at the first
+    loop).** Whole lines absent plus spans missing cost 3.2% (Typhoon), 9.3%
+    (Pathumma) and 29-44% (the other four) of the reference marks. A wrong
+    mark after a correctly read consonant costs 0.4%, 0.8% and 2.7-4.3%. Lines
+    absent from the output cost 7 to 12 times more than misread marks in every
+    model. Absence from the output is observed; that the model failed to read
+    the line is not (a model may see a line and not write it). For
+    looping models a line after a loop counts as absent, and the loop is not
+    separated from a failure to read. The attribution is automatic.
+    `stage0/MODEL_SURVEY_W1_CROSS_MODEL.md` §3, `stage0/MODEL_SURVEY_M5_RESULTS.md` §3.
 
 ## HYPOTHESIS (needs more models and/or the locked split)
 
-- Thai OCR VLMs lose marks mainly by not reading (loops, text not found,
-  skipped lines) rather than by misreading marks. Shown so far for Typhoon
-  and Qwen3-VL-2B only.
-- Stopping at a detected loop raises mark F1 across models without changing
-  non-looping outputs.
+- The prior is already right for the tone mark given correct context in
+  models other than Typhoon and Qwen3-VL-2B (T2 on Pathumma and Qwen3-VL-4B
+  not yet run).
+- The stop at a loop helps on unseen items (locked split, not opened).
 - Decoding that subtracts the language prior costs Thai tone marks in
   general (seen with T2's contrastive rescoring and the project's
   "M3ID-form" contrast, `stage0/REMEDIES_R1_RESULTS.md`).
@@ -369,8 +392,9 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
 ## Forbidden in this phase
 
 - "Typhoon OCR 1.5 2B is the best open Thai OCR model." Pathumma-llm-vision
-  3.0 self-reports higher ThaiOCRBench scores on Text recognition and
-  overall; the project has not measured it.
+  3.0 is comparable on our metric (intervals include 0) and may overlap with
+  the benchmark. Allowed: "the strongest measured here, comparable to
+  Pathumma".
 - "Stopping at a loop is better than repetition penalties / existing
   methods." Not until a registered locked-split result.
 - "M3ID", "VCD" or "PAI" results, unqualified. These are the project's
