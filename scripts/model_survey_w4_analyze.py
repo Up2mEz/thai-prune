@@ -153,6 +153,7 @@ def main() -> None:
         "items": len(page_hash), "distinct_pages": len(set(page_hash.values())),
         "contamination_note": "Typhoon is from ThaiOCRBench's group; Pathumma's 377K training samples are unnamed.",
         "cells": {}, "audit": {}, "h_rank": {}, "s1": {}, "r1": {}, "t1_scoring_v2": {},
+        "upper_bound_unclosed_figure": {},
     }
 
     # ---- per-cell scores (§5) and markup audit
@@ -245,6 +246,25 @@ def main() -> None:
                 entry[score] = {key: paired_f1_difference(a, b, resamples=w4.RESAMPLES, seed=w4.SEED, key=key)
                                 for key in ("f1", "recall", "precision")}
             result["h_rank"][f"typhoon - {role} ({prompt}) / {task}"] = entry
+    # §5's upper bound, beside v2 (as M5's diagnostic): ended outputs with an unclosed <figure> credited
+    # with a perfect read, then the same paired difference to Typhoon
+    for (role, prompt), per_task in sorted(table.items()):
+        if (role == TYPHOON and prompt == models[TYPHOON]["primary_prompt"]) or TYPHOON not in models:
+            continue
+        for task, per_item in sorted(per_task.items()):
+            dropped = result["audit"][f"{role} / {prompt} / {task}"]["unclosed_figure_ended"]
+            if not dropped or task not in typhoon:
+                continue
+            bound = {i: ({**c["v2"], "correct": c["v2"]["reference_marks"],
+                          "output_marks": c["v2"]["reference_marks"]} if i in dropped else c["v2"])
+                     for i, c in per_item.items()}
+            ids = sorted(per_item)
+            result["upper_bound_unclosed_figure"][f"typhoon - {role} ({prompt}) / {task}"] = {
+                "items": len(dropped), "reference_marks": sum(per_item[i]["v2"]["reference_marks"] for i in dropped),
+                "model_f1_as_scored": prf([per_item[i]["v2"] for i in ids])["f1"],
+                "model_f1_upper_bound": prf([bound[i] for i in ids])["f1"],
+                "typhoon_minus_model_upper_bound": paired_f1_difference(
+                    bound, {i: typhoon[task][i]["v2"] for i in ids}, resamples=w4.RESAMPLES, seed=w4.SEED)}
     lower = [e["v2"]["f1"]["ci95"][0] for k, e in result["h_rank"].items() if e["v2"]["f1"]["ci95"]]
     result["h_rank_best_rule"] = ("Typhoon's lower bound is above 0 against every model read, on both tasks"
                                   if lower and all(x > 0 for x in lower) else
