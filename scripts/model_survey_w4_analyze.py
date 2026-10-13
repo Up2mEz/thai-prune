@@ -7,6 +7,8 @@ text and no output text, and refuses to overwrite it.
 
 Usage: --run RUN_DIR:CONFIG (once per phase), e.g.
   --run runs/kaggle/<w4a>/fetched/artifacts/<w4a>:configs/model_survey/w4a.yaml
+or a phase from its outputs archive (`scripts/model_survey_w4_archive.py`; references from another --run):
+  --archive docs/stage0/data/W4A_OUTPUTS_37b0d59989de.json.gz:configs/model_survey/w4a.yaml
 
 `--allow-calibration` accepts a run whose `split.json` says `calibration` (an engineering smoke) so the
 plumbing can be tested without opening a locked score; its output is marked `PLUMBING_ONLY`.
@@ -43,6 +45,7 @@ CALIBRATION_ARCHIVES = {  # role -> (archive, key inside it); calibration loop s
     "wayu": ("M1_OUTPUTS_3431d9f9dccf", "wayu"), "pathumma": ("M5_OUTPUTS_8252b99e735d", "pathumma"),
     "sealion": ("M6A_OUTPUTS_3ee076494466", "sealion"), "deepseek": ("M6B_OUTPUTS_afe5126bedd7", "deepseek"),
 }
+CRLF, LF = bytes([13, 10]), bytes([10])
 TAG = re.compile(r"</?[A-Za-z][^>]*>")
 
 
@@ -92,7 +95,13 @@ def _audit(rows: list[dict]) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--run", action="append", required=True, metavar="RUN_DIR:CONFIG")
+    parser.add_argument("--run", action="append", default=[], metavar="RUN_DIR:CONFIG")
+    parser.add_argument("--references-from", action="append", default=[], type=Path, metavar="RUN_DIR",
+                        help="a fetched run whose records supply the references for --archive phases "
+                             "(its own scores are not read)")
+    parser.add_argument("--archive", action="append", default=[], metavar="OUTPUTS.json.gz:CONFIG",
+                        help="a phase's outputs archive (no reference text); its references come from the "
+                             "records of the --run directories, which must cover every id")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--data", type=Path, default=Path("docs/stage0/data"))
     parser.add_argument("--workers", type=int, default=8)
@@ -121,11 +130,39 @@ def main() -> None:
             models[role] = model
             for r in rows:
                 records.setdefault((role, r["prompt_kind"]), []).append(r)
+    archived: list[tuple[str, dict, dict, str]] = []
+    for spec in args.archive:
+        archive_path, config_path = spec.rsplit(":", 1)
+        config = yaml.safe_load(Path(config_path).read_text("utf-8"))
+        order_free, bootstrap = config["scoring"]["order_free"], config["scoring"]["bootstrap"]
+        payload = json.loads(gzip.open(archive_path, "rt", encoding="utf-8").read())
+        runs.append({"archive": Path(archive_path).name, "run": payload["provenance"]["run_id"],
+                     "config": config_path,
+                     "config_sha256": hashlib.sha256(
+                         Path(config_path).read_bytes().replace(CRLF, LF)).hexdigest()})
+        for role, model in config["models"].items():
+            models[role] = model
+            archived.append((role, model, payload["records"][role], archive_path))
+        run_on_seen.add("locked")  # the archive is made only from a locked run (`W4_OUTPUTS`)
     plumbing = run_on_seen != {"locked"}
     if plumbing and not (args.allow_calibration and run_on_seen == {"calibration"}):
         raise SystemExit(f"runs are not locked-split runs (run_on {sorted(run_on_seen)})")
     assert bootstrap["resamples"] == w4.RESAMPLES and bootstrap["seed"] == w4.SEED, "bootstrap differs from §6"
 
+    donors = {r["id"]: r["reference"] for rows in records.values() for r in rows}
+    for donor_run in args.references_from:
+        _verify(donor_run)
+        for path in sorted((donor_run / "m1").rglob("records.jsonl")):
+            for line in path.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    row = json.loads(line)
+                    if donors.setdefault(row["id"], row["reference"]) != row["reference"]:
+                        raise SystemExit(f"{row['id']}: two references")
+    for role, model, rows, _ in archived:
+        for r in rows:
+            if r["id"] not in donors:
+                raise SystemExit(f"{r['id']}: no reference among the --run records for the archive")
+            records.setdefault((role, r["prompt_kind"]), []).append({**r, "reference": donors[r["id"]]})
     page_hash: dict[str, str] = {}
     reference: dict[str, str] = {}
     for rows in records.values():

@@ -2,6 +2,28 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-13c (W4) — MODEL_SURVEY_W4 phase A analysed (provisional, four of eight models)
+
+**Evidence:** `docs/stage0/MODEL_SURVEY_W4A_RESULTS.md`; analysis choices fixed beforehand in
+`docs/stage0/MODEL_SURVEY_W4_ANALYSIS_NOTES.md`; `docs/stage0/data/W4A_ANALYSIS_ef2cac2.json`. Locked split read
+once (run `kaggle-model-survey-w4a-37b0d59989de`). `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Finding (phase A: Typhoon, base, Wayu, Pathumma; 352 items):** S1 passes for base and Wayu on both tasks and
+does **not** pass for Pathumma Full-page (+1.3 points, interval [0.0, +3.5], Holm p 0.13), so the registered
+"every eligible cell" criterion is not met and that cell is named. S2 passes (1 of 1,248 ended outputs changed,
+upper 95% bound 0.38%; the one case is a real loop that ended before the limit). R1 passes for all four models
+(ratios 7.8 to 15.8; lower bounds above 5), so for these models marks on Full-page are lost mainly as absence.
+H-rank: Typhoon is above base and Wayu, no difference shown against Pathumma, "best" not used.
+
+**Not decided:** the eight-model readings (phases B and C are on PELY334's account, analysed next with the same
+script); any `CLAIMS.md` entry (needs Up2mEz's approval); no gate opened or passed.
+
+**Disclosed:** the first run of the analysis lacked §5's unclosed-figure upper bound (added, other sections
+identical); a raw archive with reference text was briefly on `main` (PR #125) and was replaced by a
+reference-free archive.
+
+---
+
 ## 2026-10-13b (W4) — MODEL_SURVEY_W4 phase A run on the locked split (Up2mEz's account); not scored
 
 **Evidence:** run `kaggle-model-survey-w4a-37b0d59989de` (code commit
