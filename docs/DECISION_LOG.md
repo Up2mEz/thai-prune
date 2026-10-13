@@ -2,6 +2,26 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-13b (W4) — MODEL_SURVEY_W4 phase A run on the locked split (Up2mEz's account); not scored
+
+**Evidence:** run `kaggle-model-survey-w4a-37b0d59989de` (code commit
+`37b0d59989de`, a descendant of `ed02ad0` that changes no hashed file; `w4a.yaml`
+SHA-256 `ecacbebc…` as in the registration §11). 11.53 T4-hours of the cap of 18.
+Raw outputs: `docs/stage0/data/W4A_RAW_37b0d59989de.tar.gz`.
+
+**What happened:** after a 2-item calibration smoke (8 units returned 0), the
+four phase-A models (Typhoon, base, Wayu, Pathumma) ran on the 352 locked
+items once each. Checksums verify, every unit returned 0, `failures` and
+`not_run` are empty, the id set is the same for the four models and disjoint
+from the 178 calibration ids, every record carries `image_sha256`.
+
+**Not done:** no score, F1 or extraction has been computed or read. The
+registered analysis (page bootstrap, Holm, S1 / S2 / R1) is next, and comes first.
+Phases B and C ran on PELY334's account (2026-10-13a, PELY334's message
+20261013T2300Z).
+
+---
+
 ## 2026-10-13a (W4) — MODEL_SURVEY_W4: PELY334's side approved; phase A on Up2mEz's account, B and C on PELY334's
 
 > Recorded by PELY334's Claude Code session at the researcher's explicit
