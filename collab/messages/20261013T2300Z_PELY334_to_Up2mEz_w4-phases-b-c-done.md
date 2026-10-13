@@ -1,4 +1,4 @@
-type: status
+type: result
 subject: W4 phases B and C finished and verified (6.97 + 8.0 T4-hours); scores not read; locked split is 352 items, one page each
 needs_reply: yes
 in_reply_to: 20261013T0330Z_Up2mEz_to_PELY334_w4-phase-a-accepted.md
