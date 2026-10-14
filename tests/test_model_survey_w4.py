@@ -136,3 +136,82 @@ def test_w4_caps_sum_within_the_approved_total():
     caps = {name: _config(name)["budget_cap_t4_hours"] for name in W4}
     assert caps["w4a"] <= 18 and caps["w4b"] <= 10 and caps["w4c"] + caps["w4c_deepseek"] <= 15
     assert sum(caps.values()) <= 45
+
+
+# --- live decode-time stop check -------------------------------------------------
+
+from labbs2026.model_survey.stop import live_items, stopped_output  # noqa: E402
+
+
+@pytest.mark.parametrize("text", [
+    "ข้อความ ก่อน " + "ซ้ำซ้ำ " * 12 + "ท้าย",
+    "intro " + "abcd" * 20,
+    "prefix " + ("long unit of text with a letter x " * 7) + "end",
+    "no loop here at all, just ordinary text อ่านได้ปกติ",
+])
+@pytest.mark.parametrize("stride", [1, 3, 8])
+def test_stride_with_stopped_output_equals_the_per_token_stop(text, stride):
+    torch = pytest.importorskip("torch")
+    tok = CharTokenizer()
+    ids = tok.encode(text)
+    criterion = LoopStoppingCriteria(tok, prompt_length=0, stride=stride)
+    generated = []
+    for token in ids:                      # greedy decoding replayed one token at a time
+        generated.append(token)
+        if criterion(torch.tensor([generated]), None):
+            break
+    if criterion.stopped_at is not None:
+        assert criterion.stopped_at % stride == 0
+    assert stopped_output(generated, _decode)["text"] == variant_b({"raw_output": text,
+                                                                    "reached_max_new_tokens": False})
+
+
+def test_live_items_take_every_looping_output_and_a_seeded_sample():
+    rows = [{"id": f"{i:02d}", "raw_output": ("ab" * 20 if i % 3 == 0 else f"plain text {i}")}
+            for i in range(30)]
+    items = live_items(rows, sample=4, seed=1)
+    looping = [i for i in items if i["looping_offline"]]
+    assert [i["id"] for i in looping] == [f"{i:02d}" for i in range(0, 30, 3)]
+    assert len(items) - len(looping) == 4
+    assert items == live_items(list(reversed(rows)), sample=4, seed=1)
+
+
+def test_live_stop_config_copies_the_w4_models_and_reads_calibration_only():
+    config = _config("w4_live_stop")
+    validate(config)
+    assert config["split"]["run_on"] == "calibration"
+    m1 = _config("m1")
+    for key in ("dtype_preferred", "dtype_fallback", "image_policy", "max_new_tokens", "generation", "use_cache"):
+        assert config["runtime"][key] == m1["runtime"][key], key
+    w4 = {}
+    for name in W4:
+        source = _config(name)
+        for role, model in source["models"].items():
+            w4[role] = (model, {k: source["prompts"][k] for k in model["prompts"]})
+    assert set(config["models"]) == set(w4)
+    for role, model in config["models"].items():
+        ref, ref_prompts = w4[role]
+        for key in ("model_id", "revision", "prompts", "primary_prompt"):
+            assert model[key] == ref[key], (role, key)
+        texts = {**config["prompts"], **model.get("prompt_overrides", {})}
+        assert {k: texts[k] for k in model["prompts"]} == ref_prompts, role
+    assert config["models"]["deepseek"]["runner"] == "m6b"
+
+
+def test_live_stop_items_are_the_stop_checks_loops():
+    import gzip
+    import json
+
+    config = _config("w4_live_stop")
+    check = json.loads((ROOT / "docs/stage0/data/W4_STOP_CHECK_ed02ad0.json").read_text("utf-8"))["cells"]
+    total = 0
+    for role, model in config["models"].items():
+        archive = ROOT / "docs/stage0/data" / f"{model['calibration_archive']}.json.gz"
+        rows = json.loads(gzip.open(archive, "rt", encoding="utf-8").read())["records"][role]
+        for kind in model["prompts"]:
+            items = live_items([r for r in rows if r["prompt_kind"] == kind],
+                               config["live_stop"]["sample_non_looping"], config["live_stop"]["sample_seed"])
+            looping = sum(i["looping_offline"] for i in items)
+            assert looping == check[f"{role} | {kind}"]["looping"], (role, kind)
+            total += looping
+    assert total == 185

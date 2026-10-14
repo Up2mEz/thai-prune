@@ -1,0 +1,129 @@
+schema_version: 1
+# MODEL_SURVEY W4, condition 3 follow-up: the LIVE decode-time stop check.
+# W4_STOP_CHECK_ed02ad0.json replayed the stop on recorded calibration text;
+# this run generates again with `model_survey.stop.LoopStoppingCriteria`
+# attached to generate(). CALIBRATION ITEMS ONLY (stop.live_items over each
+# model's calibration outputs archive): every output the offline cut changes,
+# plus a seeded sample of 8 it leaves unchanged per model and prompt. Locked
+# items are never read. Approved by PELY334's human (2026-10-14); within W4's
+# approved GPU total (26.5 of 43 used before this run).
+status: APPROVED
+registration: docs/stage0/MODEL_SURVEY_W4_LOCKED_REGISTRATION_DRAFT.md
+claim_level: PRELIMINARY_PILOT_NOT_GATE_EVIDENCE
+run_label: w4live
+kernel_slug: labbs2026-model-survey-w4live
+runner_module: labbs2026.model_survey.remote_live_stop
+extra_hashed:
+  - src/labbs2026/model_survey/remote_live_stop.py
+  - src/labbs2026/model_survey/stop.py
+  - src/labbs2026/model_survey/remote_m6b.py
+  - src/labbs2026/thai_marks/loop_cut.py
+  - configs/model_survey/m6b_requirements.txt
+
+live_stop:
+  stride: 8                  # check every 8th token; stop.stopped_output finds the first firing token
+  sample_non_looping: 8
+  sample_seed: 20261014
+
+# Model entries copied from w4a / w4b / w4c / w4c_deepseek; calibration_archive
+# names the archive whose outputs are generated again. One shard per model.
+models:
+  typhoon:
+    model_id: typhoon-ai/typhoon-ocr1.5-2b
+    revision: 9c8a8fa14905041d793f1e4e922312147956dcc0
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    calibration_archive: T1_OUTPUTS_a44199c29759
+    shards: 1
+    unit_deadline_hours: 0.4
+  base:
+    model_id: Qwen/Qwen3-VL-2B-Instruct
+    revision: 89644892e4d85e24eaac8bacfd4f463576704203
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    calibration_archive: T1_OUTPUTS_a44199c29759
+    shards: 1
+    unit_deadline_hours: 0.8
+  wayu:
+    model_id: wayu-ai/wayu-paxa-ocr-zero
+    revision: af0204b4f334a6d5068b6bac2b3738932d6e289b
+    prompts: [OCR_NATIVE]
+    primary_prompt: OCR_NATIVE
+    calibration_archive: M1_OUTPUTS_3431d9f9dccf
+    shards: 1
+    unit_deadline_hours: 0.4
+  pathumma:
+    model_id: nectec/Pathumma-llm-vision-3.0.0-re
+    revision: 08bb11dcabf509ac3fa3ac0014ecd44eadb9729b
+    prompts: [CARD_PROMPT, BENCHMARK_QUESTION]
+    primary_prompt: CARD_PROMPT
+    calibration_archive: M5_OUTPUTS_8252b99e735d
+    shards: 1
+    unit_deadline_hours: 0.5
+  qwen3vl4b:
+    model_id: Qwen/Qwen3-VL-4B-Instruct
+    revision: ebb281ec70b05090aa6165b016eac8ec08e71b17
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    calibration_archive: M1_OUTPUTS_3431d9f9dccf
+    shards: 1
+    unit_deadline_hours: 1.0
+  paddle:
+    model_id: PaddlePaddle/PaddleOCR-VL-1.6
+    revision: c5630abae1d940eafe0697512a0325494b02ab42
+    prompts: [OCR_NATIVE]
+    primary_prompt: OCR_NATIVE
+    calibration_archive: M1_OUTPUTS_3431d9f9dccf
+    shards: 1
+    unit_deadline_hours: 0.4
+  sealion:
+    model_id: aisingapore/Qwen-SEA-LION-v4-4B-VL
+    revision: d0734aa1b8113fce90997a83c1e4afe2c37c6205
+    prompts: [BENCHMARK_QUESTION]
+    primary_prompt: BENCHMARK_QUESTION
+    calibration_archive: M6A_OUTPUTS_3ee076494466
+    shards: 1
+    unit_deadline_hours: 1.0
+  deepseek:
+    model_id: deepseek-ai/DeepSeek-OCR-2
+    revision: aaa02f3811945a91062062994c5c4a3f4c0af2b0
+    prompts: [CARD_PROMPT]
+    primary_prompt: CARD_PROMPT
+    prompt_overrides: {CARD_PROMPT: "Free OCR. "}   # DeepSeek's card prompt (M6b), not Pathumma's
+    calibration_archive: M6B_OUTPUTS_afe5126bedd7
+    runner: m6b              # remote_m6b's venv, inputs and record decoding; fp16 only
+    shards: 1
+    unit_deadline_hours: 0.8
+
+prompts:
+  OCR_NATIVE: "OCR:"
+  CARD_PROMPT: "อ่านข้อความในภาพนี้"   # Pathumma's card (M5); DeepSeek overrides it
+  BENCHMARK_QUESTION: item.question
+
+benchmark:
+  repo: typhoon-ai/ThaiOCRBench
+  revision: ca610d1ab330
+  split: test
+  tasks: ["Full-page OCR", "Text recognition"]
+
+split:
+  seed: 20260927
+  calibration_fraction: 0.30
+  run_on: calibration
+
+runtime:
+  dtype_preferred: float16
+  dtype_fallback: float32
+  image_policy: typhoon_card
+  max_new_tokens: 3072
+  generation:
+    do_sample: false
+    num_beams: 1
+    repetition_penalty: 1.0
+    no_repeat_ngram_size: 0
+  use_cache: true
+
+gpu_queues:
+  - [sealion/0, base/0, typhoon/0]
+  - [qwen3vl4b/0, pathumma/0, paddle/0, wayu/0, deepseek/0]
+budget_cap_t4_hours: 3.2

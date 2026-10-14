@@ -133,6 +133,7 @@ def main() -> None:
         "max_new_tokens": config["runtime"]["max_new_tokens"],
         "generation": config["runtime"]["generation"],
         "use_cache": config["runtime"]["use_cache"],
+        "live_stop": config.get("live_stop"),   # W4 live stop check only; None otherwise
         "kernel_slug": args.kernel_slug,
         "config_path": args.config,
         "created_at_utc": utc_now(),
