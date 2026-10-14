@@ -46,7 +46,7 @@ items in that task; Holm-adjusted one-sided p):
 |---|---|---|---|---|
 | base · Full-page | 43.5% | +18.4 [+14.3, +22.2] | 0.0009 | passes |
 | base · Text rec. | 14.7% | +35.6 [+29.6, +40.9] | 0.0009 | passes |
-| Wayu · Full-page | 26.1% | +4.9 [+1.8, +8.3] | 0.0009 | passes |
+| Wayu · Full-page | 26.1% | +4.8 [+1.8, +8.3] | 0.0009 | passes |
 | Wayu · Text rec. | 20.2% | +29.1 [+18.7, +38.0] | 0.0009 | passes |
 | **Pathumma · Full-page** | 5.8% | **+1.3 [0.0, +3.5]** | **0.13** | **does not pass** |
 | not tested (under 5%): Typhoon Full-page / Text rec., Pathumma Text rec. | 2.9% / 0.9% / 1.8% | +1.5 [−0.5, +4.1] / +3.5 [0.0, +11.0] / +3.0 [0.0, +6.7] | | descriptive |
@@ -132,4 +132,7 @@ then be +2.5 [−3.6, +8.4] and +0.2 [−4.3, +4.9]. It does not change the H-ra
   commit and the script re-run; the two outputs are identical in every other section (compared).
 - An earlier commit (PR #125) put a raw archive with benchmark reference text on `main`; it was replaced by the
   reference-free `W4A_OUTPUTS_*.json.gz` as M1–M6 do. The old file remains in git history.
+- Correction (2026-10-14): Wayu Full-page S1 was written as +4.9. The value is 0.048491 (+4.849 points), so +4.8; the
+  slip came from rounding the 4-decimal 0.0485 a second time. Every other S1 cell was rechecked against
+  `W4A_ANALYSIS_ef2cac2.json`; only this one changed. Found by PELY334's session in the eight-model review.
 - The locked split was read once, by phase A's run. No locked run was repeated.
