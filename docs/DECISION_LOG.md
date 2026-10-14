@@ -2,12 +2,13 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
-## 2026-10-15 (W4) — MODEL_SURVEY_W4 eight-model results on the locked split: what is read, and how it may be worded (PROPOSED; Up2mEz's approval pending)
+## 2026-10-15 (W4) — MODEL_SURVEY_W4 eight-model results on the locked split: what is read, and how it may be worded (Up2mEz asked for it to be written into `CLAIMS.md` and the paper; approved by the merge of this PR)
 
 **Stage/Gate:** MODEL_SURVEY (Thai-marks phase). Reads, and does not open or pass, any gate.
 
-**Decision owner:** Human researcher (Up2mEz). Drafted by Up2mEz's Claude Code session; **nothing below is approved
-until Up2mEz says so in session or on the PR.**
+**Decision owner:** Human researcher (Up2mEz). Drafted by Up2mEz's Claude Code session. Up2mEz asked in session on
+2026-10-15 ("เขียน claim และแก้คำใน paper จริงเลย") for the claims and the paper wording to be written from this entry;
+**the merge of this PR is the approval**, as `CLAIMS.md`'s Update procedure says. PELY334's files were not edited.
 
 **Evidence:** `docs/stage0/MODEL_SURVEY_W4_RESULTS.md` (all three phases, read once; analysis commit `0743f13`, clean
 tree; `docs/stage0/data/W4_ANALYSIS_0743f13.json`); live decode-time stop on calibration items,
@@ -59,8 +60,11 @@ does not change the H-rank reading.
 **Consequence for next stage:** the paper's "[รอ W4]" slots can be filled from the file above, within the wording
 section. No further stage opens.
 
-**Files/configs affected:** `docs/DECISION_LOG.md` only (this entry). Proposed next: `docs/CLAIMS.md`,
-`docs/paper/*`.
+**Files/configs affected:** `docs/DECISION_LOG.md` (this entry); `docs/CLAIMS.md` (entries 12 to 17, hypothesis and
+forbidden lists); `docs/paper/` (EN and TH sources and PDFs, `figure_data.json`, `references.bib`, outline and
+introduction drafts); `scripts/paper_make_figures.py` (new figure `locked`; the prior figure now shows four models).
+The paper's title was changed from "Not Reading, Not Misreading" to "Absent, Not Misread", because the first wording
+claimed more than W3 supports for Qwen3-VL-4B.
 
 ---
 

@@ -24,8 +24,10 @@ whose text layout shapes Thai stacked vowels and tone marks correctly:
 uv run --with matplotlib python scripts/paper_make_figures.py
 ```
 
-Red `[...]` marks in the PDFs wait for the collaborator's runs (work split
-W1--W4). Author names are copied from the earlier draft; confirm them.
+No red `[...]` placeholders remain (2026-10-15: W1--W4 are in; Section VII is the locked-split
+confirmation). Author names are copied from the earlier draft; confirm them. Figures: `fig_locked_*` (eight
+models, locked split) was added, and `fig_prior_*` panel (a) now shows four models; all are drawn by
+`scripts/paper_make_figures.py` (matplotlib, Okabe-Ito palette, no hand-built SVG).
 
 ## Diagram made in Paper (design tool)
 
