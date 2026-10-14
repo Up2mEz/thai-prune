@@ -55,7 +55,8 @@ the question asks for part of it (M1's finding; not tested here).
 ## 2. H-stop
 
 **S1** (Δ mark F1, stop − greedy, in points; tested when the model looped on at least 5% of calibration items in that
-task; one Holm family of 22 tests: 13 S1, S2, 8 R1):
+task; one Holm family of 22 tests: 13 S1, S2, 8 R1; with 10,000 resamples the smallest one-sided p is 0.0001,
+so an adjusted p of 0.0021 is a floor and is read as "≤ 0.0021"):
 
 | model · task | calibration loop share | Δ F1 [95%] | Holm p | S1 |
 |---|---|---|---|---|
@@ -79,6 +80,10 @@ task; one Holm family of 22 tests: 13 S1, S2, 8 R1):
   criterion asks every eligible cell to pass, and **Pathumma's Full-page cell does not** (named, as in phase A):
   its gain is small and its interval reaches 0. Adding B and C did not change that cell's adjusted p (0.13, the
   largest p in the family).
+- Why that cell fails is visible in its loop rate: eligible on calibration by a small margin (4 of 69, 5.8%), it
+  looped on 4 of 128 locked pages (3.1%), the rate of the cells not tested. Where looping is rare the gain is small
+  and not shown at this n. This is not a counter-example to the stop: it is the registered result (every eligible
+  cell must pass) and it stands as written.
 - The repeat-aware variant gives the same direction in every cell (descriptive).
 - Pathumma's secondary prompt (descriptive): +3.4 [+0.7, +6.6] Full-page, +7.0 [+1.3, +13.1] Text rec.
 
@@ -155,6 +160,10 @@ Pathumma would be +2.5 [−3.6, +8.4] and +0.2 [−4.3, +4.9]. It does not chang
 - **Does not show:** that Typhoon is "best" (Pathumma is not separated from it); that stopping at decode time works
   live (the stop is offline; the decode-time criterion was replayed on calibration text, 185 / 185, and has not
   generated live); anything about other models, benchmarks or prompts; DeepSeek in fp32.
+- **Locked numbers are the headline.** Every design choice used calibration outputs only; the locked figures are
+  the ones to quote. Some are below their calibration values (Typhoon Full-page 92.6 against 94.9, Text rec. 73.7
+  against 81.7; calibration from `MODEL_SURVEY_M1_RESULTS.md`), as expected on unseen items when nothing was
+  tuned on them.
 - **Not a gate.** W4 opens or passes no gate.
 
 ## 7. Disclosures
