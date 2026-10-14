@@ -158,8 +158,8 @@ Pathumma would be +2.5 [−3.6, +8.4] and +0.2 [−4.3, +4.9]. It does not chang
   - the stop does not alter outputs that ended (1 of 2,400, a real loop);
   - on Full-page pages, lost marks are dominated by absence from the output in all eight models (Paddle narrowly).
 - **Does not show:** that Typhoon is "best" (Pathumma is not separated from it); that stopping at decode time works
-  live (the stop is offline; the decode-time criterion was replayed on calibration text, 185 / 185, and has not
-  generated live); anything about other models, benchmarks or prompts; DeepSeek in fp32.
+  live on the locked split (the locked figures use the offline stop; the live check, §8, is on calibration items
+  only); anything about other models, benchmarks or prompts; DeepSeek in fp32.
 - **Locked numbers are the headline.** Every design choice used calibration outputs only; the locked figures are
   the ones to quote. Some are below their calibration values (Typhoon Full-page 92.6 against 94.9, Text rec. 73.7
   against 81.7; calibration from `MODEL_SURVEY_M1_RESULTS.md`), as expected on unseen items when nothing was
@@ -176,3 +176,39 @@ Pathumma would be +2.5 [−3.6, +8.4] and +0.2 [−4.3, +4.9]. It does not chang
   (compared key by key); only the Holm-adjusted p-values and the pooled S2 changed, as that file said they would.
   One rounding differs in prose: Wayu Full-page S1 is +4.849 points, shown here as +4.8 and in
   `MODEL_SURVEY_W4A_RESULTS.md` as +4.9.
+
+## 8. Live decode-time stop (calibration items only; added after Up2mEz's review)
+
+Condition 3 had replayed the stop on recorded text (`W4_STOP_CHECK_ed02ad0.json`, 185 / 185). This check
+generates again with `stop.LoopStoppingCriteria` attached to `generate()` (checked every 8 tokens; the first firing
+token is then found exactly, which equals checking every token for greedy decoding). Items: every calibration output
+the offline cut changes (185) and 8 seeded unchanged ones per model and prompt (72; seed 20261014). Same models,
+revisions, prompts, image policy, greedy settings and fp16 as calibration. Locked items were not read.
+
+- Run `kaggle-model-survey-w4live-89581219878e` (commit `8958121`, config `configs/model_survey/w4_live_stop.yaml`),
+  all 8 units return code 0, fp16, no failures, no item not run, checksums verified.
+- Comparison: `scripts/model_survey_w4_live_stop_check.py` at `8958121`, clean tree, written to
+  `docs/stage0/data/W4_LIVE_STOP_8958121.json` (ids and counts only, no output text).
+- GPU: 0.43 T4-hours (2-item smoke) + 2.18 (full) = 2.61.
+
+| model, prompt | looping: live stop = offline cut | unchanged: not fired, text same | tokens generated, looping (archived → live) |
+|---|---|---|---|
+| Typhoon, BQ | 2 / 2 | 8 / 8 | 6,144 → 752 (12.2%) |
+| Qwen3-VL-2B (base), BQ | 46 / 46 | 8 / 8 | 141,312 → 19,360 (13.7%) |
+| Pathumma, card | 7 / 7 | 8 / 8 | 18,983 → 2,872 (15.1%) |
+| Pathumma, BQ | 3 / 3 | 8 / 8 | 9,216 → 184 (2.0%) |
+| Wayu, native | 20 / 20 | 8 / 8 | 61,440 → 5,128 (8.3%) |
+| Qwen3-VL-4B, BQ | 27 / 27 | 8 / 8 | 82,944 → 18,888 (22.8%) |
+| PaddleOCR-VL, native | 22 / 22 | 8 / 8 | 63,848 → 9,760 (15.3%) |
+| SEA-LION, BQ | 27 / 27 | 8 / 8 | 82,944 → 19,808 (23.9%) |
+| DeepSeek-OCR-2, card (fp16 only, own runner) | 31 / 31 | 8 / 8 | 95,232 → 9,264 (9.7%) |
+| **all** | **185 / 185** | **72 / 72** | **562,063 → 86,016 (15.3%)** |
+
+In every record the text generated live is a prefix of the archived output (257 / 257): greedy decoding
+reproduced the calibration run up to the stop.
+
+- **Shows:** on calibration items, stopping at decode time gives the offline cut character for character, and the
+  criterion did not fire on the 72 sampled outputs that do not loop; looping outputs need about 15% of their tokens.
+- **Does not show:** the same on the locked split (not generated live; its figures use the offline stop);
+  that the criterion never fires on an output that does not loop (72 sampled, not all; condition 3's replay
+  covered every calibration output); wall-clock savings (the per-token check cost is not measured here).
