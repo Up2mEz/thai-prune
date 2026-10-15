@@ -47,6 +47,7 @@ TEXT = {
         "gain_x": "Gain from the image (points)",
         "lam_x": "Prior weight λ", "lam_y": "Tone accuracy (%)",
         "f1_x": "Mark F1 (%)", "full": "Full-page", "text": "Text recognition",
+        "greedy": "greedy", "stop": "+ stop at loop",
     },
     "th": {
         "panel": ("(ก)", "(ข)"),
@@ -58,6 +59,7 @@ TEXT = {
         "gain_x": "ภาพช่วยเพิ่มความแม่นยำ (จุด)",
         "lam_x": "น้ำหนักความรู้ภาษาที่หัก λ", "lam_y": "ความแม่นยำ (%)",
         "f1_x": "Mark F1 (%)", "full": "อ่านทั้งหน้า", "text": "อ่านข้อความสั้น",
+        "greedy": "greedy", "stop": "+ หยุดเมื่อวนซ้ำ",
     },
 }
 TEXT["th2"] = TEXT["th"]
@@ -169,18 +171,18 @@ def decoders(lang: str) -> None:
 def prior(lang: str) -> None:
     s, t = _setup(lang), TEXT[lang]
     d = DATA["tone_accuracy_typhoon_fullpage"]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(s["width"], 1.5 if lang == "en" else 1.9),
-                               gridspec_kw={"width_ratios": [1, 1.05], "wspace": 0.7})
-    gains = [d["typhoon"]["with_image"] - d["typhoon"]["without_image"],
-             d["base"]["with_image"] - d["base"]["without_image"]]
-    names, colors = ["Typhoon", "Qwen3-VL-2B"], [BLUE, GREY]
-    a.barh([0, 1], gains, color=colors, height=0.5)
-    for y, g in enumerate(gains):
-        a.text(g + (0.06 if g >= 0 else -0.06), y, f"{g:+.1f}", va="center",
-               ha="left" if g >= 0 else "right", fontsize=s["font"] - 0.5)
+    fig, (a, b) = plt.subplots(1, 2, figsize=(s["width"], 1.7 if lang == "en" else 2.1),
+                               gridspec_kw={"width_ratios": [1, 1.05], "wspace": 0.75})
+    g = DATA["image_gain_fullpage_tone_calibration"]
+    gains, names = g["gain"], g["models"]
+    colors = [BLUE, BLUE, GREY, GREY]  # Thai fine-tunes blue, general models grey
+    a.barh(range(len(gains)), gains, color=colors, height=0.55)
+    for y, v in enumerate(gains):
+        a.text(v + (0.06 if v >= 0 else -0.06), y, f"{v:+.1f}".replace("-", "−"), va="center",
+               ha="left" if v >= 0 else "right", fontsize=s["font"] - 0.5)
     a.axvline(0, color=INK, linewidth=0.8)
-    a.set_yticks([0, 1], names)
-    a.set_ylim(1.6, -0.6)
+    a.set_yticks(range(len(names)), names)
+    a.set_ylim(len(names) - 0.4, -0.6)
     a.set_xlim(-1.9, 1.9)
     a.set_xlabel(t["gain_x"])
     a.xaxis.grid(True, color=GRID, linewidth=0.5)
@@ -202,10 +204,43 @@ def prior(lang: str) -> None:
     _save(fig, "prior", lang)
 
 
+def locked(lang: str) -> None:
+    """Eight models on the locked split: mark F1 greedy and with the stop, two panels."""
+    s, t = _setup(lang), TEXT[lang]
+    d = DATA["locked_eight_models_mark_f1"]
+    n = len(d["models"])
+    fig, axes = plt.subplots(1, 2, figsize=(s["width"], 3.0 if lang == "en" else 3.7), sharey=True)
+    h = 0.34
+    for ax, task, panel in zip(axes, ("full_page", "text_recognition"), t["panel"]):
+        for i in range(n):
+            g, st = d[f"{task}_greedy"][i], d[f"{task}_stop"][i]
+            ax.barh(i - 0.2, g, height=h, color=GREY, hatch="..", edgecolor="white", linewidth=0)
+            ax.barh(i + 0.2, st, height=h, color=BLUE)
+            ax.text(g + 1.2, i - 0.2, f"{g:.1f}", va="center", fontsize=s["font"] - 1.5)
+            ax.text(st + 1.2, i + 0.2, f"{st:.1f}", va="center", fontsize=s["font"] - 1.5)
+        ax.set_xlim(0, 122)
+        ax.set_xticks([0, 25, 50, 75, 100])
+        ax.set_xlabel(t["f1_x"])
+        ax.text(0.0, 1.03, panel + " " + (t["full"] if task == "full_page" else t["text"]),
+                transform=ax.transAxes, fontsize=s["font"], fontweight="bold", va="bottom")
+        ax.xaxis.grid(True, color=GRID, linewidth=0.5)
+        ax.set_axisbelow(True)
+    axes[0].set_yticks(range(n), d["models"])
+    axes[0].set_ylim(n - 0.4, -0.6)
+    from matplotlib.patches import Patch
+    fig.legend(handles=[Patch(fc=GREY, hatch="..", ec="white", label=t["greedy"]),
+                        Patch(fc=BLUE, label=t["stop"])],
+               loc="lower center", bbox_to_anchor=(0.55, -0.08), ncol=2, frameon=False,
+               fontsize=s["font"] - 0.5, handlelength=1.4, columnspacing=1.2)
+    fig.subplots_adjust(wspace=0.08)
+    _save(fig, "locked", lang)
+
+
 if __name__ == "__main__":
     for language in ("en", "th", "th2"):
         causes(language)
         models(language)
         decoders(language)
         prior(language)
+        locked(language)
     print("wrote", sorted(p.name for p in OUT.glob("fig_*_*.pdf")))

@@ -1,5 +1,5 @@
 {
-  "_note": "Every number is copied from a committed results document; the source is beside it. Calibration split, pilot.",
+  "_note": "Every number is copied from a committed results document; the source is beside it. Calibration split unless a key says locked.",
   "attribution_typhoon_fullpage_pct_of_all_marks": {
     "_source": "docs/stage0/TYPHOON_FAILURE_PROFILE.md section 2d table (Typhoon, Full-page; BQ = BENCHMARK_QUESTION, TC = TYPHOON_CARD); other order = verbatim + approximate, misread = base right + with base",
     "BQ": {
@@ -138,6 +138,74 @@
       11.5,
       9.7,
       7.6
+    ]
+  },
+  "image_gain_fullpage_tone_calibration": {
+    "_source": "Typhoon and Qwen3-VL-2B: docs/stage0/THAI_MARKS_T1_T2_RESULTS.md section 1 (oracle with image minus prior without image, tone, Full-page); Pathumma and Qwen3-VL-4B: docs/stage0/MODEL_SURVEY_W3_RESULTS.md sections 1 and 3 (same quantity, as printed there: +1.0 and -0.5)",
+    "models": [
+      "Typhoon",
+      "Pathumma",
+      "Qwen3-VL-4B",
+      "Qwen3-VL-2B"
+    ],
+    "gain": [
+      0.9,
+      1.0,
+      -0.5,
+      -0.8
+    ]
+  },
+  "locked_eight_models_mark_f1": {
+    "_source": "docs/stage0/MODEL_SURVEY_W4_RESULTS.md section 1 (locked split, 128 Full-page and 224 Text recognition items, order-free v2; primary prompts as registered; DeepSeek-OCR-2 fp16 only, own runner)",
+    "models": [
+      "Typhoon",
+      "Pathumma",
+      "Wayu",
+      "PaddleOCR-VL",
+      "Qwen3-VL-4B",
+      "Qwen3-VL-2B",
+      "SEA-LION",
+      "DeepSeek-OCR-2 (fp16)"
+    ],
+    "full_page_greedy": [
+      92.6,
+      91.0,
+      73.6,
+      60.2,
+      56.7,
+      54.3,
+      43.3,
+      35.4
+    ],
+    "full_page_stop": [
+      94.1,
+      92.4,
+      78.4,
+      68.6,
+      73.0,
+      72.8,
+      58.4,
+      52.5
+    ],
+    "text_recognition_greedy": [
+      73.7,
+      64.7,
+      35.8,
+      42.3,
+      21.6,
+      19.9,
+      22.7,
+      17.8
+    ],
+    "text_recognition_stop": [
+      77.2,
+      67.6,
+      64.9,
+      51.0,
+      28.5,
+      55.4,
+      29.6,
+      47.8
     ]
   }
 }

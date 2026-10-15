@@ -2,6 +2,72 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-15 (W4) — MODEL_SURVEY_W4 eight-model results on the locked split: what is read, and how it may be worded (Up2mEz asked for it to be written into `CLAIMS.md` and the paper; approved by the merge of this PR)
+
+**Stage/Gate:** MODEL_SURVEY (Thai-marks phase). Reads, and does not open or pass, any gate.
+
+**Decision owner:** Human researcher (Up2mEz). Drafted by Up2mEz's Claude Code session. Up2mEz asked in session on
+2026-10-15 ("เขียน claim และแก้คำใน paper จริงเลย") for the claims and the paper wording to be written from this entry;
+**the merge of this PR is the approval**, as `CLAIMS.md`'s Update procedure says. PELY334's files were not edited.
+
+**Evidence:** `docs/stage0/MODEL_SURVEY_W4_RESULTS.md` (all three phases, read once; analysis commit `0743f13`, clean
+tree; `docs/stage0/data/W4_ANALYSIS_0743f13.json`); live decode-time stop on calibration items,
+`kaggle-model-survey-w4live-89581219878e` (`W4_LIVE_STOP_8958121.json`); Up2mEz's review of PR #127 (every number
+recomputed from the JSON, `collab/messages/20261014T0637Z_...`). Claim level `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.
+
+**Decision (proposed): read the registered tests as follows.**
+
+1. **H-stop S1.** The stop raises mark F1 on the locked split in 12 of the 13 eligible cells (base, Wayu, Qwen3-VL-4B,
+   Paddle, SEA-LION, DeepSeek, both tasks; Holm-adjusted p ≤ 0.0021 or 0.0036, a floor from 10,000 resamples).
+   **Pathumma Full-page does not pass** (+1.3 [0.0, +3.5], Holm p 0.13), so the criterion "every eligible cell
+   passes" is **not met** and stays recorded as not met. Its locked loop rate (4 of 128, 3.1%) is that of the cells
+   not tested; this explains the cell, it does not turn the result into a pass.
+2. **H-stop S2.** Passes as written: 1 of 2,400 ended outputs changed (a real loop that ended on its own); upper 95%
+   bound 0.20% (exact) / 0.13% (cluster bootstrap).
+3. **H-read R1.** Passes for all eight models on Full-page (lower bounds 3.2 to 7.5; Paddle's 3.2 is the closest to
+   the threshold). Marks are lost mainly as **absence from the output**, not misreading where the base consonant is
+   right. Absence is observed; a failure to read is not.
+4. **H-rank (reported, not tested).** Typhoon's mark F1 is higher than six of the other models on both tasks. Against
+   Pathumma no difference is shown at n = 128 / 224; this is not "equivalent". "Best" is not used.
+5. **Live stop.** On calibration items only, the decode-time stop equals the offline cut character for character
+   (185 / 185) and did not fire on 72 / 72 sampled non-looping outputs. The locked figures use the offline stop.
+
+**Wording the paper and `CLAIMS.md` may use (proposed):**
+
+- "On a locked split of 352 ThaiOCRBench items and eight open models, stopping at a detected repeat loop raised mark F1
+  in 12 of 13 cells where the model looped on about 5% of calibration pages or more, and changed 1 of 2,400 outputs
+  that ended on their own. Where looping is rare (Pathumma Full-page, 3.1%) the gain was small and not shown."
+- "Report the locked figures as the headline; calibration was used for every design choice."
+- Every Typhoon and Pathumma number carries the contamination note (Typhoon is from ThaiOCRBench's group; Pathumma's
+  training data is unnamed). Every DeepSeek number carries "fp16 only, own runner".
+
+**Not permitted:** "best" or "state-of-the-art" for Typhoon; calling Pathumma a counter-example or "equivalent" to
+Typhoon; a claim about Thai OCR VLMs beyond these eight models and ThaiOCRBench; "the stop works live on unseen
+items" (not generated live on the locked split); a statement that Thai tone marks are harder or easier than other
+marks (not tested here); any reading of this as a gate.
+
+**Not decided here:** the `CLAIMS.md` entries (a separate PR after this entry is approved); the paper text; whether to
+run the stop live on the locked split (would need a new registration, because the locked split is read once).
+
+**Known limitations:** one benchmark, two tasks, one bootstrap seed; calibration loop shares select the
+eligible cells; Text recognition precision is low for several models because the items show a whole page while the
+question asks for part of it (M1's finding, untested here); DeepSeek in fp16; Pathumma's unclosed-figure upper bound
+does not change the H-rank reading.
+
+**Disclosed:** Wayu Full-page S1 was written +4.9 in `MODEL_SURVEY_W4A_RESULTS.md` and corrected to +4.8 (PR #130);
+`MODEL_SURVEY_W4_RESULTS.md` §7 still says it differs there and needs its last line updated by PELY334.
+
+**Consequence for next stage:** the paper's "[รอ W4]" slots can be filled from the file above, within the wording
+section. No further stage opens.
+
+**Files/configs affected:** `docs/DECISION_LOG.md` (this entry); `docs/CLAIMS.md` (entries 12 to 17, hypothesis and
+forbidden lists); `docs/paper/` (EN and TH sources and PDFs, `figure_data.json`, `references.bib`, outline and
+introduction drafts); `scripts/paper_make_figures.py` (new figure `locked`; the prior figure now shows four models).
+The paper's title was changed from "Not Reading, Not Misreading" to "Absent, Not Misread", because the first wording
+claimed more than W3 supports for Qwen3-VL-4B.
+
+---
+
 ## 2026-10-13c (W4) — MODEL_SURVEY_W4 phase A analysed (provisional, four of eight models)
 
 **Evidence:** `docs/stage0/MODEL_SURVEY_W4A_RESULTS.md`; analysis choices fixed beforehand in

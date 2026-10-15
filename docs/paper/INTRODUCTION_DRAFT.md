@@ -6,7 +6,7 @@
 - Every result sentence stays inside `docs/CLAIMS.md` ("Thai-marks phase").
 - Citation keys point to `references.bib`, verified 2026-10-11 (see
   `RELATED_WORK_DRAFT.md`).
-- `[W1]`–`[W4]` mark numbers that wait for PELY334's runs.
+- `[W1]`–`[W4]` marked numbers that waited for PELY334's runs; all four are now in (2026-10-15).
 - `[N]` is the final number of models.
 
 ---
@@ -53,10 +53,9 @@ contributions.
    - The marks that are lost are mostly never read: whole lines absent, text
      not found, or output consumed by loops. Wrong marks inside read text are
      a smaller share.
-   - [W1/W3: the same diagnosis across the other models.]
+   - On the locked split, absent text costs 4.7 to 15.8 times more marks than a misread mark after a correct consonant, in all eight models. One exception to the wording: Qwen3-VL-4B also misreads about one tone mark in eleven while it writes the page (W3), so "mostly absent" is right and "almost never misread" is not.
 3. **What training-free decoding does to marks.**
-   - Stopping generation at a detected loop leaves every non-looping output
-     unchanged and raises mark F1. [W4: confirmatory numbers.]
+   - Stopping generation at a detected loop raised mark F1 in 12 of the 13 registered cells on the locked split, and changed 1 of 2,400 outputs that had ended on their own. The cell that did not pass (Pathumma, full pages) rarely loops.
    - The repetition penalty shipped with an OCR package lowers mark F1 on
      non-looping pages and raises tone errors.
    - Decoding that subtracts the language prior removes correct tone marks.
@@ -89,9 +88,9 @@ finding text, not in seeing a tone mark more sharply.
    - บน Typhoon ในตำแหน่งที่อ่านพยัญชนะถูก วรรณยุกต์ผิดเพียง 0.65%
    - เมื่อให้คำก่อนหน้าที่ถูก โมเดลเลือกวรรณยุกต์ถูก 98.8% แม้ไม่เห็นภาพ
    - mark ที่หายส่วนใหญ่ไม่ได้ถูกอ่านเลย ได้แก่ หายทั้งบรรทัด หาข้อความไม่เจอ หรือ output ถูกการวนซ้ำกินไป ส่วนการอ่าน mark ผิดในข้อความที่อ่านแล้วเป็นส่วนที่น้อยกว่า
-   - [W1/W3: ผลวินิจฉัยเดียวกันกับโมเดลอื่น]
+   - บนชุด locked ข้อความที่หายทำให้เสีย mark มากกว่าการอ่าน mark ผิดหลังอ่านพยัญชนะถูก 4.7 ถึง 15.8 เท่า ในทั้งแปดโมเดล ข้อยกเว้นของถ้อยคำคือ Qwen3-VL-4B ซึ่งอ่านวรรณยุกต์ผิดราว 1 ใน 11 ตอนเขียนหน้าเองด้วย (W3) จึงใช้คำว่า "ส่วนใหญ่หายไปจาก output" ได้ แต่ใช้ "แทบไม่เคยอ่านผิด" ไม่ได้
 3. **ผลของ training-free decoding ต่อ mark**
-   - การหยุด generate เมื่อเจอการวนซ้ำไม่เปลี่ยน output ที่ไม่วนซ้ำเลย และเพิ่มคะแนน mark [W4: ตัวเลขจากการทดลองยืนยัน]
+   - การหยุด generate เมื่อเจอการวนซ้ำเพิ่ม mark F1 ใน 12 จาก 13 เซลล์ที่ลงทะเบียนไว้บนชุด locked และเปลี่ยน output ที่จบเองเพียง 1 จาก 2,400 รายการ เซลล์ที่ไม่ผ่าน (Pathumma หน้าเต็ม) วนซ้ำน้อย
    - repetition penalty ที่ติดมากับ package ของ OCR ทำให้คะแนน mark ของหน้าที่ไม่วนซ้ำลดลง และวรรณยุกต์ผิดมากขึ้น
    - decoding ที่หักความรู้ภาษาออกทำให้วรรณยุกต์ที่ถูกอยู่แล้วหายไป
 

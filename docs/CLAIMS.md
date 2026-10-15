@@ -304,14 +304,19 @@ The following inference is also forbidden:
 
 # Thai-marks phase (objective of 2026-09-27)
 
-> **Proposed 2026-10-11 by Up2mEz's session, for the short paper. The
-> researcher's approval is the merge of the PR that adds this section.**
-> Every entry is `Preliminary/Pilot`: ThaiOCRBench calibration split only
-> (Full-page OCR 69 items, Text recognition 109 items, seed 20260927), pinned
-> revisions, greedy decoding, Kaggle T4. The locked split is unopened. Several
-> remedies were designed after seeing the same split.
+> **Proposed 2026-10-11 by Up2mEz's session, for the short paper; entries 12 to
+> 17 added 2026-10-15 (Decision Log 2026-10-15). The researcher's approval is
+> the merge of the PR that adds them.**
+> Every entry is `Preliminary/Pilot`, with pinned revisions, greedy decoding and
+> Kaggle T4. Entries 1 to 11, 15 and 16 are ThaiOCRBench **calibration split**
+> only (Full-page OCR 69 items, Text recognition 109 items, seed 20260927).
+> Entries 12 to 14 and 17 are the **locked split, read once** by W4 (Full-page
+> 128 items, Text recognition 224 items, eight models), registered before any
+> locked output was scored; they are not gate evidence. Several remedies were
+> designed after seeing the calibration split. Where a calibration and a locked
+> figure both exist, the locked figure is the one to quote.
 
-## SUPPORTED_WITH_LIMITS (descriptive, calibration split)
+## SUPPORTED_WITH_LIMITS (descriptive; calibration split unless an entry says locked)
 
 Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTION`
 = BQ, `TYPHOON_CARD` = TC), T1 scoring v2 and the order-free v2 mark metric.
@@ -379,12 +384,76 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
     separated from a failure to read. The attribution is automatic.
     `stage0/MODEL_SURVEY_W1_CROSS_MODEL.md` §3, `stage0/MODEL_SURVEY_M5_RESULTS.md` §3.
 
-## HYPOTHESIS (needs more models and/or the locked split)
+12. **Stop at a detected loop, locked split, eight models (W4, S1).** The stop
+    (T5b-B rule, offline cut) raised mark F1 in 12 of the 13 registered cells,
+    those where the model looped on at least 5% of calibration items in that
+    task: base Qwen3-VL-2B, Wayu, Qwen3-VL-4B, PaddleOCR-VL-1.6, SEA-LION v4 4B
+    and DeepSeek-OCR-2 (fp16), on both tasks. Gains are +4.8 to +35.6 points,
+    Holm-adjusted p at most 0.0036 (a floor from 10,000 resamples; 0.0021 is
+    read as "at most 0.0021").
+    - **The 13th cell, Pathumma Full-page, did not pass** (+1.3 [0.0, +3.5],
+      adjusted p 0.13). The registered criterion asked every eligible cell to
+      pass, so S1 as registered is **not met**. Pathumma looped on 4 of 128
+      locked pages (3.1%), the rate of the cells not tested; where looping is
+      rare the gain is small and not shown at this n. This explains the cell; it
+      is not a counter-example to the mechanism.
+    - Not tested (looped on under 5% of calibration items): Typhoon Full-page
+      +1.5 [-0.5, +4.1] and Text recognition +3.5 [0.0, +11.0], Pathumma Text
+      recognition +3.0 [0.0, +6.7] (descriptive).
+    - Wording: "the stop raises mark F1 for models that loop on about 5% of
+      pages or more; where looping is rare the gain is small and not shown at
+      this n."
+    - `stage0/MODEL_SURVEY_W4_RESULTS.md` §2, `stage0/data/W4_ANALYSIS_0743f13.json`.
+13. **Ended outputs left alone, locked split (W4, S2).** The stop changed 1 of
+    2,400 outputs that ended on their own (0.04%), pooled over eight models and
+    both tasks; upper 95% bound 0.20% (exact binomial) and 0.13% (cluster
+    bootstrap). The one change is a Typhoon output that left a real loop by
+    itself. `stage0/MODEL_SURVEY_W4_RESULTS.md` §2.
+14. **Where marks are lost, locked split (W4, R1).** On Full-page, marks lost
+    to absent lines and missing spans exceed marks lost to misreading after a
+    correctly read consonant in all eight models: ratio 4.7 [3.2, 6.7]
+    (PaddleOCR-VL, the closest to the threshold of 3) to 15.8 [7.5, 32.0]
+    (Pathumma). A statement about these eight models on this benchmark.
+    Absence from the output is observed; that the model failed to read the line
+    is not (a model may see a line and not write it; for looping models a line
+    after a loop counts as absent). `stage0/MODEL_SURVEY_W4_RESULTS.md` §3.
+15. **Tone mark given correct context, two more models (W3, calibration).** In
+    the T2 forced choice on Full-page tone: Pathumma 99.7% with the image and
+    98.7% without (gain +1.0); Qwen3-VL-4B 98.7% and 99.1% (gain -0.5). When
+    they write the page themselves, at sites where the base consonant was read
+    correctly, Pathumma's tone is right 99.4% of the time (the test: 99.8%) and
+    **Qwen3-VL-4B's 91.3% (the test: 99.1%)**. So the "not misreading" reading
+    holds for the two Thai fine-tunes; the general model Qwen3-VL-4B knows the
+    marks but misreads about one in eleven while generating. Teacher-forced
+    accuracy is not reading accuracy: the test is given the correct preceding
+    text. `stage0/MODEL_SURVEY_W3_RESULTS.md` §1 and §3.
+16. **Decode-time stop, calibration items (W4 live check).** Generated again
+    with the stop attached to `generate()`, all eight models: stopped output
+    equals the offline cut character for character in 185 of 185 outputs the
+    cut changes, and the criterion did not fire on 72 of 72 sampled outputs it
+    leaves alone; looping outputs used 15.3% of their tokens (86,016 of
+    562,063). Calibration items only; wall-clock time not measured. Run
+    `kaggle-model-survey-w4live-89581219878e`;
+    `stage0/data/W4_LIVE_STOP_8958121.json`; `stage0/MODEL_SURVEY_W4_RESULTS.md` §8.
+17. **Typhoon against the other seven models, locked split (W4, H-rank,
+    reported not tested).** Typhoon's mark F1 is higher than six of the other
+    models on both tasks (intervals above 0). Against Pathumma no difference is
+    shown (card prompt: Full-page +1.5 [-3.1, +6.5], Text recognition +9.0
+    [-3.6, +21.3]); this is not "equivalent". Locked headline: Typhoon 92.6
+    (Full-page) and 73.7 (Text recognition), below its calibration 94.9 and
+    81.7, as expected on items nothing was tuned on. Contamination, beside
+    every Typhoon and Pathumma number: Typhoon is from ThaiOCRBench's group;
+    Pathumma's training data are unnamed. DeepSeek-OCR-2 is fp16 only with its
+    own runner. `stage0/MODEL_SURVEY_W4_RESULTS.md` §1 and §4.
+
+## HYPOTHESIS (needs more models, live decoding or another benchmark)
 
 - The prior is already right for the tone mark given correct context in
-  models other than Typhoon and Qwen3-VL-2B (T2 on Pathumma and Qwen3-VL-4B
-  not yet run).
-- The stop at a loop helps on unseen items (locked split, not opened).
+  models beyond Typhoon, Pathumma, Qwen3-VL-2B and Qwen3-VL-4B (entry 15; T2 not
+  run on the other four models).
+- The stop at a loop helps in live decoding on unseen items (the locked split
+  was cut offline; the live check, entry 16, is on calibration items only), and
+  on another benchmark or language.
 - Decoding that subtracts the language prior costs Thai tone marks in
   general (seen with T2's contrastive rescoring and the project's
   "M3ID-form" contrast, `stage0/REMEDIES_R1_RESULTS.md`).
@@ -396,7 +465,18 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
   the benchmark. Allowed: "the strongest measured here, comparable to
   Pathumma".
 - "Stopping at a loop is better than repetition penalties / existing
-  methods." Not until a registered locked-split result.
+  methods." The locked-split result (entry 12) compares the stop with greedy
+  decoding only; repetition penalties and n-gram blocking were compared on the
+  calibration split (Typhoon) only.
+- "The stop raises mark F1 in every model", "S1 passed", or Pathumma called a
+  counter-example or an exception. Entry 12: 12 of 13 registered cells; the
+  registered criterion is not met.
+- "Marks are almost never misread" or "not misreading" for general models.
+  Qwen3-VL-4B misreads about one tone mark in eleven while generating (entry 15).
+- "Pathumma and Typhoon are equivalent", or either named best (entry 17).
+- "The stop works live on unseen items" (entry 16 is calibration items only).
+- Any claim about Thai OCR VLMs beyond the eight models and ThaiOCRBench, or
+  that Thai tone marks are harder or easier than other marks (not tested).
 - "M3ID", "VCD" or "PAI" results, unqualified. These are the project's
   reimplementations: write "M3ID-form" / "PAI-style".
 - "Wayu knows when it is inventing text." M4's AUROC has an unresolved
