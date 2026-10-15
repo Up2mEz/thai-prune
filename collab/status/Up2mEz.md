@@ -1,6 +1,6 @@
 # Status — Up2mEz
 
-**Updated:** 2026-10-11
+**Updated:** 2026-10-15
 
 ## Tracks I own
 
@@ -10,7 +10,7 @@
 | Thai-marks T1/T2/T3 (Qwen3-VL-2B / Typhoon OCR 1.5, ThaiOCRBench calibration) | `src/labbs2026/thai_marks/` | T1/T2/T3 done; merged (PR #23) |
 | Typhoon non-graphic gaps G1–G4 (session gaps) | `src/labbs2026/thai_marks/` | T5b stop-at-loop passes dev check; E1 confidence PASS; E1-B1, E3 fail; merged (PR #23) |
 | Order-free mark metric (metric owner) | `src/labbs2026/thai_marks/order_free.py` | adding a repeat-aware variant (PELY334's note on 33067A35); registered v2 unchanged |
-| Paper (short paper; Up2mEz writes, PELY334 runs experiments) | docs | work split sent 2026-10-11 (`20261011T1315Z_Up2mEz_to_PELY334_paper-prep-work-split.md`) |
+| Paper (short paper; Up2mEz writes, PELY334 runs experiments) | docs | W1-W4 are in; EN and TH sources in `docs/paper/ieee/v2/`, claims 12-17 in `docs/CLAIMS.md`, PR #133 awaiting Up2mEz's merge; before submission: `ref-verify` pass, author check, page limit |
 | P-ZOOM (session pzoom, `collab/status/Up2mEz-pzoom.md`) | new files | draft |
 
 The owner runs two parallel sessions: `docs/exec-plans/active/PARALLEL_SESSIONS.md`.
