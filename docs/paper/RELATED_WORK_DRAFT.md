@@ -121,5 +121,5 @@ items were read from raw source: the DeepSeek-OCR and PaddleX code, and CTRL.
   abstract was seen.
 - **Preprints.** Typhoon OCR, olmOCR, Qwen3-VL, PaddleOCR-VL, DeepSeek-OCR
   and the Wayu paper are arXiv-only. Pathumma has only a model card.
-- **PAI's title** differs: the ECCV version says "Images", arXiv says
-  "Image". `references.bib` uses ECCV.
+- **PAI's title** (updated 2026-10-15): CrossRef and arXiv both say "Image";
+  `references.bib` now uses it. See `REFERENCE_AUDIT_2026-10-15.md`.
