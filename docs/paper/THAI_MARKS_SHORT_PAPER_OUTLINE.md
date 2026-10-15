@@ -96,6 +96,6 @@
 - [x] W1–W3 เสร็จ และตารางเติมครบ
 - [x] W4 เปิด locked split แล้ว (อนุมัติทั้งสองฝ่าย Decision Log 2026-10-12f, 10-13a)
 - [ ] อาจารย์ตัดสินใจเรื่องขอ written confirmation จากทีม Typhoon (ความเสี่ยงบันทึกใน Decision Log 2026-09-25)
-- [ ] ทุก citation ผ่าน `ref-verify` (เพิ่มใหม่: SEA-LION model card และ DeepSeek-OCR 2 arXiv:2601.20552 ตรวจชื่อ ผู้เขียน ปีแล้ว ที่เหลือต้องตรวจซ้ำก่อนส่ง)
+- [x] ทุก citation ผ่าน `ref-verify` แล้ว 2026-10-15 (`REFERENCE_AUDIT_2026-10-15.md`: 21 ACCEPT, 2 WARN) ยกเว้น elsafty2025arabic ที่ผู้เขียนต้องอ่านบทคัดย่อ/ต้นฉบับอีกครั้ง
 - [ ] ทุกประโยคที่เป็นผลอยู่ใน `docs/CLAIMS.md` และขอบเขตตรงกัน
 - [ ] อ้าง ThaiOCRBench ตามเงื่อนไข (paper + revision) และไม่เผยแพร่ภาพจาก benchmark
