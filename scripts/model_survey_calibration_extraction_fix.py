@@ -44,7 +44,7 @@ from labbs2026.thai_marks.loop_cut import variant_b  # noqa: E402
 from labbs2026.thai_marks.order_free import mark_counts, prf  # noqa: E402
 from labbs2026.thai_marks.split import calibration_ids  # noqa: E402
 
-RULES = ("as_registered", "json_unwrapped_figure_kept")
+RULES = ("as_registered", "v2_1")
 DATA = Path("docs/stage0/data")
 
 
@@ -71,7 +71,7 @@ def _score(job: tuple) -> tuple:
     for rule in rules:
         row = {}
         for arm, raw in (("greedy", record["raw_output"]), ("stop", cut)):
-            hyp = ff.rule_text(rule, raw)
+            hyp = ff.rule_text(rule, raw, not record["reached_max_new_tokens"])
             if hyp not in cache:
                 cache[hyp] = {"v2": mark_counts(ref, hyp, **order_free),
                               "ra": mark_counts(ref, hyp, **order_free, repeat_aware=True),
@@ -129,7 +129,8 @@ def main() -> None:
                 result["attribution_stopped_fullpage"].setdefault(f"{role} / {prompt}", {})[rule] = \
                     attribution_shares(counters)
             if role == "pathumma":
-                recs = [{**by_id[(prompt, i)], "raw_output": ff.rule_text(rule, by_id[(prompt, i)]["raw_output"])}
+                recs = [{**by_id[(prompt, i)], "raw_output": ff.rule_text(rule, by_id[(prompt, i)]["raw_output"],
+                                                                   not by_id[(prompt, i)]["reached_max_new_tokens"])}
                         for i in ids]
                 result["t1_tone"].setdefault(f"{prompt} / {task}", {})[rule] = analyze_t1_v2(
                     recs, seed=config["scoring"]["null_seed"])

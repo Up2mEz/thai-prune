@@ -39,7 +39,7 @@ from labbs2026.thai_marks.extract import extract  # noqa: E402
 from labbs2026.thai_marks.loop_cut import variant_b  # noqa: E402
 from labbs2026.thai_marks.order_free import mark_counts  # noqa: E402
 
-RULES = ("as_registered", "json_unwrapped_figure_kept")
+RULES = ("as_registered", "v2_1")
 ARCHIVES = ["W4A_OUTPUTS_37b0d59989de", "W4B_OUTPUTS_1c57af591e7e", "W4C_OUTPUTS_1c57af591e7e",
             "W4CD_OUTPUTS_1c57af591e7e"]
 
@@ -49,7 +49,8 @@ def _score(job: tuple) -> tuple:
     ref, cut = record["reference"], variant_b(record)
     out, cache = {}, {}
     for rule in RULES:
-        arms = {"greedy": ff.rule_text(rule, record["raw_output"]), "stop": ff.rule_text(rule, cut)}
+        ended = not record["reached_max_new_tokens"]
+        arms = {"greedy": ff.rule_text(rule, record["raw_output"], ended), "stop": ff.rule_text(rule, cut, ended)}
         row = {}
         for arm, hyp in arms.items():
             if hyp not in cache:

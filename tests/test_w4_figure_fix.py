@@ -30,7 +30,7 @@ def test_text_without_a_figure_is_unchanged():
 
 def test_json_wrapped_output_is_unwrapped_before_the_figure_rule():
     raw = '{"natural_text": "บรรทัดแรก\\nบรรทัดสอง <figure>\\nข้อความหลังแท็ก"}'
-    unwrapped = figure_fix.rule_text("json_unwrapped_figure_kept", raw)
+    unwrapped = figure_fix.rule_text("v2_1", raw)
     assert "\\n" not in unwrapped and "\n" in unwrapped
     assert "ข้อความหลังแท็ก" in extract_text(unwrapped)
     assert figure_fix.rule_text("as_registered", raw) == raw
@@ -39,3 +39,9 @@ def test_json_wrapped_output_is_unwrapped_before_the_figure_rule():
 def test_the_registered_rule_changes_nothing():
     raw = '{"natural_text": "x"}'
     assert figure_fix.rule_text("as_registered", raw) == raw
+
+
+def test_an_output_that_reached_the_limit_inside_a_figure_is_not_changed_by_the_figure_rule():
+    raw = "ก่อน <figure>\nคำอธิบายซ้ำ คำอธิบายซ้ำ"
+    assert figure_fix.rule_text("v2_1", raw, ended=False) == raw
+    assert "คำอธิบายซ้ำ" in extract_text(figure_fix.rule_text("v2_1", raw, ended=True))
