@@ -41,7 +41,7 @@ numbers are typed by hand from `figure_data.json`; it is not yet included in
 ## Version 2: the format of `docs/paper/Example/`
 
 `v2/en/main_en.tex` and `v2/th/main_th.tex` follow the two example PDFs: IEEE
-conference format with italic title, per-author blocks and a copyright line
+conference format with italic title, per-author blocks (the example's copyright line is deliberately omitted)
 (English, US Letter), and an A4 Thai page with a single-column title page,
 abstract, keywords and footnotes followed by two justified columns (Thai).
 Abstract, keywords and body are shared files in each folder (`abstract_*.tex`,

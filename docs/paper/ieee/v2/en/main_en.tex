@@ -1,7 +1,8 @@
 % ============================================================
 % Short paper, English, "Example" format (docs/paper/Example/*ENG*.pdf):
 % IEEE conference, US Letter, two columns, italic title, per-author blocks,
-% copyright line at the foot of page 1, bold abstract, bold-italic keywords.
+% bold abstract, bold-italic keywords. The example has a copyright line at the foot of page 1;
+% it is left out here because this is not a submission to a publisher.
 % Build: xelatex main_en && bibtex main_en && xelatex main_en && xelatex main_en
 % Body, abstract and keywords are shared files in this folder.
 % ============================================================
@@ -25,9 +26,6 @@
 \graphicspath{{../../../figures/}}
 \newcommand{\figlang}{en}\newcommand{\figwidth}{\columnwidth}\newcommand{\fit}[1]{\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{#1}}
 
-% copyright line at the foot of page 1, as in the example
-\IEEEoverridecommandlockouts
-\IEEEpubid{\makebox[\columnwidth]{XXX-X-XXXX-XXXX-X/XX/\$XX.00 \copyright 20XX IEEE\hfill}\hspace{\columnsep}\makebox[\columnwidth]{}}
 
 \begin{document}
 
