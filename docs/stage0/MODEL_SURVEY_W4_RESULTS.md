@@ -174,8 +174,16 @@ Pathumma would be +2.5 [−3.6, +8.4] and +0.2 [−4.3, +4.9]. It does not chang
   2-item calibration smoke first.
 - Phase A's per-model sections of the two analysis files (cells, audit, S1, R1, H-rank, upper bound) are identical
   (compared key by key); only the Holm-adjusted p-values and the pooled S2 changed, as that file said they would.
-  One rounding differs in prose: Wayu Full-page S1 is +4.849 points, shown here as +4.8 and in
-  `MODEL_SURVEY_W4A_RESULTS.md` as +4.9.
+  Wayu Full-page S1 is +4.849 points, shown here as +4.8; phase A's file had +4.9 (a second rounding of
+  0.0485) and was corrected to +4.8 on 2026-10-14 (PR #130).
+- **Split size: 352 locked, not "about 415".** The registration estimated the locked split as 178 / 0.30 − 178,
+  which assumes calibration is exactly 30% of the pool. It is not: the pool (Full-page OCR and Text recognition at
+  `ca610d1ab330`) has 530 items in 41 (task, category) strata, and `calibration_ids` takes `ceil(0.30 × n)` per
+  stratum. Small strata round up (5 strata have one item, all in calibration), so calibration is 159 + 19 = 178
+  items (33.6%) and the locked split 352 (66.4%): Full-page 197 − 69 = 128, Text recognition 333 − 109 = 224.
+  No item was dropped. The split is the one T1 fixed before any output existed; only the registration's
+  estimate was wrong. Counts read on 2026-10-17 from the parquet's `Id`, `Task` and `category` columns only
+  (no image read), with the same function, seed and fraction.
 
 ## 8. Live decode-time stop (calibration items only; added after Up2mEz's review)
 
