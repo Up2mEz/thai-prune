@@ -207,5 +207,63 @@
       29.6,
       47.8
     ]
+  },
+  "tone_accuracy_generation_vs_test_fullpage_correct_base": {
+    "_source": "docs/stage0/MODEL_SURVEY_W3_RESULTS.md section 3 diagnostic table (tone sites whose base consonant the greedy read got right, Full-page, calibration): generation = the model's own greedy read, test = the forced-choice oracle at the same sites",
+    "models": [
+      "Pathumma",
+      "Qwen3-VL-4B"
+    ],
+    "generation": [
+      99.4,
+      91.3
+    ],
+    "test": [
+      99.8,
+      99.1
+    ]
+  },
+  "locked_r1_ratio_fullpage": {
+    "_source": "docs/stage0/MODEL_SURVEY_W4_RESULTS.md section 3 (R1, locked split, Full-page: (line missing + span missing) / (misread with base right), 95% page-bootstrap interval)",
+    "models": [
+      "Pathumma",
+      "Wayu",
+      "Typhoon",
+      "SEA-LION v4 4B",
+      "DeepSeek-OCR-2 (fp16)",
+      "Qwen3-VL-2B",
+      "Qwen3-VL-4B",
+      "PaddleOCR-VL-1.6"
+    ],
+    "ratio": [
+      15.8,
+      10.8,
+      8.2,
+      7.8,
+      7.8,
+      7.8,
+      6.1,
+      4.7
+    ],
+    "ci_low": [
+      7.5,
+      7.1,
+      5.5,
+      5.6,
+      5.8,
+      5.0,
+      3.7,
+      3.2
+    ],
+    "ci_high": [
+      32.0,
+      16.0,
+      14.3,
+      10.4,
+      10.5,
+      11.7,
+      9.2,
+      6.7
+    ]
   }
 }
