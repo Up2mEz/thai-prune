@@ -305,7 +305,7 @@ The following inference is also forbidden:
 # Thai-marks phase (objective of 2026-09-27)
 
 > **Proposed 2026-10-11 by Up2mEz's session, for the short paper; entries 12 to
-> 17 added 2026-10-15 (Decision Log 2026-10-15). The researcher's approval is
+> 18 added 2026-10-15 (Decision Log 2026-10-15). The researcher's approval is
 > the merge of the PR that adds them.**
 > Every entry is `Preliminary/Pilot`, with pinned revisions, greedy decoding and
 > Kaggle T4. Entries 1 to 11, 15 and 16 are ThaiOCRBench **calibration split**
@@ -445,6 +445,17 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
     every Typhoon and Pathumma number: Typhoon is from ThaiOCRBench's group;
     Pathumma's training data are unnamed. DeepSeek-OCR-2 is fp16 only with its
     own runner. `stage0/MODEL_SURVEY_W4_RESULTS.md` §1 and §4.
+18. **Boxed text found with the whole page versus the crop (Track C, F1, calibration).**
+    On 69 Fine-grained text recognition items, Typhoon's answer contains the boxed
+    text ("found": reference matches a window of the answer at CER <= 0.5) in 7.2%
+    of items with the whole page and the question, 33.3% when the question omits the
+    coordinate-system clause, and 98.6% (94.2% when rescaled) with only the crop.
+    The same text can be read when the crop is given, so some text absent from a
+    whole-page answer is text the model can read; this is **indirect** evidence for
+    "seen but not written", for one model and a question about a region, not a
+    full-page transcription, and it does not say what share of the absent lines in
+    entry 11 or 14 it explains. Base Qwen3-VL-2B: 56.5% / 72.5% / 85.5%.
+    `stage0/FIND_VS_READ_F1_RESULTS.md` §1.
 
 ## HYPOTHESIS (needs more models, live decoding or another benchmark)
 
