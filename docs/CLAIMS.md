@@ -445,12 +445,14 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
     every Typhoon and Pathumma number: Typhoon is from ThaiOCRBench's group;
     Pathumma's training data are unnamed. DeepSeek-OCR-2 is fp16 only with its
     own runner. `stage0/MODEL_SURVEY_W4_RESULTS.md` §1 and §4.
-    Post hoc check (descriptive, not a registered result): nine Pathumma Full-page outputs have a
-    `<figure>` tag that is never closed and extraction v2 drops the page text after it. Keeping that
-    text, Typhoon minus Pathumma on Full-page F1 is +1.4 [-3.4, +6.5] (card, was +1.5) and +3.5
-    [-2.7, +9.4] (BQ, was +4.5); the recall difference falls from +4.2 [+0.4, +8.4] to +2.0
-    [-0.8, +4.7] (card). The reading is unchanged.
-    `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, `stage0/data/W4_FIGURE_FIX_ba61f71.json`.
+    Post hoc check (descriptive, not a registered result): two extraction defects touch Pathumma's
+    Full-page outputs. A `<figure>` tag that is never closed makes extraction v2 drop the page text after
+    it (nine outputs over the two prompts), and answers in Typhoon's JSON format keep literal `\n`
+    characters (30 outputs). With both removed, Typhoon minus Pathumma on Full-page F1 is +2.4
+    [-2.6, +7.8] (card, was +1.5) and +5.1 [-1.4, +11.4] (BQ, was +4.5); recall is +3.8 [+0.2, +8.0]
+    (card, was +4.2 [+0.4, +8.4]). The reading is unchanged: no F1 difference is shown, and the
+    recall difference of the registered table stays.
+    `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, `stage0/data/W4_EXTRACTION_FIX_5ba3e6d.json`.
 18. **Boxed text found with the whole page versus the crop (Track C, F1, calibration).**
     On 69 Fine-grained text recognition items, Typhoon's answer contains the boxed
     text ("found": reference matches a window of the answer at CER <= 0.5) in 7.2%
