@@ -1,106 +1,83 @@
-# MODEL_SURVEY W4: two extraction defects in Pathumma's Full-page outputs, rescored (post hoc, descriptive)
+# MODEL_SURVEY W4: extraction v2.1 for Pathumma's Full-page outputs (primary extraction, Decision Log 2026-10-18)
 
-**Claim level: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.** Written 2026-10-18 by Up2mEz's session. This is a
-second reading of the locked phase-A outputs with the extraction rule changed. It is **post hoc**, it is not
-one of the registered tests, and it replaces no number in `MODEL_SURVEY_W4_RESULTS.md`.
+**Claim level: `PRELIMINARY_PILOT_NOT_GATE_EVIDENCE`.** Written 2026-10-18 by Up2mEz's session. Extraction v2.1 is the
+primary extraction for the paper, the slides and `CLAIMS.md`. The registered values in `MODEL_SURVEY_W4_RESULTS.md`
+stay in place as the reference.
 
-## The two defects
+## The rule
 
-1. **Unclosed `<figure>`.** Extraction v2 (`thai_marks/extract.py`) follows the `TYPHOON_CARD` contract: a
-   `<figure>` holds a description of an image, so its content is dropped. A `<figure>` that is never closed
-   therefore runs to the end of the output. In nine Pathumma Full-page outputs (five under
-   `BENCHMARK_QUESTION`, four under the card prompt; seven distinct pages) the tag is never closed and real
-   page text follows it (in `BFE7C5A8`, the page's flowchart text). The registered analysis bounded this
-   (`upper_bound_unclosed_figure`).
-2. **JSON-wrapped answers.** Pathumma sometimes answers as `{"natural_text": "..."}` (Typhoon's format), with
-   newlines as `\n` escapes. The W4 analysis scored these as written, so the escapes are literal characters
-   inside the text: 30 Full-page outputs (21 under `BENCHMARK_QUESTION`, 9 under the card prompt), none from
-   any other model. M5 registered `m5.unwrap_natural_text` as the secondary reading for this case; the W4
-   analysis did not apply it.
+Extraction v2 (`thai_marks/extract.py`) follows the `TYPHOON_CARD` contract: the content of a `<figure>` is dropped.
+Two properties of Pathumma's outputs interact badly with it, and v2.1 handles both:
 
-## What was done
+1. **JSON-wrapped answers.** Pathumma sometimes answers as `{"natural_text": "..."}` (Typhoon's format) with
+   newlines as `\n` escapes, which stay literal characters inside the text. They are unwrapped with
+   `m5.unwrap_natural_text` (M5 Addendum 1, secondary).
+2. **Unclosed `<figure>`.** A tag that is never closed runs to the end of the output, so the page text after it is
+   dropped. For an output that **ended on its own** the opening tag is removed and the text after it is scored. An
+   output that reached `max_new_tokens` is left as it is: there the unclosed figure is a loop inside a description.
 
-`scripts/model_survey_w4_figure_fix.py` rescored Typhoon and Pathumma (phase A, locked) under four rules, with
-the registered scoring, bootstrap (10,000 resamples, seed 20261012, paired by page) and paired difference:
+The same rule is applied to every model. The stop is not changed (`loop_cut.variant_b` on the raw output).
+Code: `scripts/model_survey_w4_figure_fix.py` (`rule_text`), tests `tests/test_w4_figure_fix.py`.
 
-- `as_registered`: reproduces `MODEL_SURVEY_W4_RESULTS.md`.
-- `figure_text_kept`: the opening tag of a `<figure>` with no `</figure>` is removed, so the text after it is kept
-  (the figure's own description is kept too and adds surplus marks).
-- `json_unwrapped`: `unwrap_natural_text` applied.
-- `json_unwrapped_figure_kept`: both, unwrap first. **This is the reading with both defects removed.**
+## Which outputs it touches
 
-Output: `docs/stage0/data/W4_EXTRACTION_FIX_5ba3e6d.json` (no output or reference text). The first run, with the
-figure rule only, is `W4_FIGURE_FIX_ba61f71.json`; it is superseded.
+A scan of every output of all eight models (phase A, B, C archives, locked split) finds the two properties only in
+Pathumma: 30 JSON-wrapped and 9 unclosed-`<figure>` outputs. The other seven models have none, so no other model's
+score changes. On the calibration split Pathumma has 5 JSON-wrapped and 6 unclosed, Typhoon 0 and 2 (both at the
+token limit, so v2.1 does not change them).
 
-## Result (Full-page OCR, locked split, order-free v2)
+## Locked split, Full-page OCR (order-free v2)
 
-Pathumma's own scores (the registered values are in the first row of each prompt):
+`docs/stage0/data/W4_EXTRACTION_V21_GREEDY.json` and `W4_EXTRACTION_V21_STOP_ARM.json`; the `as_registered` rows
+reproduce the registered values.
 
-| prompt | rule | F1 | recall | precision |
+Pathumma's own F1:
+
+| prompt | as registered | v2.1 | recall as registered | recall v2.1 |
 |---|---|---|---|---|
-| card | as registered | 91.0 | 89.7 | 92.4 |
-| card | both removed | 90.1 | 90.0 | 90.3 |
-| `BENCHMARK_QUESTION` | as registered | 88.0 | 88.6 | 87.5 |
-| `BENCHMARK_QUESTION` | both removed | 87.4 | 88.2 | 86.7 |
+| card (primary) | 91.03 | 91.03 | 89.69 | 89.69 |
+| `BENCHMARK_QUESTION` | 88.05 | 88.06 | 88.61 | 87.94 |
 
-Typhoon minus Pathumma, points, 95% interval:
+Typhoon minus Pathumma, points, 95% interval (v2.1):
 
-| prompt | rule | F1 | recall | precision |
-|---|---|---|---|---|
-| card | as registered | +1.5 [-3.1, +6.5] | +4.2 [+0.4, +8.4] | -1.1 [-9.5, +7.4] |
-| card | figure only | +1.4 [-3.4, +6.5] | +2.0 [-0.8, +4.7] | +0.9 [-8.3, +10.0] |
-| card | JSON only | +1.5 [-3.1, +6.5] | +4.2 [+0.4, +8.4] | -1.1 [-9.5, +7.4] |
-| card | **both removed** | **+2.4 [-2.6, +7.8]** | **+3.8 [+0.2, +8.0]** | +1.1 [-8.2, +10.2] |
-| `BENCHMARK_QUESTION` | as registered | +4.5 [-2.0, +10.7] | +5.2 [+0.4, +10.4] | +3.8 [-5.6, +13.0] |
-| `BENCHMARK_QUESTION` | figure only | +3.5 [-2.7, +9.4] | +1.9 [-1.7, +5.4] | +5.0 [-4.7, +14.2] |
-| `BENCHMARK_QUESTION` | JSON only | +4.8 [-1.8, +11.1] | +6.5 [+1.4, +11.9] | +3.2 [-6.5, +12.6] |
-| `BENCHMARK_QUESTION` | **both removed** | **+5.1 [-1.4, +11.4]** | **+5.6 [+0.7, +10.9]** | +4.7 [-5.2, +14.3] |
+| prompt | F1 | recall | precision |
+|---|---|---|---|
+| card | +1.5 [-3.1, +6.5] | +4.2 [+0.4, +8.4] | -1.1 [-9.5, +7.4] |
+| `BENCHMARK_QUESTION` | +4.5 [-2.0, +10.7] | +5.9 [+1.1, +11.1] | +3.2 [-6.5, +12.6] |
 
-Text recognition is unchanged (no affected output). No Typhoon output changes under any rule.
+For the card prompt every value equals the registered one. Text recognition is unchanged for both prompts.
 
-- Removing only the figure defect lowers the recall gap; removing only the JSON defect raises it. With both
-  removed the gap is about the registered size. A single fix pointed in the direction that looked like a bias
-  against Pathumma; the complete fix does not.
-- The F1 difference stays small and its interval contains 0 in both prompts: "no difference shown" stands.
-- The recall difference (Typhoon higher) has an interval above 0 in three of the four readings for each prompt,
-  with lower ends between +0.2 and +1.4 points. That is a small difference at this n.
-
-## The `+ stop` arm, S1 and R1 (Pathumma, Full-page)
-
-The stop is frozen: `loop_cut.variant_b` cuts the raw output, as in the registered analysis and in the decode-time
-check. Only the extraction of the scored text changes (unwrap, then keep the text after an unclosed `<figure>`).
-`scripts/model_survey_w4_stop_arm_fix.py`, output `docs/stage0/data/W4_STOP_ARM_FIX_de794e0.json`. The
-`as_registered` rows reproduce the registered S1 and R1 values.
+## The `+ stop` arm, S1, R1 and Holm (Pathumma, Full-page)
 
 | prompt | rule | greedy F1 | + stop F1 | S1: stop minus greedy [95%] | one-sided p |
 |---|---|---|---|---|---|
 | card (primary) | as registered | 91.0 | 92.4 | +1.3 [0.0, +3.5] | 0.130 |
-| card (primary) | both removed | 90.1 | 92.3 | **+2.2 [0.0, +4.9]** | **0.046** |
+| card (primary) | v2.1 | 91.0 | 92.4 | +1.3 [0.0, +3.5] | 0.130 |
 | `BENCHMARK_QUESTION` | as registered | 88.1 | 91.5 | +3.4 [+0.7, +6.6] | 0.0075 |
-| `BENCHMARK_QUESTION` | both removed | 87.4 | 91.3 | +3.8 [+0.8, +7.2] | 0.0065 |
+| `BENCHMARK_QUESTION` | v2.1 | 88.1 | 91.2 | +3.2 [+0.5, +6.4] | 0.019 |
 
-- The registered S1 cell for Pathumma (card, Full-page) is the one that did not pass (Holm-adjusted p 0.13). With
-  both defects removed its p is 0.046. It is the largest p in the family, so its Holm-adjusted value is the same
-  number, below 0.05. By the registered criterion this reading would pass.
-- **The registered result is unchanged: S1 as registered is not met (12 of 13 cells).** This reading was made
-  after the locked outputs had been seen, it changes the extraction rule, and its p is close to the threshold, so
-  it is not a 13 of 13. What it shows is that this cell was sensitive to the extraction defects.
-- The change comes from the greedy arm (91.0 to 90.1, the JSON and figure defects cost the stop-free output
-  more); the stop arm hardly moves (92.4 to 92.3).
-- R1 for Pathumma: ratio 15.8 [7.5, 32.0] as registered, 14.1 [6.6, 28.4] with both removed; passes either way
-  (adjusted p 0.0021).
+- S1 for Pathumma's card cell is the same under v2.1, so **S1 stays not met (12 of 13 cells)**.
+- R1 for Pathumma: 15.8 [7.6, 32.1] (registered 15.8 [7.5, 32.0]); passes under both, adjusted p 0.0021.
+- The largest Holm-adjusted p in the family of 22 is 0.13 under both rules.
 - S2 does not depend on extraction (it compares the cut and the raw text).
 
-## Other models
+## Calibration split
 
-Every output of all eight models (phase A, B, C archives) was scanned for the two defects
-(`defect_scan_all_models` in the JSON): Pathumma has 30 JSON-wrapped and 9 unclosed-`<figure>` outputs; the other
-seven models have none. No other model's score is affected, so none was redone.
+`docs/stage0/data/M5_EXTRACTION_V21.json` (script `scripts/model_survey_calibration_extraction_fix.py`, both models,
+both prompts, both tasks). Pathumma's Full-page F1 greedy / `+ stop`: card 89.8 / 92.8, `BENCHMARK_QUESTION`
+91.5 / 92.3; Text recognition: card 77.6 / 77.7, `BENCHMARK_QUESTION` 69.1 / 81.1. All equal to the registered
+values to the first decimal. Typhoon minus Pathumma Full-page F1: +5.1 (card), +3.3 (BQ), unchanged.
+
+## Earlier readings
+
+Two earlier rules were tried on the same outputs and are kept only as files: `W4_FIGURE_FIX_ba61f71.json`,
+`W4_EXTRACTION_FIX_5ba3e6d.json` and `W4_STOP_ARM_FIX_de794e0.json` (every unclosed figure kept). That rule also
+scores Typhoon's looping outputs on the loop (Typhoon's card Full-page F1 on calibration falls from 95.3 to 93.7),
+so it is not used, and the figures in those files (for instance Typhoon minus Pathumma +2.4, S1 +2.2) are not
+results of v2.1.
 
 ## Not shown
 
 - That Pathumma and Typhoon are equal: the intervals are about +/-5 to 6 points on Full-page.
-- That keeping a figure's description is the right rule: dropping it (the contract) is the registered rule.
-- Anything about the `+ stop` arms: the stop was not rescored here.
-
-Code: `scripts/model_survey_w4_figure_fix.py`, tests `tests/test_w4_figure_fix.py`.
+- W3's Pathumma "greedy at correct-base sites" was not recomputed: it needs the T2 oracle records, which are on
+  PELY334's side.

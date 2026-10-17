@@ -397,10 +397,8 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
       locked pages (3.1%), the rate of the cells not tested; where looping is
       rare the gain is small and not shown at this n. This explains the cell; it
       is not a counter-example to the mechanism.
-    - Post hoc (not a registered result): with two extraction defects of Pathumma's outputs removed
-      (entry 17), this cell is +2.2 [0.0, +4.9] with adjusted p 0.046, which would pass. The registered
-      result stays "not met, 12 of 13". `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`,
-      `stage0/data/W4_STOP_ARM_FIX_de794e0.json`.
+    - Extraction v2.1 (entry 17) gives the same cell, +1.3 [0.0, +3.5], adjusted p 0.13, so S1 is not met
+      under it either. `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, `stage0/data/W4_EXTRACTION_V21_STOP_ARM.json`.
     - Not tested (looped on under 5% of calibration items): Typhoon Full-page
       +1.5 [-0.5, +4.1] and Text recognition +3.5 [0.0, +11.0], Pathumma Text
       recognition +3.0 [0.0, +6.7] (descriptive).
@@ -449,14 +447,16 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
     every Typhoon and Pathumma number: Typhoon is from ThaiOCRBench's group;
     Pathumma's training data are unnamed. DeepSeek-OCR-2 is fp16 only with its
     own runner. `stage0/MODEL_SURVEY_W4_RESULTS.md` §1 and §4.
-    Post hoc check (descriptive, not a registered result): two extraction defects touch Pathumma's
-    Full-page outputs. A `<figure>` tag that is never closed makes extraction v2 drop the page text after
-    it (nine outputs over the two prompts), and answers in Typhoon's JSON format keep literal `\n`
-    characters (30 outputs). With both removed, Typhoon minus Pathumma on Full-page F1 is +2.4
-    [-2.6, +7.8] (card, was +1.5) and +5.1 [-1.4, +11.4] (BQ, was +4.5); recall is +3.8 [+0.2, +8.0]
-    (card, was +4.2 [+0.4, +8.4]). The reading is unchanged: no F1 difference is shown, and the
-    recall difference of the registered table stays.
-    `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, `stage0/data/W4_EXTRACTION_FIX_5ba3e6d.json`.
+    Extraction v2.1 (Decision Log 2026-10-18) is the primary extraction for the numbers of this entry:
+    answers in Typhoon's JSON format are unwrapped, and for an output that ended on its own the text after
+    a `<figure>` tag that is never closed is kept. Applied to all models alike; on the locked split only
+    Pathumma has such outputs (30 JSON-wrapped, 9 unclosed). Under it the card-prompt rows above are
+    unchanged (Typhoon minus Pathumma, Full-page F1 +1.5 [-3.1, +6.5], recall +4.2 [+0.4, +8.4]). For the
+    BQ prompt, Full-page F1 is +4.5 [-2.0, +10.7] (was +4.5) and recall +5.9 [+1.1, +11.1] (was +5.2
+    [+0.4, +10.4]). Calibration numbers (5 JSON-wrapped, 6 unclosed for Pathumma; 2 unclosed for Typhoon,
+    both at the token limit) are unchanged to the first decimal.
+    `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, `stage0/data/W4_EXTRACTION_V21_GREEDY.json`,
+    `stage0/data/W4_EXTRACTION_V21_STOP_ARM.json`, `stage0/data/M5_EXTRACTION_V21.json`.
 18. **Boxed text found with the whole page versus the crop (Track C, F1, calibration).**
     On 69 Fine-grained text recognition items, Typhoon's answer contains the boxed
     text ("found": reference matches a window of the answer at CER <= 0.5) in 7.2%
