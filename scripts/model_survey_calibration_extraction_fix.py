@@ -3,7 +3,8 @@
 The locked-split counterpart is `model_survey_w4_stop_arm_fix.py`. Pathumma's outputs have two defects under
 extraction v2: an unclosed `<figure>` swallows the page text after it, and answers in Typhoon's JSON format
 (`{"natural_text": "..."}`) keep their `\\\\n` escapes as literal characters (`model_survey_w4_figure_fix.rule_text`).
-No other model's calibration outputs have either defect (scanned below). This script redoes, for Pathumma, every
+Typhoon has no JSON-wrapped output and two outputs with an unclosed `<figure>` (both under the card prompt, both
+that reached the token limit); the rules are applied to both models alike. This script redoes, for Pathumma, every
 calibration score the paper reports: mark F1 per task and prompt, the `+ stop` arm, the paired difference to
 Typhoon, the tone error after a correctly read consonant, and the Full-page attribution of the stopped output.
 
@@ -65,7 +66,7 @@ def references() -> dict[str, tuple[str, str]]:
 def _score(job: tuple) -> tuple:
     role, record, order_free = job
     ref, cut = record["reference"], variant_b(record)
-    rules = RULES if role == "pathumma" else RULES[:1]  # Typhoon has neither defect
+    rules = RULES  # the same two rules for every model
     out, cache = {}, {}
     for rule in rules:
         row = {}
@@ -103,8 +104,7 @@ def main() -> None:
                          "unclosed_figure": sum(bool(extract(r["raw_output"])[1]["unclosed_figures"]) for r in pathumma)},
             "typhoon": {"outputs": len(typhoon), "json_wrapped": sum(is_wrapped(r["raw_output"]) for r in typhoon),
                         "unclosed_figure": sum(bool(extract(r["raw_output"])[1]["unclosed_figures"]) for r in typhoon)}}
-    jobs = [("pathumma", r, order_free) for r in pathumma] + [
-        ("typhoon", r, order_free) for r in typhoon if r["prompt_kind"] == "BENCHMARK_QUESTION"]
+    jobs = [("pathumma", r, order_free) for r in pathumma] + [("typhoon", r, order_free) for r in typhoon]
     with ProcessPoolExecutor(args.workers) as pool:
         scored = list(pool.map(_score, jobs, chunksize=2))
     table: dict = {}
@@ -120,7 +120,7 @@ def main() -> None:
     }
     for (role, prompt, task), per_item in sorted(table.items()):
         ids = sorted(per_item)
-        for rule in (RULES if role == "pathumma" else RULES[:1]):
+        for rule in RULES:
             result["cells"].setdefault(f"{role} / {prompt} / {task}", {})[rule] = {
                 "n": len(ids), **{f"{arm}_{score}": prf([per_item[i][rule][arm][score] for i in ids])
                                   for arm in ("greedy", "stop") for score in ("v2", "ra")}}
@@ -140,7 +140,7 @@ def main() -> None:
         result["typhoon_minus_pathumma"][f"{prompt} / {task}"] = {
             rule: {score: {key: paired_f1_difference(
                 {i: per_item[i][rule]["greedy"][score] for i in per_item},
-                {i: ty[i]["as_registered"]["greedy"][score] for i in per_item},
+                {i: ty[i][rule]["greedy"][score] for i in per_item},
                 resamples=bootstrap["resamples"], seed=bootstrap["seed"], key=key)
                 for key in ("f1", "recall", "precision")} for score in ("v2", "ra")} for rule in RULES}
     args.out.parent.mkdir(parents=True, exist_ok=True)
