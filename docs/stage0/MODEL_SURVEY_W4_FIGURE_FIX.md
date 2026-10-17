@@ -65,6 +65,38 @@ Text recognition is unchanged (no affected output). No Typhoon output changes un
 - The recall difference (Typhoon higher) has an interval above 0 in three of the four readings for each prompt,
   with lower ends between +0.2 and +1.4 points. That is a small difference at this n.
 
+## The `+ stop` arm, S1 and R1 (Pathumma, Full-page)
+
+The stop is frozen: `loop_cut.variant_b` cuts the raw output, as in the registered analysis and in the decode-time
+check. Only the extraction of the scored text changes (unwrap, then keep the text after an unclosed `<figure>`).
+`scripts/model_survey_w4_stop_arm_fix.py`, output `docs/stage0/data/W4_STOP_ARM_FIX_de794e0.json`. The
+`as_registered` rows reproduce the registered S1 and R1 values.
+
+| prompt | rule | greedy F1 | + stop F1 | S1: stop minus greedy [95%] | one-sided p |
+|---|---|---|---|---|---|
+| card (primary) | as registered | 91.0 | 92.4 | +1.3 [0.0, +3.5] | 0.130 |
+| card (primary) | both removed | 90.1 | 92.3 | **+2.2 [0.0, +4.9]** | **0.046** |
+| `BENCHMARK_QUESTION` | as registered | 88.1 | 91.5 | +3.4 [+0.7, +6.6] | 0.0075 |
+| `BENCHMARK_QUESTION` | both removed | 87.4 | 91.3 | +3.8 [+0.8, +7.2] | 0.0065 |
+
+- The registered S1 cell for Pathumma (card, Full-page) is the one that did not pass (Holm-adjusted p 0.13). With
+  both defects removed its p is 0.046. It is the largest p in the family, so its Holm-adjusted value is the same
+  number, below 0.05. By the registered criterion this reading would pass.
+- **The registered result is unchanged: S1 as registered is not met (12 of 13 cells).** This reading was made
+  after the locked outputs had been seen, it changes the extraction rule, and its p is close to the threshold, so
+  it is not a 13 of 13. What it shows is that this cell was sensitive to the extraction defects.
+- The change comes from the greedy arm (91.0 to 90.1, the JSON and figure defects cost the stop-free output
+  more); the stop arm hardly moves (92.4 to 92.3).
+- R1 for Pathumma: ratio 15.8 [7.5, 32.0] as registered, 14.1 [6.6, 28.4] with both removed; passes either way
+  (adjusted p 0.0021).
+- S2 does not depend on extraction (it compares the cut and the raw text).
+
+## Other models
+
+Every output of all eight models (phase A, B, C archives) was scanned for the two defects
+(`defect_scan_all_models` in the JSON): Pathumma has 30 JSON-wrapped and 9 unclosed-`<figure>` outputs; the other
+seven models have none. No other model's score is affected, so none was redone.
+
 ## Not shown
 
 - That Pathumma and Typhoon are equal: the intervals are about +/-5 to 6 points on Full-page.
