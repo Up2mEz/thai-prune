@@ -26,3 +26,16 @@ def test_a_closed_figure_is_left_alone():
 def test_text_without_a_figure_is_unchanged():
     raw = "ข่าว ข้าว"
     assert figure_fix.fix_unclosed_figure(raw) == raw
+
+
+def test_json_wrapped_output_is_unwrapped_before_the_figure_rule():
+    raw = '{"natural_text": "บรรทัดแรก\\nบรรทัดสอง <figure>\\nข้อความหลังแท็ก"}'
+    unwrapped = figure_fix.rule_text("json_unwrapped_figure_kept", raw)
+    assert "\\n" not in unwrapped and "\n" in unwrapped
+    assert "ข้อความหลังแท็ก" in extract_text(unwrapped)
+    assert figure_fix.rule_text("as_registered", raw) == raw
+
+
+def test_the_registered_rule_changes_nothing():
+    raw = '{"natural_text": "x"}'
+    assert figure_fix.rule_text("as_registered", raw) == raw
