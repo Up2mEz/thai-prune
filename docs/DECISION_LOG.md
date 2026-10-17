@@ -2,6 +2,63 @@
 
 > Human-owned scientific decision record. Codex may propose decisions and summarize evidence, but final gate approval belongs to the researcher.
 
+## 2026-10-18 (W4) — Extraction v2.1 for Pathumma's outputs: primary extraction for the W4 and calibration numbers (Up2mEz chose it in session)
+
+**Stage/Gate:** MODEL_SURVEY (Thai-marks phase). Reads, and does not open or pass, any gate.
+
+**Decision owner:** Human researcher (Up2mEz). Drafted by Up2mEz's Claude Code session. Up2mEz answered in session on
+2026-10-18 "ใช้ชุดที่สกัดใหม่เป็นหลัก"; **the merge of this PR is the approval.** PELY334's files were not edited.
+
+**Decision:** Extraction v2.1 is the primary extraction for the numbers in the paper, the slides and `CLAIMS.md`.
+It is extraction v2 plus two steps: (1) an answer in Typhoon's JSON format (`{"natural_text": "..."}`) is unwrapped
+with `m5.unwrap_natural_text` (M5 Addendum 1, secondary); (2) for an output that ended on its own (did not reach
+`max_new_tokens`), the opening tag of a `<figure>` that is never closed is removed so the text after it is scored.
+An output that reached the token limit is not changed by step 2, because there the unclosed figure is a loop inside a
+description. The stop is not changed (`loop_cut.variant_b` on the raw output). The same rule is applied to every
+model.
+
+### Evidence
+- scan of all outputs of the eight models (phases A, B, C, C-D): only Pathumma has the two defects on the locked split
+  (30 JSON-wrapped, 9 unclosed figure); on calibration Pathumma 5 and 6, Typhoon 0 and 2 (both at the token limit,
+  so unchanged by step 2);
+- locked split, card prompt (primary): greedy F1 91.03 under both rules; S1 +1.3 [0.0, +3.5], p 0.13 under both
+  (not met, 12 of 13); R1 15.8 [7.6, 32.1], passes under both; largest Holm-adjusted p in the family 0.13 under both;
+  Typhoon minus Pathumma Full-page F1 +1.5 [-3.1, +6.5], recall +4.2 [+0.4, +8.4] under both;
+- locked split, BQ prompt: Pathumma Full-page F1 88.05 to 88.06, recall 88.61 to 87.94; S1 +3.4 [+0.7, +6.6] to
+  +3.2 [+0.5, +6.4] (p 0.0075 to 0.019); Typhoon minus Pathumma recall +5.2 [+0.4, +10.4] to +5.9 [+1.1, +11.1];
+- calibration: Pathumma F1 per task and prompt unchanged to the first decimal;
+- analysis artifacts: `docs/stage0/data/W4_EXTRACTION_V21_GREEDY.json`, `W4_EXTRACTION_V21_STOP_ARM.json`,
+  `M5_EXTRACTION_V21.json`; code `scripts/model_survey_w4_figure_fix.py`, `scripts/model_survey_w4_stop_arm_fix.py`,
+  `scripts/model_survey_calibration_extraction_fix.py`; tests `tests/test_w4_figure_fix.py`.
+
+### Reasoning
+Extraction v2 drops the content of a `<figure>` (Typhoon's output contract), so an unclosed tag removes the rest of
+the page, and JSON-wrapped answers keep literal `\n` characters that disturb line matching. Both are properties of
+the extraction, not of the model's reading. v2.1 repairs them for all models by one rule. It changes no registered
+conclusion on the card prompt, and the registered values stay in the earlier entries and result files as the
+reference.
+
+### Alternatives considered
+- keep every unclosed figure's text (tried; it lowered Typhoon's card Full-page F1 from 95.3 to 93.7 on calibration,
+  because Typhoon's looping outputs are scored on the loop, so it is not used);
+- keep extraction v2 as primary (rejected by Up2mEz).
+
+### Known limitations
+- Chosen after the locked outputs were seen. The card-prompt numbers do not move, so the choice does not decide a
+  headline; the BQ-prompt numbers do move a little.
+- W3's Pathumma "greedy at correct-base sites" figure was not recomputed (it needs the T2 oracle records, which are
+  on PELY334's side).
+
+### Consequence for next stage
+None. No gate changes.
+
+### Files/configs affected
+- `docs/CLAIMS.md` (entries 12, 17), `docs/paper/ieee/v2/en/body_en.tex`, `docs/paper/ieee/v2/th/body_th.tex`,
+  `docs/paper/SLIDES_CONTENT.md`, `docs/stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`, the three scripts above, their output
+  files, `tests/test_w4_figure_fix.py`
+
+---
+
 ## 2026-10-15 (W4) — MODEL_SURVEY_W4 eight-model results on the locked split: what is read, and how it may be worded (Up2mEz asked for it to be written into `CLAIMS.md` and the paper; approved by the merge of this PR)
 
 **Stage/Gate:** MODEL_SURVEY (Thai-marks phase). Reads, and does not open or pass, any gate.

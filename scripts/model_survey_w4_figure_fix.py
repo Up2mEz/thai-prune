@@ -43,7 +43,7 @@ from labbs2026.thai_marks.extract import extract
 from labbs2026.thai_marks.order_free import mark_counts, prf
 
 FIGURE_OPEN = re.compile(r"<figure\b[^>]*>", re.I)
-RULES = ("as_registered", "figure_text_kept", "json_unwrapped", "json_unwrapped_figure_kept")
+RULES = ("as_registered", "json_unwrapped", "v2_1")
 
 
 def fix_unclosed_figure(text: str) -> str:
@@ -53,10 +53,15 @@ def fix_unclosed_figure(text: str) -> str:
     return text
 
 
-def rule_text(rule: str, raw: str) -> str:
-    """The output text a rule scores."""
-    text = unwrap_natural_text(raw) if rule.startswith("json_unwrapped") else raw
-    return fix_unclosed_figure(text) if rule.endswith("figure_text_kept") or rule.endswith("figure_kept") else text
+def rule_text(rule: str, raw: str, ended: bool = True) -> str:
+    """The output text a rule scores.
+
+    `json_unwrapped`: Typhoon's JSON format is unwrapped (its `\\n` escapes become newlines).
+    `v2_1`: that, and for an output that ended (did not reach the token limit) the text after a `<figure>` that is
+    never closed is kept. An output that reached the limit inside a figure is a loop in a description, so it is not.
+    """
+    text = unwrap_natural_text(raw) if rule in ("json_unwrapped", "v2_1") else raw
+    return fix_unclosed_figure(text) if rule == "v2_1" and ended else text
 
 
 def _score(job: tuple) -> tuple:
@@ -64,12 +69,13 @@ def _score(job: tuple) -> tuple:
     ref = record["reference"]
     out, cache = {}, {}
     for rule in RULES:
-        hyp = rule_text(rule, record["raw_output"])
+        hyp = rule_text(rule, record["raw_output"], not record["reached_max_new_tokens"])
         if hyp not in cache:  # the rules agree on most outputs: score each distinct text once
             cache[hyp] = {"v2": mark_counts(ref, hyp, **order_free),
                           "ra": mark_counts(ref, hyp, **order_free, repeat_aware=True)}
         out[rule] = cache[hyp]
-    out["changed"] = {rule: rule_text(rule, record["raw_output"]) != record["raw_output"] for rule in RULES}
+    out["changed"] = {rule: rule_text(rule, record["raw_output"], not record["reached_max_new_tokens"]) != record["raw_output"]
+                      for rule in RULES}
     return role, prompt, record["task"], record["id"], out
 
 
@@ -106,10 +112,8 @@ def main() -> None:
         "claim_level": "PRELIMINARY_PILOT_NOT_GATE_EVIDENCE",
         "git_sha": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip(),
         "config_sha256": hashlib.sha256(args.config.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
-        "rules": {"figure_text_kept": "opening tag of a <figure> that is never closed is removed; text after it (and the "
-                                      "figure's own description) is kept",
-                  "json_unwrapped": "m5.unwrap_natural_text applied (M5 Addendum 1 secondary)",
-                  "json_unwrapped_figure_kept": "both, unwrap first"},
+        "rules": {"json_unwrapped": "m5.unwrap_natural_text applied (M5 Addendum 1 secondary)",
+                  "v2_1": "json_unwrapped, and the text after an unclosed <figure> is kept for outputs that ended"},
         "applied_to": "Typhoon and Pathumma alike",
         "bootstrap": bootstrap, "cells": {}, "typhoon_minus_pathumma": {},
     }
