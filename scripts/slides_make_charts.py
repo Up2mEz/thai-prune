@@ -4,6 +4,7 @@ Run:
     uv run --with plotly --with kaleido python scripts/slides_make_charts.py
 Writes docs/paper/slides/charts/*.png (scale 2) and, with --svg, the same as SVG.
 
+Chart names carry the slide number of docs/paper/SLIDES_CONTENT.md (s10 = slide 10).
 Spec: docs/presentdesign.md ("วิธีทำกราฟ") and docs/paper/SLIDES_CONTENT.md
 ("ภาพที่ต้องทำและข้อมูลจากไหน"). Plotly + Kaleido (Chrome renders the text, so stacked
 Thai vowels and tone marks are placed correctly), template simple_white, Okabe-Ito colours,
@@ -69,8 +70,8 @@ def save(fig: go.Figure, name: str, svg: bool) -> None:
     print("wrote", name)
 
 
-# ---- slide 5: where marks are lost (stacked horizontal bars) -------------------------------
-def s05_causes(svg: bool) -> None:
+# ---- slide 11: where marks are lost (stacked horizontal bars) -------------------------------
+def s11_causes(svg: bool) -> None:
     d = DATA["attribution_cross_model_fullpage_stopped_pct_of_all_marks"]
     f1 = DATA["five_models_mark_f1"]["full_page"]
     labels = [f"{m} ({s:.1f})" for m, s in zip(d["models"], f1)]
@@ -104,11 +105,11 @@ def s05_causes(svg: bool) -> None:
         x0 += {"คนละลำดับ (ไม่ใช่ความผิดจริง)": 0.31, "ทั้งบรรทัดไม่ปรากฏใน output": 0.31, "ขาดเป็นช่วง": 0.17}.get(name, 0)
     base_layout(fig, 1600, 900)
     fig.update_layout(margin={"l": 20, "r": 40, "t": 80, "b": 20})
-    save(fig, "s05_causes", svg)
+    save(fig, "s11_causes", svg)
 
 
-# ---- slide 6 left: image gain in the forced-choice test ------------------------------------
-def s06a_image_gain(svg: bool) -> None:
+# ---- slide 13: image gain in the forced-choice test ------------------------------------
+def s13_image_gain(svg: bool) -> None:
     d = DATA["image_gain_fullpage_tone_calibration"]
     colours = [BLUE, BLUE, GREY, GREY]
     fig = go.Figure(go.Bar(
@@ -126,11 +127,11 @@ def s06a_image_gain(svg: bool) -> None:
                        font={"size": TICK, "color": MUTED})
     base_layout(fig, 800, 900)
     fig.update_layout(margin={"l": 20, "r": 70, "t": 80, "b": 20})
-    save(fig, "s06a_image_gain", svg)
+    save(fig, "s13_image_gain", svg)
 
 
-# ---- slide 6 right: written by the model vs the forced-choice test --------------------------
-def s06b_generate_vs_test(svg: bool) -> None:
+# ---- slide 14: written by the model vs the forced-choice test --------------------------
+def s14_generate_vs_test(svg: bool) -> None:
     d = DATA["tone_accuracy_generation_vs_test_fullpage_correct_base"]
     models = d["models"]
     colours = [BLUE, GREY]
@@ -150,11 +151,11 @@ def s06b_generate_vs_test(svg: bool) -> None:
                        text="แท่งเต็ม = เขียนเอง · แท่งโปร่ง = การทดสอบ", font={"size": TICK, "color": MUTED})
     base_layout(fig, 800, 900)
     fig.update_layout(margin={"l": 20, "r": 30, "t": 80, "b": 20})
-    save(fig, "s06b_generate_vs_test", svg)
+    save(fig, "s14_generate_vs_test", svg)
 
 
-# ---- slide 7: three ways to handle a loop (Typhoon, calibration) ---------------------------
-def s07_decoders(svg: bool) -> None:
+# ---- slide 16: three ways to handle a loop (Typhoon, calibration) ---------------------------
+def s16_decoders(svg: bool) -> None:
     d = DATA["decoders_typhoon_fullpage_bq_delta_f1"]
     names = ["repetition penalty 1.1", "ห้ามซ้ำ n-gram", "หยุดเมื่อวนซ้ำ"]
     allp, free, ci = d["all_pages"], d["loop_free_pages"], d["all_pages_ci95"]
@@ -189,11 +190,11 @@ def s07_decoders(svg: bool) -> None:
                        font={"size": TICK, "color": MUTED})
     base_layout(fig, 1100, 900)
     fig.update_layout(margin={"l": 20, "r": 60, "t": 80, "b": 20})
-    save(fig, "s07_decoders", svg)
+    save(fig, "s16_decoders", svg)
 
 
-# ---- slide 8: eight models on the locked split, greedy vs stop ------------------------------
-def s08_locked(svg: bool) -> None:
+# ---- slide 19: eight models on the locked split, greedy vs stop ------------------------------
+def s19_locked(svg: bool) -> None:
     d = DATA["locked_eight_models_mark_f1"]
     models = d["models"]
     fig = make_subplots(rows=1, cols=2, shared_yaxes=True, horizontal_spacing=0.04,
@@ -217,11 +218,11 @@ def s08_locked(svg: bool) -> None:
                        text="<b>Pathumma อ่านทั้งหน้า: ไม่ผ่านตามเกณฑ์ที่ลงทะเบียน</b>", font={"size": TICK, "color": RED})
     base_layout(fig, 1250, 900)
     fig.update_layout(margin={"l": 20, "r": 40, "t": 70, "b": 130})
-    save(fig, "s08_locked", svg)
+    save(fig, "s19_locked", svg)
 
 
-# ---- backup B2: R1 ratio with intervals ------------------------------------------------------
-def b02_r1_forest(svg: bool) -> None:
+# ---- slide 21: R1 ratio with intervals ------------------------------------------------------
+def s21_r1_forest(svg: bool) -> None:
     d = DATA["locked_r1_ratio_fullpage"]
     models, ratio, lo, hi = d["models"], d["ratio"], d["ci_low"], d["ci_high"]
     fig = go.Figure(go.Scatter(
@@ -238,11 +239,11 @@ def b02_r1_forest(svg: bool) -> None:
     fig.update_yaxes(autorange="reversed", tickfont={"size": LAB}, showline=False, ticks="")
     base_layout(fig, 1600, 900)
     fig.update_layout(margin={"l": 20, "r": 40, "t": 60, "b": 20})
-    save(fig, "b02_r1_forest", svg)
+    save(fig, "s21_r1_forest", svg)
 
 
-# ---- backup B3: calibration mark F1, six models -----------------------------------------------
-def b03_calibration_f1(svg: bool) -> None:
+# ---- slide 10: calibration mark F1, six models -----------------------------------------------
+def s10_calibration_f1(svg: bool) -> None:
     d = DATA["five_models_mark_f1"]
     models = d["models"]
     colours = [BLUE, BLUE, GREY, GREY, GREY, GREY]
@@ -261,12 +262,32 @@ def b03_calibration_f1(svg: bool) -> None:
                        font={"size": TICK, "color": MUTED})
     base_layout(fig, 1600, 900)
     fig.update_layout(margin={"l": 20, "r": 40, "t": 70, "b": 130})
-    save(fig, "b03_calibration_f1", svg)
+    save(fig, "s10_calibration_f1", svg)
+
+
+# ---- slide 17: subtracting the language prior (forced-choice test, Typhoon) -------------------
+def s17_lambda(svg: bool) -> None:
+    d = DATA["tone_accuracy_typhoon_fullpage"]["typhoon_contrastive_lambda"]
+    lam, acc = d["lambda"], d["accuracy"]
+    colours = [BLUE, SOFT_RED, RED]
+    fig = go.Figure(go.Scatter(
+        x=lam, y=acc, mode="lines+markers+text", line={"color": MUTED, "width": 4},
+        marker={"color": colours, "size": 26}, text=[f"<b>{v:.1f}</b>" for v in acc], textposition="top center",
+        textfont={"size": NUM, "color": INK}, cliponaxis=False,
+    ))
+    fig.update_xaxes(range=[-0.12, 1.12], tickvals=lam, ticktext=["0 (ไม่หัก)", "0.5", "1 (หักเต็ม)"],
+                     title_text="น้ำหนักที่หักคะแนนแบบไม่มีภาพออก", showgrid=False, tickfont={"size": TICK},
+                     title_font={"size": LAB})
+    fig.update_yaxes(range=[0, 112], title_text="ความแม่นยำของวรรณยุกต์ (%)", showgrid=False,
+                     tickfont={"size": TICK}, title_font={"size": LAB})
+    base_layout(fig, 1100, 900)
+    fig.update_layout(margin={"l": 20, "r": 60, "t": 60, "b": 20})
+    save(fig, "s17_lambda", svg)
 
 
 CHARTS = {
-    "s05": s05_causes, "s06a": s06a_image_gain, "s06b": s06b_generate_vs_test, "s07": s07_decoders,
-    "s08": s08_locked, "b02": b02_r1_forest, "b03": b03_calibration_f1,
+    "s10": s10_calibration_f1, "s11": s11_causes, "s13": s13_image_gain, "s14": s14_generate_vs_test,
+    "s16": s16_decoders, "s17": s17_lambda, "s19": s19_locked, "s21": s21_r1_forest,
 }
 
 
