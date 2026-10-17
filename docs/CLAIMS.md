@@ -397,6 +397,10 @@ Scope for every entry: the exact pinned checkpoints, prompts (`BENCHMARK_QUESTIO
       locked pages (3.1%), the rate of the cells not tested; where looping is
       rare the gain is small and not shown at this n. This explains the cell; it
       is not a counter-example to the mechanism.
+    - Post hoc (not a registered result): with two extraction defects of Pathumma's outputs removed
+      (entry 17), this cell is +2.2 [0.0, +4.9] with adjusted p 0.046, which would pass. The registered
+      result stays "not met, 12 of 13". `stage0/MODEL_SURVEY_W4_FIGURE_FIX.md`,
+      `stage0/data/W4_STOP_ARM_FIX_de794e0.json`.
     - Not tested (looped on under 5% of calibration items): Typhoon Full-page
       +1.5 [-0.5, +4.1] and Text recognition +3.5 [0.0, +11.0], Pathumma Text
       recognition +3.0 [0.0, +6.7] (descriptive).
