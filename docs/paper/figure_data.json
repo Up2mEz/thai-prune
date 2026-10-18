@@ -9,7 +9,7 @@
       "misread": 1.5
     },
     "TC": {
-      "other_order": 0.9,
+      "other_order": 1.0,
       "whole_line_absent": 2.9,
       "span_missing": 0.8,
       "misread": 2.4
