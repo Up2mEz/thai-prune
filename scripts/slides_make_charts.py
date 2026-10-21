@@ -258,7 +258,7 @@ def s10_calibration_f1(svg: bool) -> None:
     fig.update_yaxes(autorange="reversed", tickfont={"size": LAB}, showline=False, ticks="")
     fig.update_annotations(font={"size": LAB, "color": INK})
     fig.add_annotation(xref="paper", yref="paper", x=0, y=-0.17, showarrow=False, xanchor="left",
-                       text=f"<span style='color:{BLUE}'>■</span> Thai fine-tune   <span style='color:{GREY}'>■</span> โมเดลอื่น (calibration)",
+                       text=f"<span style='color:{BLUE}'>■</span> Thai fine-tune   <span style='color:{GREY}'>■</span> โมเดลอื่น (ชุดปรับวิธี)",
                        font={"size": TICK, "color": MUTED})
     base_layout(fig, 1600, 900)
     fig.update_layout(margin={"l": 20, "r": 40, "t": 70, "b": 130})
