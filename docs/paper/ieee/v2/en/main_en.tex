@@ -11,6 +11,9 @@
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=*,itemsep=1pt}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{cite}
@@ -29,7 +32,7 @@
 
 \begin{document}
 
-\title{\itshape Are Tone Marks the Weak Point of Open Thai OCR?\\ A Locked-Split Study of Eight Models}
+\title{\itshape Where Do Open Thai OCR Models Lose Their Tone Marks?\\ A Study of Eight Models}
 
 \author{%
   \IEEEauthorblockN{Thanakrit Samoenar}
@@ -60,6 +63,8 @@
 \input{abstract_en}
 \end{abstract}
 
+% the example heads this line "Keywords", not "Index Terms"
+\renewcommand{\IEEEkeywordsname}{Keywords}
 \begin{IEEEkeywords}
 \input{keywords_en}
 \end{IEEEkeywords}
